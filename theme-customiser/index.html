@@ -2,21 +2,45 @@
 	<head>
 		<title>Theme Customiser - WIP</title>
 		<link rel="stylesheet" href="assets/customiser.css" type="text/css">
-		<script src="assets/customiser.js" type="text/javascript"></script>
 	</head>
 	<body>
-		<div class="sidebar">
-			<h1 class="page-header">Theme Customiser</h1>
+		<div class="content js-content">
+			<div class="sidebar">
+				<h1 class="sidebar__sub-title">Customise your theme</h1>
+				<h2 class="sidebar__title js-title">Loading theme...</h2>
 
-			<h3 class="page-subheader">Theme Name</h3>
+				<div class="sidebar__section">
+					<h3 class="sidebar__header">Basic options</h3>
+					
+					Loading options...
+				</div>
 
-			<div class="sidebar__section">
-				Options go here
+				<div class="sidebar__section">
+					<h3 class="sidebar__header">Modifications</h3>
+					
+					Loading options...
+				</div>
+
+				<div class="sidebar__section">
+					<h3 class="sidebar__header">Output CSS</h3>
+					
+					Loading options...
+
+					<a href="">How do I install this?</a>
+				</div>
+			</div>
+
+			<div class="preview">
+				<iframe src="preview.html" class="preview__window js-frame" id="preview"></iframe>
 			</div>
 		</div>
 
-		<div class="preview-window">
-			<iframe src="preview.html" id="preview"></iframe>
+		<div class="loading-screen js-loader">
+			<div class="loading-screen__spinner"></div>
+			<div class="loading-screen__text">Loading...</div>
+			<div class="loading-screen__subtext">JavaScript must be enabled.</div>
 		</div>
 	</body>
+
+	<script src="assets/customiser.js" type="text/javascript"></script>
 </html>
