@@ -4,3 +4,6 @@
 *.wip*
 */Resources.txt
 */Mockup.psd
+.jekyll-cache
+_site
+*Gemfile*
