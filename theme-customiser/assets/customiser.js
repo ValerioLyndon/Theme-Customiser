@@ -1,5 +1,10 @@
 // Variables & Functions
 
+var loader = document.getElementById('js-loader'),
+	loaderIcon = document.getElementById('js-loader-icon'),
+	loaderText = document.getElementById('js-loader-text'),
+	loaderSubText = document.getElementById('js-loader-subtext');
+
 // this sucks and should be changed to async/await or something. For now, it uses a callback function because it's easier
 function fetchLocalFile(path, callback) {
 	var request = new XMLHttpRequest(),
@@ -9,19 +14,15 @@ function fetchLocalFile(path, callback) {
 	request.onreadystatechange = function() {
 		if (request.readyState === 4) {
 			if (request.status === 200) {
-				console.log('request successful');
-				var result = request.responseText;
-				callback(result);
-				return result;
+				callback(request.responseText);
 			} else {
-				console.log(request.statusText);
-				var result = false;
+				pageFailed('Encountered a problem while loading a local resource.', 'http');
 			}
 		}
 	}
 	request.onerror = function(e) {
 		console.log(request.statusText);
-		var result = false;
+		pageFailed('Encountered a problem while loading a local resource.', 'onerror');
 	}
 }
 
@@ -30,6 +31,27 @@ function updateCss(css) {
 	if (iframe && iframe.contentWindow) {
 		iframe.contentWindow.postMessage(css);
 	}
+}
+
+function pageFailed(msg = 'Encountered an undefined error.', code = false) {
+	loaderIcon.className = 'loading-screen__cross';
+	loaderText.textContent = 'Page Failure.';
+	loaderSubText.innerHTML = msg;
+	if(code) {
+		var loaderCode = document.createElement('div');
+		loaderCode.className = 'loading-screen__subtext';
+		loaderCode.textContent = `Code: ${code}`;
+		loader.appendChild(loaderCode);
+	}
+}
+
+function pageLoaded() {
+	document.getElementById('js-content').classList.add('loaded');
+
+	loader.classList.add('hidden');
+	setTimeout(function(){
+		loader.remove();
+	}, 1500)
 }
 
 
@@ -63,13 +85,7 @@ fetchLocalFile(theme['location'], (temp) => { baseCss = temp; updateCss(temp); }
 
 // Remove loader
 
-document.querySelector('.js-content').classList.add('loaded');
-
-var loader = document.querySelector('.js-loader');
-loader.classList.add('hidden');
-setTimeout(function(){
-	loader.remove();
-}, 1500)
+pageLoaded();
 
 // if type is user_text, then output should be sanitized for escape characters etc. Newlines replaced by \a. Etc.
 

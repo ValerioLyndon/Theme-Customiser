@@ -3,7 +3,6 @@ window.addEventListener(
 	function (event) {
 		if (event.origin === window.location.origin) {
 			document.getElementById('custom-css').textContent = event.data;
-			console.log(event);
 		}
 	},
 	false
