@@ -5,34 +5,40 @@
 		<script src="assets/data.js" type="text/javascript"></script>
 	</head>
 	<body>
-		<div class="content js-content">
+		<div class="content" id="js-content">
 			<div class="sidebar">
-				<h1 class="sidebar__sub-title">Customise your theme</h1>
-				<h2 class="sidebar__title js-title">Loading theme...</h2>
-
-				<div class="sidebar__section">
-					<h3 class="sidebar__header">Basic options</h3>
-					
-					Loading options...
+				<div class="sidebar__section sidebar__section--title">
+					<h1 class="sidebar__sub-title">Customise your theme</h1>
+					<h2 class="sidebar__title" id="js-title">Loading theme...</h2>
 				</div>
 
-				<div class="sidebar__section">
+				<div class="sidebar__section" id="js-options">
+					<h3 class="sidebar__header">Basic options</h3>
+
+					<!-- options gets put here by customiser.js -->
+				</div>
+
+				<div class="sidebar__section" id="js-mods">
 					<h3 class="sidebar__header">Modifications</h3>
 					
-					Loading options...
+					<!-- mods gets put here by customiser.js -->
 				</div>
 
 				<div class="sidebar__section">
 					<h3 class="sidebar__header">Output CSS</h3>
 					
-					Loading options...
+					<div class="code-preview" id="js-output">
+						<!-- code gets put here by customiser.js -->
+					</div>
+					
+					<a class="button" href="">Copy output.</a>
 
-					<a href="">How do I install this?</a>
+					<a class="hyperlink" href="">How do I install this?</a>
 				</div>
 			</div>
 
 			<div class="preview">
-				<iframe src="preview.html" class="preview__window js-frame" id="preview"></iframe>
+				<iframe src="preview.html" class="preview__window" id="js-frame"></iframe>
 			</div>
 		</div>
 

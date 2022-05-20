@@ -1,5 +1,7 @@
 // Variables & Functions
 
+var userOpts = {};
+
 var loader = document.getElementById('js-loader'),
 	loaderIcon = document.getElementById('js-loader-icon'),
 	loaderText = document.getElementById('js-loader-text'),
@@ -27,7 +29,11 @@ function fetchLocalFile(path, callback) {
 }
 
 function updateCss(css) {
-	var iframe = document.getElementById('preview');
+	// Update output
+	document.getElementById('js-output').textContent = css;
+
+	// Update iframe
+	var iframe = document.getElementById('js-frame');
 	if (iframe && iframe.contentWindow) {
 		iframe.contentWindow.postMessage(css);
 	}
@@ -76,9 +82,54 @@ theme = data[selectedTheme];
 
 // Basic page content
 
-document.querySelector('.js-title').textContent = theme['name'];
+document.getElementById('js-title').textContent = theme['name'];
 
-// Update preview CSS - todo
+var optionsEle = document.getElementById('js-options');
+
+for (opt of theme['options']) {
+	var div = document.createElement('div'),
+		head = document.createElement('b');
+
+	div.className = 'option';
+	head.textContent = opt['name'];
+	head.className = 'option__name';
+	div.appendChild(head);
+
+	if(opt['type'] === 'user_text') {
+		var input = document.createElement('textarea');
+		input.value = opt['default'];
+		input.className = 'option__input option__input--textarea';
+		div.appendChild(input);
+	}
+
+	else if(opt['type'] === 'user_image') {
+		var input = document.createElement('input');
+		input.type = 'url';
+		input.value = opt['default'];
+		input.className = 'option__input';
+		div.appendChild(input);
+	}
+
+	optionsEle.appendChild(div);
+}
+
+var modsEle = document.getElementById('js-mods');
+
+for (mod of theme['mods']) {
+	var div = document.createElement('div'),
+		head = document.createElement('b'),
+		desc = document.createElement('p');
+
+	div.className = 'option';
+	head.textContent = mod['name'];
+	div.appendChild(head);
+	desc.textContent = mod['description'];
+	div.appendChild(desc);
+
+	modsEle.appendChild(div);
+}
+
+// Update preview CSS
 
 var baseCss = '';
 fetchLocalFile(theme['location'], (temp) => { baseCss = temp; updateCss(temp); } );
