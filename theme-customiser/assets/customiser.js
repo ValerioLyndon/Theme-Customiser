@@ -69,7 +69,11 @@ function updateCss() {
 			value = `"${value.replaceAll('"', '\\"').replaceAll('\n', '\\a ')}"`;
 		}
 		else if(optData['type'] === 'user_image') {
-			value = `url(${value})`;
+			if(value === '') {
+				value = 'none';
+			} else {
+				value = `url(${value})`;
+			}
 		}
 
 		let stringToInsert = optData['string_to_insert'].replace('{{{insert}}}', value);
@@ -92,7 +96,7 @@ function updateCss() {
 				// todo: make program cache these results earlier and wait for each fetch before continuing this loop. Right now this is broken.
 				fetchLocalFile(modData['location'], (modCss) => {
 					completeCount += 1;
-					newCss += modCss;
+					newCss += '\n\n' + modCss;
 					if(completeCount === totalCount) {
 						pushCss(newCss);
 					}
@@ -219,7 +223,8 @@ if('mods' in theme) {
 		head.textContent = mod['name'];
 		head.className = 'option__name';
 		div.appendChild(head);
-		desc.textContent = mod['description'];
+		// Todo: change this from innerHTML to markdown or something so you can support third-party design json
+		desc.innerHTML = mod['description'];
 		desc.className = 'option__desc';
 		div.appendChild(desc);
 
