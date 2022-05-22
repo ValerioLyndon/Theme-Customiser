@@ -41,6 +41,11 @@ var data = {
 			}
 		},
 		"mods": {
+			"d": {
+				"name": "Dark Mode",
+				"description": "Darker visuals for a more appealing look.",
+				"location": "../Clarity Theme/Mod - Dark Mode Compressed.css"
+			},
 			"hd": {
 				"name": "Image Hover Mod",
 				"description": "Adds larger images on mouse hover. Will slow down page loads.",

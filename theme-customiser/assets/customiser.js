@@ -31,15 +31,36 @@ function fetchLocalFile(path, callback) {
 	}
 }
 
-function updateOpts(type, id) {
-	var val = document.getElementById(id).value;
-	userOpts[type][id] = val;
+function updateOpts(type, id, defaultValue = undefined) {
+	let val = undefined;
+	if(type === 'options') {
+		if(defaultValue === undefined) {
+			defaultValue = '';
+		}
+		val = document.getElementById(id).value;
+	} else if(type === 'mods') {
+		if(defaultValue === undefined) {
+			defaultValue = false;
+		}
+		val = document.getElementById(id).checked;
+	} else {
+		return false;
+	}
+
+	if(val === defaultValue) {
+		delete userOpts[type][id];
+	}
+	else {
+		userOpts[type][id] = val;
+	}
+	console.log(userOpts);
 	updateCss();
 }
 
 function updateCss() {
 	let newCss = baseCss;
 
+	// Options
 	for(let [id, value] of Object.entries(userOpts['options'])) {
 		let optData = theme['options'][id];
 		
@@ -56,7 +77,32 @@ function updateCss() {
 		newCss = newCss.replace(optData['string_to_replace'], stringToInsert);
 	}
 
-	pushCss(newCss);
+	// Mods
+	if('mods' in theme) {
+		let totalCount = Object.keys(userOpts['mods']).length,
+			completeCount = 0;
+
+		if(totalCount === 0) {
+			pushCss(newCss);
+		} else {
+			for(let [id, value] of Object.entries(userOpts['mods'])) {
+				let modData = theme['mods'][id];
+
+				// this is such a bad way to do this. Replace this with proper async code please for the love of all that is holy. This may even break with multiple mods. In fact, it probably will.
+				// todo: make program cache these results earlier and wait for each fetch before continuing this loop. Right now this is broken.
+				fetchLocalFile(modData['location'], (modCss) => {
+					completeCount += 1;
+					newCss += modCss;
+					if(completeCount === totalCount) {
+						pushCss(newCss);
+					}
+				});
+			}
+		}
+	}
+	else {
+		pushCss(newCss);
+	}
 }
 
 function pushCss(css) {
@@ -119,7 +165,7 @@ var optionsEle = document.getElementById('js-options');
 
 if('options' in theme) {
 	for (const [optId, opt] of Object.entries(theme['options'])) {
-		var div = document.createElement('div'),
+		let div = document.createElement('div'),
 			head = document.createElement('b');
 
 		div.className = 'option';
@@ -135,7 +181,7 @@ if('options' in theme) {
 			input.placeholder = 'Your text here.';
 			div.appendChild(input);
 
-			input.addEventListener('input', () => { updateOpts('options', optId); });
+			input.addEventListener('input', () => { updateOpts('options', optId, opt['default']); });
 		}
 
 		else if(opt['type'] === 'user_image') {
@@ -147,7 +193,7 @@ if('options' in theme) {
 			input.className = 'option__input';
 			div.appendChild(input);
 
-			input.addEventListener('input', () => { updateOpts('options', optId); });
+			input.addEventListener('input', () => { updateOpts('options', optId, opt['default']); });
 		}
 
 		optionsEle.appendChild(div);
@@ -160,17 +206,26 @@ var modsEle = document.getElementById('js-mods');
 
 if('mods' in theme) {
 	for (const [modId, mod] of Object.entries(theme['mods'])) {
-		var div = document.createElement('div'),
+		let div = document.createElement('div'),
 			head = document.createElement('b'),
-			desc = document.createElement('p');
+			desc = document.createElement('p'),
+			toggle = document.createElement('div');
+
+		toggle.className = 'option__toggle-box';
+		toggle.innerHTML = `<input id="${modId}" type="checkbox" class="o-hidden" /><label class="toggle" for="${modId}"></label>`;
+		div.appendChild(toggle);
 
 		div.className = 'option';
 		head.textContent = mod['name'];
+		head.className = 'option__name';
 		div.appendChild(head);
 		desc.textContent = mod['description'];
+		desc.className = 'option__desc';
 		div.appendChild(desc);
 
 		modsEle.appendChild(div);
+
+		document.getElementById(modId).addEventListener('change', () => { updateOpts('mods', modId); });
 	}
 } else {
 	modsEle.remove();
