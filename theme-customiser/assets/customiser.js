@@ -1,6 +1,9 @@
 // Variables & Functions
 
-var userOpts = {};
+var userOpts = {
+	'options': {},
+	'mods': {}
+};
 
 var loader = document.getElementById('js-loader'),
 	loaderIcon = document.getElementById('js-loader-icon'),
@@ -28,7 +31,35 @@ function fetchLocalFile(path, callback) {
 	}
 }
 
-function updateCss(css) {
+function updateOpts(type, id) {
+	var val = document.getElementById(id).value;
+	userOpts[type][id] = val;
+	updateCss();
+}
+
+function updateCss() {
+	let newCss = baseCss;
+
+	for(let [id, value] of Object.entries(userOpts['options'])) {
+		let optData = theme['options'][id];
+		
+		if(optData['type'] === 'user_text') {
+			// format text to be valid for CSS content statements
+			value = `"${value.replaceAll('"', '\\"').replaceAll('\n', '\\a ')}"`;
+		}
+		else if(optData['type'] === 'user_image') {
+			value = `url(${value})`;
+		}
+
+		let stringToInsert = optData['string_to_insert'].replace('{{{insert}}}', value);
+
+		newCss = newCss.replace(optData['string_to_replace'], stringToInsert);
+	}
+
+	pushCss(newCss);
+}
+
+function pushCss(css) {
 	// Update output
 	document.getElementById('js-output').textContent = css;
 
@@ -86,57 +117,73 @@ document.getElementById('js-title').textContent = theme['name'];
 
 var optionsEle = document.getElementById('js-options');
 
-for (opt of theme['options']) {
-	var div = document.createElement('div'),
-		head = document.createElement('b');
+if('options' in theme) {
+	for (const [optId, opt] of Object.entries(theme['options'])) {
+		var div = document.createElement('div'),
+			head = document.createElement('b');
 
-	div.className = 'option';
-	head.textContent = opt['name'];
-	head.className = 'option__name';
-	div.appendChild(head);
+		div.className = 'option';
+		head.textContent = opt['name'];
+		head.className = 'option__name';
+		div.appendChild(head);
 
-	if(opt['type'] === 'user_text') {
-		var input = document.createElement('textarea');
-		input.value = opt['default'];
-		input.className = 'option__input option__input--textarea';
-		div.appendChild(input);
+		if(opt['type'] === 'user_text') {
+			let input = document.createElement('textarea');
+			input.id = optId;
+			input.value = opt['default'];
+			input.className = 'option__input option__input--textarea';
+			input.placeholder = 'Your text here.';
+			div.appendChild(input);
+
+			input.addEventListener('input', () => { updateOpts('options', optId); });
+		}
+
+		else if(opt['type'] === 'user_image') {
+			let input = document.createElement('input');
+			input.id = optId;
+			input.type = 'url';
+			input.value = opt['default'];
+			input.placeholder = 'https://example.com/image.jpg';
+			input.className = 'option__input';
+			div.appendChild(input);
+
+			input.addEventListener('input', () => { updateOpts('options', optId); });
+		}
+
+		optionsEle.appendChild(div);
 	}
-
-	else if(opt['type'] === 'user_image') {
-		var input = document.createElement('input');
-		input.type = 'url';
-		input.value = opt['default'];
-		input.className = 'option__input';
-		div.appendChild(input);
-	}
-
-	optionsEle.appendChild(div);
+} else {
+	optionsEle.remove();
 }
 
 var modsEle = document.getElementById('js-mods');
 
-for (mod of theme['mods']) {
-	var div = document.createElement('div'),
-		head = document.createElement('b'),
-		desc = document.createElement('p');
+if('mods' in theme) {
+	for (const [modId, mod] of Object.entries(theme['mods'])) {
+		var div = document.createElement('div'),
+			head = document.createElement('b'),
+			desc = document.createElement('p');
 
-	div.className = 'option';
-	head.textContent = mod['name'];
-	div.appendChild(head);
-	desc.textContent = mod['description'];
-	div.appendChild(desc);
+		div.className = 'option';
+		head.textContent = mod['name'];
+		div.appendChild(head);
+		desc.textContent = mod['description'];
+		div.appendChild(desc);
 
-	modsEle.appendChild(div);
+		modsEle.appendChild(div);
+	}
+} else {
+	modsEle.remove();
 }
 
-// Update preview CSS
+// Update preview CSS & remove loader
 
 var baseCss = '';
-fetchLocalFile(theme['location'], (temp) => { baseCss = temp; updateCss(temp); } );
-
-// Remove loader
-
-pageLoaded();
+fetchLocalFile(theme['location'], (css) => {
+	baseCss = css;
+	pushCss(css);
+	pageLoaded();
+} );
 
 // if type is user_text, then output should be sanitized for escape characters etc. Newlines replaced by \a. Etc.
 
