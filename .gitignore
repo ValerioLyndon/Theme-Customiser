@@ -1,0 +1,5 @@
+*.nfp*
+*.wip*
+.jekyll-cache
+_site
+*Gemfile*

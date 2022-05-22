@@ -1,0 +1,291 @@
+/* Basics */
+
+html {
+	--myanimelist: #2e51a2;
+	--border: rgb(216, 216, 216);
+
+	box-sizing: border-box;
+}
+* {
+	box-sizing: inherit;
+}
+
+body {
+	margin: 0;
+	font: 14px/1.3 Roboto, Arial, Helvetica, sans-serif;
+}
+
+/* Generic buttons */
+.button {
+	display: inline-block;
+	padding: 3px 6px;
+	border: 2px solid var(--border);
+	margin: 0 6px 6px 0;
+	color: #000;
+	text-decoration: none;
+}
+.button--highlighted {
+	background: var(--myanimelist);
+	color: #fff;
+}
+
+/* Checkbox toggles */
+.toggle {
+	display: block;
+	width: 32px;
+	height: 16px;
+	background: linear-gradient(to right, var(--myanimelist) 0px, #efefef 0px);
+	border: 2px solid var(--border);
+	border-radius: 8px;
+	transition: background 0.1s ease;
+}
+.toggle::after {
+	content: "";
+	display: block;
+	width: 16px;
+	height: 16px;
+	background: var(--myanimelist);
+	border-radius: 8px;
+	margin: -2px 0 0 -2px;
+	transition: transform 0.1s ease;
+}
+input:checked + .toggle {
+	background: #2e51a2af;
+}
+input:checked + .toggle::after {
+	transform: translateX(16px);
+}
+
+
+
+/* Sidebar/Content */
+
+.content {
+	display: flex;
+	height: 100vh;
+	opacity: 0;
+	transition: opacity 200ms ease;
+}
+.content.loaded {
+	opacity: 1;
+}
+
+.sidebar {
+	width: calc(300px + 10vw);
+	overflow-x: hidden;
+	overflow-y: auto;
+	border-right: 3px solid var(--myanimelist);
+	flex: 0 0 auto;
+}
+
+.sidebar__section {
+	padding: 0 16px 16px;
+	border-bottom: 2px dotted var(--border);
+	margin: 0 0 16px;
+}
+
+.sidebar__section--no-border {
+	border: 0;
+}
+
+.sidebar__section--title {
+	position: relative;
+	padding: 16px;
+	background: var(--myanimelist);
+	color: #fff;
+}
+
+.sidebar__section--title::before,
+.sidebar__section--title::after {
+	content: "";
+	position: absolute;
+	right: 0;
+	height: 20px;
+	width: 20px;
+	bottom: -20px;
+}
+.sidebar__section--title::before {
+	background: #2e51a2;
+}
+.sidebar__section--title::after {
+	background: white;
+	border-radius: 0 100% 0 0;
+}
+
+.sidebar__title {
+	margin: 0;
+	font-size: 2em;
+}
+
+.sidebar__sub-title {
+	margin: 0;
+	font-size: 1.25em;
+}
+
+.sidebar__header {
+	font-size: 1.3em;
+	margin: 0 0 8px;
+}
+
+
+.option__name {
+	display: block;
+	font-weight: 700;
+	margin-bottom: 2px;
+}
+
+.option__desc {
+	margin: 0 0 8px;
+	font-size: 0.9em;
+}
+
+.option__toggle-box {
+	float: right;
+}
+
+.option__input {
+	width: calc(100% - 4px);
+	padding: 4px;
+	border: 2px solid var(--border);
+	border-radius: 4px;
+	margin-bottom: 8px;
+	box-sizing: content-box;
+	font: inherit;
+}
+
+.option__input--textarea {
+	min-height: 1.3em;
+	height: 1.3em;
+	max-height: 10em;
+	resize: vertical;
+}
+
+
+.code-preview {
+	padding: 6px;
+	max-height: 10em;
+	background: #2a2a2a;
+	border-radius: 6px;
+	box-shadow: inset 1px 2px 5px rgba(0,0,0,0.2);
+	margin: 0 0 8px;
+	overflow: auto;
+	color: #dbdbdb;
+	font: 11px/1.1 monospace;
+	white-space: pre-wrap;
+}
+
+/* Preview */
+
+.preview {
+	position: relative;
+	width: 80%;
+	flex: 1 1 auto;
+	overflow-x: auto;
+	overflow-y: hidden;
+}
+
+.preview::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 10px;
+	height: 100vh;
+	background: linear-gradient(to right, #00000030, transparent);
+	pointer-events: none;
+}
+
+.preview__window {
+	min-width: 1160px;
+	width: 100%;
+	height: 100%;
+	border: none;
+}
+
+/* Loading */
+
+.loading-screen {
+	position: fixed;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	background: #fff;
+	animation: 500ms ease 500ms both loader-fade-in;
+	transition: transform 0.4s ease;
+}
+.loading-screen.hidden {
+	transform: translateY(100%);
+}
+
+@keyframes loader-fade-in {
+	from {
+		opacity: 0;
+	} to {
+		opacity: 1;
+	}
+}
+
+.loading-screen__spinner {
+	width: 118px;
+	height: 118px;
+	border: 6px solid transparent;
+	border-top-color: #000;
+	border-left-color: #000;
+	border-radius: 50%;
+	margin-bottom: 16px;
+	animation: 1s cubic-bezier(.54,.39,.45,.63) 0s infinite loader-spin;
+}
+.loading-screen__cross {
+	position: relative;
+	width: 124px;
+	height: 124px;
+	overflow: hidden;
+}
+.loading-screen__cross::before,
+.loading-screen__cross::after {
+	content: "";
+	position: absolute;
+	top: calc(50% - 8px);
+	left: -25%;
+	width: 150%;
+	height: 16px;
+	background: #000;
+}
+.loading-screen__cross::before {
+	transform: rotate(45deg);
+}
+.loading-screen__cross::after {
+	transform: rotate(-45deg);
+}
+
+@keyframes loader-spin {
+	from {
+		transform: rotate(30deg);
+	} to {
+		transform: rotate(390deg);
+	}
+}
+
+.loading-screen__text {
+	margin-bottom: 8px;
+	font-size: 20px;
+	white-space: nowrap;
+}
+
+.loading-screen__subtext {
+	margin-bottom: 6px;
+	opacity: 0.65;
+	font-size: 14px;
+	font-style: italic;
+}
+
+/* Overrides */
+
+.o-hidden {
+	display: none;
+}
