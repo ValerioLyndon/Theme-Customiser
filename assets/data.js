@@ -85,9 +85,9 @@ var data = {
 			},
 			"ho": {
 				"name": "Horizontal Tags",
-				"description": "todo",
+				"description": "Convert the vertical tags into a horizontal line across the bottom of each list item.",
 				"incompatibilities": ["re"],
-				"location": "../Clarity Theme/Mod - .css"
+				"location": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Horizontal%20Tags%20Compressed.css"
 			},
 			"ren": {
 				"name": "Character Renders",
@@ -165,9 +165,39 @@ var data = {
 			// }
 		}
 	},
+	"clarified": {
+		"name": "Clarified",
+		"location": "",
+		"type": "modern"
+	},
 	"brink": {
 		"name": "Brink",
-		"location": "../Brink Theme/Brink.css",
+		"location": "",
+		"type": "modern"
+	},
+	"agile": {
+		"name": "Agile",
+		"location": "",
+		"type": "classic"
+	},
+	"kure": {
+		"name": "Kure暮れ",
+		"location": "",
+		"type": "modern"
+	},
+	"puni": {
+		"name": "Puni",
+		"location": "",
+		"type": "modern"
+	},
+	"tilt": {
+		"name": "Tilt",
+		"location": "",
+		"type": "modern"
+	},
+	"9anime": {
+		"name": "9anime",
+		"location": "",
 		"type": "modern"
 	}
 }

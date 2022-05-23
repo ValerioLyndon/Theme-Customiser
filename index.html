@@ -9,34 +9,67 @@
 	<body>
 		<div class="content" id="js-content">
 			<div class="sidebar">
+				<nav class="sidebar__nav">
+					<a href="#" class="sidebar__nav-link" id="js-share">
+						<i class="sidebar__nav-link-icon fa fa-share-alt"></i>
+						<span class="o-hidden-text">Share</span>
+					</a>
+					<a href="?" class="sidebar__nav-link">
+						<i class="sidebar__nav-link-icon fa fa-arrow-left"></i>
+						<span class="o-hidden-text">Back</span>
+					</a>
+				</nav>
+
 				<div class="sidebar__section sidebar__section--no-border sidebar__section--title">
 					<h1 class="sidebar__sub-title">Customise your theme</h1>
 					<h2 class="sidebar__title" id="js-title">Loading theme...</h2>
 				</div>
 
 				<div class="sidebar__section" id="js-options">
-					<h3 class="sidebar__header">Basic options</h3>
+					<h3 class="sidebar__header">Change theme options</h3>
 
 					<!-- options gets put here by customiser.js -->
 				</div>
 
 				<div class="sidebar__section" id="js-mods">
-					<h3 class="sidebar__header">Modifications</h3>
+					<h3 class="sidebar__header">Choose theme modifications</h3>
 					
 					<!-- mods gets put here by customiser.js -->
 				</div>
 
-				<div class="sidebar__section sidebar__section--no-border">
-					<h3 class="sidebar__header">Output CSS</h3>
+				<div class="sidebar__section">
+					<h3 class="sidebar__header">Install customised theme</h3>
 					
+					<b>CSS Output</b>
 					<div class="code-preview" id="js-output">
 						<!-- code gets put here by customiser.js -->
 					</div>
 					
-					<a class="button" href="">Copy Output</a>
+					<button class="button button--highlighted" id="js-copy-output" onclick="navigator.clipboard.writeText(document.getElementById('js-output').textContent); let swap = this.querySelector('.js-swap'); swap.classList.add('swappable-text__inner--swapped'); setTimeout(() => {swap.classList.remove('swappable-text__inner--swapped')}, 666)">
+						<div class="swappable-text">
+							<div class="swappable-text__inner js-swap">
+								Copy Output
+								<br />
+								Copied!
+							</div>
+						</div>
+					</button>
 
-					<a class="hyperlink" href="">How do I install this?</a>
+					<a class="hyperlink">How do I install this?</a>
 				</div>
+
+				<footer class="sidebar__section sidebar__section--no-border">
+					<div class="footer">
+						<div class="footer__row">
+							<small class="footer__subtle-text">Theme Customiser by <a href="https://github.com/ValerioLyndon" class="hyperlink">Valerio Lyndon</a>.</small>
+						</div> 
+						<div class="footer__row">
+							<a href="https://github.com/ValerioLyndon/Theme-Customiser" class="hyperlink">GitHub</a>
+							<span class="footer__separator">•</span>
+							<a href="https://github.com/ValerioLyndon/Theme-Customiser/wiki" class="hyperlink">I'm a List Designer</a>
+						</div> 
+					</div>
+				</footer>
 			</div>
 
 			<div class="preview">

@@ -15,18 +15,49 @@ body {
 	font: 14px/1.3 Roboto, Arial, Helvetica, sans-serif;
 }
 
+/* Generic Links */
+.hyperlink {
+	text-decoration: none;
+	color: var(--myanimelist);
+	cursor: pointer;
+}
+.hyperlink:link:hover {
+	text-decoration: underline;
+}
+
 /* Generic buttons */
 .button {
 	display: inline-block;
 	padding: 3px 6px;
+	background: none;
 	border: 2px solid var(--border);
+	border-radius: 6px;
 	margin: 0 6px 6px 0;
 	color: #000;
+	font: inherit;
+	vertical-align: middle;
 	text-decoration: none;
+	cursor: pointer;
+}
+.button:active {
+	opacity: 0.7;
 }
 .button--highlighted {
 	background: var(--myanimelist);
+	border-color: var(--myanimelist);
 	color: #fff;
+}
+
+.swappable-text {
+	height: 1.3em;
+	overflow: hidden;
+	line-height: 1.3em;
+}
+.swappable-text__inner {
+	transition: transform 0.1s ease;
+}
+.swappable-text__inner--swapped {
+	transform: translateY(-1.3em);
 }
 
 /* Checkbox toggles */
@@ -76,6 +107,23 @@ input:checked + .toggle::after {
 	overflow-y: auto;
 	border-right: 3px solid var(--myanimelist);
 	flex: 0 0 auto;
+}
+
+.sidebar__nav {
+	position: relative;
+	z-index: 1;
+	padding: 16px;
+	float: right;
+}
+
+.sidebar__nav-link {
+	display: inline-block;
+	margin-left: 8px;
+}
+
+.sidebar__nav-link-icon {
+	color: #fff;
+	font-size: 24px;
 }
 
 .sidebar__section {
@@ -172,6 +220,29 @@ input:checked + .toggle::after {
 	color: #dbdbdb;
 	font: 11px/1.1 monospace;
 	white-space: pre-wrap;
+}
+
+/* Footer */
+
+.footer__row {
+	display: block;
+	padding: 4px 0;
+	text-align: center;
+}
+
+.footer__subtle-text {
+	font-size: 0.9em;
+}
+
+.footer__separator {
+	display: inline-block;
+	width: 6px;
+	height: 6px;
+	background: #4a4a4a;
+	border-radius: 50%;
+	margin: 0 3px;
+	color: transparent;
+	vertical-align: middle;
 }
 
 /* Preview */
@@ -288,4 +359,11 @@ input:checked + .toggle::after {
 
 .o-hidden {
 	display: none;
+}
+
+.o-hidden-text {
+	display: inline-block;
+	width: 0;
+	height: 0;
+	text-indent: -9999px;
 }
