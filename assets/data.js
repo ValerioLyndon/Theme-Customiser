@@ -50,12 +50,14 @@ var data = {
 				"name": "Image Hover Mod (On Row variant)",
 				// needs import at top with username: @\import "https://malscraper.azurewebsites.net/covers/anime/YOURNAME/presets/dataimagelinkbefore";
 				"description": "Adds larger images on mouse hover. Will slow down page loads.",
+				"incompatibilities": ["hdi"],
 				"location": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Hover%20Image%20Compressed.css"
 			},
 			"hdi": {
 				"name": "Image Hover Mod (On Image variant)",
 				// needs import at top with username: @\import "https://malscraper.azurewebsites.net/covers/anime/YOURNAME/presets/dataimagelinkbefore";
 				"description": "Adds larger images on mouse hover. Will slow down page loads.",
+				"incompatibilities": ["hdr"],
 				"location": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Hover%20Image%20On%20Circle%20Compressed.css"
 			},
 			"re": {
@@ -144,7 +146,7 @@ var data = {
 			"lis": {
 				"name": "Coloured Line on Header",
 				"description": "Adds a coloured line around the header bar and avatar for some extra flair. Single colour variant.",
-				"incompatibilities": ["lis"],
+				"incompatibilities": ["lic"],
 				"location": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Header%20Outline%20Compressed.css"
 			},
 			"lic": {

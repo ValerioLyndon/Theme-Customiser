@@ -32,6 +32,7 @@ function fetchLocalFile(path, callback) {
 }
 
 function updateOpts(type, id, defaultValue = undefined) {
+	// set values and default value
 	let val = undefined;
 	if(type === 'options') {
 		if(defaultValue === undefined) {
@@ -47,6 +48,17 @@ function updateOpts(type, id, defaultValue = undefined) {
 		return false;
 	}
 
+	// disable incompatible mods in the GUI
+	if(type === 'mods') {
+		let modData = theme['mods'][id];
+		if('incompatibilities' in modData) {
+			for(incompatibility of modData['incompatibilities']) {
+				document.getElementById(incompatibility).disabled = val;
+			}
+		}
+	}
+
+	// delete from options if it matches default, to save space. else it adds the value to the options
 	if(val === defaultValue) {
 		delete userOpts[type][id];
 	}
@@ -54,6 +66,7 @@ function updateOpts(type, id, defaultValue = undefined) {
 		userOpts[type][id] = val;
 	}
 	console.log(userOpts);
+	// send CSS to the rest of the code
 	updateCss();
 }
 
@@ -216,7 +229,14 @@ if('mods' in theme) {
 			toggle = document.createElement('div');
 
 		toggle.className = 'option__toggle-box';
-		toggle.innerHTML = `<input id="${modId}" type="checkbox" class="o-hidden" /><label class="toggle" for="${modId}"></label>`;
+		toggle.innerHTML = `
+			<input id="${modId}" type="checkbox" class="o-hidden" />
+			<label class="toggle" for="${modId}">
+				<div class="toggle__info">
+					You cannot use this with your current configuration due to incompatibilities with other options.
+				</div>
+			</label>
+		`;
 		div.appendChild(toggle);
 
 		div.className = 'option';

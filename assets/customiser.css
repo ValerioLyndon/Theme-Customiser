@@ -62,13 +62,14 @@ body {
 
 /* Checkbox toggles */
 .toggle {
+	position: relative;
 	display: block;
 	width: 32px;
 	height: 16px;
-	background: linear-gradient(to right, var(--myanimelist) 0px, #efefef 0px);
+	background: #efefef;
 	border: 2px solid var(--border);
 	border-radius: 8px;
-	transition: background 0.1s ease;
+	transition: background-color 0.1s ease;
 }
 .toggle::after {
 	content: "";
@@ -85,6 +86,55 @@ input:checked + .toggle {
 }
 input:checked + .toggle::after {
 	transform: translateX(16px);
+}
+input:disabled + .toggle {
+	cursor: help;
+}
+input:disabled + .toggle::after {
+	background: #a2512e;
+}
+
+.toggle__info {
+	position: absolute;
+	bottom: 22px;
+	right: -8px;
+	display: none;
+	width: 270px;
+	padding: 8px;
+	background: #fff;
+	border: 2px solid var(--border);
+
+	box-shadow: 2px 3px 6px rgba(0,0,0,0.3);
+	opacity: 0;
+	transition: opacity 0.1s ease;
+	pointer-events: none;
+}
+.toggle:hover .toggle__info {
+	opacity: 1;
+}
+input:disabled + .toggle .toggle__info {
+	display: block;
+}
+
+/* decorative arrow */
+.toggle__info::before,
+.toggle__info::after {
+	content: "";
+	position: absolute;
+	border-style: solid;
+	border-color: transparent;
+}
+.toggle__info::before {
+	top: 100%;
+	right: 12px;
+	border-width: 10px;
+	border-top-color: var(--border);
+}
+.toggle__info::after {
+	bottom: -12px;
+	right: 16px;
+	border-width: 6px;
+	border-top-color: #fff;
 }
 
 
@@ -175,6 +225,11 @@ input:checked + .toggle::after {
 	margin: 0 0 8px;
 }
 
+
+/* .option--disabled {
+	opacity: 0.5;
+	pointer-events: none;
+} */
 
 .option__name {
 	display: block;
