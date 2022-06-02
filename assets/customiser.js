@@ -79,7 +79,7 @@ function updateCss() {
 		
 		if(optData['type'] === 'user_text') {
 			// format text to be valid for CSS content statements
-			value = `"${value.replaceAll('"', '\\"').replaceAll('\n', '\\a ')}"`;
+			value = `"${value.replaceAll('"', '\\"').replaceAll('\n', '\\a ').replaceAll('\\','\\\\')}"`;
 		}
 		else if(optData['type'] === 'user_image') {
 			if(value === '') {
@@ -126,10 +126,66 @@ function pushCss(css) {
 	// Update output
 	document.getElementById('js-output').textContent = css;
 
+	// Add notice if necessary
+	let notice = document.getElementById('js-output-notice');
+	if(css.length > 65535) {
+		let excess = css.length - 65535;
+		notice.textContent = `This configuration exceeds MyAnimeList's maximum CSS length by ${excess} characters. You will need to shorten this code or host it on an external site to bypass the limit.`;
+		// todo: add link to external hosting guide
+		notice.classList.remove('o-hidden');
+	} else {
+		notice.classList.add('o-hidden');
+	}
+
 	// Update iframe
 	var iframe = document.getElementById('js-frame');
 	if (iframe && iframe.contentWindow) {
 		iframe.contentWindow.postMessage(css);
+	}
+}
+
+function validateInput(type, id) {
+	console.log('i am here');
+	let optData = theme[type][id],
+		notice = document.getElementById(`js-${id}-notice`),
+		val = document.getElementById(id).value.toLowerCase();
+	console.log(optData, notice, val);
+	
+	if(val.length === 0) {
+		return undefined;
+	}
+
+	if(optData['type'] === 'user_image') {
+		// Consider replacing this with a script that simply loads the image and tests if it loads. Since we're already doing that with the preview anyway it shouldn't be a problem.
+		let noticeHTML = 'We detected some warnings. If your image does not display, fix these issues and try again.<ul class="c-notice__list">',
+			problems = 0;
+
+		function problem(text) {
+			problems += 1;
+			noticeHTML += `<li class="c-notice__list-item">${text}</li>`;
+		}
+		
+		if(!val.startsWith('http')) {
+			if(val.startsWith('file:///')) {
+				problem('URL references a file local to your computer. You must upload the image to an appropriate image hosting service.');
+			} else {
+				problem('URL string does not contain the HTTP protocol.');
+			}
+		}
+		if(!/(png|jpe?g|gif|webp|svg)(\?.*)?$/.test(val)) {
+			problem('Your URL does not appear to link to an image. Make sure that you copied the direct link and not a link to a regular webpage.');
+		}
+		else if(/svg(\?.*)?$/.test(val)) {
+			problem('SVG images will not display on your list while logged out or for other users. Host your CSS on an external website to bypass this.');
+		}
+
+		notice.innerHTML = noticeHTML;
+
+		if(problems > 0) {
+			notice.classList.remove('o-hidden');
+		} else {
+			notice.classList.add('o-hidden');
+		}
 	}
 }
 
@@ -183,7 +239,8 @@ var optionsEle = document.getElementById('js-options');
 if('options' in theme) {
 	for (const [optId, opt] of Object.entries(theme['options'])) {
 		let div = document.createElement('div'),
-			head = document.createElement('b');
+			head = document.createElement('b'),
+			notice = document.createElement('div');
 
 		div.className = 'option';
 		head.textContent = opt['name'];
@@ -210,8 +267,15 @@ if('options' in theme) {
 			input.className = 'option__input';
 			div.appendChild(input);
 
-			input.addEventListener('input', () => { updateOpts('options', optId, opt['default']); });
+			input.addEventListener('input', () => {
+				validateInput('options', optId);
+				updateOpts('options', optId, opt['default']);
+			});
 		}
+
+		notice.id = `js-${optId}-notice`;
+		notice.className = 'c-notice o-hidden';
+		div.appendChild(notice);
 
 		optionsEle.appendChild(div);
 	}

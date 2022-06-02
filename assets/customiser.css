@@ -3,6 +3,7 @@
 html {
 	--myanimelist: #2e51a2;
 	--border: rgb(216, 216, 216);
+	--border-heavy: rgb(107, 107, 107);
 
 	box-sizing: border-box;
 }
@@ -178,8 +179,34 @@ input:disabled + .toggle .toggle__info {
 
 .sidebar__section {
 	padding: 0 16px 16px;
-	border-bottom: 2px dotted var(--border);
+	border-bottom: 2px dotted var(--border-heavy);
 	margin: 0 0 16px;
+}
+
+.c-notice {
+	padding: 8px;
+	margin-bottom: 6px;
+	border-left: 4px solid rgb(188, 70, 70);
+}
+.c-notice--fixed-to-bottom {
+	position: sticky;
+	bottom: 8px;
+}
+.c-notice::before {
+	content: "!";
+	display: inline-block;
+	width: 1.3em;
+	height: 1.3em;
+	text-align: center;
+	background: rgb(188, 70, 70);
+	border-radius: 50%;
+	color: #fff;
+	margin-right: 3px;
+}
+
+.c-notice__list {
+	padding-left: 14px;
+	margin: 6px 0 0 0;
 }
 
 .sidebar__section--no-border {
@@ -226,6 +253,10 @@ input:disabled + .toggle .toggle__info {
 }
 
 
+.option {
+	padding-top: 6px;
+	border-top: 2px dotted var(--border);
+}
 /* .option--disabled {
 	opacity: 0.5;
 	pointer-events: none;
@@ -233,7 +264,7 @@ input:disabled + .toggle .toggle__info {
 
 .option__name {
 	display: block;
-	font-weight: 700;
+	font-weight: 400;
 	margin-bottom: 2px;
 }
 
