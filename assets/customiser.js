@@ -152,6 +152,7 @@ function validateInput(type, id) {
 	console.log(optData, notice, val);
 	
 	if(val.length === 0) {
+		notice.classList.add('o-hidden');
 		return undefined;
 	}
 
