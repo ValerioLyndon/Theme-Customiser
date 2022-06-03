@@ -43,7 +43,7 @@ var data = {
 		"mods": {
 			"d": {
 				"name": "Dark Mode",
-				"description": "Darker visuals for a more appealing look.",
+				"description": "Darker visuals. 100% fewer flashbangs!",
 				"location": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Dark%20Mode%20Compressed.css"
 			},
 			"hdr": {
@@ -96,7 +96,50 @@ var data = {
 				"description": "Adds two optional character renders on the left and right of the list. Do note that the renders will not be properly visible at low resolutions. I recommend having at least a 1600x900 monitor to add renders, as they purposefully do not intersect the center list area.",
 				"location": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Character%20Renders.css",
 				// needs options for images and positions
-				"options": {}
+				"options": {
+					"li": {
+						"name": "Left Image",
+						"type": "user_image",
+						"string_to_replace": "",
+						"string_to_insert": "{{{insert}}}",
+						"default": ""
+					},
+					"ri": {
+						"name": "Right Image",
+						"type": "user_image",
+						"string_to_replace": "",
+						"string_to_insert": "{{{insert}}}",
+						"default": ""
+					},
+					"la": {
+						"name": "Left Alignment",
+						"type": "css_value",
+						"string_to_replace": "",
+						"string_to_insert": "{{{insert}}}",
+						"default": ""
+					},
+					"ra": {
+						"name": "Right Alignment",
+						"type": "css_value",
+						"string_to_replace": "",
+						"string_to_insert": "{{{insert}}}",
+						"default": ""
+					},
+					"la": {
+						"name": "Left Size",
+						"type": "css_value",
+						"string_to_replace": "",
+						"string_to_insert": "{{{insert}}}",
+						"default": ""
+					},
+					"ra": {
+						"name": "Right Size",
+						"type": "css_value",
+						"string_to_replace": "",
+						"string_to_insert": "{{{insert}}}",
+						"default": ""
+					}
+				}
 			},
 			"col": {
 				// this is probably better added via more theme options rather than another mod.
@@ -109,39 +152,147 @@ var data = {
 				}
 			},
 			"tint": {
-				"name": "Tinting the Background",
-				"description": "",
-				"location": "../Clarity Theme/Mod - .css"
+				"name": "Tint the Background Image",
+				"css": `/*-S-T-A-R-T--------------------*\\
+| Background Tint                |
+\\*------------------------------*/
+
+body::before {
+	/* change colour here */
+	background: rgba(0, 0, 0, 0.8);
+	
+	content: "";
+	z-index: -1;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+
+/*------------------------E-N-D-*/`
+				// need options here
 			},
+			// need options for these per-category images
 			"caib": {
 				"name": "Per-category Banner Images",
-				"description": "todo",
-				"location": "../Clarity Theme/Mod - .css"
+				"css": `/*-S-T-A-R-T--------------------*\\
+| Per-Category Banner Image      |
+\\*------------------------------*/
+
+/* All Anime */
+[data-query*='status":7'] { --banner: url(URLHERE); }
+/* Watching/Reading */
+[data-query*='status":1'] { --banner: url(URLHERE); }
+/* Completed */
+[data-query*='status":2'] { --banner: url(URLHERE); }
+/* Onhold */
+[data-query*='status":3'] { --banner: url(URLHERE); }
+/* Dropped */
+[data-query*='status":4'] { --banner: url(URLHERE); }
+/* Planned */
+[data-query*='status":6'] { --banner: url(URLHERE); }
+
+/*------------------------E-N-D-*/`
 			},
 			"caic": {
 				"name": "Per-category Character Images",
-				"description": "todo",
-				"location": "../Clarity Theme/Mod - .css"
+				"css": `/*-S-T-A-R-T--------------------*\\
+| Per-Category Character Image   |
+\\*------------------------------*/
+
+/* All Anime */
+[data-query*='status":7'] { --character: url(URLHERE); }
+/* Watching/Reading */
+[data-query*='status":1'] { --character: url(URLHERE); }
+/* Completed */
+[data-query*='status":2'] { --character: url(URLHERE); }
+/* Onhold */
+[data-query*='status":3'] { --character: url(URLHERE); }
+/* Dropped */
+[data-query*='status":4'] { --character: url(URLHERE); }
+/* Planned */
+[data-query*='status":6'] { --character: url(URLHERE); }
+
+/*------------------------E-N-D-*/`
 			},
 			"caib": {
 				"name": "Per-category Background Images",
-				"description": "todo",
-				"location": "../Clarity Theme/Mod - .css"
+				"css": `/*-S-T-A-R-T--------------------*\\
+| Per-Category Background Image  |
+\\*------------------------------*/
+
+/* All Anime */
+body[data-query*='status":7'] { --background: url(URLHERE); }
+/* Watching/Reading */
+body[data-query*='status":1'] { --background: url(URLHERE); }
+/* Completed */
+body[data-query*='status":2'] { --background: url(URLHERE); }
+/* Onhold */
+body[data-query*='status":3'] { --background: url(URLHERE); }
+/* Dropped */
+body[data-query*='status":4'] { --background: url(URLHERE); }
+/* Planned */
+body[data-query*='status":6'] { --background: url(URLHERE); }
+
+/*------------------------E-N-D-*/`
 			},
 			"tra": {
 				"name": "Transparent List Rows",
-				"description": "todo",
-				"location": "../Clarity Theme/Mod - .css"
+				"description": "This is useful in tandem with the background image, in-case you want to show it off a bit more. It will not work without a background image.",
+				"css": `/*-S-T-A-R-T--------------------*\\
+| Transparent List Rows          |
+\\*------------------------------*/
+
+:root {
+	/* Change colour here */
+	--row-tint: rgba(33,33,33,0.8);
+}
+
+.list-item, .data.priority, .data.number, .data.status:before, .data.status:after {
+	background: linear-gradient(var(--row-tint),var(--row-tint)), var(--background) no-repeat center / cover fixed transparent !important;
+}
+
+/*------------------------E-N-D-*/`
+				// need options here
 			},
 			"ban": {
 				"name": "Change Banner Height",
-				"description": "todo",
-				"location": "../Clarity Theme/Mod - .css"
+				"description": "Modify the banner height to your preference.",
+				"css": `/*-S-T-A-R-T--------------------*\\
+| Change Banner Height           |
+\\*------------------------------*/
+
+/*Change number here*/
+:root { --banner-height: 318px; }
+
+.cover-block { height: var(--banner-height); }
+.header { margin-top: calc(var(--banner-height) - 36px); }
+.list-stats { top: calc(var(--banner-height) + 98px); }
+
+/*------------------------E-N-D-*/`,
+				"options": {
+					"height": {
+						"name": "Height",
+						"type": "css_value",
+						"string_to_replace": "--banner-height: 318px;",
+						"string_to_insert": "--banner-height: {{{insert}}};",
+						"default": "318px"
+					}
+				}
 			},
 			"sta": {
 				"name": "Increase the Status Bar Width",
-				"description": "todo - per popular request",
-				"location": "../Clarity Theme/Mod - .css"
+				"description": "Increase the width of the coloured bar that indicates whether the entry is completed, dropped, etc.",
+				"css": `/*-S-T-A-R-T--------------------*\\
+| Change Status Bar Width        |
+\\*------------------------------*/
+
+.data.status { width: 2px !important; }
+.list-table-data { padding-left: 0px; }
+
+/*------------------------E-N-D-*/`
+				// need options here
 			},
 			"lis": {
 				"name": "Coloured Line on Header",

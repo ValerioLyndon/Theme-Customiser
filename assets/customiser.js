@@ -105,15 +105,23 @@ function updateCss() {
 			for(let [id, value] of Object.entries(userOpts['mods'])) {
 				let modData = theme['mods'][id];
 
-				// this is such a bad way to do this. Replace this with proper async code please for the love of all that is holy. This may even break with multiple mods. In fact, it probably will.
-				// todo: make program cache these results earlier and wait for each fetch before continuing this loop. Right now this is broken.
-				fetchLocalFile(modData['location'], (modCss) => {
+				if('location' in modData) {
+					// this is such a bad way to do this. Replace this with proper async code please for the love of all that is holy. This may even break with multiple mods. In fact, it probably will.
+					// todo: make program cache these results earlier and wait for each fetch before continuing this loop. Right now this is broken.
+					fetchLocalFile(modData['location'], (modCss) => {
+						completeCount += 1;
+						newCss += '\n\n' + modCss;
+						if(completeCount === totalCount) {
+							pushCss(newCss);
+						}
+					});
+				} else {
 					completeCount += 1;
-					newCss += '\n\n' + modCss;
+					newCss += '\n\n' + modData['css'];
 					if(completeCount === totalCount) {
 						pushCss(newCss);
 					}
-				});
+				}
 			}
 		}
 	}
@@ -309,7 +317,7 @@ if('mods' in theme) {
 		head.className = 'option__name';
 		div.appendChild(head);
 		// Todo: change this from innerHTML to markdown or something so you can support third-party design json
-		desc.innerHTML = mod['description'];
+		desc.innerHTML = 'description' in mod ? mod['description'] : '';
 		desc.className = 'option__desc';
 		div.appendChild(desc);
 
