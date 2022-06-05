@@ -1,4 +1,4 @@
-var data = {
+{
 	"clarity": {
 		"name": "Clarity",
 		"location": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Theme%20-%20Compressed.css",
@@ -41,19 +41,17 @@ var data = {
 			}
 		},
 		"mods": {
-			"d": {
+			"dark": {
 				"name": "Dark Mode",
 				"description": "Darker visuals. 100% fewer flashbangs!",
 				"css": {"bottom": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Dark%20Mode%20Compressed.css"}
 			},
-			"hdr": {
+			"image-row": {
 				"name": "Image Hover Mod (On Row variant)",
-				// needs import at top with username: ;
 				"description": "Adds larger images on mouse hover. Will slow down page loads.",
-				"incompatibilities": ["hdi"],
+				"incompatibilities": ["image-img"],
 				"css": {
-					"top": `@\\import "https://malscraper.azurewebsites.net/covers/all/anime/presets/dataimagelinkbefore";
-@\\import "https://malscraper.azurewebsites.net/covers/all/manga/presets/dataimagelinkbefore";`,
+					"import": "@\\import \"https://malscraper.azurewebsites.net/covers/all/anime/presets/dataimagelinkbefore\";\n@\\import \"https://malscraper.azurewebsites.net/covers/all/manga/presets/dataimagelinkbefore\";",
 					"bottom": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Hover%20Image%20Compressed.css"
 				},
 				"options": {
@@ -66,53 +64,43 @@ var data = {
 					}
 				}
 			},
-			"hdi": {
+			"image-img": {
 				"name": "Image Hover Mod (On Image variant)",
-				// needs import at top with username: @\import "https://malscraper.azurewebsites.net/covers/anime/YOURNAME/presets/dataimagelinkbefore";
 				"description": "Adds larger images on mouse hover. Will slow down page loads.",
-				"incompatibilities": ["hdr"],
+				"incompatibilities": ["image-row"],
 				"css": {
-					"import": `@\\import "https://malscraper.azurewebsites.net/covers/all/anime/presets/dataimagelinkbefore";
-@\\import "https://malscraper.azurewebsites.net/covers/all/manga/presets/dataimagelinkbefore";`,
+					"import": "@\\import \"https://malscraper.azurewebsites.net/covers/all/anime/presets/dataimagelinkbefore\";\n@\\import \"https://malscraper.azurewebsites.net/covers/all/manga/presets/dataimagelinkbefore\";",
 					"bottom": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Hover%20Image%20On%20Circle%20Compressed.css"
 				}
 			},
-			"re": {
+			"review": {
 				"name": "Review-style/note-style Tags",
 				"description": "Widens the tag box and condenses it all into one cohesive paragraph, disabling tag functionality. Great for mini-reviews or quick notes.",
-				"incompatibilities": ["ho"],
+				"incompatibilities": ["horizontal"],
 				"css": {"bottom": "https://raw.githubusercontent.com/ValerioLyndon/MAL-Public-List-Designs/master/Clarity%20Theme/Mod%20-%20Review%20Tags%20Compressed.css"}
 			},
-			// these types of variants should really be controlled with options rather than different mods.
-			"favl": {
+			"fav-l": {
 				"name": "Favourite Hearts (Left variant)",
-				"description": `This modification changes the appearance of any tag called \"Favourite\" or \"Favorite\" to display at the side of the list entry as a heart.
-					<br /><br />
-					<b>Limitations:</b>
-					<ul>
-						<li>This mod <u>cannot detect</u> your MAL favourites. It only changes the appearance of correctly labelled <b>tags</b>, nothing more. Due to this, however, you can have more than 20 entries tagged as favourites. Part of why I made this was to circumvent the item limit on non-supporter profiles.</li>
-						<li> If using the left-side Favourite Tag with the unedited Image Hover mod then the hover image will cover up the tag on mouse-over. You can avoid this by using the right-side version or the edited (Hover on Circle) Image Hover mod.</li>
-					</ul>`,
-				"incompatibilities": ["favr"],
+				"description": "This modification changes the appearance of any tag called \"Favourite\" or \"Favorite\" to display at the side of the list entry as a heart.<br /><br /><b>Limitations:</b><ul><li>This mod <u>cannot detect</u> your MAL favourites. It only changes the appearance of correctly labelled <b>tags</b>, nothing more. Due to this, however, you can have more than 20 entries tagged as favourites. Part of why I made this was to circumvent the item limit on non-supporter profiles.</li><li> If using the left-side Favourite Tag with the unedited Image Hover mod then the hover image will cover up the tag on mouse-over. You can avoid this by using the right-side version or the edited (Hover on Circle) Image Hover mod.</li></ul>",
+				"incompatibilities": ["fav-r"],
 				"css": {"bottom": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Favourite%20Hearts%20Left%20Compressed.css"}
 			},
-			"favr": {
+			"fav-r": {
 				"name": "Favourite Hearts (Right variant)",
 				"description": "Ditto",
-				"incompatibilities": ["favl"],
+				"incompatibilities": ["fav-l"],
 				"css": {"bottom": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Favourite%20Hearts%20Right%20Compressed.css"}
 			},
-			"ho": {
+			"horizontal": {
 				"name": "Horizontal Tags",
 				"description": "Convert the vertical tags into a horizontal line across the bottom of each list item.",
-				"incompatibilities": ["re"],
+				"incompatibilities": ["review"],
 				"css": {"bottom": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Horizontal%20Tags%20Compressed.css"}
 			},
-			"ren": {
+			"render": {
 				"name": "Character Renders",
 				"description": "Adds two optional character renders on the left and right of the list. Do note that the renders will not be properly visible at low resolutions. I recommend having at least a 1600x900 monitor to add renders, as they purposefully do not intersect the center list area.",
 				"css": {"bottom": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Character%20Renders.css"},
-				// needs options for images and positions
 				"options": {
 					"li": {
 						"name": "Left Image",
@@ -142,14 +130,14 @@ var data = {
 						"string_to_insert": "{{{insert}}}",
 						"default": ""
 					},
-					"la": {
+					"ls": {
 						"name": "Left Size",
 						"type": "css_value",
 						"string_to_replace": "",
 						"string_to_insert": "{{{insert}}}",
 						"default": ""
 					},
-					"ra": {
+					"rs": {
 						"name": "Right Size",
 						"type": "css_value",
 						"string_to_replace": "",
@@ -158,136 +146,52 @@ var data = {
 					}
 				}
 			},
-			"col": {
-				// this is probably better added via more theme options rather than another mod.
+			"colours": {
 				"name": "Custom Theme Colours",
 				"description": "todo - may not add",
 				"css": {"bottom": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Dark%20Mode%20Compressed.css"},
 				"options": {
-					// light theme base https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Dark%20Mode%20Compressed.css
-					// dark theme base https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Theme%20Colours%20Dark.css
+					"base": {
+						"name": "Colour Base",
+						"type": "select",
+						"selections": {
+							"light": {
+								"label": "Light",
+								"css": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Theme%20Colours.css"
+							},
+							"dark": {
+								"label": "Dark",
+								"css": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Theme%20Colours%20Dark.css"
+							}
+						}
+					}
 				}
 			},
-			"tint": {
+			"background-tint": {
 				"name": "Tint the Background Image",
-				"css": {"bottom": `/*-S-T-A-R-T--------------------*\\
-| Background Tint                |
-\\*------------------------------*/
-
-body::before {
-	/* change colour here */
-	background: rgba(0, 0, 0, 0.8);
-	
-	content: "";
-	z-index: -1;
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-}
-
-/*------------------------E-N-D-*/`}
-				// need options here
+				"css": {"bottom": "/*-S-T-A-R-T--------------------*\\\n| Background Tint                |\n\\*------------------------------*/\n\nbody::before {\n\t/* change colour here */\n\tbackground: rgba(0, 0, 0, 0.8);\n\t\n\tcontent: \"\";\n\tz-index: -1;\n\tposition: fixed;\n\ttop: 0;\n\tleft: 0;\n\twidth: 100%;\n\theight: 100%;\n}\n\n/*------------------------E-N-D-*/"}
 			},
-			// need options for these per-category images
-			"caib": {
+			"cat-banner": {
 				"name": "Per-category Banner Images",
-				"css": {"bottom": `/*-S-T-A-R-T--------------------*\\
-| Per-Category Banner Image      |
-\\*------------------------------*/
-
-/* All Anime */
-[data-query*='status":7'] { --banner: url(URLHERE); }
-/* Watching/Reading */
-[data-query*='status":1'] { --banner: url(URLHERE); }
-/* Completed */
-[data-query*='status":2'] { --banner: url(URLHERE); }
-/* Onhold */
-[data-query*='status":3'] { --banner: url(URLHERE); }
-/* Dropped */
-[data-query*='status":4'] { --banner: url(URLHERE); }
-/* Planned */
-[data-query*='status":6'] { --banner: url(URLHERE); }
-
-/*------------------------E-N-D-*/`}
+				"css": {"bottom": "/*-S-T-A-R-T--------------------*\\\n| Per-Category Banner Image      |\n\\*------------------------------*/\n\n/* All Anime */\n[data-query*='status\":7'] { --banner: url(URLHERE); }\n/* Watching/Reading */\n[data-query*='status\":1'] { --banner: url(URLHERE); }\n/* Completed */\n[data-query*='status\":2'] { --banner: url(URLHERE); }\n/* Onhold */\n[data-query*='status\":3'] { --banner: url(URLHERE); }\n/* Dropped */\n[data-query*='status\":4'] { --banner: url(URLHERE); }\n/* Planned */\n[data-query*='status\":6'] { --banner: url(URLHERE); }\n\n/*------------------------E-N-D-*/"}
 			},
-			"caic": {
+			"cat-character": {
 				"name": "Per-category Character Images",
-				"css": {"bottom": `/*-S-T-A-R-T--------------------*\\
-| Per-Category Character Image   |
-\\*------------------------------*/
-
-/* All Anime */
-[data-query*='status":7'] { --character: url(URLHERE); }
-/* Watching/Reading */
-[data-query*='status":1'] { --character: url(URLHERE); }
-/* Completed */
-[data-query*='status":2'] { --character: url(URLHERE); }
-/* Onhold */
-[data-query*='status":3'] { --character: url(URLHERE); }
-/* Dropped */
-[data-query*='status":4'] { --character: url(URLHERE); }
-/* Planned */
-[data-query*='status":6'] { --character: url(URLHERE); }
-
-/*------------------------E-N-D-*/`}
+				"css": {"bottom": "/*-S-T-A-R-T--------------------*\\\n| Per-Category Character Image   |\n\\*------------------------------*/\n\n/* All Anime */\n[data-query*='status\":7'] { --character: url(URLHERE); }\n/* Watching/Reading */\n[data-query*='status\":1'] { --character: url(URLHERE); }\n/* Completed */\n[data-query*='status\":2'] { --character: url(URLHERE); }\n/* Onhold */\n[data-query*='status\":3'] { --character: url(URLHERE); }\n/* Dropped */\n[data-query*='status\":4'] { --character: url(URLHERE); }\n/* Planned */\n[data-query*='status\":6'] { --character: url(URLHERE); }\n\n/*------------------------E-N-D-*/"}
 			},
-			"caib": {
+			"cat-background": {
 				"name": "Per-category Background Images",
-				"css": {"bottom": `/*-S-T-A-R-T--------------------*\\
-| Per-Category Background Image  |
-\\*------------------------------*/
-
-/* All Anime */
-body[data-query*='status":7'] { --background: url(URLHERE); }
-/* Watching/Reading */
-body[data-query*='status":1'] { --background: url(URLHERE); }
-/* Completed */
-body[data-query*='status":2'] { --background: url(URLHERE); }
-/* Onhold */
-body[data-query*='status":3'] { --background: url(URLHERE); }
-/* Dropped */
-body[data-query*='status":4'] { --background: url(URLHERE); }
-/* Planned */
-body[data-query*='status":6'] { --background: url(URLHERE); }
-
-/*------------------------E-N-D-*/`}
+				"css": {"bottom": "/*-S-T-A-R-T--------------------*\\\n| Per-Category Background Image  |\n\\*------------------------------*/\n\n/* All Anime */\nbody[data-query*='status\":7'] { --background: url(URLHERE); }\n/* Watching/Reading */\nbody[data-query*='status\":1'] { --background: url(URLHERE); }\n/* Completed */\nbody[data-query*='status\":2'] { --background: url(URLHERE); }\n/* Onhold */\nbody[data-query*='status\":3'] { --background: url(URLHERE); }\n/* Dropped */\nbody[data-query*='status\":4'] { --background: url(URLHERE); }\n/* Planned */\nbody[data-query*='status\":6'] { --background: url(URLHERE); }\n\n/*------------------------E-N-D-*/"}
 			},
-			"tra": {
+			"transparent-rows": {
 				"name": "Transparent List Rows",
 				"description": "This is useful in tandem with the background image, in-case you want to show it off a bit more. It will not work without a background image.",
-				"css": {"bottom": `/*-S-T-A-R-T--------------------*\\
-| Transparent List Rows          |
-\\*------------------------------*/
-
-:root {
-	/* Change colour here */
-	--row-tint: rgba(33,33,33,0.8);
-}
-
-.list-item, .data.priority, .data.number, .data.status:before, .data.status:after {
-	background: linear-gradient(var(--row-tint),var(--row-tint)), var(--background) no-repeat center / cover fixed transparent !important;
-}
-
-/*------------------------E-N-D-*/`}
-				// need options here
+				"css": {"bottom": "/*-S-T-A-R-T--------------------*\\\n| Transparent List Rows          |\n\\*------------------------------*/\n\n:root {\n\t/* Change colour here */\n\t--row-tint: rgba(33,33,33,0.8);\n}\n\n.list-item, .data.priority, .data.number, .data.status:before, .data.status:after {\n\tbackground: linear-gradient(var(--row-tint),var(--row-tint)), var(--background) no-repeat center / cover fixed transparent !important;\n}\n\n/*------------------------E-N-D-*/"}
 			},
-			"ban": {
+			"banner-height": {
 				"name": "Change Banner Height",
 				"description": "Modify the banner height to your preference.",
-				"css": {"bottom": `/*-S-T-A-R-T--------------------*\\
-| Change Banner Height           |
-\\*------------------------------*/
-
-/*Change number here*/
-:root { --banner-height: 318px; }
-
-.cover-block { height: var(--banner-height); }
-.header { margin-top: calc(var(--banner-height) - 36px); }
-.list-stats { top: calc(var(--banner-height) + 98px); }
-
-/*------------------------E-N-D-*/`},
+				"css": {"bottom": "/*-S-T-A-R-T--------------------*\\\n| Change Banner Height           |\n\\*------------------------------*/\n\n/*Change number here*/\n:root { --banner-height: 318px; }\n\n.cover-block { height: var(--banner-height); }\n.header { margin-top: calc(var(--banner-height) - 36px); }\n.list-stats { top: calc(var(--banner-height) + 98px); }\n\n/*------------------------E-N-D-*/"},
 				"options": {
 					"height": {
 						"name": "Height",
@@ -301,15 +205,7 @@ body[data-query*='status":6'] { --background: url(URLHERE); }
 			"sta": {
 				"name": "Increase the Status Bar Width",
 				"description": "Increase the width of the coloured bar that indicates whether the entry is completed, dropped, etc.",
-				"css": {"bottom": `/*-S-T-A-R-T--------------------*\\
-| Change Status Bar Width        |
-\\*------------------------------*/
-
-.data.status { width: 2px !important; }
-.list-table-data { padding-left: 0px; }
-
-/*------------------------E-N-D-*/`}
-				// need options here
+				"css": {"bottom": "/*-S-T-A-R-T--------------------*\\\n| Change Status Bar Width        |\n\\*------------------------------*/\n\n.data.status { width: 2px !important; }\n.list-table-data { padding-left: 0px; }\n\n/*------------------------E-N-D-*/"}
 			},
 			"lis": {
 				"name": "Coloured Line on Header",
@@ -328,17 +224,20 @@ body[data-query*='status":6'] { --background: url(URLHERE); }
 				"description": "Colours the header to match the referenced categories.",
 				"css": {"bottom": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Category-Coloured%20Header%20Text%20Compressed.css"}
 			}
-			// "": {
-			// 	"name": "",
-			// 	"description": "",
-			// 	"css": {"bottom": "../Clarity Theme/Mod - .css"}
-			// }
 		}
 	},
 	"clarified": {
 		"name": "Clarified",
 		"location": "",
-		"type": "modern"
+		"type": "modern",
+		"options": {
+			"dummy": {
+				"name": "",
+				"description": "",
+				"css": {"bottom": "../Clarity Theme/Mod - .css"},
+				"flags": ["hidden"]
+			}
+		}
 	},
 	"brink": {
 		"name": "Brink",

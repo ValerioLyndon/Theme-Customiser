@@ -1,5 +1,12 @@
-// Generic Variables & Functions
+// GENERIC VARIABLES & FUNCTIONS
 
+var query = (new URL(document.location)).searchParams,
+	dataJson = query.get('data'),
+	selectedTheme = query.get('theme').toLowerCase(),
+	theme = '',
+	data = null;
+
+// Setup some basic variables
 var baseCss = '';
 
 var userOpts = {
@@ -28,16 +35,45 @@ function fetchFile(path) {
 						sessionStorage.setItem(path, request.responseText);
 						resolve(request.responseText);
 					} else {
-						reject(['Encountered a problem while loading a local resource.', `request.status.${request.status}`]);
+						reject(['Encountered a problem while loading a resource.', `request.status.${request.status}`]);
 					}
 				}
 			}
 			request.onerror = function(e) {
-				reject(['Encountered a problem while loading a local resource.', 'request.error']);
+				reject(['Encountered a problem while loading a resource.', 'request.error']);
 			}
 		}
 	});
 }
+
+class loadingScreen {
+	constructor() {
+		this.pageContent = document.getElementById('js-content');
+		this.parent = document.getElementById('js-loader');
+		this.icon = document.getElementById('js-loader-icon');
+		this.text = document.getElementById('js-loader-text');
+		this.subText = document.getElementById('js-loader-subtext');
+		this.subText2 = document.getElementById('js-loader-subsubtext');
+	}
+
+	loaded() {
+		this.pageContent.classList.add('loaded');
+		this.parent.classList.add('hidden');
+		var that = this;
+		setTimeout(function() {
+			that.parent.classList.add('o-hidden');
+		}, 1500)
+	}
+
+	failed(reason_array) {
+		this.icon.className = 'loading-screen__cross';
+		this.text.textContent = 'Page Failure.';
+		this.subText.textContent = reason_array[0];
+		this.subText2.classList.remove('o-hidden');
+		this.subText2.textContent = `Code: ${reason_array[1]}`;
+	}
+}
+var loader = new loadingScreen();
 
 function updateOpts(type, id, defaultValue = undefined) {
 	// set values and default value
@@ -224,141 +260,144 @@ function validateInput(type, id) {
 
 // MAIN PROGRAM
 
-// look, this sucks and is not dynamic at all but it does what I want it to right now. I know this is the dumbest way ever to do this and I could use URLSearchParams or something.
-try {
-	selectedTheme = location.search.split('=')[1].toLowerCase();
-}
-catch {
-	// redirect the user or change the page here to present them with options of the themes
-	console.log('400 bad request');
-}
+function renderHtml() {
+	// Setup basic page structure and add event listeners
 
-if(!(selectedTheme in data)) {
-	// redirect the user or change the page here to present them with options of the themes
-	console.log('400 bad request');
-}
+	document.getElementById('js-title').textContent = theme['name'];
 
-theme = data[selectedTheme];
+	var optionsEle = document.getElementById('js-options');
 
-// Setup basic page structure and add event listeners
+	if('options' in theme) {
+		for (const [optId, opt] of Object.entries(theme['options'])) {
+			let div = document.createElement('div'),
+				head = document.createElement('b'),
+				notice = document.createElement('div');
 
-document.getElementById('js-title').textContent = theme['name'];
+			div.className = 'option';
+			head.textContent = opt['name'];
+			head.className = 'option__name';
+			div.appendChild(head);
 
-var optionsEle = document.getElementById('js-options');
+			if(opt['type'] === 'css_content_value') {
+				let input = document.createElement('textarea');
+				input.id = optId;
+				input.value = opt['default'];
+				input.className = 'option__input option__input--textarea';
+				input.placeholder = 'Your text here.';
+				div.appendChild(input);
 
-if('options' in theme) {
-	for (const [optId, opt] of Object.entries(theme['options'])) {
-		let div = document.createElement('div'),
-			head = document.createElement('b'),
-			notice = document.createElement('div');
+				input.addEventListener('input', () => { updateOpts('options', optId, opt['default']); });
+			}
 
-		div.className = 'option';
-		head.textContent = opt['name'];
-		head.className = 'option__name';
-		div.appendChild(head);
+			else if(opt['type'] === 'user_image') {
+				let input = document.createElement('input');
+				input.id = optId;
+				input.type = 'url';
+				input.value = opt['default'];
+				input.placeholder = 'https://example.com/image.jpg';
+				input.className = 'option__input';
+				div.appendChild(input);
 
-		if(opt['type'] === 'css_content_value') {
-			let input = document.createElement('textarea');
-			input.id = optId;
-			input.value = opt['default'];
-			input.className = 'option__input option__input--textarea';
-			input.placeholder = 'Your text here.';
-			div.appendChild(input);
+				input.addEventListener('input', () => {
+					validateInput('options', optId);
+					updateOpts('options', optId, opt['default']);
+				});
+			}
 
-			input.addEventListener('input', () => { updateOpts('options', optId, opt['default']); });
+			notice.id = `js-${optId}-notice`;
+			notice.className = 'c-notice o-hidden';
+			div.appendChild(notice);
+
+			optionsEle.appendChild(div);
 		}
+	} else {
+		optionsEle.remove();
+	}
 
-		else if(opt['type'] === 'user_image') {
-			let input = document.createElement('input');
-			input.id = optId;
-			input.type = 'url';
-			input.value = opt['default'];
-			input.placeholder = 'https://example.com/image.jpg';
-			input.className = 'option__input';
-			div.appendChild(input);
+	var modsEle = document.getElementById('js-mods');
 
-			input.addEventListener('input', () => {
-				validateInput('options', optId);
-				updateOpts('options', optId, opt['default']);
-			});
+	if('mods' in theme) {
+		for (const [modId, mod] of Object.entries(theme['mods'])) {
+			let div = document.createElement('div'),
+				head = document.createElement('b'),
+				desc = document.createElement('p'),
+				toggle = document.createElement('div');
+
+			toggle.className = 'option__toggle-box';
+			toggle.innerHTML = `
+				<input id="${modId}" type="checkbox" class="o-hidden" />
+				<label class="toggle" for="${modId}">
+					<div class="toggle__info">
+						You cannot use this with your current configuration due to incompatibilities with other options.
+					</div>
+				</label>
+			`;
+			div.appendChild(toggle);
+
+			div.className = 'option';
+			head.textContent = mod['name'];
+			head.className = 'option__name';
+			div.appendChild(head);
+			// Todo: change this from innerHTML to markdown or something so you can support third-party design json
+			desc.innerHTML = 'description' in mod ? mod['description'] : '';
+			desc.className = 'option__desc';
+			div.appendChild(desc);
+
+			modsEle.appendChild(div);
+
+			document.getElementById(modId).addEventListener('change', () => { updateOpts('mods', modId); });
 		}
-
-		notice.id = `js-${optId}-notice`;
-		notice.className = 'c-notice o-hidden';
-		div.appendChild(notice);
-
-		optionsEle.appendChild(div);
+	} else {
+		modsEle.remove();
 	}
-} else {
-	optionsEle.remove();
 }
 
-var modsEle = document.getElementById('js-mods');
+// Updates preview CSS & removes loader
 
-if('mods' in theme) {
-	for (const [modId, mod] of Object.entries(theme['mods'])) {
-		let div = document.createElement('div'),
-			head = document.createElement('b'),
-			desc = document.createElement('p'),
-			toggle = document.createElement('div');
+function finalSetup() {
+	let fetchThemeCss = fetchFile(theme['location']);
 
-		toggle.className = 'option__toggle-box';
-		toggle.innerHTML = `
-			<input id="${modId}" type="checkbox" class="o-hidden" />
-			<label class="toggle" for="${modId}">
-				<div class="toggle__info">
-					You cannot use this with your current configuration due to incompatibilities with other options.
-				</div>
-			</label>
-		`;
-		div.appendChild(toggle);
+	fetchThemeCss.then((css) => {
+		// Update Preview
+		baseCss = css;
+		pushCss(css);
 
-		div.className = 'option';
-		head.textContent = mod['name'];
-		head.className = 'option__name';
-		div.appendChild(head);
-		// Todo: change this from innerHTML to markdown or something so you can support third-party design json
-		desc.innerHTML = 'description' in mod ? mod['description'] : '';
-		desc.className = 'option__desc';
-		div.appendChild(desc);
+		// Remove Loader
+		loader.loaded();
+	});
 
-		modsEle.appendChild(div);
-
-		document.getElementById(modId).addEventListener('change', () => { updateOpts('mods', modId); });
-	}
-} else {
-	modsEle.remove();
+	fetchThemeCss.catch((reason) => {
+		loader.failed(reason);
+	});
 }
 
-// INITIALISE PAGE - Updates preview CSS & removes loader
+// INITIALISE PAGE
 
-var loader = document.getElementById('js-loader'),
-	loaderIcon = document.getElementById('js-loader-icon'),
-	loaderText = document.getElementById('js-loader-text'),
-	loaderSubText = document.getElementById('js-loader-subtext');
+if(dataJson === null) {
+	dataJson = './assets/data.json';
+}
 
-let fetchThemeCss = fetchFile(theme['location']);
+let fetchData = fetchFile(dataJson);
 
-fetchThemeCss.then((css) => {
-	// Update Preview
-	baseCss = css;
-	pushCss(css);
+fetchData.then((json) => {
+	// Get theme info via json
+	try {
+		data = JSON.parse(json);
+	} catch {
+		loader.failed(['Encountered a problem while parsing a resource.', 'json.parse']);
+	}
 
-	// Remove Loader
-	document.getElementById('js-content').classList.add('loaded');
-	loader.classList.add('hidden');
-	setTimeout(function(){
-		loader.remove();
-	}, 1500)
+	// Get theme info & redirect if problematic
+	if(theme === null || !(selectedTheme in data)) {
+		window.location = '?';
+	} else {
+		theme = data[selectedTheme];
+	}
+
+	renderHtml();
+	finalSetup();
 });
 
-fetchThemeCss.catch((failure) => {
-	// Modify Loader
-	loaderIcon.className = 'loading-screen__cross';
-	loaderText.textContent = 'Page Failure.';
-	loaderSubText.innerHTML = failure[0];
-	var loaderCode = document.createElement('div');
-	loaderCode.className = 'loading-screen__subtext';
-	loaderCode.textContent = `Code: ${failure[1]}`;
-	loader.appendChild(loaderCode);
+fetchData.catch((reason) => {
+	loader.failed(reason);
 });
