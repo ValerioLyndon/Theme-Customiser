@@ -1,34 +1,42 @@
-// Variables & Functions
+// Generic Variables & Functions
+
+var baseCss = '';
 
 var userOpts = {
 	'options': {},
 	'mods': {}
 };
 
-var loader = document.getElementById('js-loader'),
-	loaderIcon = document.getElementById('js-loader-icon'),
-	loaderText = document.getElementById('js-loader-text'),
-	loaderSubText = document.getElementById('js-loader-subtext');
-
-// this sucks and should be changed to async/await or something. For now, it uses a callback function because it's easier
-function fetchLocalFile(path, callback) {
-	var request = new XMLHttpRequest(),
-		result = false;
-	request.open("GET", path, true);
-	request.send(null);
-	request.onreadystatechange = function() {
-		if (request.readyState === 4) {
-			if (request.status === 200) {
-				callback(request.responseText);
-			} else {
-				pageFailed('Encountered a problem while loading a local resource.', 'http');
+function fetchFile(path) {
+	return new Promise((resolve, reject) => {
+		// Checks if item has previously been fetched and returns the cached result if so
+		let cache = sessionStorage.getItem(path);
+		if(cache) {
+			console.log(`[fetchFile] Retrieving cached result for ${path}`);
+			resolve(cache);
+		}
+		
+		else {
+			console.log(`[fetchFile] Fetching ${path}`);
+			var request = new XMLHttpRequest();
+			request.open("GET", path, true);
+			request.send(null);
+			request.onreadystatechange = function() {
+				if (request.readyState === 4) {
+					if (request.status === 200) {
+						// Cache result on success and then return it
+						sessionStorage.setItem(path, request.responseText);
+						resolve(request.responseText);
+					} else {
+						reject(['Encountered a problem while loading a local resource.', `request.status.${request.status}`]);
+					}
+				}
+			}
+			request.onerror = function(e) {
+				reject(['Encountered a problem while loading a local resource.', 'request.error']);
 			}
 		}
-	}
-	request.onerror = function(e) {
-		console.log(request.statusText);
-		pageFailed('Encountered a problem while loading a local resource.', 'onerror');
-	}
+	});
 }
 
 function updateOpts(type, id, defaultValue = undefined) {
@@ -96,33 +104,30 @@ function updateCss() {
 
 	// Mods
 	if('mods' in theme) {
-		let totalCount = Object.keys(userOpts['mods']).length,
-			completeCount = 0;
+		let totalCount = Object.keys(userOpts['mods']).length;
 
 		if(totalCount === 0) {
 			pushCss(newCss);
 		} else {
-			for(let [id, value] of Object.entries(userOpts['mods'])) {
-				let modData = theme['mods'][id];
+			(async () => {
+				for(let [id, value] of Object.entries(userOpts['mods'])) {
+					let modData = theme['mods'][id];
 
-				if('location' in modData) {
-					// this is such a bad way to do this. Replace this with proper async code please for the love of all that is holy. This may even break with multiple mods. In fact, it probably will.
-					// todo: make program cache these results earlier and wait for each fetch before continuing this loop. Right now this is broken.
-					fetchLocalFile(modData['location'], (modCss) => {
-						completeCount += 1;
-						newCss += '\n\n' + modCss;
-						if(completeCount === totalCount) {
-							pushCss(newCss);
+					if('location' in modData) {
+						try {
+							var modCss = await fetchFile(modData['location']);
+						} catch (failure) {
+							console.log(failure);
 						}
-					});
-				} else {
-					completeCount += 1;
-					newCss += '\n\n' + modData['css'];
-					if(completeCount === totalCount) {
-						pushCss(newCss);
+					} else {
+						var modCss = modData['css'];
 					}
+
+					newCss += '\n\n' + modCss;
 				}
-			}
+
+				pushCss(newCss);
+			})();
 		}
 	}
 	else {
@@ -198,30 +203,9 @@ function validateInput(type, id) {
 	}
 }
 
-function pageFailed(msg = 'Encountered an undefined error.', code = false) {
-	loaderIcon.className = 'loading-screen__cross';
-	loaderText.textContent = 'Page Failure.';
-	loaderSubText.innerHTML = msg;
-	if(code) {
-		var loaderCode = document.createElement('div');
-		loaderCode.className = 'loading-screen__subtext';
-		loaderCode.textContent = `Code: ${code}`;
-		loader.appendChild(loaderCode);
-	}
-}
-
-function pageLoaded() {
-	document.getElementById('js-content').classList.add('loaded');
-
-	loader.classList.add('hidden');
-	setTimeout(function(){
-		loader.remove();
-	}, 1500)
-}
 
 
-
-// Main program
+// MAIN PROGRAM
 
 // look, this sucks and is not dynamic at all but it does what I want it to right now. I know this is the dumbest way ever to do this and I could use URLSearchParams or something.
 try {
@@ -239,7 +223,7 @@ if(!(selectedTheme in data)) {
 
 theme = data[selectedTheme];
 
-// Basic page content
+// Setup basic page structure and add event listeners
 
 document.getElementById('js-title').textContent = theme['name'];
 
@@ -329,15 +313,35 @@ if('mods' in theme) {
 	modsEle.remove();
 }
 
-// Update preview CSS & remove loader
+// INITIALISE PAGE - Updates preview CSS & removes loader
 
-var baseCss = '';
-fetchLocalFile(theme['location'], (css) => {
+var loader = document.getElementById('js-loader'),
+	loaderIcon = document.getElementById('js-loader-icon'),
+	loaderText = document.getElementById('js-loader-text'),
+	loaderSubText = document.getElementById('js-loader-subtext');
+
+let fetchThemeCss = fetchFile(theme['location']);
+
+fetchThemeCss.then((css) => {
+	// Update Preview
 	baseCss = css;
 	pushCss(css);
-	pageLoaded();
-} );
 
-// if type is user_text, then output should be sanitized for escape characters etc. Newlines replaced by \a. Etc.
+	// Remove Loader
+	document.getElementById('js-content').classList.add('loaded');
+	loader.classList.add('hidden');
+	setTimeout(function(){
+		loader.remove();
+	}, 1500)
+});
 
-// if type is user_image, there should be a front-facing prompt when the user inputs something that doesn't look like an image URL.
+fetchThemeCss.catch((failure) => {
+	// Modify Loader
+	loaderIcon.className = 'loading-screen__cross';
+	loaderText.textContent = 'Page Failure.';
+	loaderSubText.innerHTML = failure[0];
+	var loaderCode = document.createElement('div');
+	loaderCode.className = 'loading-screen__subtext';
+	loaderCode.textContent = `Code: ${failure[1]}`;
+	loader.appendChild(loaderCode);
+});
