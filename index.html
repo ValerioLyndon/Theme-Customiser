@@ -62,7 +62,7 @@
 						</div>
 					</button>
 
-					<a class="hyperlink">How do I install this?</a>
+					<a class="hyperlink" onclick="document.getElementById('js-installation').classList.toggle('o-hidden')">How do I install this?</a>
 				</div>
 
 				<footer class="sidebar__section sidebar__section--no-border">
@@ -81,6 +81,28 @@
 
 			<div class="preview">
 				<iframe src="preview.html" class="preview__window" id="js-frame"></iframe>
+			</div>
+		</div>
+
+		<div class="c-popup o-hidden" id="js-installation">
+			<div class="c-popup__inner">
+				<div class="c-popup__invisibutton" onclick="document.getElementById('js-installation').classList.toggle('o-hidden')"></div>
+				<div class="c-install c-popup__content">
+					<!--(This section needs a lot of improvement:
+					
+					- should have images and proper formatting.
+					- should list different options for modern or classic lists)
+					-->
+
+					Navigate to your list style settings on MyAnimeList.<br />
+					<a class="hyperlink" href="https://myanimelist.net/ownlist/style">Link</a><br />
+					<br />
+					Make sure it's set to the <span class="js-list-type">Modern</span><!--todo: add js functionality here--> design.<br />
+					<br />
+					Open the style you have or want active and navigate to the "Add Custom CSS" area.<br />
+					<br />
+					Copy the output from this page and paste it into the "Add Custom CSS" text field.
+				</div>
 			</div>
 		</div>
 

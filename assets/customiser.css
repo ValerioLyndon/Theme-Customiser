@@ -359,6 +359,50 @@ input:disabled + .toggle .toggle__info {
 	border: none;
 }
 
+/* Popups */
+
+.c-popup {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 10;
+	overflow: auto;
+	background: rgba(0,0,0,0.6);
+}
+.c-popup__inner {
+	position: relative;
+	height: 100%;
+	padding: 30px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+.c-popup__invisibutton {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	cursor: pointer;
+}
+.c-popup__content {
+	position: relative;
+	z-index: 1;
+	width: 800px;
+	max-width: 100%;
+	padding: 16px;
+	background: #fff;
+	border-radius: 8px;
+	flex: 0 0 auto;
+	box-shadow: 0 4px 32px rgba(0,0,0,0.4);
+}
+
+.c-install {
+}
+
+
 /* Loading */
 
 .loading-screen {
