@@ -85,7 +85,7 @@ function updateCss() {
 	for(let [id, value] of Object.entries(userOpts['options'])) {
 		let optData = theme['options'][id];
 		
-		if(optData['type'] === 'user_text') {
+		if(optData['type'] === 'css_content_value') {
 			// format text to be valid for CSS content statements
 			value = `"${value.replaceAll('"', '\\"').replaceAll('\n', '\\a ').replaceAll('\\','\\\\')}"`;
 		}
@@ -103,6 +103,20 @@ function updateCss() {
 	}
 
 	// Mods
+	function extendCss(extension, location = 'bottom') {
+		if(location === 'top') {
+			newCss = extension + '\n\n' + newCss;
+		} else if(location === 'import') {
+			if(/@\\*import/i.test(newCss)) {
+				newCss = newCss.replace(/([\s\S]*@\\*import.+?;)/i, '$1\n' + extension);
+			} else {
+				newCss = extension + '\n\n' + newCss;
+			}
+		} else {
+			newCss = newCss + '\n\n' + extension;
+		}
+	}
+	
 	if('mods' in theme) {
 		let totalCount = Object.keys(userOpts['mods']).length;
 
@@ -113,17 +127,20 @@ function updateCss() {
 				for(let [id, value] of Object.entries(userOpts['mods'])) {
 					let modData = theme['mods'][id];
 
-					if('location' in modData) {
-						try {
-							var modCss = await fetchFile(modData['location']);
-						} catch (failure) {
-							console.log(failure);
+					for(let [location, resource] of Object.entries(modData['css'])) {
+						if(resource.startsWith('http')) {
+							try {
+								var modCss = await fetchFile(resource);
+							} catch (failure) {
+								console.log(failure);
+							}
+						} else {
+							var modCss = resource;
 						}
-					} else {
-						var modCss = modData['css'];
+
+						extendCss(modCss, location);
 					}
 
-					newCss += '\n\n' + modCss;
 				}
 
 				pushCss(newCss);
@@ -240,7 +257,7 @@ if('options' in theme) {
 		head.className = 'option__name';
 		div.appendChild(head);
 
-		if(opt['type'] === 'user_text') {
+		if(opt['type'] === 'css_content_value') {
 			let input = document.createElement('textarea');
 			input.id = optId;
 			input.value = opt['default'];
