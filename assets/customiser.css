@@ -268,15 +268,6 @@ input:disabled + .toggle .toggle__info {
 	margin-bottom: 2px;
 }
 
-.option__desc {
-	margin: 0 0 8px;
-	font-size: 0.9em;
-}
-
-.option__toggle-box {
-	float: right;
-}
-
 .option__input {
 	width: calc(100% - 4px);
 	padding: 4px;
@@ -292,6 +283,34 @@ input:disabled + .toggle .toggle__info {
 	height: 1.3em;
 	max-height: 10em;
 	resize: vertical;
+}
+
+
+.mod {
+	padding-top: 6px;
+	border-top: 2px dotted var(--border);
+}
+
+.mod__name {
+	display: block;
+	font-weight: 700;
+	margin-bottom: 2px;
+}
+
+.mod__desc {
+	margin: 0 0 8px;
+	font-size: 0.9em;
+}
+
+.mod__toggle-box {
+	float: right;
+}
+
+.mod__options {
+	display: none;
+}
+.mod--checked .mod__options {
+	display: block;
 }
 
 

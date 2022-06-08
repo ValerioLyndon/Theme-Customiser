@@ -81,42 +81,57 @@ class loadingScreen {
 }
 var loader = new loadingScreen();
 
-function updateOption(type, id, defaultValue = undefined) {
+function updateOption(type, id, defaultValue = '', parentModId = false) {
 	// set values and default value
 	let val = undefined;
-	if(type === 'options') {
-		if(defaultValue === undefined) {
-			defaultValue = '';
-		}
-		val = document.getElementById(id).value;
-	} else if(type === 'mods') {
-		if(defaultValue === undefined) {
-			defaultValue = false;
-		}
-		val = document.getElementById(id).checked;
-	} else {
-		return false;
-	}
 
-	// disable incompatible mods in the GUI
-	if(type === 'mods') {
-		let modData = theme['mods'][id];
-		if('incompatibilities' in modData) {
-			for(incompatibility of modData['incompatibilities']) {
-				document.getElementById(incompatibility).disabled = val;
-			}
-		}
-	}
+	val = document.getElementById(id).value;
 
-	// delete from options if it matches default, to save space. else it adds the value to the options
+	// Add to userOpts unless matches default value
 	if(val === defaultValue) {
-		delete userOpts[type][id];
+		if(parentModId) {
+			delete userOpts['mods'][parentModId][id];
+		} else {
+			delete userOpts['options'][id];
+		}
 	}
 	else {
-		userOpts[type][id] = val;
+		if(parentModId) {
+			userOpts['mods'][parentModId][id] = val;
+		} else {
+			userOpts['options'][id] = val;
+		}
 	}
 
-	// send CSS to the rest of the code
+	updateCss();
+}
+
+function updateMod(id) {
+	val = document.getElementById(id).checked;
+	
+	// Disable incompatible mods
+	let mod = theme['mods'][id];
+	if('incompatibilities' in mod) {
+		for(incompatibility of mod['incompatibilities']) {
+			document.getElementById(incompatibility).disabled = val;
+		}
+	}
+
+	// Add some CSS style rules
+	if(val === true) {
+		document.getElementById(`js-${id}-parent`).classList.add('mod--checked');
+	} else {
+		document.getElementById(`js-${id}-parent`).classList.remove('mod--checked');
+	}
+
+	// Add to userOpts unless matches default value (i.e disabled)
+	if(val === false) {
+		delete userOpts['mods'][id];
+	}
+	else {
+		userOpts['mods'][id] = {};
+	}
+
 	updateCss();
 }
 
@@ -127,25 +142,29 @@ function updateCss() {
 
 	newCss = '/* Theme Customiser Preset\nhttps://github.com/ValerioLyndon/Theme-Customiser\n^TC' + JSON.stringify(userOpts) + 'TC$*/\n\n' + baseCss;
 
-	// Options
-	for(let [id, value] of Object.entries(userOpts['options'])) {
-		let optData = theme['options'][id];
-		
+	function applyOptionToCss(css, optData, insert) {
+		console.log(css);
+		console.log(optData);
 		if(optData['type'] === 'css_content_value') {
 			// format text to be valid for CSS content statements
-			value = `"${value.replaceAll('"', '\\"').replaceAll('\n', '\\a ').replaceAll('\\','\\\\')}"`;
+			insert = `"${insert.replaceAll('"', '\\"').replaceAll('\n', '\\a ').replaceAll('\\','\\\\')}"`;
 		}
 		else if(optData['type'] === 'image_url') {
-			if(value === '') {
-				value = 'none';
+			if(insert === '') {
+				insert = 'none';
 			} else {
-				value = `url(${value})`;
+				insert = `url(${insert})`;
 			}
 		}
 
-		let stringToInsert = optData['string_to_insert'].replace('{{{insert}}}', value);
+		let stringToInsert = optData['string_to_insert'].replaceAll('{{{insert}}}', insert);
 
-		newCss = newCss.replace(optData['string_to_replace'], stringToInsert);
+		return css.replace(optData['string_to_replace'], stringToInsert);
+	}
+
+	// Options
+	for(let [id, val] of Object.entries(userOpts['options'])) {
+		newCss = applyOptionToCss(newCss, theme['options'][id], val);
 	}
 
 	// Mods
@@ -184,9 +203,12 @@ function updateCss() {
 							var modCss = resource;
 						}
 
+						for(let [optId, val] of Object.entries(userOpts['mods'][id])) {
+							modCss = applyOptionToCss(modCss, modData['options'][optId], val);
+						}
+
 						extendCss(modCss, location);
 					}
-
 				}
 
 				pushCss(newCss);
@@ -275,48 +297,67 @@ function renderHtml() {
 
 	var optionsEle = document.getElementById('js-options');
 
+	function generateOptionHtml(dictionary, parentModId) {
+		let id = dictionary[0],
+			opt = dictionary[1];
+
+		let div = document.createElement('div'),
+			head = document.createElement('b'),
+			notice = document.createElement('div');
+
+		div.className = 'option';
+		head.textContent = opt['name'];
+		head.className = 'option__name';
+		div.appendChild(head);
+
+		if(opt['type'] === 'css_content_value') {
+			let input = document.createElement('textarea');
+			input.id = id;
+			input.value = opt['default'];
+			input.className = 'option__input option__input--textarea';
+			input.placeholder = 'Your text here.';
+			div.appendChild(input);
+
+			input.addEventListener('input', () => { updateOption('options', id, opt['default'], parentModId); });
+		}
+
+		else if(opt['type'] === 'text') {
+			let input = document.createElement('input');
+			input.id = id;
+			input.type = 'text';
+			input.value = opt['default'];
+			input.className = 'option__input option__input--textarea';
+			input.placeholder = 'Your text here.';
+			div.appendChild(input);
+
+			input.addEventListener('input', () => { updateOption('options', id, opt['default'], parentModId); });
+		}
+
+		else if(opt['type'] === 'image_url') {
+			let input = document.createElement('input');
+			input.id = id;
+			input.type = 'url';
+			input.value = opt['default'];
+			input.placeholder = 'https://example.com/image.jpg';
+			input.className = 'option__input';
+			div.appendChild(input);
+
+			input.addEventListener('input', () => {
+				validateInput('options', id);
+				updateOption('options', id, opt['default'], parentModId);
+			});
+		}
+
+		notice.id = `js-${id}-notice`;
+		notice.className = 'c-notice o-hidden';
+		div.appendChild(notice);
+
+		return div;
+	}
+
 	if('options' in theme) {
-		for (const [optId, opt] of Object.entries(theme['options'])) {
-			let div = document.createElement('div'),
-				head = document.createElement('b'),
-				notice = document.createElement('div');
-
-			div.className = 'option';
-			head.textContent = opt['name'];
-			head.className = 'option__name';
-			div.appendChild(head);
-
-			if(opt['type'] === 'css_content_value') {
-				let input = document.createElement('textarea');
-				input.id = optId;
-				input.value = opt['default'];
-				input.className = 'option__input option__input--textarea';
-				input.placeholder = 'Your text here.';
-				div.appendChild(input);
-
-				input.addEventListener('input', () => { updateOption('options', optId, opt['default']); });
-			}
-
-			else if(opt['type'] === 'image_url') {
-				let input = document.createElement('input');
-				input.id = optId;
-				input.type = 'url';
-				input.value = opt['default'];
-				input.placeholder = 'https://example.com/image.jpg';
-				input.className = 'option__input';
-				div.appendChild(input);
-
-				input.addEventListener('input', () => {
-					validateInput('options', optId);
-					updateOption('options', optId, opt['default']);
-				});
-			}
-
-			notice.id = `js-${optId}-notice`;
-			notice.className = 'c-notice o-hidden';
-			div.appendChild(notice);
-
-			optionsEle.appendChild(div);
+		for(opt of Object.entries(theme['options'])) {
+			optionsEle.appendChild(generateOptionHtml(opt));
 		}
 	} else {
 		optionsEle.remove();
@@ -331,7 +372,7 @@ function renderHtml() {
 				desc = document.createElement('p'),
 				toggle = document.createElement('div');
 
-			toggle.className = 'option__toggle-box';
+			toggle.className = 'mod__toggle-box';
 			toggle.innerHTML = `
 				<input id="${modId}" type="checkbox" class="o-hidden" />
 				<label class="toggle" for="${modId}">
@@ -342,18 +383,30 @@ function renderHtml() {
 			`;
 			div.appendChild(toggle);
 
-			div.className = 'option';
+			div.className = 'mod';
+			div.id = `js-${modId}-parent`;
 			head.textContent = mod['name'];
-			head.className = 'option__name';
+			head.className = 'mod__name';
 			div.appendChild(head);
 			// Todo: change this from innerHTML to markdown or something so you can support third-party design json
 			desc.innerHTML = 'description' in mod ? mod['description'] : '';
-			desc.className = 'option__desc';
+			desc.className = 'mod__desc';
 			div.appendChild(desc);
+
+			if('options' in mod) {
+				let optDiv = document.createElement('div');
+				optDiv.className = 'mod__options';
+
+				for(opt of Object.entries(mod['options'])) {
+					optDiv.appendChild(generateOptionHtml(opt, modId));
+				}
+
+				div.appendChild(optDiv);
+			}
 
 			modsEle.appendChild(div);
 
-			document.getElementById(modId).addEventListener('change', () => { updateOption('mods', modId); });
+			document.getElementById(modId).addEventListener('change', () => { updateMod(modId); });
 		}
 	} else {
 		modsEle.remove();

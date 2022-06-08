@@ -195,7 +195,7 @@
 				"options": {
 					"height": {
 						"name": "Height",
-						"type": "css_value",
+						"type": "text",
 						"string_to_replace": "--banner-height: 318px;",
 						"string_to_insert": "--banner-height: {{{insert}}};",
 						"default": "318px"
