@@ -20,15 +20,15 @@ var userOpts = {
 	'mods': {}
 };
 
-function fetchFile(path) {
+function fetchFile(path, cacheResult = true) {
 	return new Promise((resolve, reject) => {
 		// Checks if item has previously been fetched and returns the cached result if so
 		let cache = sessionStorage.getItem(path);
-		if(cache) {
+
+		if(cacheResult && cache) {
 			console.log(`[fetchFile] Retrieving cached result for ${path}`);
 			resolve(cache);
 		}
-		
 		else {
 			console.log(`[fetchFile] Fetching ${path}`);
 			var request = new XMLHttpRequest();
@@ -38,7 +38,9 @@ function fetchFile(path) {
 				if (request.readyState === 4) {
 					if (request.status === 200) {
 						// Cache result on success and then return it
-						sessionStorage.setItem(path, request.responseText);
+						if(cacheResult) {
+							sessionStorage.setItem(path, request.responseText);
+						}
 						resolve(request.responseText);
 					} else {
 						reject(['Encountered a problem while loading a resource.', `request.status.${request.status}`]);
@@ -523,7 +525,7 @@ function finalSetup() {
 
 // INITIALISE PAGE
 
-let fetchData = fetchFile(dataJson);
+let fetchData = fetchFile(dataJson, false);
 
 fetchData.then((json) => {
 	// Get theme info via json
