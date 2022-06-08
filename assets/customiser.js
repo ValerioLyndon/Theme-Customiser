@@ -6,10 +6,16 @@ var query = (new URL(document.location)).searchParams,
 	theme = '',
 	data = null;
 
+if(dataJson === null) {
+	dataJson = './assets/data.json';
+}
+
 // Setup some basic variables
 var baseCss = '';
 
 var userOpts = {
+	'theme': selectedTheme,
+	'data': dataJson,
 	'options': {},
 	'mods': {}
 };
@@ -75,7 +81,7 @@ class loadingScreen {
 }
 var loader = new loadingScreen();
 
-function updateOpts(type, id, defaultValue = undefined) {
+function updateOption(type, id, defaultValue = undefined) {
 	// set values and default value
 	let val = undefined;
 	if(type === 'options') {
@@ -109,13 +115,17 @@ function updateOpts(type, id, defaultValue = undefined) {
 	else {
 		userOpts[type][id] = val;
 	}
-	console.log(userOpts);
+
 	// send CSS to the rest of the code
 	updateCss();
 }
 
 function updateCss() {
 	let newCss = baseCss;
+
+	// Encode options at top
+
+	newCss = '/* Theme Customiser Preset\nhttps://github.com/ValerioLyndon/Theme-Customiser\n^TC' + JSON.stringify(userOpts) + 'TC$*/\n\n' + baseCss;
 
 	// Options
 	for(let [id, value] of Object.entries(userOpts['options'])) {
@@ -125,7 +135,7 @@ function updateCss() {
 			// format text to be valid for CSS content statements
 			value = `"${value.replaceAll('"', '\\"').replaceAll('\n', '\\a ').replaceAll('\\','\\\\')}"`;
 		}
-		else if(optData['type'] === 'user_image') {
+		else if(optData['type'] === 'image_url') {
 			if(value === '') {
 				value = 'none';
 			} else {
@@ -211,18 +221,16 @@ function pushCss(css) {
 }
 
 function validateInput(type, id) {
-	console.log('i am here');
 	let optData = theme[type][id],
 		notice = document.getElementById(`js-${id}-notice`),
 		val = document.getElementById(id).value.toLowerCase();
-	console.log(optData, notice, val);
 	
 	if(val.length === 0) {
 		notice.classList.add('o-hidden');
 		return undefined;
 	}
 
-	if(optData['type'] === 'user_image') {
+	if(optData['type'] === 'image_url') {
 		// Consider replacing this with a script that simply loads the image and tests if it loads. Since we're already doing that with the preview anyway it shouldn't be a problem.
 		let noticeHTML = 'We detected some warnings. If your image does not display, fix these issues and try again.<ul class="c-notice__list">',
 			problems = 0;
@@ -286,10 +294,10 @@ function renderHtml() {
 				input.placeholder = 'Your text here.';
 				div.appendChild(input);
 
-				input.addEventListener('input', () => { updateOpts('options', optId, opt['default']); });
+				input.addEventListener('input', () => { updateOption('options', optId, opt['default']); });
 			}
 
-			else if(opt['type'] === 'user_image') {
+			else if(opt['type'] === 'image_url') {
 				let input = document.createElement('input');
 				input.id = optId;
 				input.type = 'url';
@@ -300,7 +308,7 @@ function renderHtml() {
 
 				input.addEventListener('input', () => {
 					validateInput('options', optId);
-					updateOpts('options', optId, opt['default']);
+					updateOption('options', optId, opt['default']);
 				});
 			}
 
@@ -345,12 +353,71 @@ function renderHtml() {
 
 			modsEle.appendChild(div);
 
-			document.getElementById(modId).addEventListener('change', () => { updateOpts('mods', modId); });
+			document.getElementById(modId).addEventListener('change', () => { updateOption('mods', modId); });
 		}
 	} else {
 		modsEle.remove();
 	}
 }
+
+// Add functionality to some parts of the page
+
+function importPreviousOpts(opts = undefined) {
+	if(opts === undefined) {
+		let previous = document.getElementById('js-import-code').value;
+
+		// previous input should be any amount of text that also includes the ^TC{}TC$ text format with stringifed json useropts inside the curly braces. 
+		// process previous CSS/input, removing everything except the json.
+		previous = previous.match(/\^TC{.*?}}TC\$/);
+
+		if(previous.length === 0) {
+			// todo: these return values are unused. Please use them to create a user-facing notice
+			return [false, ['Import failed, could not interpret your options. Are you sure your input contains valid options?', 'regex.match']];
+		}
+
+		previous = previous[0].substr(3, previous[0].length - 6);
+
+		try {
+			var previousOpts = JSON.parse(previous);
+		} catch {
+			// todo: these return values are unused. Please use them to create a user-facing notice
+			return [false, ['Import failed, could not interpret your options.', 'json.parse']];
+		}
+	} else {
+		var previousOpts = opts;
+	}
+
+	// Redirect user if they are on the wrong theme.
+
+	if(userOpts['theme'] !== previousOpts['theme'] | userOpts['data'] !== previousOpts['data']) {
+		// todo: OFFER to redirect instead of auto-redirecting. Can't be bothered to do this yet as I have not made modal creation easy.
+
+		// do not use alert it's horrible
+		alert('You are on the wrong theme page for the imported settings. Redirecting to the correct theme page.');
+
+		localStorage.setItem('tcUserOptsImported', JSON.stringify(previousOpts));
+		window.location = `./?theme=${previousOpts['theme']}&data=${previousOpts['data']}&import=1`;
+	}
+
+	// set current options to match
+	userOpts = previousOpts;
+	
+	// update HTML to match new options
+	let toUpdate = Object.assign({}, userOpts['options'], userOpts['mods']);
+	for([id, val] of Object.entries(toUpdate)) {
+		let ele = document.getElementById(id);
+		if(ele.type === 'checkbox') {
+			document.getElementById(id).checked = val;
+		} else {
+			document.getElementById(id).value = val;
+		}
+	}
+
+	updateCss();
+	return true;
+}
+
+document.getElementById('js-import-button').addEventListener('click', () => { importPreviousOpts(); });
 
 // Updates preview CSS & removes loader
 
@@ -360,7 +427,30 @@ function finalSetup() {
 	fetchThemeCss.then((css) => {
 		// Update Preview
 		baseCss = css;
-		pushCss(css);
+		
+	
+		// Import settings if requested by URL
+
+		if(query.get('import')) {
+			let opts = localStorage.getItem('tcUserOptsImported');
+			if(opts === null) {
+				console.log('failed to import options');
+				// todo: alert user of error here.
+			} else {
+				try {
+					opts = JSON.parse(opts);
+				} catch {
+					console.log('failed to import options json stringify');
+					// todo: alert user of error here.
+				}
+				// importpreviousopts will call updateCss and pushCss
+				importPreviousOpts(opts);
+			}
+		}
+
+		else {
+			pushCss(css);
+		}
 
 		// Remove Loader
 		loader.loaded();
@@ -372,10 +462,6 @@ function finalSetup() {
 }
 
 // INITIALISE PAGE
-
-if(dataJson === null) {
-	dataJson = './assets/data.json';
-}
 
 let fetchData = fetchFile(dataJson);
 

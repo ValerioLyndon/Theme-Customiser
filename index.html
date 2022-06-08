@@ -13,6 +13,10 @@
 		<div class="content" id="js-content">
 			<div class="sidebar">
 				<nav class="sidebar__nav">
+					<a href="#" class="sidebar__nav-link" onclick="document.getElementById('js-import').classList.toggle('o-hidden')">
+						<i class="sidebar__nav-link-icon fa-solid fa-upload"></i>
+						<span class="o-hidden-text">Import</span>
+					</a>
 					<a href="#" class="sidebar__nav-link" id="js-share">
 						<i class="sidebar__nav-link-icon fa fa-share-alt"></i>
 						<span class="o-hidden-text">Share</span>
@@ -102,6 +106,18 @@
 					Open the style you have or want active and navigate to the "Add Custom CSS" area.<br />
 					<br />
 					Copy the output from this page and paste it into the "Add Custom CSS" text field.
+				</div>
+			</div>
+		</div>
+
+		<div class="c-popup o-hidden" id="js-import">
+			<div class="c-popup__inner">
+				<div class="c-popup__invisibutton" onclick="document.getElementById('js-import').classList.toggle('o-hidden')"></div>
+				<div class="c-import c-popup__content">
+					Import previous settings. Paste into this textbox your theme CSS or the "Theme Customiser Preset" section.
+
+					<textarea id="js-import-code"></textarea>
+					<button class="button button--highlighted" id="js-import-button">Import</button>
 				</div>
 			</div>
 		</div>
