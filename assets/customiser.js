@@ -205,11 +205,8 @@ function updateCss() {
 				for(let [id, value] of Object.entries(userOpts['mods'])) {
 					let modData = theme['mods'][id];
 					for(let [location, resource] of Object.entries(modData['css'])) {
-						console.log('yes');
-						console.log(location,resource);
 						if(resource.startsWith('http')) {
 							try {
-								console.log('awaiting');
 								var modCss = await fetchFile(resource);
 							} catch (failure) {
 								console.log(failure);
@@ -499,13 +496,15 @@ function importPreviousOpts(opts = undefined) {
 	userOpts = previousOpts;
 	
 	// update HTML to match new options
-	let toUpdate = Object.assign({}, userOpts['options'], userOpts['mods']);
-	for([id, val] of Object.entries(toUpdate)) {
-		let ele = document.getElementById(id);
-		if(ele.type === 'checkbox') {
-			document.getElementById(id).checked = val;
-		} else {
-			document.getElementById(id).value = val;
+	for([optId, val] of Object.entries(userOpts['options'])) {
+		document.getElementById(optId).value = val;
+	}
+	for([modId, modOpts] of Object.entries(userOpts['mods'])) {
+		document.getElementById(modId).checked = true;
+		document.getElementById(`js-${modId}-parent`).classList.add('mod--checked');
+		
+		for([optId, optVal] of Object.entries(modOpts)) {
+			document.getElementById(optId).value = optVal;
 		}
 	}
 
