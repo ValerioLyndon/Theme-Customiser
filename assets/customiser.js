@@ -115,7 +115,11 @@ function updateMod(id) {
 	let mod = theme['mods'][id];
 	if('incompatibilities' in mod) {
 		for(incompatibility of mod['incompatibilities']) {
-			document.getElementById(incompatibility).disabled = val;
+			try {
+				document.getElementById(incompatibility).disabled = val;
+			} catch {
+				console.log('todo: add user-facing error report here');
+			}
 		}
 	}
 
@@ -213,7 +217,7 @@ function updateCss() {
 						} else {
 							var modCss = resource;
 						}
-						
+
 						for(let [optId, val] of Object.entries(userOpts['mods'][id])) {
 							modCss = applyOptionToCss(modCss, modData['options'][optId], val);
 						}

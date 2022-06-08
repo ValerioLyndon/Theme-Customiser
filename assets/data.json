@@ -469,7 +469,7 @@
 			"header-line": {
 				"name": "Coloured Line on Header",
 				"description": "Adds a coloured line around the header bar and avatar for some extra flair. Single colour variant.",
-				"incompatibilities": ["lic"],
+				"incompatibilities": ["header-line-cat"],
 				"css": {"bottom": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Header%20Outline%20Compressed.css"},
 				"options": {
 					"header-line-c": {
@@ -483,7 +483,7 @@
 			"header-line-cat": {
 				"name": "Coloured Line on Header - Category-coloured",
 				"description": "Adds a coloured line around the header bar and avatar for some extra flair. Category-coloured variant.",
-				"incompatibilities": ["lis"],
+				"incompatibilities": ["header-line"],
 				"css": {"bottom": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Header%20Outline%20Category-Coloured%20Compressed.css"}
 			},
 			"cat-header": {
