@@ -83,7 +83,7 @@ class loadingScreen {
 }
 var loader = new loadingScreen();
 
-function updateOption(type, id, defaultValue = '', parentModId = false) {
+function updateOption(id, defaultValue = '', parentModId = false) {
 	// set values and default value
 	let val = undefined;
 
@@ -156,7 +156,7 @@ function updateCss() {
 				insert = `url(${insert})`;
 			}
 		}
-		console.log(insert);
+
 		for(set of optData['replacements']) {
 			let toFind = set[0],
 				toInsert = set[1].replaceAll('{{{insert}}}', insert);
@@ -200,10 +200,12 @@ function updateCss() {
 			(async () => {
 				for(let [id, value] of Object.entries(userOpts['mods'])) {
 					let modData = theme['mods'][id];
-
 					for(let [location, resource] of Object.entries(modData['css'])) {
+						console.log('yes');
+						console.log(location,resource);
 						if(resource.startsWith('http')) {
 							try {
+								console.log('awaiting');
 								var modCss = await fetchFile(resource);
 							} catch (failure) {
 								console.log(failure);
@@ -211,7 +213,7 @@ function updateCss() {
 						} else {
 							var modCss = resource;
 						}
-
+						
 						for(let [optId, val] of Object.entries(userOpts['mods'][id])) {
 							modCss = applyOptionToCss(modCss, modData['options'][optId], val);
 						}
@@ -251,9 +253,8 @@ function pushCss(css) {
 	}
 }
 
-function validateInput(type, id) {
-	let optData = theme[type][id],
-		notice = document.getElementById(`js-${id}-notice`),
+function validateInput(id, type) {
+	let notice = document.getElementById(`js-${id}-notice`),
 		val = document.getElementById(id).value.toLowerCase();
 	
 	if(val.length === 0) {
@@ -261,7 +262,7 @@ function validateInput(type, id) {
 		return undefined;
 	}
 
-	if(optData['type'] === 'image_url') {
+	if(type === 'image_url') {
 		// Consider replacing this with a script that simply loads the image and tests if it loads. Since we're already doing that with the preview anyway it shouldn't be a problem.
 		let noticeHTML = 'We detected some warnings. If your image does not display, fix these issues and try again.<ul class="c-notice__list">',
 			problems = 0;
@@ -309,28 +310,22 @@ function renderHtml() {
 	function generateOptionHtml(dictionary, parentModId) {
 		let id = dictionary[0],
 			opt = dictionary[1];
+		
 
 		let div = document.createElement('div'),
 			head = document.createElement('b'),
 			notice = document.createElement('div');
+
+		if(opt['default'] === undefined) {
+			opt['default'] = '';
+		}
 
 		div.className = 'option';
 		head.textContent = opt['name'];
 		head.className = 'option__name';
 		div.appendChild(head);
 
-		if(opt['type'] === 'css_content_value') {
-			let input = document.createElement('textarea');
-			input.id = id;
-			input.value = opt['default'];
-			input.className = 'option__input option__input--textarea';
-			input.placeholder = 'Your text here.';
-			div.appendChild(input);
-
-			input.addEventListener('input', () => { updateOption('options', id, opt['default'], parentModId); });
-		}
-
-		else if(opt['type'] === 'text') {
+		if(['text', 'css_generic_value'].includes(opt['type'])) {
 			let input = document.createElement('input');
 			input.id = id;
 			input.type = 'text';
@@ -339,7 +334,17 @@ function renderHtml() {
 			input.placeholder = 'Your text here.';
 			div.appendChild(input);
 
-			input.addEventListener('input', () => { updateOption('options', id, opt['default'], parentModId); });
+			switch (opt['type']) {
+				case 'text':
+					input.addEventListener('input', () => {
+						updateOption(id, opt['default'], parentModId);
+					});
+				case 'css_generic_value':
+					input.addEventListener('input', () => {
+						validateInput(id, opt['type']);
+						updateOption(id, opt['default'], parentModId);
+					});
+			}
 		}
 
 		else if(opt['type'] === 'image_url') {
@@ -352,9 +357,34 @@ function renderHtml() {
 			div.appendChild(input);
 
 			input.addEventListener('input', () => {
-				validateInput('options', id);
-				updateOption('options', id, opt['default'], parentModId);
+				validateInput(id, opt['type']);
+				updateOption(id, opt['default'], parentModId);
 			});
+		}
+
+		else if(opt['type'] === 'css_content_value') {
+			let input = document.createElement('textarea');
+			input.id = id;
+			input.value = opt['default'];
+			input.className = 'option__input option__input--textarea';
+			input.placeholder = 'Your text here.';
+			div.appendChild(input);
+
+			input.addEventListener('input', () => { updateOption(id, opt['default'], parentModId); });
+		}
+
+		else if(opt['type'] === 'colour') {
+			// todo: make this better because the built-in colour selector is garbo but using just text is pretty bad too
+			let input = document.createElement('input');
+			input.id = id;
+			input.value = opt['default'];
+			//input.type = 'color';
+			input.type = 'text';
+			input.className = 'option__input';
+			input.placeholder = 'Your colour here. e.x rgba(0, 135, 255, 1.0)';
+			div.appendChild(input);
+
+			input.addEventListener('input', () => { updateOption(id, opt['default'], parentModId); });
 		}
 
 		notice.id = `js-${id}-notice`;
@@ -489,7 +519,6 @@ function finalSetup() {
 	fetchThemeCss.then((css) => {
 		// Update Preview
 		baseCss = css;
-		
 	
 		// Import settings if requested by URL
 
