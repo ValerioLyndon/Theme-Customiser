@@ -143,8 +143,6 @@ function updateCss() {
 	newCss = '/* Theme Customiser Preset\nhttps://github.com/ValerioLyndon/Theme-Customiser\n^TC' + JSON.stringify(userOpts) + 'TC$*/\n\n' + baseCss;
 
 	function applyOptionToCss(css, optData, insert) {
-		console.log(css);
-		console.log(optData);
 		if(optData['type'] === 'css_content_value') {
 			// format text to be valid for CSS content statements
 			insert = `"${insert.replaceAll('"', '\\"').replaceAll('\n', '\\a ').replaceAll('\\','\\\\')}"`;
@@ -156,10 +154,19 @@ function updateCss() {
 				insert = `url(${insert})`;
 			}
 		}
+		console.log(insert);
+		for(set of optData['replacements']) {
+			let toFind = set[0],
+				toInsert = set[1].replaceAll('{{{insert}}}', insert);
 
-		let stringToInsert = optData['string_to_insert'].replaceAll('{{{insert}}}', insert);
+			if(toFind.startsWith('RegExp')) {
+				toFind = new RegExp(toFind.substr(7), 'g');
+			}
 
-		return css.replace(optData['string_to_replace'], stringToInsert);
+			css = css.replaceAll(toFind, toInsert);
+		}
+
+		return css;
 	}
 
 	// Options

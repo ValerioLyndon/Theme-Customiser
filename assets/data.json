@@ -7,36 +7,31 @@
 			"nm": {
 				"name": "Name",
 				"type": "css_content_value",
-				"string_to_replace": "--name:none;",
-				"string_to_insert": "--name:{{{insert}}};",
+				"replacements": [["--name:none;", "--name:{{{insert}}};"]],
 				"default": ""
 			},
 			"av": {
 				"name": "Avatar",
 				"type": "image_url",
-				"string_to_replace": "--avatar:none;",
-				"string_to_insert": "--avatar:{{{insert}}};",
+				"replacements": [["--avatar:none;", "--avatar:{{{insert}}};"]],
 				"default": ""
 			},
 			"bn": {
 				"name": "Banner",
 				"type": "image_url",
-				"string_to_replace": "--banner:url(https://i.imgur.com/VoPJz2S.jpg);",
-				"string_to_insert": "--banner:{{{insert}}};",
+				"replacements": [["--banner:url(https://i.imgur.com/VoPJz2S.jpg);", "--banner:{{{insert}}};"]],
 				"default": "https://i.imgur.com/VoPJz2S.jpg"
 			},
 			"ch": {
 				"name": "Character",
 				"type": "image_url",
-				"string_to_replace": "--character:url(https://i.imgur.com/6IPyngH.png);",
-				"string_to_insert": "--character:{{{insert}}};",
+				"replacements": [["--character:url(https://i.imgur.com/6IPyngH.png);", "--character:{{{insert}}};"]],
 				"default": "https://i.imgur.com/6IPyngH.png"
 			},
 			"bg": {
 				"name": "Background",
 				"type": "image_url",
-				"string_to_replace": "--background:none;",
-				"string_to_insert": "--background:{{{insert}}};",
+				"replacements": [["--background:none;", "--background:{{{insert}}};"]],
 				"default": ""
 			}
 		},
@@ -58,8 +53,10 @@
 					"username": {
 						"name": "Your MyAnimeList Username",
 						"type": "text",
-						"string_to_replace": ["all/anime/presets","all/manga/presets"],
-						"string_to_insert": ["anime/{{{insert}}}/presets","manga/{{{insert}}}/presets"],
+						"replacements": [
+							["all/anime/presets", "anime/{{{insert}}}/presets"],
+							["all/manga/presets", "manga/{{{insert}}}/presets"]
+						],
 						"default": ""
 					}
 				}
@@ -105,43 +102,37 @@
 					"li": {
 						"name": "Left Image",
 						"type": "image_url",
-						"string_to_replace": "",
-						"string_to_insert": "{{{insert}}}",
+						"replacements": [["", "{{{insert}}}"]],
 						"default": ""
 					},
 					"ri": {
 						"name": "Right Image",
 						"type": "image_url",
-						"string_to_replace": "",
-						"string_to_insert": "{{{insert}}}",
+						"replacements": [["", "{{{insert}}}"]],
 						"default": ""
 					},
 					"la": {
 						"name": "Left Alignment",
 						"type": "css_value",
-						"string_to_replace": "",
-						"string_to_insert": "{{{insert}}}",
+						"replacements": [["", "{{{insert}}}"]],
 						"default": ""
 					},
 					"ra": {
 						"name": "Right Alignment",
 						"type": "css_value",
-						"string_to_replace": "",
-						"string_to_insert": "{{{insert}}}",
+						"replacements": [["", "{{{insert}}}"]],
 						"default": ""
 					},
 					"ls": {
 						"name": "Left Size",
 						"type": "css_value",
-						"string_to_replace": "",
-						"string_to_insert": "{{{insert}}}",
+						"replacements": [["", "{{{insert}}}"]],
 						"default": ""
 					},
 					"rs": {
 						"name": "Right Size",
 						"type": "css_value",
-						"string_to_replace": "",
-						"string_to_insert": "{{{insert}}}",
+						"replacements": [["", "{{{insert}}}"]],
 						"default": ""
 					}
 				}
@@ -196,8 +187,7 @@
 					"height": {
 						"name": "Height",
 						"type": "text",
-						"string_to_replace": "--banner-height: 318px;",
-						"string_to_insert": "--banner-height: {{{insert}}};",
+						"replacements": [["--banner-height: 318px;", "--banner-height: {{{insert}}};"]],
 						"default": "318px"
 					}
 				}
