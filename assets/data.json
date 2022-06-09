@@ -3,6 +3,7 @@
 		"name": "Clarity",
 		"css": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Theme%20-%20Compressed.css",
 		"type": "modern",
+		"help": "https://myanimelist.net/forum/?topicid=1723114",
 		"options": {
 			"nm": {
 				"name": "Name",
@@ -498,19 +499,13 @@
 		"name": "Clarified",
 		"css": "",
 		"type": "modern",
-		"options": {
-			"dummy": {
-				"name": "",
-				"description": "",
-				"css": {"bottom": "../Clarity Theme/Mod - .css"},
-				"flags": ["hidden"]
-			}
-		}
+		"help": "https://github.com/ValerioLyndon/MAL-Public-List-Designs/"
 	},
 	"brink": {
 		"name": "Brink",
-		"css": "https://raw.githubusercontent.com/ValerioLyndon/MAL-Public-List-Designs/master/Brink%20Theme/Brink.min.css",
-		"type": "modern"
+		"css": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Brink%20Theme/Brink.min.css",
+		"type": "modern",
+		"help": "https://myanimelist.net/forum/?topicid=1772180"
 	},
 	"puni": {
 		"name": "Puni",
@@ -519,7 +514,8 @@
 		"columns": {
 			"animelist": ["Score", "Episodes", "Storage", "Tags", "Image"],
 			"mangalist": ["Score", "Chapters", "Volumes", "Retail Manga", "Tags", "Image"]
-		}
+		},
+		"help": "https://myanimelist.net/forum/?topicid=393503"
 	},
 	"tilt": {
 		"name": "Tilt",
@@ -528,7 +524,8 @@
 		"columns": {
 			"animelist": ["Score", "Episodes", "Tags", "Image", "Premiered", "Studios"],
 			"mangalist": ["Score", "Chapters", "Volumes", "Tags", "Image"]
-		}
+		},
+		"help": "https://myanimelist.net/forum/?topicid=1723118"
 	},
 	"9anime": {
 		"name": "9anime",
@@ -539,6 +536,7 @@
 			"animelist": ["Score", "Type", "Episodes", "Rating", "Tags", "Image", "Premiered", "Studios"],
 			"mangalist": ["Score", "Chapters", "Volumes", "Total Days Read", "Tags", "Type", "Image", "Published Dates", "Magazine"]
 		},
+		"help": "https://myanimelist.net/forum/?topicid=1723120",
 		"mods": {
 			"hd-images": {
 				"name": "HD Cover Images",

@@ -13,17 +13,21 @@
 		<div class="content" id="js-content">
 			<div class="sidebar">
 				<nav class="sidebar__nav">
+					<a class="sidebar__nav-link o-hidden js-help js-help-href">
+						<i class="sidebar__nav-link-icon fa-solid fa-question"></i>
+						<span class="sidebar__nav-link-text">Theme Help</span>
+					</a>
 					<a href="#" class="sidebar__nav-link" onclick="document.getElementById('js-import').classList.toggle('o-hidden')">
 						<i class="sidebar__nav-link-icon fa-solid fa-upload"></i>
-						<span class="o-hidden-text">Import</span>
+						<span class="sidebar__nav-link-text">Import</span>
 					</a>
 					<a href="#" class="sidebar__nav-link o-hidden" id="js-share">
 						<i class="sidebar__nav-link-icon fa fa-share-alt"></i>
-						<span class="o-hidden-text">Share</span>
+						<span class="sidebar__nav-link-text">Share</span>
 					</a>
 					<a href="?" class="sidebar__nav-link o-hidden">
 						<i class="sidebar__nav-link-icon fa fa-arrow-left"></i>
-						<span class="o-hidden-text">Back</span>
+						<span class="sidebar__nav-link-text">Back</span>
 					</a>
 				</nav>
 
@@ -93,21 +97,42 @@
 		<div class="c-popup o-hidden" id="js-installation">
 			<div class="c-popup__inner">
 				<div class="c-popup__invisibutton" onclick="document.getElementById('js-installation').classList.toggle('o-hidden')"></div>
-				<div class="c-install c-popup__content">
+				<div class="c-popup__content c-popup__content--wide">
 					<!--(This section needs a lot of improvement:
 					
 					- should have images and proper formatting.
 					- should list different options for modern or classic lists)
 					-->
 
-					Navigate to your list style settings on MyAnimeList.<br />
-					<a class="hyperlink" href="https://myanimelist.net/ownlist/style">Link</a><br />
-					<br />
-					Make sure it's set to the <span class="js-list-type">Modern</span><!--todo: add js functionality here--> design.<br />
-					<br />
-					Open the style you have or want active and navigate to the "Add Custom CSS" area.<br />
-					<br />
-					Copy the output from this page and paste it into the "Add Custom CSS" text field.
+					<h4 class="c-popup__header">How to install list CSS.</h4>
+
+					<ol class="c-steps">
+						<li class="c-steps__step">
+							<p class="c-popup__paragraph">Navigate to your <a class="hyperlink" href="https://myanimelist.net/ownlist/style">style settings</a> on MyAnimeList.</p>
+							<img src="./images/style-page.jpg" class="c-popup__image c-popup__image--thumb  c-popup__image--expand" />
+							<p class="c-info-box">If your page does not look like this, double check you have the "<span class="js-list-type">Modern</span><!--todo: add js functionality here-->" option selected. This option is found near the top, where it says "Switch Template".</p>
+						</li>
+						<li class="c-steps__step">
+							<p class="c-popup__paragraph">Open your currently selected style. The selected style will be highlighted on your page.</p>
+							<img src="./images/selected-style.jpg" class="c-popup__image" />
+						</li>
+						<li class="c-steps__step">
+							<p class="c-popup__paragraph">In the sidebar, navigate down to the "Add Custom CSS" area. Click to expand it if necessary.</p>
+							<img src="./images/custom-css.jpg" class="c-popup__image c-popup__image--thumb c-popup__image--expand" />
+						</li>
+						<li class="c-steps__step">
+							<p class="c-popup__paragraph">Copy the CSS from the theme customiser and paste it into the "Add Custom CSS" text box on MyAnimeList.</p>
+							<img src="./images/copy-css.jpg" class="c-popup__image" />
+						</li>
+						<li class="c-steps__step">
+							<p class="c-popup__paragraph">Click "Save" and your theme should be applied!</p>
+							<img src="./images/save.jpg" class="c-popup__image" />
+							<p class="c-info-box">If you encounter any issues with the theme colours or images, try disabling or enabling the cover and/or background images. Some themes do not play nicely with these.</p>
+							<p class="c-info-box o-hidden js-help">If this guide did not work for you or you have further questions, please check the help page provided by the theme author.
+								<a class="button button--highlighted" class="js-help-href">Get Help</a>
+							</p>
+						</li>
+					</ol>
 				</div>
 			</div>
 		</div>
@@ -115,10 +140,12 @@
 		<div class="c-popup o-hidden" id="js-import">
 			<div class="c-popup__inner">
 				<div class="c-popup__invisibutton" onclick="document.getElementById('js-import').classList.toggle('o-hidden')"></div>
-				<div class="c-import c-popup__content">
-					Import previous settings. Paste into this textbox your theme CSS or the "Theme Customiser Preset" section.
+				<div class="c-popup__content">
+					<h4 class="c-popup__header">Import previous settings.</h4>
+					
+					<p class="c-popup-paragraph">Paste into this textbox your theme CSS or the "Theme Customiser Preset" section. You may be redirected if there is a mis-match between your currently selected theme and the imported theme.</p>
 
-					<textarea id="js-import-code"></textarea>
+					<textarea id="js-import-code" class="textarea"></textarea>
 					<button class="button button--highlighted" id="js-import-button">Import</button>
 				</div>
 			</div>

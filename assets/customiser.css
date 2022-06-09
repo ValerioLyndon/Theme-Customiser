@@ -61,6 +61,22 @@ body {
 	transform: translateY(-1.3em);
 }
 
+/* Generic fields etc */
+.textarea {
+	display: block;
+	resize: none;
+	width: calc(100% - 4px);
+	height: 4.2em;
+	min-height: 1.3em;
+	max-height: 70vh;
+	padding: 4px;
+	border: 2px solid var(--border);
+	border-radius: 4px;
+	margin-bottom: 8px;
+	font: inherit;
+	resize: vertical;
+}
+
 /* Checkbox toggles */
 .toggle {
 	position: relative;
@@ -177,6 +193,7 @@ input:checked + .toggle--forced::after {
 }
 
 .sidebar__nav-link {
+	position: relative;
 	display: inline-block;
 	margin-left: 8px;
 }
@@ -184,6 +201,25 @@ input:checked + .toggle--forced::after {
 .sidebar__nav-link-icon {
 	color: #fff;
 	font-size: 24px;
+}
+
+.sidebar__nav-link-text {
+	position: absolute;
+	left: 50%;
+	top: 120%;
+	padding: 3px 9px;
+	background: #212121;
+	border-radius: 20px;
+	color: #fff;
+	white-space: nowrap;
+	text-decoration: none;
+	opacity: 0;
+	transform: translateX(-50%);
+	transition: opacity 0.2s ease;
+	pointer-events: none;
+}
+.sidebar__nav-link:hover .sidebar__nav-link-text {
+	opacity: 1;
 }
 
 .sidebar__section {
@@ -432,7 +468,6 @@ input:checked + .toggle--forced::after {
 }
 .c-popup__inner {
 	position: relative;
-	height: 100%;
 	padding: 30px;
 	display: flex;
 	flex-direction: column;
@@ -449,7 +484,7 @@ input:checked + .toggle--forced::after {
 .c-popup__content {
 	position: relative;
 	z-index: 1;
-	width: 800px;
+	width: 600px;
 	max-width: 100%;
 	padding: 16px;
 	background: #fff;
@@ -457,8 +492,110 @@ input:checked + .toggle--forced::after {
 	flex: 0 0 auto;
 	box-shadow: 0 4px 32px rgba(0,0,0,0.4);
 }
+.c-popup__content--wide {
+	width: 800px;
+}
 
-.c-install {
+.c-popup__header {
+	display: block;
+	padding-bottom: 4px;
+	border-bottom: 2px dotted var(--border-heavy);
+	margin: 0 0 8px;
+	font-size: 1.2em;
+	font-weight: 700;
+}
+
+.c-popup__paragraph {
+	margin: 0 0 8px;
+}
+
+.c-popup__image {
+	max-width: 100%;
+	height: auto;
+	max-height: 70vh;
+	border: 2px dotted var(--border);
+	border-radius: 8px;
+	margin-bottom: 8px;
+}
+
+.c-popup__image--thumb {
+	max-width: 33%;
+	max-height: 180px;
+}
+
+.c-popup__image--expand {
+	position: relative;
+	z-index: 5;
+	transition: transform 0.4s ease;
+	transform-origin: left top;
+}
+.c-popup__image--expand:hover {
+	transform: scale(3) translateY(-5%);
+	border-color: transparent;
+}
+
+/* Info box */
+
+.c-info-box {
+	display: block;
+	padding: 6px 6px 6px 13px;
+	background: #ececec;
+	border-left: 2px solid var(--myanimelist);
+	margin: 0;
+	position: relative;
+	margin-bottom: 8px;
+}
+
+.c-info-box::before {
+	content: "?";
+	position: absolute;
+	top: calc(50% - 8px);
+	left: -9px;
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	background: var(--myanimelist);
+	color: #fff;
+	text-align: center;
+}
+
+/* Stepped list */
+
+.c-steps {
+	padding-left: 30px;
+	counter-reset: steps;
+	font-size: 14px;
+}
+
+.c-steps__step {
+	position: relative;
+	min-height: 24px;
+	counter-increment: steps;
+}
+.c-steps__step + .c-steps__step {
+	margin-top: 8px;
+}
+
+.c-steps__step::marker {
+	content: none;
+}
+
+.c-steps__step::before {
+	content: counter(steps);
+	position: absolute;
+	left: -30px;
+	width: 24px;
+	height: 24px;
+	background: var(--myanimelist);
+	border-radius: 50%;
+	color: #fff;
+	text-align: center;
+	font-weight: 700;
+	font-size: 18px;
+	line-height: 24px;
+}
+.c-steps__step--optional::before {
+	content: "*";
 }
 
 
@@ -548,11 +685,4 @@ input:checked + .toggle--forced::after {
 
 .o-hidden {
 	display: none;
-}
-
-.o-hidden-text {
-	display: inline-block;
-	width: 0;
-	height: 0;
-	text-indent: -9999px;
 }

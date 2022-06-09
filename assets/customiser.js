@@ -345,9 +345,9 @@ function validateInput(id, type) {
 
 // MAIN PROGRAM
 
+// Setup basic options structure and add event listeners
 function renderHtml() {
-	// Setup basic page structure and add event listeners
-
+	// options & mods
 	document.getElementById('js-title').textContent = theme['name'];
 
 	var optionsEle = document.getElementById('js-options');
@@ -497,6 +497,19 @@ function renderHtml() {
 		}
 	} else {
 		modsEle.remove();
+	}
+
+	// Help links
+	if('help' in theme) {
+		let help = document.getElementsByClassName('js-help'),
+			helpLinks = document.getElementsByClassName('js-help-href');
+
+		for(ele of help) {
+			ele.classList.remove('o-hidden');
+		}
+		for(link of helpLinks) {
+			link.href = theme['help'];
+		}
 	}
 
 	// Set theme columns and push to iframe
