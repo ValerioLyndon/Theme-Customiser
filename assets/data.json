@@ -491,11 +491,6 @@
 				"description": "Colours the header to match the referenced categories.",
 				"css": {"bottom": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Category-Coloured%20Header%20Text%20Compressed.css"},
 				"requires": ["dummy"]
-			},
-			"dummy": {
-				"name": "Testing. Remove later.",
-				"css": {"bottom": "/* Testing! Successfully added to the CSS. */"},
-				"flags": ["hidden"]
 			}
 		}
 	},
@@ -534,8 +529,13 @@
 	},
 	"tilt": {
 		"name": "Tilt",
-		"location": "",
-		"type": "modern"
+		"location": "https://raw.githubusercontent.com/ValerioLyndon/MAL-Public-List-Designs/master/Tilt%20Theme/Theme%20-%20Compressed.css",
+		"type": "modern",
+		"columns": {
+			"mode": "whitelist",
+			"animelist": ["Score", "Episodes", "Tags", "Image", "Premiered", "Studios"],
+			"mangalist": ["Score", "Chapters", "Volumes", "Tags", "Image"]
+		}
 	},
 	"9anime": {
 		"name": "9anime",

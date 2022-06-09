@@ -126,9 +126,11 @@ function updateMod(id) {
 				let check = document.getElementById(requirement),
 					toggle = check.nextElementSibling,
 					toggleInfo = toggle.firstElementChild;
+				
 				check.disabled = val;
 				check.checked = val;
-				if(val === true) {
+
+				if(val) {
 					toggle.classList.add('toggle--forced', 'toggle--has-extra-info');
 					toggleInfo.textContent = 'This must be enabled for other options to work.';
 				} else {
@@ -149,8 +151,10 @@ function updateMod(id) {
 				let check = document.getElementById(conflict),
 					toggle = check.nextElementSibling,
 					toggleInfo = toggle.firstElementChild;
+
 				check.disabled = val;
-				if(val === true) {
+
+				if(val) {
 					toggle.classList.add('toggle--disabled', 'toggle--has-extra-info');
 					toggleInfo.textContent = 'You cannot use this with your current configuration due to conflicts with other options.';
 				} else {
@@ -290,7 +294,7 @@ function pushCss(css) {
 	// Update iframe
 	var iframe = document.getElementById('js-frame');
 	if (iframe && iframe.contentWindow) {
-		iframe.contentWindow.postMessage(css);
+		iframe.contentWindow.postMessage(['css', css]);
 	}
 }
 
@@ -494,6 +498,69 @@ function renderHtml() {
 	} else {
 		modsEle.remove();
 	}
+
+	// Set theme columns and push to iframe
+	if('columns' in theme) {
+		// Get column info
+		let baseAnimeCol = ['Numbers', 'Score', 'Type', 'Episodes', 'Rating', 'Start/End Dates', 'Total Days Watched', 'Storage', 'Tags', 'Priority', 'Genre', 'Demographics', 'Image', 'Premiered', 'Aired Dates', 'Studios', 'Licensors'],
+			baseMangaCol = ['Numbers', 'Score', 'Type', 'Chapters', 'Volumes', 'Start/End Dates', 'Total Days Read', 'Retail Manga', 'Tags', 'Priority', 'Genres', 'Demographics', 'Image', 'Published Dates', 'Magazine'],
+			mode = 'mode' in theme['columns'] ? theme['columns']['mode'] : 'whitelist',
+			animeCol = theme['columns']['animelist'],
+			mangaCol = theme['columns']['mangalist'];
+
+		function processColumns(base, mode, todo) {
+			let columns = {};
+
+			for(let col of base) {
+				if(todo.includes(col)) {
+					columns[col] = (mode === 'whitelist') ? true : false;
+				} else {
+					columns[col] = (mode === 'whitelist') ? false : true;
+				}
+			}
+			
+			return columns;
+		}
+
+		let columns = processColumns(baseAnimeCol, mode, animeCol);
+
+		// Render HTML
+
+		let parent = document.getElementById('js-columns'),
+			left = document.createElement('div'),
+			right = document.createElement('div');
+		parent.className = 'c-columns';
+		parent.innerHTML = `
+			<div class="c-columns__blurb">
+				<b>This theme has a recommended set of list columns.</b>
+
+				<p>You can set your list columns to match in your <a class="hyperlink" href="https://myanimelist.net/editprofile.php?go=listpreferences">list preferences.</a> Using unrecommended configurations may cause visual errors not intended by the theme designer.</p>
+			</div>
+		`;
+		left.className = 'c-columns__split c-columns__split--left';
+		right.className = 'c-columns__split c-columns__split--right';
+
+		for(let [name, value] of Object.entries(columns)) {
+			let col = document.createElement('c-columns__item');
+			col.innerHTML = `
+				<input class="c-columns__check" type="checkbox" disabled="disabled" ${value ? 'checked="checked"' : ''}>
+				<span class="c-columns__name">${name}</span>
+			`;
+			if(['Image', 'Premiered', 'Aired Dates', 'Studios', 'Licensors', 'Published Dates', 'Magazine'].includes(name)) {
+				right.appendChild(col);
+			} else {
+				left.appendChild(col);
+			}
+		}
+		parent.appendChild(left);
+		parent.appendChild(right);
+
+		// Update iframe
+		var iframe = document.getElementById('js-frame');
+		if (iframe && iframe.contentWindow) {
+			iframe.contentWindow.postMessage(['columns', columns]);
+		}
+	}
 }
 
 // Add functionality to some parts of the page
@@ -560,6 +627,7 @@ document.getElementById('js-import-button').addEventListener('click', () => { im
 // Updates preview CSS & removes loader
 
 function finalSetup() {
+	// Get theme CSS and push to iframe
 	let fetchThemeCss = fetchFile(theme['location']);
 
 	fetchThemeCss.then((css) => {

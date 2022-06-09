@@ -336,6 +336,31 @@ input:checked + .toggle--forced::after {
 	white-space: pre-wrap;
 }
 
+
+.c-columns {
+	display: grid;
+	padding-bottom: 8px;
+	border-bottom: 2px dotted var(--border);
+	margin-bottom: 8px;
+	grid-template-columns: 1fr 1fr;
+	grid-template-areas: "top top" "left right";
+}
+
+.c-columns__blurb {
+	grid-area: top;
+}
+
+.c-columns__split {
+	display: flex;
+	flex-flow: column nowrap;
+}
+.c-columns__split--left {
+	grid-area: left;
+}
+.c-columns__split--right {
+	grid-area: right;
+}
+
 /* Footer */
 
 .footer__row {
