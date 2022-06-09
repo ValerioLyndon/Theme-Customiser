@@ -82,19 +82,28 @@ body {
 	margin: -2px 0 0 -2px;
 	transition: transform 0.1s ease;
 }
+
 input:checked + .toggle {
 	background: #2e51a2af;
 }
 input:checked + .toggle::after {
 	transform: translateX(16px);
 }
-input:disabled + .toggle {
-	cursor: help;
-}
-input:disabled + .toggle::after {
+
+.toggle--disabled::after {
 	background: #a2512e;
 }
 
+input:checked + .toggle--forced {
+	background: #2ea251af;
+}
+input:checked + .toggle--forced::after {
+	background: #2ea251;
+}
+
+.toggle--has-extra-info {
+	cursor: help;
+}
 .toggle__info {
 	position: absolute;
 	bottom: 22px;
@@ -113,7 +122,7 @@ input:disabled + .toggle::after {
 .toggle:hover .toggle__info {
 	opacity: 1;
 }
-input:disabled + .toggle .toggle__info {
+.toggle--has-extra-info .toggle__info {
 	display: block;
 }
 

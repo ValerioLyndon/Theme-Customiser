@@ -109,16 +109,56 @@ function updateOption(id, defaultValue = '', parentModId = false) {
 }
 
 function updateMod(id) {
-	val = document.getElementById(id).checked;
+	let val = document.getElementById(id).checked,
+		mod = theme['mods'][id];
+
+	// Enable required mods
+	if('requires' in mod) {
+		for(requirement of mod['requires']) {
+			try {
+				if(val) {
+					userOpts['mods'][requirement] = val;
+				} else {
+					delete userOpts['mods'][requirement];
+				}
+
+				// todo: do this using js classes or something that won't fall apart the moment you change the DOM
+				let check = document.getElementById(requirement),
+					toggle = check.nextElementSibling,
+					toggleInfo = toggle.firstElementChild;
+				check.disabled = val;
+				check.checked = val;
+				if(val === true) {
+					toggle.classList.add('toggle--forced', 'toggle--has-extra-info');
+					toggleInfo.textContent = 'This must be enabled for other options to work.';
+				} else {
+					toggle.classList.remove('toggle--forced', 'toggle--has-extra-info');
+				}
+			} catch(e) {
+				console.log('error in data json todo: add user-facing error report here');
+				console.log(e);
+			}
+		}
+	}
 	
 	// Disable incompatible mods
-	let mod = theme['mods'][id];
-	if('incompatibilities' in mod) {
-		for(incompatibility of mod['incompatibilities']) {
+	if('conflicts' in mod) {
+		for(conflict of mod['conflicts']) {
 			try {
-				document.getElementById(incompatibility).disabled = val;
-			} catch {
-				console.log('todo: add user-facing error report here');
+				// todo: do this using js classes or something that won't fall apart the moment you change the DOM
+				let check = document.getElementById(conflict),
+					toggle = check.nextElementSibling,
+					toggleInfo = toggle.firstElementChild;
+				check.disabled = val;
+				if(val === true) {
+					toggle.classList.add('toggle--disabled', 'toggle--has-extra-info');
+					toggleInfo.textContent = 'You cannot use this with your current configuration due to conflicts with other options.';
+				} else {
+					toggle.classList.remove('toggle--disabled', 'toggle--has-extra-info');
+				}
+			} catch(e) {
+				console.log('error in data json todo: add user-facing error report here');
+				console.log(e);
 			}
 		}
 	}
@@ -416,9 +456,7 @@ function renderHtml() {
 			toggle.innerHTML = `
 				<input id="${modId}" type="checkbox" class="o-hidden" />
 				<label class="toggle" for="${modId}">
-					<div class="toggle__info">
-						You cannot use this with your current configuration due to incompatibilities with other options.
-					</div>
+					<div class="toggle__info"></div>
 				</label>
 			`;
 			div.appendChild(toggle);

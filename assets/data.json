@@ -44,7 +44,7 @@
 			"image-row": {
 				"name": "Image Hover Mod (On Row variant)",
 				"description": "Adds larger images on mouse hover. Will slow down page loads.",
-				"incompatibilities": ["image-img"],
+				"conflicts": ["image-img"],
 				"css": {
 					"import": "@\\import \"https://malscraper.azurewebsites.net/covers/all/anime/presets/dataimagelinkbefore\";\n@\\import \"https://malscraper.azurewebsites.net/covers/all/manga/presets/dataimagelinkbefore\";",
 					"bottom": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Hover%20Image%20Compressed.css"
@@ -64,7 +64,7 @@
 			"image-img": {
 				"name": "Image Hover Mod (On Image variant)",
 				"description": "Adds larger images on mouse hover. Will slow down page loads.",
-				"incompatibilities": ["image-row"],
+				"conflicts": ["image-row"],
 				"css": {
 					"import": "@\\import \"https://malscraper.azurewebsites.net/covers/all/anime/presets/dataimagelinkbefore\";\n@\\import \"https://malscraper.azurewebsites.net/covers/all/manga/presets/dataimagelinkbefore\";",
 					"bottom": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Hover%20Image%20On%20Circle%20Compressed.css"
@@ -84,7 +84,7 @@
 			"review": {
 				"name": "Review-style/note-style Tags",
 				"description": "Widens the tag box and condenses it all into one cohesive paragraph, disabling tag functionality. Great for mini-reviews or quick notes.",
-				"incompatibilities": ["horizontal"],
+				"conflicts": ["horizontal"],
 				"css": {"bottom": "https://raw.githubusercontent.com/ValerioLyndon/MAL-Public-List-Designs/master/Clarity%20Theme/Mod%20-%20Review%20Tags%20Compressed.css"},
 				"options": {
 					"review-v": {
@@ -98,19 +98,19 @@
 			"fav-l": {
 				"name": "Favourite Hearts (Left variant)",
 				"description": "This modification changes the appearance of any tag called \"Favourite\" or \"Favorite\" to display at the side of the list entry as a heart.<br /><br /><b>Limitations:</b><ul><li>This mod <u>cannot detect</u> your MAL favourites. It only changes the appearance of correctly labelled <b>tags</b>, nothing more. Due to this, however, you can have more than 20 entries tagged as favourites. Part of why I made this was to circumvent the item limit on non-supporter profiles.</li><li> If using the left-side Favourite Tag with the unedited Image Hover mod then the hover image will cover up the tag on mouse-over. You can avoid this by using the right-side version or the edited (Hover on Circle) Image Hover mod.</li></ul>",
-				"incompatibilities": ["fav-r"],
+				"conflicts": ["fav-r"],
 				"css": {"bottom": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Favourite%20Hearts%20Left%20Compressed.css"}
 			},
 			"fav-r": {
 				"name": "Favourite Hearts (Right variant)",
 				"description": "Ditto",
-				"incompatibilities": ["fav-l"],
+				"conflicts": ["fav-l"],
 				"css": {"bottom": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Favourite%20Hearts%20Right%20Compressed.css"}
 			},
 			"horizontal": {
 				"name": "Horizontal Tags",
 				"description": "Convert the vertical tags into a horizontal line across the bottom of each list item.",
-				"incompatibilities": ["review"],
+				"conflicts": ["review"],
 				"css": {"bottom": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Horizontal%20Tags%20Compressed.css"}
 			},
 			"render": {
@@ -469,7 +469,7 @@
 			"header-line": {
 				"name": "Coloured Line on Header",
 				"description": "Adds a coloured line around the header bar and avatar for some extra flair. Single colour variant.",
-				"incompatibilities": ["header-line-cat"],
+				"conflicts": ["header-line-cat"],
 				"css": {"bottom": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Header%20Outline%20Compressed.css"},
 				"options": {
 					"header-line-c": {
@@ -483,13 +483,19 @@
 			"header-line-cat": {
 				"name": "Coloured Line on Header - Category-coloured",
 				"description": "Adds a coloured line around the header bar and avatar for some extra flair. Category-coloured variant.",
-				"incompatibilities": ["header-line"],
+				"conflicts": ["header-line"],
 				"css": {"bottom": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Header%20Outline%20Category-Coloured%20Compressed.css"}
 			},
 			"cat-header": {
 				"name": "Category-coloured Header Text",
 				"description": "Colours the header to match the referenced categories.",
-				"css": {"bottom": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Category-Coloured%20Header%20Text%20Compressed.css"}
+				"css": {"bottom": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Category-Coloured%20Header%20Text%20Compressed.css"},
+				"requires": ["dummy"]
+			},
+			"dummy": {
+				"name": "Testing. Remove later.",
+				"css": {"bottom": "/* Testing! Successfully added to the CSS. */"},
+				"flags": ["hidden"]
 			}
 		}
 	},
