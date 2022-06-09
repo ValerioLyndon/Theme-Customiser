@@ -1,7 +1,7 @@
 {
 	"clarity": {
 		"name": "Clarity",
-		"location": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Theme%20-%20Compressed.css",
+		"css": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Theme%20-%20Compressed.css",
 		"type": "modern",
 		"options": {
 			"nm": {
@@ -496,7 +496,7 @@
 	},
 	"clarified": {
 		"name": "Clarified",
-		"location": "",
+		"css": "",
 		"type": "modern",
 		"options": {
 			"dummy": {
@@ -509,37 +509,42 @@
 	},
 	"brink": {
 		"name": "Brink",
-		"location": "",
-		"type": "modern"
-	},
-	"agile": {
-		"name": "Agile",
-		"location": "",
-		"type": "classic"
-	},
-	"kure": {
-		"name": "Kure暮れ",
-		"location": "",
+		"css": "https://raw.githubusercontent.com/ValerioLyndon/MAL-Public-List-Designs/master/Brink%20Theme/Brink.min.css",
 		"type": "modern"
 	},
 	"puni": {
 		"name": "Puni",
-		"location": "",
-		"type": "modern"
+		"css": "@\\import \"https://valeriolyndon.github.io/MAL-Public-List-Designs/Puni%20Theme/Puni.css\";",
+		"type": "modern",
+		"columns": {
+			"animelist": ["Score", "Episodes", "Storage", "Tags", "Image"],
+			"mangalist": ["Score", "Chapters", "Volumes", "Retail Manga", "Tags", "Image"]
+		}
 	},
 	"tilt": {
 		"name": "Tilt",
-		"location": "https://raw.githubusercontent.com/ValerioLyndon/MAL-Public-List-Designs/master/Tilt%20Theme/Theme%20-%20Compressed.css",
+		"css": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Tilt%20Theme/Theme%20-%20Compressed.css",
 		"type": "modern",
 		"columns": {
-			"mode": "whitelist",
 			"animelist": ["Score", "Episodes", "Tags", "Image", "Premiered", "Studios"],
 			"mangalist": ["Score", "Chapters", "Volumes", "Tags", "Image"]
 		}
 	},
 	"9anime": {
 		"name": "9anime",
-		"location": "",
-		"type": "modern"
+		"css": "https://valeriolyndon.github.io/MAL-Public-List-Designs/9anime%20Theme/Theme%20-%20Compressed%20FI.css",
+		"type": "modern",
+		"columns": {
+			"mode": "whitelist",
+			"animelist": ["Score", "Type", "Episodes", "Rating", "Tags", "Image", "Premiered", "Studios"],
+			"mangalist": ["Score", "Chapters", "Volumes", "Total Days Read", "Tags", "Type", "Image", "Published Dates", "Magazine"]
+		},
+		"mods": {
+			"hd-images": {
+				"name": "HD Cover Images",
+				"description": "todo",
+				"css": {"bottom": ""}
+			}
+		}
 	}
 }

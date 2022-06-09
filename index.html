@@ -49,26 +49,26 @@
 					
 					<div id="js-columns"></div>
 
-					<b>CSS Output</b>
-					<div class="code-preview" id="js-output">
-						<!-- code gets put here by customiser.js -->
-					</div>
-
-					<div class="c-notice o-hidden" id="js-output-notice">
-						
-					</div>
-					
-					<button class="button button--highlighted" id="js-copy-output" onclick="navigator.clipboard.writeText(document.getElementById('js-output').textContent); let swap = this.querySelector('.js-swap'); swap.classList.add('swappable-text__inner--swapped'); setTimeout(() => {swap.classList.remove('swappable-text__inner--swapped')}, 666)">
-						<div class="swappable-text">
-							<div class="swappable-text__inner js-swap">
-								Copy Output
-								<br />
-								Copied!
-							</div>
+					<div class="c-code">
+						<b class="c-code__title">Install CSS</b>
+						<div class="c-code__preview" id="js-output">
+							<!-- code gets put here by customiser.js -->
 						</div>
-					</button>
 
-					<a class="hyperlink" onclick="document.getElementById('js-installation').classList.toggle('o-hidden')">How do I install this?</a>
+						<div class="c-notice o-hidden" id="js-output-notice"></div>
+					
+						<button class="button button--highlighted" id="js-copy-output" onclick="navigator.clipboard.writeText(document.getElementById('js-output').textContent); let swap = this.querySelector('.js-swap'); swap.classList.add('swappable-text__inner--swapped'); setTimeout(() => {swap.classList.remove('swappable-text__inner--swapped')}, 666)">
+							<div class="swappable-text">
+								<div class="swappable-text__inner js-swap">
+									Copy Output
+									<br />
+									Copied!
+								</div>
+							</div>
+						</button>
+
+						<a class="hyperlink" onclick="document.getElementById('js-installation').classList.toggle('o-hidden')">How do I install this?</a>
+					</div>
 				</div>
 
 				<footer class="sidebar__section sidebar__section--no-border">

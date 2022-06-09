@@ -323,7 +323,13 @@ input:checked + .toggle--forced::after {
 }
 
 
-.code-preview {
+.c-code__title {
+	display: inline-block;
+	margin-bottom: 4px;
+	font-weight: 700;
+}
+
+.c-code__preview {
 	padding: 6px;
 	max-height: 10em;
 	background: #2a2a2a;

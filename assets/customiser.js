@@ -627,15 +627,26 @@ document.getElementById('js-import-button').addEventListener('click', () => { im
 // Updates preview CSS & removes loader
 
 function finalSetup() {
-	// Get theme CSS and push to iframe
-	let fetchThemeCss = fetchFile(theme['location']);
+	// Get theme CSS
+	if(theme['css'].startsWith('http')) {
+		let fetchThemeCss = fetchFile(theme['css']);
 
-	fetchThemeCss.then((css) => {
+		fetchThemeCss.then((css) => {
+			finalise(css);
+		});
+
+		fetchThemeCss.catch((reason) => {
+			loader.failed(reason);
+		});
+	} else {
+		finalise(theme['css']);
+	}
+
+	function finalise(css) {
 		// Update Preview
 		baseCss = css;
 	
 		// Import settings if requested by URL
-
 		if(query.get('import')) {
 			let opts = localStorage.getItem('tcUserOptsImported');
 			if(opts === null) {
@@ -653,17 +664,14 @@ function finalSetup() {
 			}
 		}
 
+		// Push to iframe
 		else {
 			pushCss(css);
 		}
 
 		// Remove Loader
 		loader.loaded();
-	});
-
-	fetchThemeCss.catch((reason) => {
-		loader.failed(reason);
-	});
+	}
 }
 
 // INITIALISE PAGE
