@@ -447,6 +447,7 @@ function renderHtml() {
 
 	if('mods' in theme) {
 		for (const [modId, mod] of Object.entries(theme['mods'])) {
+
 			let div = document.createElement('div'),
 				head = document.createElement('b'),
 				desc = document.createElement('p'),
@@ -480,6 +481,10 @@ function renderHtml() {
 				}
 
 				div.appendChild(optDiv);
+			}
+
+			if('flags' in mod && mod['flags'].includes('hidden')) {
+				div.classList.add('o-hidden');
 			}
 
 			modsEle.appendChild(div);
