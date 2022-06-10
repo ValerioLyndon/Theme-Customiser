@@ -357,6 +357,10 @@ input:checked + .toggle--forced::after {
 	border-radius: 50%;
 }
 
+.option__toggle-box {
+	float: right;
+}
+
 
 .mod {
 	padding-top: 6px;

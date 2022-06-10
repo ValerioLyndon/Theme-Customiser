@@ -170,9 +170,14 @@ var loader = new loadingScreen();
 
 function updateOption(id, defaultValue = '', parentModId = false) {
 	// set values and default value
-	let val = undefined;
+	let input = document.getElementById(`theme-${id}`),
+		val = undefined;
 
-	val = document.getElementById(`theme-${id}`).value;
+	if(input.type === 'checkbox') {
+		val = input.checked;
+	} else {
+		val = input.value;
+	}
 
 	// Add to userOpts unless matches default value
 	if(val === defaultValue) {
@@ -289,16 +294,33 @@ function updateCss() {
 				insert = `url(${insert})`;
 			}
 		}
+		
+		
+		
+		if(optData['type'] === 'toggle') {
+			for(set of optData['replacements']) {
+				// Choose the correct replacement set based on whether the toggle is on or off
+				let toFind = set[0],
+					toInsert = (insert === true) ? set[2] : set[1];
 
-		for(set of optData['replacements']) {
-			let toFind = set[0],
-				toInsert = set[1].replaceAll('{{{insert}}}', insert);
+				if(toFind.startsWith('RegExp')) {
+					toFind = new RegExp(toFind.substr(7), 'g');
+				}
 
-			if(toFind.startsWith('RegExp')) {
-				toFind = new RegExp(toFind.substr(7), 'g');
+				css = css.replaceAll(toFind, toInsert);
 			}
+		}
+		else {
+			for(set of optData['replacements']) {
+				let toFind = set[0],
+					toInsert = set[1].replaceAll('{{{insert}}}', insert);
 
-			css = css.replaceAll(toFind, toInsert);
+				if(toFind.startsWith('RegExp')) {
+					toFind = new RegExp(toFind.substr(7), 'g');
+				}
+
+				css = css.replaceAll(toFind, toInsert);
+			}
 		}
 
 		return css;
@@ -478,7 +500,9 @@ function renderHtml() {
 			notice = document.createElement('div'),
 			link = document.createElement('a');
 
-		if(opt['default'] === undefined) {
+		if(opt['default'] === undefined && opt['type'] === 'toggle') {
+			opt['default'] = false;
+		} else if(opt['default'] === undefined) {
 			opt['default'] = '';
 		}
 
@@ -569,6 +593,21 @@ function renderHtml() {
 			div.appendChild(input);
 
 			input.addEventListener('input', () => { updateOption(id, opt['default'], parentModId); });
+		}
+
+		else if(opt['type'] === 'toggle') {
+			let toggle = document.createElement('div');
+
+			toggle.className = 'option__toggle-box';
+			toggle.innerHTML = `
+				<input id="theme-${id}" type="checkbox" class="o-hidden" ${('default' in opt && opt['default'] == true) ? 'checked="checked"' : ''}" />
+				<label class="toggle" for="theme-${id}">
+					<div class="toggle__info"></div>
+				</label>
+			`;
+			div.prepend(toggle);
+
+			toggle.addEventListener('input', () => { updateOption(id, opt['default'], parentModId); });
 		}
 
 		notice.id = `js-theme-${id}-notice`;
@@ -893,19 +932,19 @@ fetchData.then((json) => {
 	// Get theme info via json
 	try {
 		data = JSON.parse(json);
+
+		// Get theme info & redirect if problematic
+		if(theme === null || !(selectedTheme in data)) {
+			window.location = '?';
+		} else {
+			theme = data[selectedTheme];
+		}
+
+		renderHtml();
+		finalSetup();
 	} catch {
-		loader.failed(['Encountered a problem while parsing a resource.', 'json.parse']);
+		loader.failed(['Encountered a problem while parsing theme information.', 'json.parse']);
 	}
-
-	// Get theme info & redirect if problematic
-	if(theme === null || !(selectedTheme in data)) {
-		window.location = '?';
-	} else {
-		theme = data[selectedTheme];
-	}
-
-	renderHtml();
-	finalSetup();
 });
 
 fetchData.catch((reason) => {

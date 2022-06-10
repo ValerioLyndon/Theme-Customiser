@@ -53,9 +53,9 @@
 				"options": {
 					"username": {
 						"name": "Your MyAnimeList Username",
+						"description": "Must be entered exactly as it appears on MyAnimeList. This is not required, but will reduce the impact on page loads slightly.",
 						"type": "text",
-						"replacements": [
-							["all/anime/presets", "anime/{{{insert}}}/presets"],
+						"replacements": [		["all/anime/presets", "anime/{{{insert}}}/presets"],
 							["all/manga/presets", "manga/{{{insert}}}/presets"]
 						],
 						"default": ""
@@ -73,9 +73,9 @@
 				"options": {
 					"username": {
 						"name": "Your MyAnimeList Username",
+						"description": "Must be entered exactly as it appears on MyAnimeList. This is not required, but will reduce the impact on page loads slightly.",
 						"type": "text",
-						"replacements": [
-							["all/anime/presets", "anime/{{{insert}}}/presets"],
+						"replacements": [		["all/anime/presets", "anime/{{{insert}}}/presets"],
 							["all/manga/presets", "manga/{{{insert}}}/presets"]
 						],
 						"default": ""
@@ -505,7 +505,93 @@
 		"name": "Brink",
 		"css": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Brink%20Theme/Brink.min.css",
 		"type": "modern",
-		"help": "https://myanimelist.net/forum/?topicid=1772180"
+		"help": "https://myanimelist.net/forum/?topicid=1772180",
+		"options": {
+			"--imageBrightness": {
+				"name": "Cover Image Brightness",
+				"type": "value/opacity",
+				"replacements": [["--imageBrightness: 66%;", "--imageBrightness: {{{insert}}};"]],
+				"default": "66%"
+			},
+			"--imagebrightnessHov": {
+				"name": "Cover Image Brightness (hover state)",
+				"type": "value/opacity",
+				"replacements": [["--imageBrightnessHov: 35%;", "--imageBrightnessHov: {{{insert}}};"]],
+				"default": "35%"
+			},
+			"--imageBlurHov": {
+				"name": "Image blur amount (while hovered).",
+				"type": "size",
+				"replacements": [["--imageBlurHov: 2px;", "--imageBlurHov: {{{insert}}};"]],
+				"default": "2px"
+			},
+			"--infoBGOpacity": {
+				"name": "Opacity of title/information background.",
+				"type": "value/opacity",
+				"replacements": [["--infoBGOpacity: 85%;", "--infoBGOpacity: {{{insert}}};"]],
+				"default": "85%"
+			},
+			"--toggleStats": {
+				"name": "List Statistics",
+				"description": "Enables list statistics being shown in the footer.",
+				"type": "toggle",
+				"replacements": [["--toggleStats: hidden;", "--toggleStats: hidden;", "--toggleStats: visible;"]]
+			},
+			"--toggleStreaming": {
+				"name": "Watch Button",
+				"description": "Enables the \"Watch\" button with streaming services watch options.",
+				"type": "toggle",
+				"replacements": [["--toggleStreaming: visible;", "--toggleStreaming: hidden;", "--toggleStreaming: visible;"]],
+				"default": true
+			},
+			"--toggleTopRatedGold": {
+				"name": "Top Rated - Gold for 10★",
+				"type": "toggle",
+				"replacements": [["--toggleTopRatingGold: visible;", "--toggleTopRatingGold: hidden;", "--toggleTopRatingGold: visible;"]],
+				"default": true
+			},
+			"--toggleTopRatedSilver": {
+				"name": "Top Rated - Silver for 9★",
+				"type": "toggle",
+				"replacements": [["--toggleTopRatingSilver: visible;", "--toggleTopRatingSilver: hidden;", "--toggleTopRatingSilver: visible;"]],
+				"default": true
+			},
+			"--toggleTopRatedBronze": {
+				"name": "Top Rated - Bronze for 8★",
+				"type": "toggle",
+				"replacements": [["--toggleTopRatingBronze: hidden;", "--toggleTopRatingBronze: hidden;", "--toggleTopRatingBronze: visible;"]]
+			},
+			"--bgDimness": {
+				"name": "Background Dimming",
+				"type": "value/opacity",
+				"replacements": [["--bgDimness: 50%;", "--bgDimness: {{{insert}}};;"]],
+				"default": "50%"
+			},
+			"--bannerVignetteOpacity": {
+				"name": "Banner Vignette Opacity",
+				"type": "value/opacity",
+				"replacements": [["--infoBGOpacity: 85%;", "--infoBGOpacity: {{{insert}}};"]],
+				"default": "85%"
+			}
+		},
+		"mods": {
+			"hd-images": {
+				"name": "High-resolution Cover Images",
+				"description": "If you want higher resolution images, this should do it. [b]Will increase page load times[/b].",
+				"css": {"import": "@\\import \"https://malscraper.azurewebsites.net/covers/all/anime/presets/dataimagelink\";\n@\\import \"https://malscraper.azurewebsites.net/covers/all/manga/presets/dataimagelink\";"},
+				"options": {
+					"username": {
+						"name": "Your MyAnimeList Username",
+						"description": "Must be entered exactly as it appears on MyAnimeList. This is not required, but will reduce the impact on page loads slightly.",
+						"type": "text",
+						"replacements": [		["all/anime/presets", "anime/{{{insert}}}/presets"],
+							["all/manga/presets", "manga/{{{insert}}}/presets"]
+						],
+						"default": ""
+					}
+				}
+			}
+		}
 	},
 	"puni": {
 		"name": "Puni",
