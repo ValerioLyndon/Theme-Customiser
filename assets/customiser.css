@@ -313,6 +313,16 @@ input:checked + .toggle--forced::after {
 	margin-bottom: 2px;
 }
 
+.option__help {
+	float: right;
+	font-size: 12px;
+}
+
+.option__desc {
+	margin: 0 0 8px;
+	font-size: 0.9em;
+}
+
 .option__input {
 	width: calc(100% - 12px);
 	padding: 4px;

@@ -278,7 +278,7 @@ function updateCss() {
 	newCss = '/* Theme Customiser Preset\nhttps://github.com/ValerioLyndon/Theme-Customiser\n^TC' + JSON.stringify(userOpts) + 'TC$*/\n\n' + baseCss;
 
 	function applyOptionToCss(css, optData, insert) {
-		if(optData['type'] === 'css_content_value') {
+		if(optData['type'] === 'content') {
 			// format text to be valid for CSS content statements
 			insert = `"${insert.replaceAll('"', '\\"').replaceAll('\n', '\\a ').replaceAll('\\','\\\\')}"`;
 		}
@@ -444,6 +444,8 @@ function renderHtml() {
 
 		let div = document.createElement('div'),
 			head = document.createElement('b'),
+			expando = document.createElement('div'),
+			desc = document.createElement('div'),
 			notice = document.createElement('div');
 
 		if(opt['default'] === undefined) {
@@ -455,7 +457,17 @@ function renderHtml() {
 		head.className = 'option__name';
 		div.appendChild(head);
 
-		if(['text', 'css_generic_value'].includes(opt['type'])) {
+		expando.className = 'c-expando js-expando';
+		expando.setAttribute('data-expando-limit', "100");
+		expando.innerHTML = '<button class="c-expando__button c-expando__button--subtle js-expando-button">Expand</button>';
+		desc.className = 'option__desc';
+		expando.appendChild(desc);
+		if('description' in opt) {
+			desc.appendChild(createBB(opt['description']));
+			div.appendChild(expando);
+		}
+
+		if(opt['type'] === 'text' || opt['type'].startsWith('value')) {
 			let input = document.createElement('input');
 			input.id = id;
 			input.type = 'text';
@@ -464,17 +476,21 @@ function renderHtml() {
 			input.placeholder = 'Your text here.';
 			div.appendChild(input);
 
-			switch (opt['type']) {
-				case 'text':
-					input.addEventListener('input', () => {
-						updateOption(id, opt['default'], parentModId);
-					});
-				case 'css_generic_value':
-					input.addEventListener('input', () => {
-						validateInput(id, opt['type']);
-						updateOption(id, opt['default'], parentModId);
-					});
+			if(opt['type'].startsWith('value/')) {
+				let link = document.createElement('a'),
+					property = opt['type'].split('/')[1];
+
+				link.className = 'option__help hyperlink';
+				link.target = "_blank";
+				link.textContent = 'Need help?';
+				link.href = `https://developer.mozilla.org/en-US/docs/Web/CSS/${property}#values`
+
+				head.appendChild(link);
 			}
+
+			input.addEventListener('input', () => {
+				updateOption(id, opt['default'], parentModId);
+			});
 		}
 
 		else if(opt['type'] === 'image_url') {
@@ -492,7 +508,7 @@ function renderHtml() {
 			});
 		}
 
-		else if(opt['type'] === 'css_content_value') {
+		else if(opt['type'] === 'content') {
 			let input = document.createElement('textarea');
 			input.id = id;
 			input.value = opt['default'];
@@ -540,7 +556,7 @@ function renderHtml() {
 			let div = document.createElement('div'),
 				head = document.createElement('b'),
 				expando = document.createElement('div'),
-				desc = document.createElement('p'),
+				desc = document.createElement('div'),
 				toggle = document.createElement('div');
 
 			toggle.className = 'mod__toggle-box';

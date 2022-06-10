@@ -6,8 +6,8 @@
 		"help": "https://myanimelist.net/forum/?topicid=1723114",
 		"options": {
 			"nm": {
-				"name": "Name",
-				"type": "css_content_value",
+				"name": "Name/Banner Text",
+				"type": "content",
 				"replacements": [["--name:none;", "--name:{{{insert}}};"]],
 				"default": ""
 			},
@@ -133,25 +133,25 @@
 					},
 					"la": {
 						"name": "Left Alignment",
-						"type": "text",
+						"type": "value/background-position",
 						"replacements": [["RegExp/(Left Render[\\s\\S\\n]*?-position: )left bottom", "$1{{{insert}}}"]],
 						"default": "left bottom"
 					},
 					"ra": {
 						"name": "Right Alignment",
-						"type": "text",
+						"type": "value/background-position",
 						"replacements": [["RegExp/(Right Render[\\s\\S\\n]*?-position: )right bottom", "$1{{{insert}}}"]],
 						"default": "right bottom"
 					},
 					"ls": {
 						"name": "Left Size",
-						"type": "text",
+						"type": "value/background-size",
 						"replacements": [["RegExp/(Left Render[\\s\\S\\n]*?;)", "$1\nbackground-size: {{{insert}}};"]],
 						"default": "contain"
 					},
 					"rs": {
 						"name": "Right Size",
-						"type": "text",
+						"type": "value/background-size",
 						"replacements": [["RegExp/(Right Render[\\s\\S\\n]*?;)", "$1\nbackground-size: {{{insert}}};"]],
 						"default": "contain"
 					}
