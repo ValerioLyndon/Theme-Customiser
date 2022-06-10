@@ -683,8 +683,7 @@ function renderHtml() {
 			animTiming = {
 				duration: 300 + expandedHeight / 3,
 				iterations: 1,
-				easing: 'ease',
-				fill: 'both'
+				easing: 'ease'
 			};
 
 		if(expanded) {
@@ -692,14 +691,17 @@ function renderHtml() {
 				{ height: `${expandedHeight}px` },
 				{ height: `${collapsedHeight}px`}
 			];
+			parent.style = `height: ${collapsedHeight}px`;
 			parent.classList.remove('c-expando--expanded');
 			parent.animate(animFrames, animTiming);
 			this.textContent = 'Expand';
 		} else {
 			let animFrames = [
 				{ height: `${collapsedHeight}px`},
-				{ height: `${expandedHeight + 25}px` }
+				{ height: `${expandedHeight + 25}px`,
+				  paddingBottom: '25px' }
 			];
+			parent.style = `height: auto; padding-bottom: 25px;`;
 			parent.classList.add('c-expando--expanded');
 			parent.animate(animFrames, animTiming);
 			this.textContent = 'Collapse';
