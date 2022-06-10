@@ -598,6 +598,16 @@ input:checked + .toggle--forced::after {
 	content: "*";
 }
 
+/* BBCode */
+
+.bb-list {
+	padding-left: 16px;
+	margin: 4px 0;
+}
+
+/* Expando */
+
+/* todo */
 
 /* Loading */
 

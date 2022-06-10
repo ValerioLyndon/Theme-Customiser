@@ -54,6 +54,93 @@ function fetchFile(path, cacheResult = true) {
 	});
 }
 
+function createBB(text) {
+	let parent = document.createElement('p');
+	parent.classList.add('bb');
+	console.log(text);
+
+	// sanitise
+
+	let dummy = document.createElement('div');
+	dummy.textContent = text;
+	text = dummy.innerHTML;
+	console.log(text);
+
+	// Define BB patterns
+
+    function bold(fullmatch, captureGroup, offset, str) {
+      return '<b class="bb-bold">'+captureGroup+'</b>';
+    }
+
+    function italic(fullmatch, captureGroup, offset, str) {
+      return '<i class="bb-italic">'+captureGroup+'</i>';
+    }
+
+    function underline(fullmatch, captureGroup, offset, str) {
+      return '<span style="text-decoration:underline;" class="bb-underline">'+captureGroup+'</span>';
+    }
+
+    function strike(fullmatch, captureGroup, offset, str) {
+      return '<span style="text-decoration:line-through;" class="bb-strike">'+captureGroup+'</span>';
+    }
+    
+    function list(fullmatch, captureGroup1, captureGroup2, offset, str) {
+        contents = captureGroup2.replaceAll('[*]', '</li><li class="bb-list-item">');
+        contents = contents.replace(/l>.*?<\/li>/, 'l>');
+        
+		let ol = '<ol class="bb-list bb-list--ordered">'+contents+'</li></ol>',
+			ul = '<ul class="bb-list">'+contents+'</li></ul>';
+
+        if(typeof captureGroup1 !== 'undefined') {
+            if(captureGroup1 === '=0' || captureGroup1 === '') {
+                return ul;
+            }
+            else if(captureGroup1 === '=1' || captureGroup1 === '') {
+                return ol;
+            }
+        }
+        return ul;
+    }
+
+	// The array of regex patterns to look for
+	
+    let format_search = [
+        /\n/ig,
+        /\[b\]((?:(?!\[b\]).)*?)\[\/b\]/ig,
+        /\[i\]((?:(?!\[i\]).)*?)\[\/i\]/ig,
+        /\[u\]((?:(?!\[u\]).)*?)\[\/u\]/ig,
+        /\[s\]((?:(?!\[s\]).)*?)\[\/s\]/ig,
+        /\[list(=.*?){0,1}\]((?:(?!\[list\]).)*?)\[\/list\]/ig,
+        /\[yt\](.*?)\[\/yt\]/ig
+    ];
+
+	// The array of strings to replace regex matches with
+
+    let format_replace = [
+        '<br>',
+        bold,
+        italic,
+        underline,
+        strike,
+        list
+    ];
+
+    // Convert BBCode using patterns defined above.
+    for ( var i = 0; i < format_search.length; i++ ) {
+        oldText = null;
+        while(text !== oldText) {    
+            oldText = text;
+            text = text.replace( format_search[i], format_replace[i] );
+        }
+    }
+
+	// Return
+
+	parent.innerHTML = text;
+
+	return parent;
+}
+
 class loadingScreen {
 	constructor() {
 		this.pageContent = document.getElementById('js-content');
@@ -471,8 +558,9 @@ function renderHtml() {
 			head.textContent = mod['name'];
 			head.className = 'mod__name';
 			div.appendChild(head);
-			// Todo: change this from innerHTML to markdown or something so you can support third-party design json
-			desc.innerHTML = 'description' in mod ? mod['description'] : '';
+			if('description' in mod) {
+				desc.appendChild(createBB(mod['description']));
+			}
 			desc.className = 'mod__desc';
 			div.appendChild(desc);
 
@@ -501,14 +589,18 @@ function renderHtml() {
 
 	// Help links
 	if('help' in theme) {
-		let help = document.getElementsByClassName('js-help'),
-			helpLinks = document.getElementsByClassName('js-help-href');
+		if(theme['help'].startsWith('http') || theme['help'].startsWith('mailto:')) {
+			let help = document.getElementsByClassName('js-help'),
+				helpLinks = document.getElementsByClassName('js-help-href');
 
-		for(ele of help) {
-			ele.classList.remove('o-hidden');
-		}
-		for(link of helpLinks) {
-			link.href = theme['help'];
+			for(ele of help) {
+				ele.classList.remove('o-hidden');
+			}
+			for(link of helpLinks) {
+				link.href = theme['help'];
+			}
+		} else {
+			console.log('invalid help url');
 		}
 	}
 

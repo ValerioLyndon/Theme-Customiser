@@ -98,13 +98,13 @@
 			},
 			"fav-l": {
 				"name": "Favourite Hearts (Left variant)",
-				"description": "This modification changes the appearance of any tag called \"Favourite\" or \"Favorite\" to display at the side of the list entry as a heart.<br /><br /><b>Limitations:</b><ul><li>This mod <u>cannot detect</u> your MAL favourites. It only changes the appearance of correctly labelled <b>tags</b>, nothing more. Due to this, however, you can have more than 20 entries tagged as favourites. Part of why I made this was to circumvent the item limit on non-supporter profiles.</li><li> If using the left-side Favourite Tag with the unedited Image Hover mod then the hover image will cover up the tag on mouse-over. You can avoid this by using the right-side version or the edited (Hover on Circle) Image Hover mod.</li></ul>",
+				"description": "This modification changes the appearance of any tag called \"Favourite\" or \"Favorite\" to display at the side of the list entry as a heart.\n\n[b]Limitations:[/b][list][*]This mod [u]cannot detect[/u] your MAL favourites. It only changes the appearance of correctly labelled [b]tags[/b], nothing more. Due to this, however, you can have more than 20 entries tagged as favourites. Part of why I made this was to circumvent the item limit on non-supporter profiles.[*]If using the left-side Favourite Tag with the unedited Image Hover mod then the hover image will cover up the tag on mouse-over. You can avoid this by using the right-side version or the On Row variant of the Image Hover mod.[/list]",
 				"conflicts": ["fav-r"],
 				"css": {"bottom": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Favourite%20Hearts%20Left%20Compressed.css"}
 			},
 			"fav-r": {
 				"name": "Favourite Hearts (Right variant)",
-				"description": "Ditto",
+				"description": "This modification changes the appearance of any tag called \"Favourite\" or \"Favorite\" to display at the side of the list entry as a heart.\n\n[b]Limitations:[/b][list][*]This mod [u]cannot detect[/u] your MAL favourites. It only changes the appearance of correctly labelled [b]tags[/b], nothing more. Due to this, however, you can have more than 20 entries tagged as favourites. Part of why I made this was to circumvent the item limit on non-supporter profiles.[*]If using the left-side Favourite Tag with the unedited Image Hover mod then the hover image will cover up the tag on mouse-over. You can avoid this by using the right-side version or the On Row variant of the Image Hover mod.[/list]",
 				"conflicts": ["fav-l"],
 				"css": {"bottom": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Favourite%20Hearts%20Right%20Compressed.css"}
 			},
