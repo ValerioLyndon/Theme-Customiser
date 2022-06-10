@@ -491,8 +491,7 @@
 			"cat-header": {
 				"name": "Category-coloured Header Text",
 				"description": "Colours the header to match the referenced categories.",
-				"css": {"bottom": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Category-Coloured%20Header%20Text%20Compressed.css"},
-				"requires": ["dummy"]
+				"css": {"bottom": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Category-Coloured%20Header%20Text%20Compressed.css"}
 			}
 		}
 	},
