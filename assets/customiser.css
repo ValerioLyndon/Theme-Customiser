@@ -366,16 +366,19 @@ input:checked + .toggle--forced::after {
 }
 
 .c-code__preview {
+	display: block;
 	padding: 6px;
 	max-height: 10em;
 	background: #2a2a2a;
 	border-radius: 6px;
 	box-shadow: inset 1px 2px 5px rgba(0,0,0,0.2);
 	margin: 0 0 8px;
-	overflow: auto;
+	overflow-x: hidden;
+	overflow-y: auto;
 	color: #dbdbdb;
 	font: 11px/1.1 monospace;
 	white-space: pre-wrap;
+	overflow-wrap: break-word;
 }
 
 
