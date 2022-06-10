@@ -283,7 +283,7 @@ function updateCss() {
 	newCss = '/* Theme Customiser Preset\nhttps://github.com/ValerioLyndon/Theme-Customiser\n^TC' + JSON.stringify(userOpts) + 'TC$*/\n\n' + baseCss;
 
 	function applyOptionToCss(css, optData, insert) {
-		if(optData['type'] === 'content') {
+		if(optData['type'] === 'textarea/content') {
 			// format text to be valid for CSS content statements
 			insert = `"${insert.replaceAll('"', '\\"').replaceAll('\n', '\\a ').replaceAll('\\','\\\\')}"`;
 		}
@@ -440,7 +440,7 @@ function validateInput(id, type) {
 		}
 	}
 
-	else if(type === 'colour') {
+	else if(type === 'color') {
 		this.style.color = '';
 		this.style.color = val;
 		if(this.style.color.length === 0) {
@@ -491,7 +491,6 @@ function renderHtml() {
 	function generateOptionHtml(dictionary, parentModId) {
 		let id = dictionary[0],
 			opt = dictionary[1];
-		
 
 		let div = document.createElement('div'),
 			head = document.createElement('b'),
@@ -525,27 +524,27 @@ function renderHtml() {
 		link.target = "_blank";
 		head.appendChild(link);
 
-		if(opt['type'] === 'text'
-		|| opt['type'] === 'colour'
-		|| opt['type'] === 'size'
-		|| opt['type'].startsWith('value')) {
+		if(opt['type'].startsWith('text') || opt['type'] === 'color') {
+			let qualifier = opt['type'].split('/')[1],
+				subQualifier = opt['type'].split('/')[2];
+
 			let input = document.createElement('input');
 			input.id = `theme-${id}`;
 			input.type = 'text';
 			input.value = opt['default'];
-			input.className = 'option__input option__input--textarea';
+			input.className = 'option__input';
 			input.placeholder = 'Your text here.';
 			div.appendChild(input);
 
-			if(opt['type'].startsWith('value/')) {
+			if(qualifier === 'value' && subQualifier) {
 				input.placeholder = 'Your value here.';
 				
-				let property = opt['type'].split('/')[1];
+				let property = opt['type'].split('/')[2];
 
 				link.textContent = 'Valid Inputs';
 				link.href = `https://developer.mozilla.org/en-US/docs/Web/CSS/${property}#values`
 			}
-			else if(opt['type'] === 'colour') {
+			else if(opt['type'] === 'color') {
 				input.placeholder = 'Your colour here. e.x rgba(0, 135, 255, 1.0)';
 
 				let display = document.createElement('div');
@@ -558,10 +557,17 @@ function renderHtml() {
 
 				input.addEventListener('input', validateInput.bind(display, id, opt['type']));
 			}
-			else if(opt['type'] === 'size') {
+			else if(qualifier === 'size') {
 				input.placeholder = 'Your size here. e.x 200px, 33%, 20vw, etc.';
 
 				input.addEventListener('input', () => { validateInput(id, opt['type']) });
+			}
+			else if(qualifier === 'image_url') {
+				input.type = 'url';
+				input.placeholder = 'https://example.com/image.jpg';
+				div.appendChild(input);
+
+				input.addEventListener('input', () => { validateInput(id, opt['type']); });
 			}
 
 			input.addEventListener('input', () => {
@@ -569,22 +575,8 @@ function renderHtml() {
 			});
 		}
 
-		else if(opt['type'] === 'image_url') {
-			let input = document.createElement('input');
-			input.id = `theme-${id}`;
-			input.type = 'url';
-			input.value = opt['default'];
-			input.placeholder = 'https://example.com/image.jpg';
-			input.className = 'option__input';
-			div.appendChild(input);
 
-			input.addEventListener('input', () => {
-				validateInput(id, opt['type']);
-				updateOption(id, opt['default'], parentModId);
-			});
-		}
-
-		else if(opt['type'] === 'content') {
+		else if(opt['type'] === 'textarea/content') {
 			let input = document.createElement('textarea');
 			input.id = `theme-${id}`;
 			input.value = opt['default'];
@@ -942,8 +934,9 @@ fetchData.then((json) => {
 
 		renderHtml();
 		finalSetup();
-	} catch {
+	} catch(e) {
 		loader.failed(['Encountered a problem while parsing theme information.', 'json.parse']);
+		console.log(`[initialisePage] Json parsing error: ${e}`);
 	}
 });
 

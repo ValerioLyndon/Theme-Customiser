@@ -1,37 +1,38 @@
 {
 	"clarity": {
 		"name": "Clarity",
+		"author": "Valerio Lyndon",
 		"css": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Theme%20-%20Compressed.css",
 		"type": "modern",
 		"help": "https://myanimelist.net/forum/?topicid=1723114",
 		"options": {
 			"nm": {
 				"name": "Name/Banner Text",
-				"type": "content",
+				"type": "textarea/content",
 				"replacements": [["--name:none;", "--name:{{{insert}}};"]],
 				"default": ""
 			},
 			"av": {
 				"name": "Avatar",
-				"type": "image_url",
+				"type": "text/image_url",
 				"replacements": [["--avatar:none;", "--avatar:{{{insert}}};"]],
 				"default": ""
 			},
 			"bn": {
 				"name": "Banner",
-				"type": "image_url",
+				"type": "text/image_url",
 				"replacements": [["--banner:url(https://i.imgur.com/VoPJz2S.jpg);", "}body{--banner:{{{insert}}};}:root{"]],
 				"default": "https://i.imgur.com/VoPJz2S.jpg"
 			},
 			"ch": {
 				"name": "Character",
-				"type": "image_url",
+				"type": "text/image_url",
 				"replacements": [["--character:url(https://i.imgur.com/6IPyngH.png);", "}body{--character:{{{insert}}};}:root{"]],
 				"default": "https://i.imgur.com/6IPyngH.png"
 			},
 			"bg": {
 				"name": "Background",
-				"type": "image_url",
+				"type": "text/image_url",
 				"replacements": [["--background:none;", "--background:{{{insert}}};"]],
 				"default": ""
 			}
@@ -90,7 +91,7 @@
 				"options": {
 					"review-v": {
 						"name": "Section Width",
-						"type": "size",
+						"type": "text/size",
 						"description": "This represents the maximum width. The actual width may be smaller to make room for other columns.",
 						"replacements": [["240px", "{{{insert}}}"]],
 						"default": "240px"
@@ -122,37 +123,37 @@
 				"options": {
 					"li": {
 						"name": "Left Image",
-						"type": "image_url",
+						"type": "text/image_url",
 						"replacements": [["RegExp/(Left Render[\\s\\S\\n]*?-image: )url\\(URLHERE\\)", "$1{{{insert}}}"]],
 						"default": ""
 					},
 					"ri": {
 						"name": "Right Image",
-						"type": "image_url",
+						"type": "text/image_url",
 						"replacements": [["RegExp/(Right Render[\\s\\S\\n]*?-image: )url\\(URLHERE\\)", "$1{{{insert}}}"]],
 						"default": ""
 					},
 					"la": {
 						"name": "Left Alignment",
-						"type": "value/background-position",
+						"type": "text/value/background-position",
 						"replacements": [["RegExp/(Left Render[\\s\\S\\n]*?-position: )left bottom", "$1{{{insert}}}"]],
 						"default": "left bottom"
 					},
 					"ra": {
 						"name": "Right Alignment",
-						"type": "value/background-position",
+						"type": "text/value/background-position",
 						"replacements": [["RegExp/(Right Render[\\s\\S\\n]*?-position: )right bottom", "$1{{{insert}}}"]],
 						"default": "right bottom"
 					},
 					"ls": {
 						"name": "Left Size",
-						"type": "value/background-size",
+						"type": "text/value/background-size",
 						"replacements": [["RegExp/(Left Render[\\s\\S\\n]*?;)", "$1\nbackground-size: {{{insert}}};"]],
 						"default": "contain"
 					},
 					"rs": {
 						"name": "Right Size",
-						"type": "value/background-size",
+						"type": "text/value/background-size",
 						"replacements": [["RegExp/(Right Render[\\s\\S\\n]*?;)", "$1\nbackground-size: {{{insert}}};"]],
 						"default": "contain"
 					}
@@ -160,151 +161,152 @@
 			},
 			"colours": {
 				"name": "Custom Theme Colours",
-				"css": {"bottom": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Theme%20Colours%20Dark.css"},
+				"description": "Create your own theme by replacing all the theme colours as you desire.",
+				"css": {"bottom": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Theme%20Colours.css"},
 				"options": {
 					"colours-base": {
 						"name": "Colour Base",
+						"description": "Provides the base colours for your custom theme.",
 						"type": "select",
-						"replacements": [],
 						"selections": {
 							"light": {
 								"label": "Light",
-								"css": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Theme%20Colours.css"
+								"replacements": [["RegExp/^[\\s\\S\\n]*$", "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Theme%20Colours.css"]]
 							},
 							"dark": {
 								"label": "Dark",
-								"css": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Theme%20Colours%20Dark.css"
+								"replacements": [["RegExp/^[\\s\\S\\n]*$", "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Theme%20Colours%20Dark.css"]]
 							}
 						}
 					},
 					"--pbg": {
 						"name": "Page Background",
-						"type": "colour",
+						"type": "color",
 						"replacements": [["RegExp/--pbg: .*?;", "--pbg: {{{insert}}};"]]
 					},
 					"--bg": {
-						"name": "Content Background",
-						"type": "colour",
+						"name": "textarea/content Background",
+						"type": "color",
 						"replacements": [["RegExp/--bg: .*?;", "--bg: {{{insert}}};"]]
 					},
 					"--bg-dark": {
 						"name": "Darker Background",
-						"type": "colour",
+						"type": "color",
 						"replacements": [["RegExp/--bg-dark: .*?;", "--bg-dark: {{{insert}}};"]]
 					},
 					"--text": {
 						"name": "Generic Text",
-						"type": "colour",
+						"type": "color",
 						"replacements": [["RegExp/--text: .*?;", "--text: {{{insert}}};"]]
 					},
 					"--text-h": {
 						"name": "Generic Text (hover state)",
-						"type": "colour",
+						"type": "color",
 						"replacements": [["RegExp/--text-h: .*?;", "--text-h: {{{insert}}};"]]
 					},
 					"--text-dim": {
 						"name": "De-emphasised Text",
-						"type": "colour",
+						"type": "color",
 						"replacements": [["RegExp/--text-dim: .*?;", "--text-dim: {{{insert}}};"]]
 					},
 					"--text-dim-h": {
 						"name": "De-emphasised Text (hover state)",
-						"type": "colour",
+						"type": "color",
 						"replacements": [["RegExp/--text-dim-h: .*?;", "--text-dim-h: {{{insert}}};"]]
 					},
 					"--text-dark": {
 						"name": "Darker Text",
-						"type": "colour",
+						"type": "color",
 						"replacements": [["RegExp/--text-dark: .*?;", "--text-dark: {{{insert}}};"]]
 					},
 					"--icon": {
 						"name": "Icons",
-						"type": "colour",
+						"type": "color",
 						"replacements": [["RegExp/--icon: .*?;", "--icon: {{{insert}}};"]]
 					},
 					"--accent": {
 						"name": "Accent (anime titles & all anime colour)",
-						"type": "colour",
+						"type": "color",
 						"replacements": [["RegExp/--accent: .*?;", "--accent: {{{insert}}};"]]
 					},
 					"--banner-text": {
 						"name": "Banner Name Text",
-						"type": "colour",
+						"type": "color",
 						"replacements": [["RegExp/--banner-text: .*?;", "--banner-text: {{{insert}}};"]]
 					},
 					"--banner-text-shadow": {
 						"name": "Banner Name Text Shadow",
-						"type": "colour",
+						"type": "color",
 						"replacements": [["RegExp/--banner-text-shadow: .*?;", "--banner-text-shadow: {{{insert}}};"]]
 					},
 					"--btn-bg": {
 						"name": "Buttons (todo)",
-						"type": "colour",
+						"type": "color",
 						"replacements": [["RegExp/--btn-bg: .*?;", "--btn-bg: {{{insert}}};"]]
 					},
 					"--btn-bg-h": {
 						"name": "Buttons (todo)",
-						"type": "colour",
+						"type": "color",
 						"replacements": [["RegExp/--btn-bg-h: .*?;", "--btn-bg-h: {{{insert}}};"]]
 					},
 					"--btn-head-bg-h": {
 						"name": "Buttons (todo)",
-						"type": "colour",
+						"type": "color",
 						"replacements": [["RegExp/--btn-head-bg-h: .*?;", "--btn-head-bg-h: {{{insert}}};"]]
 					},
 					"--btn-text-h": {
 						"name": "Button Text",
-						"type": "colour",
+						"type": "color",
 						"replacements": [["RegExp/--btn-text-h: .*?;", "--btn-text-h: {{{insert}}};"]]
 					},
 					"--text-head": {
 						"name": "Category Text",
-						"type": "colour",
+						"type": "color",
 						"replacements": [["RegExp/--text-head: .*?;", "--text-head: {{{insert}}};"]]
 					},
 					"--text-head-h": {
 						"name": "Category Text (hover state)",
-						"type": "colour",
+						"type": "color",
 						"replacements": [["RegExp/--text-head-h: .*?;", "--text-head-h: {{{insert}}};"]]
 					},
 					"--watching": {
 						"name": "Watching/Reading Status",
-						"type": "colour",
+						"type": "color",
 						"replacements": [["RegExp/--watching: .*?;", "--watching: {{{insert}}};"]]
 					},
 					"--completed": {
 						"name": "Completed Status",
-						"type": "colour",
+						"type": "color",
 						"replacements": [["RegExp/--completed: .*?;", "--completed: {{{insert}}};"]]
 					},
 					"--onhold": {
 						"name": "On Hold Status",
-						"type": "colour",
+						"type": "color",
 						"replacements": [["RegExp/--onhold: .*?;", "--onhold: {{{insert}}};"]]
 					},
 					"--dropped": {
 						"name": "Dropped Status",
-						"type": "colour",
+						"type": "color",
 						"replacements": [["RegExp/--dropped: .*?;", "--dropped: {{{insert}}};"]]
 					},
 					"--plantowatch": {
 						"name": "Plan to Watch/Read Status",
-						"type": "colour",
+						"type": "color",
 						"replacements": [["RegExp/--plantowatch: .*?;", "--plantowatch: {{{insert}}};"]]
 					},
 					"--cover-bg": {
 						"name": "Cover Background (displays underneath cover image)",
-						"type": "colour",
+						"type": "color",
 						"replacements": [["RegExp/--cover-bg: .*?;", "--cover-bg: {{{insert}}};"]]
 					},
 					"--edit-btn": {
 						"name": "Edit Button",
-						"type": "colour",
+						"type": "color",
 						"replacements": [["RegExp/--edit-btn: .*?;", "--edit-btn: {{{insert}}};"]]
 					},
 					"--checkmark": {
 						"name": "Completed Checkmark",
-						"type": "colour",
+						"type": "color",
 						"replacements": [["RegExp/--checkmark: .*?;", "--checkmark: {{{insert}}};"]]
 					}
 				}
@@ -315,7 +317,7 @@
 				"options": {
 					"background-tint-c": {
 						"name": "Tint Colour",
-						"type": "colour",
+						"type": "color",
 						"replacements": [["rgba(0, 0, 0, 0.8)", "{{{insert}}}"]],
 						"default": "rgba(0, 0, 0, 0.8)"
 					}
@@ -327,32 +329,32 @@
 				"options": {
 					"cat-banner-7": {
 						"name": "All Anime/Manga Image",
-						"type": "image_url",
+						"type": "text/image_url",
 						"replacements": [["7'] { --banner: url(URLHERE)", "7'] { --banner: {{{insert}}}"]]
 					},
 					"cat-banner-1": {
 						"name": "Watching/Reading Image",
-						"type": "image_url",
+						"type": "text/image_url",
 						"replacements": [["1'] { --banner: url(URLHERE)", "7'] { --banner: {{{insert}}}"]]
 					},
 					"cat-banner-2": {
 						"name": "Completed Image",
-						"type": "image_url",
+						"type": "text/image_url",
 						"replacements": [["2'] { --banner: url(URLHERE)", "7'] { --banner: {{{insert}}}"]]
 					},
 					"cat-banner-3": {
 						"name": "On Hold Image",
-						"type": "image_url",
+						"type": "text/image_url",
 						"replacements": [["3'] { --banner: url(URLHERE)", "7'] { --banner: {{{insert}}}"]]
 					},
 					"cat-banner-4": {
 						"name": "Dropped Image",
-						"type": "image_url",
+						"type": "text/image_url",
 						"replacements": [["4'] { --banner: url(URLHERE)", "7'] { --banner: {{{insert}}}"]]
 					},
 					"cat-banner-6": {
 						"name": "Plan to Watch/Read Image",
-						"type": "image_url",
+						"type": "text/image_url",
 						"replacements": [["6'] { --banner: url(URLHERE)", "7'] { --banner: {{{insert}}}"]]
 					}
 				}
@@ -363,32 +365,32 @@
 				"options": {
 					"cat-character-7": {
 						"name": "All Anime/Manga Image",
-						"type": "image_url",
+						"type": "text/image_url",
 						"replacements": [["7'] { --character: url(URLHERE)", "7'] { --character: {{{insert}}}"]]
 					},
 					"cat-character-1": {
 						"name": "Watching/Reading Image",
-						"type": "image_url",
+						"type": "text/image_url",
 						"replacements": [["1'] { --character: url(URLHERE)", "7'] { --character: {{{insert}}}"]]
 					},
 					"cat-character-2": {
 						"name": "Completed Image",
-						"type": "image_url",
+						"type": "text/image_url",
 						"replacements": [["2'] { --character: url(URLHERE)", "7'] { --character: {{{insert}}}"]]
 					},
 					"cat-character-3": {
 						"name": "On Hold Image",
-						"type": "image_url",
+						"type": "text/image_url",
 						"replacements": [["3'] { --character: url(URLHERE)", "7'] { --character: {{{insert}}}"]]
 					},
 					"cat-character-4": {
 						"name": "Dropped Image",
-						"type": "image_url",
+						"type": "text/image_url",
 						"replacements": [["4'] { --character: url(URLHERE)", "7'] { --character: {{{insert}}}"]]
 					},
 					"cat-character-6": {
 						"name": "Plan to Watch/Read Image",
-						"type": "image_url",
+						"type": "text/image_url",
 						"replacements": [["6'] { --character: url(URLHERE)", "7'] { --character: {{{insert}}}"]]
 					}
 				}
@@ -399,32 +401,32 @@
 				"options": {
 					"cat-background-7": {
 						"name": "All Anime/Manga Image",
-						"type": "image_url",
+						"type": "text/image_url",
 						"replacements": [["7'] { --background: url(URLHERE)", "7'] { --background: {{{insert}}}"]]
 					},
 					"cat-background-1": {
 						"name": "Watching/Reading Image",
-						"type": "image_url",
+						"type": "text/image_url",
 						"replacements": [["1'] { --background: url(URLHERE)", "7'] { --background: {{{insert}}}"]]
 					},
 					"cat-background-2": {
 						"name": "Completed Image",
-						"type": "image_url",
+						"type": "text/image_url",
 						"replacements": [["2'] { --background: url(URLHERE)", "7'] { --background: {{{insert}}}"]]
 					},
 					"cat-background-3": {
 						"name": "On Hold Image",
-						"type": "image_url",
+						"type": "text/image_url",
 						"replacements": [["3'] { --background: url(URLHERE)", "7'] { --background: {{{insert}}}"]]
 					},
 					"cat-background-4": {
 						"name": "Dropped Image",
-						"type": "image_url",
+						"type": "text/image_url",
 						"replacements": [["4'] { --background: url(URLHERE)", "7'] { --background: {{{insert}}}"]]
 					},
 					"cat-background-6": {
 						"name": "Plan to Watch/Read Image",
-						"type": "image_url",
+						"type": "text/image_url",
 						"replacements": [["6'] { --background: url(URLHERE)", "7'] { --background: {{{insert}}}"]]
 					}
 				}
@@ -436,7 +438,7 @@
 				"options": {
 					"transparent-rows-c": {
 						"name": "Tint Colour",
-						"type": "colour",
+						"type": "color",
 						"replacements": [["rgba(33,33,33,0.8)", "{{{insert}}}"]],
 						"default": "rgba(33,33,33,0.8)"
 					}
@@ -449,7 +451,7 @@
 				"options": {
 					"banner-height-v": {
 						"name": "Height",
-						"type": "size",
+						"type": "text/size",
 						"replacements": [["--banner-height: 318px;", "--banner-height: {{{insert}}};"]],
 						"default": "318px"
 					}
@@ -462,7 +464,7 @@
 				"options": {
 					"status-width-v": {
 						"name": "Width",
-						"type": "size",
+						"type": "text/size",
 						"replacements": [["2px", "{{{insert}}}"]],
 						"default": "2px"
 					}
@@ -475,8 +477,8 @@
 				"css": {"bottom": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Header%20Outline%20Compressed.css"},
 				"options": {
 					"header-line-c": {
-						"name": "Colour",
-						"type": "colour",
+						"name": "color",
+						"type": "color",
 						"replacements": [["#9ca5fe", "{{{insert}}}"]],
 						"default": "#9ca5fe"
 					}
@@ -497,37 +499,39 @@
 	},
 	"clarified": {
 		"name": "Clarified",
+		"author": "Valerio Lyndon",
 		"css": "",
 		"type": "modern",
 		"help": "https://github.com/ValerioLyndon/MAL-Public-List-Designs/"
 	},
 	"brink": {
 		"name": "Brink",
+		"author": "Valerio Lyndon",
 		"css": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Brink%20Theme/Brink.min.css",
 		"type": "modern",
 		"help": "https://myanimelist.net/forum/?topicid=1772180",
 		"options": {
 			"--imageBrightness": {
 				"name": "Cover Image Brightness",
-				"type": "value/opacity",
+				"type": "text/value/opacity",
 				"replacements": [["--imageBrightness: 66%;", "--imageBrightness: {{{insert}}};"]],
 				"default": "66%"
 			},
 			"--imagebrightnessHov": {
 				"name": "Cover Image Brightness (hover state)",
-				"type": "value/opacity",
+				"type": "text/value/opacity",
 				"replacements": [["--imageBrightnessHov: 35%;", "--imageBrightnessHov: {{{insert}}};"]],
 				"default": "35%"
 			},
 			"--imageBlurHov": {
 				"name": "Image blur amount (while hovered).",
-				"type": "size",
+				"type": "text/size",
 				"replacements": [["--imageBlurHov: 2px;", "--imageBlurHov: {{{insert}}};"]],
 				"default": "2px"
 			},
 			"--infoBGOpacity": {
 				"name": "Opacity of title/information background.",
-				"type": "value/opacity",
+				"type": "text/value/opacity",
 				"replacements": [["--infoBGOpacity: 85%;", "--infoBGOpacity: {{{insert}}};"]],
 				"default": "85%"
 			},
@@ -563,13 +567,13 @@
 			},
 			"--bgDimness": {
 				"name": "Background Dimming",
-				"type": "value/opacity",
+				"type": "text/value/opacity",
 				"replacements": [["--bgDimness: 50%;", "--bgDimness: {{{insert}}};;"]],
 				"default": "50%"
 			},
 			"--bannerVignetteOpacity": {
 				"name": "Banner Vignette Opacity",
-				"type": "value/opacity",
+				"type": "text/value/opacity",
 				"replacements": [["--infoBGOpacity: 85%;", "--infoBGOpacity: {{{insert}}};"]],
 				"default": "85%"
 			}
@@ -595,6 +599,7 @@
 	},
 	"puni": {
 		"name": "Puni",
+		"author": "Valerio Lyndon",
 		"css": "@\\import \"https://valeriolyndon.github.io/MAL-Public-List-Designs/Puni%20Theme/Puni.css\";",
 		"type": "modern",
 		"columns": {
@@ -605,6 +610,7 @@
 	},
 	"tilt": {
 		"name": "Tilt",
+		"author": "Valerio Lyndon",
 		"css": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Tilt%20Theme/Theme%20-%20Compressed.css",
 		"type": "modern",
 		"columns": {
@@ -615,6 +621,7 @@
 	},
 	"9anime": {
 		"name": "9anime",
+		"author": "Valerio Lyndon",
 		"css": "https://valeriolyndon.github.io/MAL-Public-List-Designs/9anime%20Theme/Theme%20-%20Compressed%20FI.css",
 		"type": "modern",
 		"columns": {
