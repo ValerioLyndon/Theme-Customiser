@@ -57,14 +57,12 @@ function fetchFile(path, cacheResult = true) {
 function createBB(text) {
 	let parent = document.createElement('p');
 	parent.classList.add('bb');
-	console.log(text);
 
 	// sanitise
 
 	let dummy = document.createElement('div');
 	dummy.textContent = text;
 	text = dummy.innerHTML;
-	console.log(text);
 
 	// Define BB patterns
 
@@ -531,7 +529,7 @@ function renderHtml() {
 			optionsEle.appendChild(generateOptionHtml(opt));
 		}
 	} else {
-		optionsEle.remove();
+		optionsEle.parentNode.remove();
 	}
 
 	var modsEle = document.getElementById('js-mods');
@@ -541,6 +539,7 @@ function renderHtml() {
 
 			let div = document.createElement('div'),
 				head = document.createElement('b'),
+				expando = document.createElement('div'),
 				desc = document.createElement('p'),
 				toggle = document.createElement('div');
 
@@ -558,11 +557,16 @@ function renderHtml() {
 			head.textContent = mod['name'];
 			head.className = 'mod__name';
 			div.appendChild(head);
+
+			expando.className = 'c-expando js-expando';
+			expando.setAttribute('data-expando-limit', "100");
+			expando.innerHTML = '<button class="c-expando__button c-expando__button--subtle js-expando-button">Expand</button>';
 			if('description' in mod) {
 				desc.appendChild(createBB(mod['description']));
 			}
 			desc.className = 'mod__desc';
-			div.appendChild(desc);
+			expando.appendChild(desc);
+			div.appendChild(expando);
 
 			if('options' in mod) {
 				let optDiv = document.createElement('div');
@@ -584,7 +588,7 @@ function renderHtml() {
 			document.getElementById(modId).addEventListener('change', () => { updateMod(modId); });
 		}
 	} else {
-		modsEle.remove();
+		modsEle.parentNode.remove();
 	}
 
 	// Help links
@@ -664,6 +668,52 @@ function renderHtml() {
 		var iframe = document.getElementById('js-frame');
 		if (iframe && iframe.contentWindow) {
 			iframe.contentWindow.postMessage(['columns', columns]);
+		}
+	}
+
+	// Add expando functions
+
+	let expandos = document.getElementsByClassName('js-expando');
+
+	function toggleExpando() {
+		let parent = this.parentNode,
+			expandedHeight = parent.scrollHeight;
+			collapsedHeight = parent.getAttribute('data-expando-limit'),
+			expanded = parent.classList.contains('c-expando--expanded'),
+			animTiming = {
+				duration: 300 + expandedHeight / 3,
+				iterations: 1,
+				easing: 'ease',
+				fill: 'both'
+			};
+
+		if(expanded) {
+			let animFrames = [
+				{ height: `${expandedHeight}px` },
+				{ height: `${collapsedHeight}px`}
+			];
+			parent.classList.remove('c-expando--expanded');
+			parent.animate(animFrames, animTiming);
+			this.textContent = 'Expand';
+		} else {
+			let animFrames = [
+				{ height: `${collapsedHeight}px`},
+				{ height: `${expandedHeight + 25}px` }
+			];
+			parent.classList.add('c-expando--expanded');
+			parent.animate(animFrames, animTiming);
+			this.textContent = 'Collapse';
+		}
+	}
+
+	for(let expando of expandos) {
+		let limit = expando.getAttribute('data-expando-limit');
+		if(expando.scrollHeight < limit) {
+			expando.classList.add('c-expando--innert');
+		} else {
+			expando.style.height = `${limit}px`;
+			let btn = expando.getElementsByClassName('js-expando-button')[0];
+			btn.addEventListener('click', toggleExpando.bind(btn));
 		}
 	}
 }

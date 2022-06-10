@@ -36,16 +36,24 @@
 					<h2 class="sidebar__title" id="js-title">Loading theme...</h2>
 				</div>
 
-				<div class="sidebar__section" id="js-options">
-					<h3 class="sidebar__header">Change theme options</h3>
+				<div class="sidebar__section">
+					<div class="c-expando js-expando" data-expando-limit="400" id="js-options">
+						<button class="c-expando__button js-expando-button">Expand</button>
+						
+						<h3 class="sidebar__header">Change theme options</h3>
 
-					<!-- options gets put here by customiser.js -->
+						<!-- options gets put here by customiser.js -->
+					</div>
 				</div>
 
-				<div class="sidebar__section" id="js-mods">
-					<h3 class="sidebar__header">Choose theme modifications</h3>
-					
-					<!-- mods gets put here by customiser.js -->
+				<div class="sidebar__section">
+					<div class="c-expando js-expando" data-expando-limit="200" id="js-mods">
+						<button class="c-expando__button js-expando-button">Expand</button>
+						
+						<h3 class="sidebar__header">Choose theme modifications</h3>
+						
+						<!-- mods gets put here by customiser.js -->
+					</div>
 				</div>
 
 				<div class="sidebar__section">
@@ -127,9 +135,10 @@
 						<li class="c-steps__step">
 							<p class="c-popup__paragraph">Click "Save" and your theme should be applied!</p>
 							<img src="./images/save.jpg" class="c-popup__image" />
-							<p class="c-info-box">If you encounter any issues with the theme colours or images, try disabling or enabling the cover and/or background images. Some themes do not play nicely with these.</p>
-							<p class="c-info-box o-hidden js-help">If this guide did not work for you or you have further questions, please check the help page provided by the theme author.
-								<a class="button button--highlighted" class="js-help-href">Get Help</a>
+							<p class="c-info-box">If you encounter any issues with the theme colours or images, try toggling the cover and/or background images. Some themes do not play nicely with these while others may require them.</p>
+							<p class="c-info-box o-hidden js-help">
+								If this guide did not work for you or you have further questions, please check the theme-specific help page provided by the theme author.
+								<a class="hyperlink js-help-href">Get help</a>.
 							</p>
 						</li>
 					</ol>
