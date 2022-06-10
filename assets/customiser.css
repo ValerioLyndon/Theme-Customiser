@@ -124,6 +124,7 @@ input:checked + .toggle--forced::after {
 	position: absolute;
 	bottom: 22px;
 	right: -8px;
+	z-index: 5;
 	display: none;
 	width: 270px;
 	padding: 8px;
@@ -316,6 +317,11 @@ input:checked + .toggle--forced::after {
 .option__help {
 	float: right;
 	font-size: 12px;
+	opacity: 0;
+	transition: opacity 0.2s ease;
+}
+.option:hover .option__help {
+	opacity: 1;
 }
 
 .option__desc {
@@ -338,6 +344,17 @@ input:checked + .toggle--forced::after {
 	height: 1.3em;
 	max-height: 10em;
 	resize: vertical;
+}
+
+.option__colour {
+	position: relative;
+	float: right;
+	width: 1.3em;
+	height: 1.3em;
+	background: var(--border);
+	margin-top: -32px;
+	margin-right: 6px;
+	border-radius: 50%;
 }
 
 

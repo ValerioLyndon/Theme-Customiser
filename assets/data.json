@@ -90,7 +90,8 @@
 				"options": {
 					"review-v": {
 						"name": "Section Width",
-						"type": "text",
+						"type": "size",
+						"description": "This represents the maximum width. The actual width may be smaller to make room for other columns.",
 						"replacements": [["240px", "{{{insert}}}"]],
 						"default": "240px"
 					}
@@ -233,7 +234,7 @@
 					},
 					"--banner-text-shadow": {
 						"name": "Banner Name Text Shadow",
-						"type": "text",
+						"type": "colour",
 						"replacements": [["RegExp/--banner-text-shadow: .*?;", "--banner-text-shadow: {{{insert}}};"]]
 					},
 					"--btn-bg": {
@@ -448,7 +449,7 @@
 				"options": {
 					"banner-height-v": {
 						"name": "Height",
-						"type": "text",
+						"type": "size",
 						"replacements": [["--banner-height: 318px;", "--banner-height: {{{insert}}};"]],
 						"default": "318px"
 					}
@@ -461,7 +462,7 @@
 				"options": {
 					"status-width-v": {
 						"name": "Width",
-						"type": "text",
+						"type": "size",
 						"replacements": [["2px", "{{{insert}}}"]],
 						"default": "2px"
 					}

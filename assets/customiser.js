@@ -385,7 +385,9 @@ function pushCss(css) {
 
 function validateInput(id, type) {
 	let notice = document.getElementById(`js-${id}-notice`),
-		val = document.getElementById(id).value.toLowerCase();
+		noticeHTML = '',
+		val = document.getElementById(id).value.toLowerCase(),
+		problems = 0;
 	
 	if(val.length === 0) {
 		notice.classList.add('o-hidden');
@@ -394,8 +396,7 @@ function validateInput(id, type) {
 
 	if(type === 'image_url') {
 		// Consider replacing this with a script that simply loads the image and tests if it loads. Since we're already doing that with the preview anyway it shouldn't be a problem.
-		let noticeHTML = 'We detected some warnings. If your image does not display, fix these issues and try again.<ul class="c-notice__list">',
-			problems = 0;
+		noticeHTML = 'We detected some warnings. If your image does not display, fix these issues and try again.<ul class="c-notice__list">';
 
 		function problem(text) {
 			problems += 1;
@@ -415,14 +416,42 @@ function validateInput(id, type) {
 		else if(/svg(\?.*)?$/.test(val)) {
 			problem('SVG images will not display on your list while logged out or for other users. Host your CSS on an external website to bypass this.');
 		}
+	}
 
-		notice.innerHTML = noticeHTML;
-
-		if(problems > 0) {
-			notice.classList.remove('o-hidden');
+	else if(type === 'colour') {
+		this.style.color = '';
+		this.style.color = val;
+		if(this.style.color.length === 0) {
+			problems += 1;
+			noticeHTML = 'Your colour appears to be invalid. For help creating valid CSS colours, see <a class="hyperlink" href="https://css-tricks.com/almanac/properties/c/color/">this guide</a>.';
 		} else {
-			notice.classList.add('o-hidden');
+			this.style.backgroundColor = val;
 		}
+	}
+
+	else if(type === 'size') {
+		let units = ['px','%','em','rem','vh','vmax','vmin','vw','ch','cm','mm','Q','in','pc','pt','ex']
+		problems += 1;
+		for(unit of units) {
+			if(val.endsWith(unit)) {
+				problems -= 1;
+			}
+		}
+		if(val.startsWith('calc(') && val.endsWith(')')) {
+			problems = 0;
+		}
+		if(problems > 0) {
+			noticeHTML = 'Did not detect a length unit. All CSS sizes must end in a length unit such as "px", "%", "vw", or otherwise. For help creating valid CSS colours, see <a class="hyperlink" href="https://css-tricks.com/the-lengths-of-css/">this guide</a>.';
+		}
+	}
+	
+	if(problems > 0) {
+		notice.innerHTML = noticeHTML;
+		notice.classList.remove('o-hidden');
+		return false;
+	} else {
+		notice.classList.add('o-hidden');
+		return true;
 	}
 }
 
@@ -446,7 +475,8 @@ function renderHtml() {
 			head = document.createElement('b'),
 			expando = document.createElement('div'),
 			desc = document.createElement('div'),
-			notice = document.createElement('div');
+			notice = document.createElement('div'),
+			link = document.createElement('a');
 
 		if(opt['default'] === undefined) {
 			opt['default'] = '';
@@ -467,7 +497,14 @@ function renderHtml() {
 			div.appendChild(expando);
 		}
 
-		if(opt['type'] === 'text' || opt['type'].startsWith('value')) {
+		link.className = 'option__help hyperlink';
+		link.target = "_blank";
+		head.appendChild(link);
+
+		if(opt['type'] === 'text'
+		|| opt['type'] === 'colour'
+		|| opt['type'] === 'size'
+		|| opt['type'].startsWith('value')) {
 			let input = document.createElement('input');
 			input.id = id;
 			input.type = 'text';
@@ -477,15 +514,30 @@ function renderHtml() {
 			div.appendChild(input);
 
 			if(opt['type'].startsWith('value/')) {
-				let link = document.createElement('a'),
-					property = opt['type'].split('/')[1];
+				input.placeholder = 'Your value here.';
+				
+				let property = opt['type'].split('/')[1];
 
-				link.className = 'option__help hyperlink';
-				link.target = "_blank";
-				link.textContent = 'Need help?';
+				link.textContent = 'Valid Inputs';
 				link.href = `https://developer.mozilla.org/en-US/docs/Web/CSS/${property}#values`
+			}
+			else if(opt['type'] === 'colour') {
+				input.placeholder = 'Your colour here. e.x rgba(0, 135, 255, 1.0)';
 
-				head.appendChild(link);
+				let display = document.createElement('div');
+				display.className = 'option__colour';
+
+				div.appendChild(display);
+
+				link.textContent = 'Colour Picker';
+				link.href = 'https://mdn.github.io/css-examples/tools/color-picker/';
+
+				input.addEventListener('input', validateInput.bind(display, id, opt['type']));
+			}
+			else if(opt['type'] === 'size') {
+				input.placeholder = 'Your size here. e.x 200px, 33%, 20vw, etc.';
+
+				input.addEventListener('input', () => { validateInput(id, opt['type']) });
 			}
 
 			input.addEventListener('input', () => {
@@ -514,20 +566,6 @@ function renderHtml() {
 			input.value = opt['default'];
 			input.className = 'option__input option__input--textarea';
 			input.placeholder = 'Your text here.';
-			div.appendChild(input);
-
-			input.addEventListener('input', () => { updateOption(id, opt['default'], parentModId); });
-		}
-
-		else if(opt['type'] === 'colour') {
-			// todo: make this better because the built-in colour selector is garbo but using just text is pretty bad too
-			let input = document.createElement('input');
-			input.id = id;
-			input.value = opt['default'];
-			//input.type = 'color';
-			input.type = 'text';
-			input.className = 'option__input';
-			input.placeholder = 'Your colour here. e.x rgba(0, 135, 255, 1.0)';
 			div.appendChild(input);
 
 			input.addEventListener('input', () => { updateOption(id, opt['default'], parentModId); });
