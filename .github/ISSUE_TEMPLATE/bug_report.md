@@ -8,9 +8,11 @@ assignees: ''
 ---
 
 **Describe the bug**
+
 A clear and concise description of what is going wrong.
 
 **To Reproduce**
+
 Steps to reproduce the behavior:
 1. Go to '...'
 2. Click on '....'
@@ -18,19 +20,19 @@ Steps to reproduce the behavior:
 4. See error
 
 **Expected behavior**
+
 A clear and concise description of what you expected to happen.
 
 **Screenshots**
+
 If applicable, add screenshots to help explain your problem.
 
 **Desktop (please complete the following information):**
+
  - Operating System: [e.g. Windows, Linux, iOS]
  - Browser [e.g. chrome, safari]
  - Version [e.g. 96]
 
 **Additional context**
-<<<<<<< HEAD
+
 Add any other context about the problem here.
-=======
-Add any other context about the problem here.
->>>>>>> parent of c40c38a (Merge branch 'main' of https://github.com/ValerioLyndon/theme-customiser)
