@@ -1,41 +1,67 @@
-function setCss(css) {
+// Preview-only HTML - replicating default functionality
 
-}
-
-function setColumns(columns) {
-	let selectors = [];
-	console.log(columns);
-
-	for(let [column, enabled] of Object.entries(columns)) {
-		if(!enabled) {
-			selectors.push(`[tc-column="${column}"]`);
-		}
-	}
-
-	for(sel of selectors) {
-		for(ele of document.querySelectorAll(sel)) {
-			ele.remove();
-		}
+function toggle(defaultDisplay = 'block') {
+	console.log(this);
+	console.log(defaultDisplay);
+	if(this.style.display === 'none' || this.style.display === '') {
+		this.style.display = defaultDisplay;
+	} else {
+		this.style.display = 'none';
 	}
 }
 
-// Listen for messages from customiser.js
-window.addEventListener(
-	"message",
-	function (event) {
-		if (event.origin === window.location.origin) {
-			var push = event.data || event.message,
-				type = push[0],
-				content = push[1];
+// Category buttons
 
-			if(type === 'css') {
-				document.getElementById('custom-css').textContent = content;
-			}
-			else if(type ==='columns') {
-	console.log('yes');
-				setColumns(content);
-			}
-		}
-	},
-	false
-);
+var categoryButtons = document.getElementsByClassName('status-button');
+var categories = {
+	7: 'All Anime',
+	1: 'Currently Watching',
+	2: 'Completed',
+	3: 'On Hold',
+	4: 'Dropped',
+	6: 'Plan To Watch'
+}
+
+function changeCategory() {
+	var catId = this.href.substring(button.href.length - 1),
+		catClass = this.className.substring(14),
+		catName = categories[catId];
+	
+	document.body.setAttribute('data-query',`{"status":${catId}}`);
+	document.querySelector('.status-button.on').classList.remove('on');
+	this.classList.add('on');
+	document.getElementsByClassName('list-unit')[0].className = `list-unit ${catClass}`;
+	document.querySelector('.list-status-title .text').textContent = catName.toUpperCase();
+}
+for(var button of categoryButtons) {
+	button.addEventListener('click', changeCategory.bind(button));
+}
+
+// Fixed header
+
+var statusMenu = document.getElementById('status-menu'),
+	affixAtPos = statusMenu.getBoundingClientRect().y + window.scrollY;
+
+
+
+window.addEventListener('scroll', () => {
+	if(!statusMenu.className.includes('fixed')) {
+		affixAtPos = statusMenu.getBoundingClientRect().y + window.scrollY;
+	}
+
+	if(window.scrollY >= affixAtPos) {
+		statusMenu.classList.add('fixed');
+	} else {
+		statusMenu.classList.remove('fixed');
+	}
+})
+
+// List Items
+
+var items = document.getElementsByClassName('list-item');
+
+for(var item of items) {
+	// More button
+	let more = item.getElementsByClassName('more-info')[0];
+	item.querySelector('.more a').addEventListener('click', toggle.bind(more, 'table-row'));
+}

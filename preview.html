@@ -1185,15 +1185,15 @@
     }
   </style>
 
-  <script src="assets/preview.js" type="text/javascript"></script>
+  <script src="assets/receiver.js" type="text/javascript"></script>
 	<script src="https://kit.fontawesome.com/6dbb1e5ab5.js" crossorigin="anonymous"></script>
 </head>
 
-<body class="ownlist  anime " data-work="anime" data-query="{&quot;status&quot;:7,&quot;preview&quot;:1}" data-owner="1"
+<body class="ownlist  anime " data-work="anime" data-query="{&quot;status&quot;:7}" data-owner="1"
   data-owner-id="0" data-owner-name="Preview" data-country-code="US">
   <div id="advanced-options" class="anime">
-    <a id="fancybox-close" href="#" @click.prevent="closeAdvancedOptions" style="display: block;"
-      data-hydrus="DONE"></a>
+    <a onclick="return false;" id="fancybox-close" href="#" @click.prevent="closeAdvancedOptions" style="display: block;"
+     ></a>
 
     <div class="filter">
       <h2 class="advanced-options-header">
@@ -1280,8 +1280,8 @@
     </div>
 
     <div class="advanced-options-button">
-      <a href="javascript: void(0);" class="btn-apply" @click="applyFilter()" data-hydrus="DONE">Apply</a>
-      <a href="javascript: void(0);" class="btn-clear" @click="clearFilter()" data-hydrus="DONE">Clear</a>
+      <a onclick="return false;" href="javascript: void(0);" class="btn-apply" @click="applyFilter()">Apply</a>
+      <a onclick="return false;" href="javascript: void(0);" class="btn-clear" @click="clearFilter()">Clear</a>
     </div>
 
   </div>
@@ -1292,15 +1292,15 @@
         Viewing <span class="username">Your</span> Anime List
       </div>
     </div>
-    <a href="https://myanimelist.net/" class="header-title" data-hydrus="DONE">MyAnimeList.net</a>
+    <a onclick="return false;" href="https://myanimelist.net/" class="header-title">MyAnimeList.net</a>
   </div>
 
-  <div class="list-menu-float"><a class="icon-menu profile" href="https://myanimelist.net/profile/Preview"
+  <div class="list-menu-float"><a onclick="return false;" class="icon-menu profile" href="https://myanimelist.net/profile/Preview"
       style="background-image: url(https://cdn.myanimelist.net/images/userimages/5889451.webp?t=1652073600);"
-      data-hydrus="DONE">
+     >
     </a>
-    <a class="icon-menu quick-add List_LightBox" href="https://myanimelist.net/addtolist.php?hidenav=1"
-      data-hydrus="DONE">
+    <a onclick="return false;" class="icon-menu quick-add List_LightBox" href="https://myanimelist.net/addtolist.php?hidenav=1"
+     >
       <svg class="icon icon-quick-add" width="22px" height="20px" viewBox="0 0 22 20" version="1.1">
         <g>
           <path
@@ -1313,7 +1313,7 @@
       </svg>
       <span class="text">Quick Add</span>
     </a>
-    <a class="icon-menu anime-list" href="https://myanimelist.net/animelist/Preview?preview=1" data-hydrus="DONE">
+    <a onclick="return false;" class="icon-menu anime-list" href="https://myanimelist.net/animelist/Preview">
       <svg class="icon icon-anime-list" width="22px" height="20px" viewBox="0 0 22 20" version="1.1">
         <g>
           <path
@@ -1326,7 +1326,7 @@
       </svg>
       <span class="text">Anime List</span>
     </a>
-    <a class="icon-menu manga-list" href="https://myanimelist.net/mangalist/Preview?preview=1" data-hydrus="DONE">
+    <a onclick="return false;" class="icon-menu manga-list" href="https://myanimelist.net/mangalist/Preview">
       <svg class="icon icon-manga-list" width="22px" height="20px" viewBox="0 0 22 20" version="1.1">
         <g>
           <path
@@ -1339,7 +1339,7 @@
       </svg>
       <span class="text">Manga List</span>
     </a>
-    <a class="icon-menu history" href="https://myanimelist.net/history/Preview" data-hydrus="DONE">
+    <a onclick="return false;" class="icon-menu history" href="https://myanimelist.net/history/Preview">
       <svg class="icon icon-history" width="21px" height="21px" viewBox="0 0 21 21" version="1.1">
         <g transform="translate(-1.000000, -154.000000)">
           <path
@@ -1349,7 +1349,7 @@
       </svg>
       <span class="text">History</span>
     </a>
-    <a class="icon-menu export" href="https://myanimelist.net/panel.php?go=export" data-hydrus="DONE">
+    <a onclick="return false;" class="icon-menu export" href="https://myanimelist.net/panel.php?go=export">
       <svg class="icon icon-export" width="21px" height="24px" viewBox="0 0 21 24" version="1.1">
         <g transform="translate(0.000000, -253.000000)">
           <path
@@ -1360,7 +1360,7 @@
       <span class="text">Export</span>
     </a>
     <form action="https://myanimelist.net/logout.php" method="post">
-      <a class="icon-menu logout" href="javascript:void(0);" onclick="$(this).parent().submit();" data-hydrus="DONE">
+      <a onclick="return false;" class="icon-menu logout" href="javascript:void(0);" onclick="$(this).parent().submit();">
         <svg class="icon icon-logout" width="20px" height="17px" viewBox="0 0 20 17" version="1.1">
           <g transform="translate(-2.000000, -306.000000)">
             <path
@@ -1380,9 +1380,9 @@
         </g>
       </svg>
       <span class="text">
-        <a class="link-list-setting" href="https://myanimelist.net/editprofile.php?go=listpreferences"
-          data-hydrus="DONE">List Settings</a>
-        <a class="link-style-setting" href="https://myanimelist.net/ownlist/style" data-hydrus="DONE">Style Settings</a>
+        <a onclick="return false;" class="link-list-setting" href="https://myanimelist.net/editprofile.php?go=listpreferences"
+         >List Settings</a>
+        <a onclick="return false;" class="link-style-setting" href="https://myanimelist.net/ownlist/style">Style Settings</a>
       </span>
     </div>
   </div>
@@ -1390,32 +1390,32 @@
 
     <div class="cover-block">
       <div id="cover-image-container" class="image-container hide">
-        <a href="https://myanimelist.net/ownlist/style" class="btn-list-setting" data-hydrus="DONE">
+        <a onclick="return false;" href="https://myanimelist.net/ownlist/style" class="btn-list-setting">
           <i class="fa-solid fa-circle-plus icon-plus-circle"></i>
           <i class="fa-solid fa-camera"></i>
           <span class="text">Style/Design Settings</span>
         </a>
         <img id="cover-image" class="lazyload" data-src="https://cdn.myanimelist.net/images/spacer.gif"
-          data-hydrus="DONE">
+         >
       </div>
     </div>
 
 
 
     <div id="status-menu" class="status-menu-container">
-      <div class="status-menu"><a href="https://myanimelist.net/animelist/Preview?status=7&amp;preview=1"
-          class="status-button all_anime on" data-hydrus="DONE">All Anime</a><a
-          href="https://myanimelist.net/animelist/Preview?status=1&amp;preview=1" class="status-button watching "
-          data-hydrus="DONE">Currently Watching</a><a
-          href="https://myanimelist.net/animelist/Preview?status=2&amp;preview=1" class="status-button completed "
-          data-hydrus="DONE">Completed</a><a href="https://myanimelist.net/animelist/Preview?status=3&amp;preview=1"
-          class="status-button onhold " data-hydrus="DONE">On Hold</a><a
-          href="https://myanimelist.net/animelist/Preview?status=4&amp;preview=1" class="status-button dropped "
-          data-hydrus="DONE">Dropped</a><a href="https://myanimelist.net/animelist/Preview?status=6&amp;preview=1"
-          class="status-button plantowatch " data-hydrus="DONE">Plan to Watch</a>
+      <div class="status-menu"><a onclick="return false;" href="https://myanimelist.net/animelist/Preview?status=7"
+          class="status-button all_anime on">All Anime</a><a onclick="return false;"
+          href="https://myanimelist.net/animelist/Preview?status=1" class="status-button watching "
+         >Currently Watching</a><a onclick="return false;"
+          href="https://myanimelist.net/animelist/Preview?status=2" class="status-button completed "
+         >Completed</a><a onclick="return false;" href="https://myanimelist.net/animelist/Preview?status=3"
+          class="status-button onhold ">On Hold</a><a onclick="return false;"
+          href="https://myanimelist.net/animelist/Preview?status=4" class="status-button dropped "
+         >Dropped</a><a onclick="return false;" href="https://myanimelist.net/animelist/Preview?status=6"
+          class="status-button plantowatch ">Plan to Watch</a>
         <div class="search-container">
           <div id="search-box"><input type="text" value=""></div>
-          <a id="search-button" href="javascript: void(0);" data-hydrus="DONE">
+          <a onclick="return false;" id="search-button" href="javascript: void(0);">
             <i class="fa-solid fa-magnifying-glass"></i>
           </a>
         </div>
@@ -1434,9 +1434,9 @@
         <div class="list-status-title">
           <span class="text">ALL ANIME</span>
           <span class="stats">
-            <a href="javascript: void(0);" id="show-stats-button" data-hydrus="DONE"><i
+            <a onclick="return false;" href="javascript: void(0);" id="show-stats-button"><i
                 class="fa-solid fa-chart-column"></i> Stats</a>
-            <a href="javascript: void(0);" id="advanced-options-button" data-hydrus="DONE"><i
+            <a onclick="return false;" href="javascript: void(0);" id="advanced-options-button"><i
                 class="fa-solid fa-filter"></i> Filters</a>
           </span>
         </div>
@@ -1456,67 +1456,67 @@
             <tr class="list-table-header">
               <th class="header-title status"></th>
               <th class="header-title number" tc-column="Numbers">#</th>
-              <th class="header-title image" tc-column="Image"><a class="link hover_info" data-hydrus="DONE">Image</a></th>
-              <th class="header-title title"><a
-                  href="https://myanimelist.net/animelist/Preview?status=7&amp;preview=1&amp;order=1&amp;order2=0"
-                  class="link sort" data-hydrus="DONE">
+              <th class="header-title image" tc-column="Image"><a onclick="return false;" class="link hover_info">Image</a></th>
+              <th class="header-title title"><a onclick="return false;"
+                  href="https://myanimelist.net/animelist/Preview?status=7&amp;order=1&amp;order2=0"
+                  class="link sort">
                   Anime Title
                 </a></th>
-              <th class="header-title score" tc-column="Score"><a
-                  href="https://myanimelist.net/animelist/Preview?status=7&amp;preview=1&amp;order=4&amp;order2=0"
-                  class="link sort" data-hydrus="DONE">
+              <th class="header-title score" tc-column="Score"><a onclick="return false;"
+                  href="https://myanimelist.net/animelist/Preview?status=7&amp;order=4&amp;order2=0"
+                  class="link sort">
                   Score
                 </a></th>
-              <th class="header-title type" tc-column="Type"><a
-                  href="https://myanimelist.net/animelist/Preview?status=7&amp;preview=1&amp;order=6&amp;order2=0"
-                  class="link sort" data-hydrus="DONE">
+              <th class="header-title type" tc-column="Type"><a onclick="return false;"
+                  href="https://myanimelist.net/animelist/Preview?status=7&amp;order=6&amp;order2=0"
+                  class="link sort">
                   Type
                 </a></th>
-              <th class="header-title progress" tc-column="Episodes"><a
-                  href="https://myanimelist.net/animelist/Preview?status=7&amp;preview=1&amp;order=12&amp;order2=0"
-                  class="link sort" data-hydrus="DONE">
+              <th class="header-title progress" tc-column="Episodes"><a onclick="return false;"
+                  href="https://myanimelist.net/animelist/Preview?status=7&amp;order=12&amp;order2=0"
+                  class="link sort">
                   Progress
                 </a></th>
               <th class="header-title tags" tc-column="Tags">
                 Tags
               </th>
-              <th class="header-title rated" tc-column="Rating"><a
-                  href="https://myanimelist.net/animelist/Preview?status=7&amp;preview=1&amp;order=8&amp;order2=0"
-                  class="link sort" data-hydrus="DONE">
+              <th class="header-title rated" tc-column="Rating"><a onclick="return false;"
+                  href="https://myanimelist.net/animelist/Preview?status=7&amp;order=8&amp;order2=0"
+                  class="link sort">
                   Rated
                 </a></th>
-              <th class="header-title started" tc-column="Start/End Dates"><a
-                  href="https://myanimelist.net/animelist/Preview?status=7&amp;preview=1&amp;order=3&amp;order2=0"
-                  class="link sort" data-hydrus="DONE">
+              <th class="header-title started" tc-column="Start/End Dates"><a onclick="return false;"
+                  href="https://myanimelist.net/animelist/Preview?status=7&amp;order=3&amp;order2=0"
+                  class="link sort">
                   Started Date
                 </a></th>
-              <th class="header-title finished" tc-column="Start/End Dates"><a
-                  href="https://myanimelist.net/animelist/Preview?status=7&amp;preview=1&amp;order=2&amp;order2=0"
-                  class="link sort" data-hydrus="DONE">
+              <th class="header-title finished" tc-column="Start/End Dates"><a onclick="return false;"
+                  href="https://myanimelist.net/animelist/Preview?status=7&amp;order=2&amp;order2=0"
+                  class="link sort">
                   Finished Date
                 </a></th>
               <th class="header-title days" tc-column="Total Days Watched">Days</th>
               <th class="header-title started" tc-column="Premiered">Premiered</th>
-              <th class="header-title started" tc-column="Aired Dates"><a
-                  href="https://myanimelist.net/animelist/Preview?status=7&amp;preview=1&amp;order=14&amp;order2=0"
-                  class="link sort" data-hydrus="DONE">
+              <th class="header-title started" tc-column="Aired Dates"><a onclick="return false;"
+                  href="https://myanimelist.net/animelist/Preview?status=7&amp;order=14&amp;order2=0"
+                  class="link sort">
                   Air Start
                 </a></th>
-              <th class="header-title finished" tc-column="Aired Dates"><a
-                  href="https://myanimelist.net/animelist/Preview?status=7&amp;preview=1&amp;order=15&amp;order2=0"
-                  class="link sort" data-hydrus="DONE">
+              <th class="header-title finished" tc-column="Aired Dates"><a onclick="return false;"
+                  href="https://myanimelist.net/animelist/Preview?status=7&amp;order=15&amp;order2=0"
+                  class="link sort">
                   Air End
                 </a></th>
               <th class="header-title studio" tc-column="Studios">Studios</th>
               <th class="header-title licensor" tc-column="Licensors">Licensors</th>
-              <th class="header-title storage" tc-column="Storage"><a
-                  href="https://myanimelist.net/animelist/Preview?status=7&amp;preview=1&amp;order=13&amp;order2=0"
-                  class="link sort" data-hydrus="DONE">
+              <th class="header-title storage" tc-column="Storage"><a onclick="return false;"
+                  href="https://myanimelist.net/animelist/Preview?status=7&amp;order=13&amp;order2=0"
+                  class="link sort">
                   Storage
                 </a></th>
-              <th class="header-title priority" tc-column="Priority"><a
-                  href="https://myanimelist.net/animelist/Preview?status=7&amp;preview=1&amp;order=11&amp;order2=0"
-                  class="link sort" data-hydrus="DONE">
+              <th class="header-title priority" tc-column="Priority"><a onclick="return false;"
+                  href="https://myanimelist.net/animelist/Preview?status=7&amp;order=11&amp;order2=0"
+                  class="link sort">
                   Priority
                 </a></th>
               <th class="header-title genre" tc-column="Genre">
@@ -1532,27 +1532,27 @@
             <tr class="list-table-data">
               <td class="data status watching"></td>
               <td class="data number" tc-column="Numbers">1</td>
-              <td class="data image" tc-column="Image"><a href="/anime/35760/Shingeki_no_Kyojin_Season_3" target="_blank"
+              <td class="data image" tc-column="Image"><a onclick="return false;" href="/anime/35760/Shingeki_no_Kyojin_Season_3" target="_blank"
                   class="link sort"><img
                     src="https://cdn.myanimelist.net/r/192x272/images/anime/1173/92110.webp?s=8d285d9265f62ba755c9368e036e7324"
-                    class="hover-info image" data-hydrus="DONE"></a></td>
-              <td class="data title clearfix"><a href="/anime/35760/Shingeki_no_Kyojin_Season_3" target="_blank"
-                  class="link sort" data-hydrus="DONE">Shingeki no Kyojin Season 3</a>
-                <div class="icon-watch2"><a href="#" title="Watch Episode Video" data-ga-click-type="broadcast-ownlist"
-                    data-ga-click-param="aid:35760" class="mal-icon ml4 ga-click" data-hydrus="DONE"><i
+                    class="hover-info image"></a></td>
+              <td class="data title clearfix"><a onclick="return false;" href="/anime/35760/Shingeki_no_Kyojin_Season_3" target="_blank"
+                  class="link sort">Shingeki no Kyojin Season 3</a>
+                <div class="icon-watch2"><a onclick="return false;" href="#" title="Watch Episode Video" data-ga-click-type="broadcast-ownlist"
+                    data-ga-click-param="aid:35760" class="mal-icon ml4 ga-click"><i
                       class="malicon malicon-streaming"></i></a></div> <span class="rewatching" style="display: none;">
 
                 </span> <span class="content-status" style="display: none;">
 
                 </span>
-                <div class="add-edit-more"><span class="edit"><a href="/ownlist/anime/35760/edit?hideLayout"
-                      class="List_LightBox" data-hydrus="DONE">Edit</a></span>
+                <div class="add-edit-more"><span class="edit"><a onclick="return false;" href="/ownlist/anime/35760/edit?hideLayout"
+                      class="List_LightBox">Edit</a></span>
                   <!---->
                   -
-                  <span class="more"><a href="#" data-hydrus="DONE">More</a></span>
+                  <span class="more"><a onclick="return false;" href="#">More</a></span>
                 </div>
               </td>
-              <td class="data score" tc-column="Score"><a href="#" class="link" data-hydrus="DONE"><span class="score-label score-na">
+              <td class="data score" tc-column="Score"><a onclick="return false;" href="#" class="link"><span class="score-label score-na">
                     -
                   </span></a>
                 <!---->
@@ -1561,16 +1561,16 @@
                 TV
               </td>
               <td class="data progress" tc-column="Episodes">
-                <div class="progress-35760"><span><a href="#" class="link" data-hydrus="DONE">2</a>
+                <div class="progress-35760"><span><a onclick="return false;" href="#" class="link">2</a>
                     <!---->
                     /
-                  </span> <span>12</span> <a href="#" class="icon-add-episode" data-hydrus="DONE"><i
+                  </span> <span>12</span> <a onclick="return false;" href="#" class="icon-add-episode"><i
                       class="fa-solid fa-circle-plus"></i></a></div>
               </td>
               <td id="tags-35760" class="data tags" tc-column="Tags">
-                <div class="tags-35760"><span><a href="?status=7&amp;tag=Rating%3A%20R&amp;preview=1"
-                      data-hydrus="DONE">Rating: R</a></span></div>
-                <!----> <a href="#" class="edit" data-hydrus="DONE">Edit</a>
+                <div class="tags-35760"><span><a onclick="return false;" href="?status=7&amp;tag=Rating%3A%20R"
+                     >Rating: R</a></span></div>
+                <!----> <a onclick="return false;" href="#" class="edit">Edit</a>
               </td>
               <td class="data rated" tc-column="Rating">
                 R
@@ -1584,7 +1584,7 @@
               <td class="data days" tc-column="Total Days Watched">
                 1387
               </td>
-              <td class="data season" tc-column="Premiered"><span><a href="/anime/season/2018/summer" data-hydrus="DONE">
+              <td class="data season" tc-column="Premiered"><span><a onclick="return false;" href="/anime/season/2018/summer">
                     Summer 2018
                   </a></span></td>
               <td class="data airing-started" tc-column="Aired Dates">
@@ -1593,8 +1593,8 @@
               <td class="data airing-finished" tc-column="Aired Dates">
                 15-10-18
               </td>
-              <td class="data studio" tc-column="Studios"><span><a href="/anime/producer/858" data-hydrus="DONE">Wit Studio</a></span></td>
-              <td class="data licensor" tc-column="Licensors"><span><a href="/anime/producer/102" data-hydrus="DONE">Funimation</a></span>
+              <td class="data studio" tc-column="Studios"><span><a onclick="return false;" href="/anime/producer/858">Wit Studio</a></span></td>
+              <td class="data licensor" tc-column="Licensors"><span><a onclick="return false;" href="/anime/producer/102">Funimation</a></span>
               </td>
               <td class="data storage" tc-column="Storage">
 
@@ -1602,11 +1602,11 @@
               <td class="data priority" tc-column="Priority">
                 Low
               </td>
-              <td class="data genre" tc-column="Genre"><span><a href="?status=7&amp;genre=1&amp;preview=1"
-                    data-hydrus="DONE">Action</a></span><span>, <a href="?status=7&amp;genre=8&amp;preview=1"
-                    data-hydrus="DONE">Drama</a></span></td>
-              <td class="data demographic" tc-column="Demographics"><span><a href="?status=7&amp;demographic=27&amp;preview=1"
-                    data-hydrus="DONE">Shounen</a></span></td>
+              <td class="data genre" tc-column="Genre"><span><a onclick="return false;" href="?status=7&amp;genre=1"
+                   >Action</a></span><span>, <a onclick="return false;" href="?status=7&amp;genre=8"
+                   >Drama</a></span></td>
+              <td class="data demographic" tc-column="Demographics"><span><a onclick="return false;" href="?status=7&amp;demographic=27"
+                   >Shounen</a></span></td>
             </tr>
             <tr id="more-35760" class="more-info" style="display: none;">
               <td colspan="21" class="more-content">
@@ -1614,12 +1614,12 @@
                   <tbody>
                     <tr>
                       <td class="td1 borderRBL">
-                        <div style="margin-bottom: 3px;"><a href="/forum/?animeid=35760" target="_blank"
-                            data-hydrus="DONE">Discuss Anime</a></div>
-                        <span title="Anime Database Rating">Rating: R - 17+ (violence &amp; profanity)</span> (<a
+                        <div style="margin-bottom: 3px;"><a onclick="return false;" href="/forum/?animeid=35760" target="_blank"
+                           >Discuss Anime</a></div>
+                        <span title="Anime Database Rating">Rating: R - 17+ (violence &amp; profanity)</span> (<a onclick="return false;"
                           href="javascript:void(0);"
                           onclick="window.open('/info.php?go=mpaa','bbcode','menubar=no,scrollbars=yes,status=no,width=350,height=250');return false;"
-                          data-hydrus="DONE">Why?</a>)<br>Storage: None<br>Rewatch Value: &nbsp;<br>Retail Disks:
+                         >Why?</a>)<br>Storage: None<br>Rewatch Value: &nbsp;<br>Retail Disks:
                         <br>Start Date: Jul 23, 2018
                         <br>
                         End Date: <br>
@@ -1648,11 +1648,11 @@
             <tr class="list-table-data">
               <td class="data status completed"></td>
               <td class="data number" tc-column="Numbers">2</td>
-              <td class="data image" tc-column="Image"><a href="/anime/1639/Boku_no_Pico" target="_blank" class="link sort"><img
+              <td class="data image" tc-column="Image"><a onclick="return false;" href="/anime/1639/Boku_no_Pico" target="_blank" class="link sort"><img
                     src="https://cdn.myanimelist.net/r/192x272/images/anime/12/39497.webp?s=0ae299ba10f68551842e8b3108a498f5"
-                    class="hover-info image" data-hydrus="DONE"></a></td>
-              <td class="data title clearfix"><a href="/anime/1639/Boku_no_Pico" target="_blank" class="link sort"
-                  data-hydrus="DONE">Boku no Pico</a>
+                    class="hover-info image"></a></td>
+              <td class="data title clearfix"><a onclick="return false;" href="/anime/1639/Boku_no_Pico" target="_blank" class="link sort"
+                 >Boku no Pico</a>
                 <div class="icon-watch2">
                   <!---->
                 </div> <span class="rewatching" style="display: none;">
@@ -1660,14 +1660,14 @@
                 </span> <span class="content-status" style="display: none;">
 
                 </span>
-                <div class="add-edit-more"><span class="edit"><a href="/ownlist/anime/1639/edit?hideLayout"
-                      class="List_LightBox" data-hydrus="DONE">Edit</a></span>
+                <div class="add-edit-more"><span class="edit"><a onclick="return false;" href="/ownlist/anime/1639/edit?hideLayout"
+                      class="List_LightBox">Edit</a></span>
                   <!---->
                   -
-                  <span class="more"><a href="#" data-hydrus="DONE">More</a></span>
+                  <span class="more"><a onclick="return false;" href="#">More</a></span>
                 </div>
               </td>
-              <td class="data score" tc-column="Score"><a href="#" class="link" data-hydrus="DONE"><span class="score-label score-na">
+              <td class="data score" tc-column="Score"><a onclick="return false;" href="#" class="link"><span class="score-label score-na">
                     -
                   </span></a>
                 <!---->
@@ -1682,8 +1682,9 @@
                 </div>
               </td>
               <td id="tags-1639" class="data tags" tc-column="Tags">
-                <div class="tags-1639"></div>
-                <!----> <a href="#" class="edit" data-hydrus="DONE">Edit</a>
+                <div class="tags-1639"><span><a onclick="return false;" href="?status=7&amp;tag=Hentai"
+                     >Hentai</a></span></div>
+                <!----> <a onclick="return false;" href="#" class="edit">Edit</a>
               </td>
               <td class="data rated" tc-column="Rating">
                 Rx
@@ -1697,7 +1698,7 @@
               <td class="data days" tc-column="Total Days Watched">
                 1
               </td>
-              <td class="data season" tc-column="Premiered"><span><a href="/anime/season/2006/summer" data-hydrus="DONE">
+              <td class="data season" tc-column="Premiered"><span><a onclick="return false;" href="/anime/season/2006/summer">
                     Summer 2006
                   </a></span></td>
               <td class="data airing-started" tc-column="Aired Dates">
@@ -1706,8 +1707,8 @@
               <td class="data airing-finished" tc-column="Aired Dates">
                 07-09-06
               </td>
-              <td class="data studio" tc-column="Studios"><span><a href="/anime/producer/1348" data-hydrus="DONE">Sugar
-                    Boy</a></span><span>, <a href="/anime/producer/1385" data-hydrus="DONE">Blue Cat</a></span></td>
+              <td class="data studio" tc-column="Studios"><span><a onclick="return false;" href="/anime/producer/1348">Sugar
+                    Boy</a></span><span>, <a onclick="return false;" href="/anime/producer/1385">Blue Cat</a></span></td>
               <td class="data licensor" tc-column="Licensors"></td>
               <td class="data storage" tc-column="Storage">
 
@@ -1715,9 +1716,9 @@
               <td class="data priority" tc-column="Priority">
                 Low
               </td>
-              <td class="data genre" tc-column="Genre"><span><a href="?status=7&amp;genre=28&amp;preview=1" data-hydrus="DONE">Boys
-                    Love</a></span><span>, <a href="?status=7&amp;genre=12&amp;preview=1"
-                    data-hydrus="DONE">Hentai</a></span></td>
+              <td class="data genre" tc-column="Genre"><span><a onclick="return false;" href="?status=7&amp;genre=28">Boys
+                    Love</a></span><span>, <a onclick="return false;" href="?status=7&amp;genre=12"
+                   >Hentai</a></span></td>
               <td class="data demographic" tc-column="Demographics"></td>
             </tr>
             <tr id="more-1639" class="more-info" style="display: none;">
@@ -1726,12 +1727,12 @@
                   <tbody>
                     <tr>
                       <td class="td1 borderRBL">
-                        <div style="margin-bottom: 3px;"><a href="/forum/?animeid=1639" target="_blank"
-                            data-hydrus="DONE">Discuss Anime</a></div>This series has been re-watched
+                        <div style="margin-bottom: 3px;"><a onclick="return false;" href="/forum/?animeid=1639" target="_blank"
+                           >Discuss Anime</a></div>This series has been re-watched
                         <strong>0</strong> times<br>
-                        <span title="Anime Database Rating">Rating: Rx - Hentai</span> (<a href="javascript:void(0);"
+                        <span title="Anime Database Rating">Rating: Rx - Hentai</span> (<a onclick="return false;" href="javascript:void(0);"
                           onclick="window.open('/info.php?go=mpaa','bbcode','menubar=no,scrollbars=yes,status=no,width=350,height=250');return false;"
-                          data-hydrus="DONE">Why?</a>)<br>Storage: None<br>Rewatch Value: &nbsp;<br>Retail Disks:
+                         >Why?</a>)<br>Storage: None<br>Rewatch Value: &nbsp;<br>Retail Disks:
                         <br>Start Date: Feb 4, 2018
                         <br>
                         End Date: Feb 4, 2018<br>
@@ -1760,11 +1761,11 @@
             <tr class="list-table-data">
               <td class="data status completed"></td>
               <td class="data number" tc-column="Numbers">3</td>
-              <td class="data image" tc-column="Image"><a href="/anime/3841/Chis_Sweet_Home" target="_blank" class="link sort"><img
+              <td class="data image" tc-column="Image"><a onclick="return false;" href="/anime/3841/Chis_Sweet_Home" target="_blank" class="link sort"><img
                     src="https://cdn.myanimelist.net/r/192x272/images/anime/6/7632.webp?s=3d5c27d5422ee207c260c6590be09b7c"
-                    class="hover-info image" data-hydrus="DONE"></a></td>
-              <td class="data title clearfix"><a href="/anime/3841/Chis_Sweet_Home" target="_blank" class="link sort"
-                  data-hydrus="DONE">Chi's Sweet Home</a>
+                    class="hover-info image"></a></td>
+              <td class="data title clearfix"><a onclick="return false;" href="/anime/3841/Chis_Sweet_Home" target="_blank" class="link sort"
+                 >Chi's Sweet Home</a>
                 <div class="icon-watch2">
                   <!---->
                 </div> <span class="rewatching" style="display: none;">
@@ -1772,14 +1773,14 @@
                 </span> <span class="content-status" style="display: none;">
 
                 </span>
-                <div class="add-edit-more"><span class="edit"><a href="/ownlist/anime/3841/edit?hideLayout"
-                      class="List_LightBox" data-hydrus="DONE">Edit</a></span>
+                <div class="add-edit-more"><span class="edit"><a onclick="return false;" href="/ownlist/anime/3841/edit?hideLayout"
+                      class="List_LightBox">Edit</a></span>
                   <!---->
                   -
-                  <span class="more"><a href="#" data-hydrus="DONE">More</a></span>
+                  <span class="more"><a onclick="return false;" href="#">More</a></span>
                 </div>
               </td>
-              <td class="data score" tc-column="Score"><a href="#" class="link" data-hydrus="DONE"><span class="score-label score-7">
+              <td class="data score" tc-column="Score"><a onclick="return false;" href="#" class="link"><span class="score-label score-7">
                     7
                   </span></a>
                 <!---->
@@ -1794,8 +1795,10 @@
                 </div>
               </td>
               <td id="tags-3841" class="data tags" tc-column="Tags">
-                <div class="tags-3841"></div>
-                <!----> <a href="#" class="edit" data-hydrus="DONE">Edit</a>
+                <div class="tags-3841"><span><a onclick="return false;" href="?status=7&amp;tag=Favourite"
+                     >Favourite</a></span></div>
+                <!----> <a onclick="return false;" href="#" class="edit">Edit</a>
+                <!----> <a onclick="return false;" href="#" class="edit">Edit</a>
               </td>
               <td class="data rated" tc-column="Rating">
                 G
@@ -1809,7 +1812,7 @@
               <td class="data days" tc-column="Total Days Watched">
                 29
               </td>
-              <td class="data season" tc-column="Premiered"><span><a href="/anime/season/2008/spring" data-hydrus="DONE">
+              <td class="data season" tc-column="Premiered"><span><a onclick="return false;" href="/anime/season/2008/spring">
                     Spring 2008
                   </a></span></td>
               <td class="data airing-started" tc-column="Aired Dates">
@@ -1818,8 +1821,8 @@
               <td class="data airing-finished" tc-column="Aired Dates">
                 25-09-08
               </td>
-              <td class="data studio" tc-column="Studios"><span><a href="/anime/producer/11" data-hydrus="DONE">Madhouse</a></span></td>
-              <td class="data licensor" tc-column="Licensors"><span><a href="/anime/producer/467" data-hydrus="DONE">Discotek Media</a></span>
+              <td class="data studio" tc-column="Studios"><span><a onclick="return false;" href="/anime/producer/11">Madhouse</a></span></td>
+              <td class="data licensor" tc-column="Licensors"><span><a onclick="return false;" href="/anime/producer/467">Discotek Media</a></span>
               </td>
               <td class="data storage" tc-column="Storage">
 
@@ -1827,11 +1830,11 @@
               <td class="data priority" tc-column="Priority">
                 Low
               </td>
-              <td class="data genre" tc-column="Genre"><span><a href="?status=7&amp;genre=4&amp;preview=1"
-                    data-hydrus="DONE">Comedy</a></span><span>, <a href="?status=7&amp;genre=36&amp;preview=1"
-                    data-hydrus="DONE">Slice of Life</a></span></td>
-              <td class="data demographic" tc-column="Demographics"><span><a href="?status=7&amp;demographic=42&amp;preview=1"
-                    data-hydrus="DONE">Seinen</a></span></td>
+              <td class="data genre" tc-column="Genre"><span><a onclick="return false;" href="?status=7&amp;genre=4"
+                   >Comedy</a></span><span>, <a onclick="return false;" href="?status=7&amp;genre=36"
+                   >Slice of Life</a></span></td>
+              <td class="data demographic" tc-column="Demographics"><span><a onclick="return false;" href="?status=7&amp;demographic=42"
+                   >Seinen</a></span></td>
             </tr>
             <tr id="more-3841" class="more-info" style="display: none;">
               <td colspan="21" class="more-content">
@@ -1839,12 +1842,12 @@
                   <tbody>
                     <tr>
                       <td class="td1 borderRBL">
-                        <div style="margin-bottom: 3px;"><a href="/forum/?animeid=3841" target="_blank"
-                            data-hydrus="DONE">Discuss Anime</a></div>This series has been re-watched
+                        <div style="margin-bottom: 3px;"><a onclick="return false;" href="/forum/?animeid=3841" target="_blank"
+                           >Discuss Anime</a></div>This series has been re-watched
                         <strong>0</strong> times<br>
-                        <span title="Anime Database Rating">Rating: G - All Ages</span> (<a href="javascript:void(0);"
+                        <span title="Anime Database Rating">Rating: G - All Ages</span> (<a onclick="return false;" href="javascript:void(0);"
                           onclick="window.open('/info.php?go=mpaa','bbcode','menubar=no,scrollbars=yes,status=no,width=350,height=250');return false;"
-                          data-hydrus="DONE">Why?</a>)<br>Storage: None<br>Rewatch Value: &nbsp;<br>
+                         >Why?</a>)<br>Storage: None<br>Rewatch Value: &nbsp;<br>
                         Deviation Score: -0.7<br>Retail Disks: <br>Start Date: Mar 31, 2018
                         <br>
                         End Date: Apr 28, 2018<br>
@@ -1869,27 +1872,27 @@
             <tr class="list-table-data">
               <td class="data status onhold"></td>
               <td class="data number" tc-column="Numbers">4</td>
-              <td class="data image" tc-column="Image"><a href="/anime/5114/Fullmetal_Alchemist__Brotherhood" target="_blank"
+              <td class="data image" tc-column="Image"><a onclick="return false;" href="/anime/5114/Fullmetal_Alchemist__Brotherhood" target="_blank"
                   class="link sort"><img
                     src="https://cdn.myanimelist.net/r/192x272/images/anime/1223/96541.webp?s=e11fa4682608c3542b56b0681cdca684"
-                    class="hover-info image" data-hydrus="DONE"></a></td>
-              <td class="data title clearfix"><a href="/anime/5114/Fullmetal_Alchemist__Brotherhood" target="_blank"
-                  class="link sort" data-hydrus="DONE">Fullmetal Alchemist: Brotherhood</a>
-                <div class="icon-watch2"><a href="#" title="Watch Episode Video" data-ga-click-type="broadcast-ownlist"
-                    data-ga-click-param="aid:5114" class="mal-icon ml4 ga-click" data-hydrus="DONE"><i
+                    class="hover-info image"></a></td>
+              <td class="data title clearfix"><a onclick="return false;" href="/anime/5114/Fullmetal_Alchemist__Brotherhood" target="_blank"
+                  class="link sort">Fullmetal Alchemist: Brotherhood</a>
+                <div class="icon-watch2"><a onclick="return false;" href="#" title="Watch Episode Video" data-ga-click-type="broadcast-ownlist"
+                    data-ga-click-param="aid:5114" class="mal-icon ml4 ga-click"><i
                       class="malicon malicon-streaming"></i></a></div> <span class="rewatching" style="display: none;">
 
                 </span> <span class="content-status" style="display: none;">
 
                 </span>
-                <div class="add-edit-more"><span class="edit"><a href="/ownlist/anime/5114/edit?hideLayout"
-                      class="List_LightBox" data-hydrus="DONE">Edit</a></span>
+                <div class="add-edit-more"><span class="edit"><a onclick="return false;" href="/ownlist/anime/5114/edit?hideLayout"
+                      class="List_LightBox">Edit</a></span>
                   <!---->
                   -
-                  <span class="more"><a href="#" data-hydrus="DONE">More</a></span>
+                  <span class="more"><a onclick="return false;" href="#">More</a></span>
                 </div>
               </td>
-              <td class="data score" tc-column="Score"><a href="#" class="link" data-hydrus="DONE"><span class="score-label score-na">
+              <td class="data score" tc-column="Score"><a onclick="return false;" href="#" class="link"><span class="score-label score-na">
                     -
                   </span></a>
                 <!---->
@@ -1898,15 +1901,15 @@
                 TV
               </td>
               <td class="data progress" tc-column="Episodes">
-                <div class="progress-5114"><span><a href="#" class="link" data-hydrus="DONE">19</a>
+                <div class="progress-5114"><span><a onclick="return false;" href="#" class="link">19</a>
                     <!---->
                     /
-                  </span> <span>64</span> <a href="#" class="icon-add-episode" data-hydrus="DONE"><i
+                  </span> <span>64</span> <a onclick="return false;" href="#" class="icon-add-episode"><i
                       class="fa-solid fa-circle-plus"></i></a></div>
               </td>
               <td id="tags-5114" class="data tags" tc-column="Tags">
-                <div class="tags-5114"></div>
-                <!----> <a href="#" class="edit" data-hydrus="DONE">Edit</a>
+                <div class="tags-5114"><span><a onclick="return false;" href="?tag=A%20top-rated%20classic">A top-rated classic</a></span><span>, <a onclick="return false;" href="?tag=and%20for%20a%20good%20reason!%20Fullmetal%20Alchemist%20doesn't%20pull%20any%20punches">and for a good reason! Fullmetal Alchemist doesn't pull any punches</a></span><span>, <a onclick="return false;" href="?tag=with%20great%20animation">with great animation</a></span><span>, <a onclick="return false;" href="?tag=characters">characters</a></span><span>, <a onclick="return false;" href="?tag=and%20probably%20some%20other%20stuff.%20Look">and probably some other stuff. Look</a></span><span>, <a onclick="return false;" href="?tag=I%20haven't%20watched%20it%20yet.%20Is%20this%20enough%20filler%3F">I haven't watched it yet. Is this enough filler?</a></span></div>
+                <!----> <a onclick="return false;" href="#" class="edit">Edit</a>
               </td>
               <td class="data rated" tc-column="Rating">
                 R
@@ -1920,7 +1923,7 @@
               <td class="data days" tc-column="Total Days Watched">
                 2177
               </td>
-              <td class="data season" tc-column="Premiered"><span><a href="/anime/season/2009/spring" data-hydrus="DONE">
+              <td class="data season" tc-column="Premiered"><span><a onclick="return false;" href="/anime/season/2009/spring">
                     Spring 2009
                   </a></span></td>
               <td class="data airing-started" tc-column="Aired Dates">
@@ -1929,23 +1932,23 @@
               <td class="data airing-finished" tc-column="Aired Dates">
                 04-07-10
               </td>
-              <td class="data studio" tc-column="Studios"><span><a href="/anime/producer/4" data-hydrus="DONE">Bones</a></span></td>
-              <td class="data licensor" tc-column="Licensors"><span><a href="/anime/producer/102"
-                    data-hydrus="DONE">Funimation</a></span><span>, <a href="/anime/producer/493"
-                    data-hydrus="DONE">Aniplex of America</a></span></td>
+              <td class="data studio" tc-column="Studios"><span><a onclick="return false;" href="/anime/producer/4">Bones</a></span></td>
+              <td class="data licensor" tc-column="Licensors"><span><a onclick="return false;" href="/anime/producer/102"
+                   >Funimation</a></span><span>, <a onclick="return false;" href="/anime/producer/493"
+                   >Aniplex of America</a></span></td>
               <td class="data storage" tc-column="Storage">
 
               </td>
               <td class="data priority" tc-column="Priority">
                 Low
               </td>
-              <td class="data genre" tc-column="Genre"><span><a href="?status=7&amp;genre=1&amp;preview=1"
-                    data-hydrus="DONE">Action</a></span><span>, <a href="?status=7&amp;genre=2&amp;preview=1"
-                    data-hydrus="DONE">Adventure</a></span><span>, <a href="?status=7&amp;genre=8&amp;preview=1"
-                    data-hydrus="DONE">Drama</a></span><span>, <a href="?status=7&amp;genre=10&amp;preview=1"
-                    data-hydrus="DONE">Fantasy</a></span></td>
-              <td class="data demographic" tc-column="Demographics"><span><a href="?status=7&amp;demographic=27&amp;preview=1"
-                    data-hydrus="DONE">Shounen</a></span></td>
+              <td class="data genre" tc-column="Genre"><span><a onclick="return false;" href="?status=7&amp;genre=1"
+                   >Action</a></span><span>, <a onclick="return false;" href="?status=7&amp;genre=2"
+                   >Adventure</a></span><span>, <a onclick="return false;" href="?status=7&amp;genre=8"
+                   >Drama</a></span><span>, <a onclick="return false;" href="?status=7&amp;genre=10"
+                   >Fantasy</a></span></td>
+              <td class="data demographic" tc-column="Demographics"><span><a onclick="return false;" href="?status=7&amp;demographic=27"
+                   >Shounen</a></span></td>
             </tr>
             <tr id="more-5114" class="more-info" style="display: none;">
               <td colspan="21" class="more-content">
@@ -1953,12 +1956,12 @@
                   <tbody>
                     <tr>
                       <td class="td1 borderRBL">
-                        <div style="margin-bottom: 3px;"><a href="/forum/?animeid=5114" target="_blank"
-                            data-hydrus="DONE">Discuss Anime</a></div>
-                        <span title="Anime Database Rating">Rating: R - 17+ (violence &amp; profanity)</span> (<a
+                        <div style="margin-bottom: 3px;"><a onclick="return false;" href="/forum/?animeid=5114" target="_blank"
+                           >Discuss Anime</a></div>
+                        <span title="Anime Database Rating">Rating: R - 17+ (violence &amp; profanity)</span> (<a onclick="return false;"
                           href="javascript:void(0);"
                           onclick="window.open('/info.php?go=mpaa','bbcode','menubar=no,scrollbars=yes,status=no,width=350,height=250');return false;"
-                          data-hydrus="DONE">Why?</a>)<br>Storage: None<br>Rewatch Value: &nbsp;<br>Retail Disks:
+                         >Why?</a>)<br>Storage: None<br>Rewatch Value: &nbsp;<br>Retail Disks:
                         <br>Start Date: May 24, 2016
                         <br>
                         End Date: <br>
@@ -1986,11 +1989,11 @@
             <tr class="list-table-data">
               <td class="data status dropped"></td>
               <td class="data number" tc-column="Numbers">5</td>
-              <td class="data image" tc-column="Image"><a href="/anime/4654/Toaru_Majutsu_no_Index" target="_blank" class="link sort"><img
+              <td class="data image" tc-column="Image"><a onclick="return false;" href="/anime/4654/Toaru_Majutsu_no_Index" target="_blank" class="link sort"><img
                     src="https://cdn.myanimelist.net/r/192x272/images/anime/2/75533.jpg?s=781d396b95b68e7c197251362385c97a"
-                    class="hover-info image" data-hydrus="DONE"></a></td>
-              <td class="data title clearfix"><a href="/anime/4654/Toaru_Majutsu_no_Index" target="_blank"
-                  class="link sort" data-hydrus="DONE">Toaru Majutsu no Index</a>
+                    class="hover-info image"></a></td>
+              <td class="data title clearfix"><a onclick="return false;" href="/anime/4654/Toaru_Majutsu_no_Index" target="_blank"
+                  class="link sort">Toaru Majutsu no Index</a>
                 <div class="icon-watch2">
                   <!---->
                 </div> <span class="rewatching" style="display: none;">
@@ -1998,14 +2001,14 @@
                 </span> <span class="content-status" style="display: none;">
 
                 </span>
-                <div class="add-edit-more"><span class="edit"><a href="/ownlist/anime/4654/edit?hideLayout"
-                      class="List_LightBox" data-hydrus="DONE">Edit</a></span>
+                <div class="add-edit-more"><span class="edit"><a onclick="return false;" href="/ownlist/anime/4654/edit?hideLayout"
+                      class="List_LightBox">Edit</a></span>
                   <!---->
                   -
-                  <span class="more"><a href="#" data-hydrus="DONE">More</a></span>
+                  <span class="more"><a onclick="return false;" href="#">More</a></span>
                 </div>
               </td>
-              <td class="data score" tc-column="Score"><a href="#" class="link" data-hydrus="DONE"><span class="score-label score-2">
+              <td class="data score" tc-column="Score"><a onclick="return false;" href="#" class="link"><span class="score-label score-2">
                     2
                   </span></a>
                 <!---->
@@ -2014,15 +2017,15 @@
                 TV
               </td>
               <td class="data progress" tc-column="Episodes">
-                <div class="progress-4654"><span><a href="#" class="link" data-hydrus="DONE">8</a>
+                <div class="progress-4654"><span><a onclick="return false;" href="#" class="link">8</a>
                     <!---->
                     /
-                  </span> <span>24</span> <a href="#" class="icon-add-episode" data-hydrus="DONE"><i
+                  </span> <span>24</span> <a onclick="return false;" href="#" class="icon-add-episode"><i
                       class="fa-solid fa-circle-plus"></i></a></div>
               </td>
               <td id="tags-4654" class="data tags" tc-column="Tags">
                 <div class="tags-4654"></div>
-                <!----> <a href="#" class="edit" data-hydrus="DONE">Edit</a>
+                <!----> <a onclick="return false;" href="#" class="edit">Edit</a>
               </td>
               <td class="data rated" tc-column="Rating">
                 R
@@ -2036,7 +2039,7 @@
               <td class="data days" tc-column="Total Days Watched">
                 1609
               </td>
-              <td class="data season" tc-column="Premiered"><span><a href="/anime/season/2008/fall" data-hydrus="DONE">
+              <td class="data season" tc-column="Premiered"><span><a onclick="return false;" href="/anime/season/2008/fall">
                     Fall 2008
                   </a></span></td>
               <td class="data airing-started" tc-column="Aired Dates">
@@ -2045,8 +2048,8 @@
               <td class="data airing-finished" tc-column="Aired Dates">
                 19-03-09
               </td>
-              <td class="data studio" tc-column="Studios"><span><a href="/anime/producer/7" data-hydrus="DONE">J.C.Staff</a></span></td>
-              <td class="data licensor" tc-column="Licensors"><span><a href="/anime/producer/102" data-hydrus="DONE">Funimation</a></span>
+              <td class="data studio" tc-column="Studios"><span><a onclick="return false;" href="/anime/producer/7">J.C.Staff</a></span></td>
+              <td class="data licensor" tc-column="Licensors"><span><a onclick="return false;" href="/anime/producer/102">Funimation</a></span>
               </td>
               <td class="data storage" tc-column="Storage">
 
@@ -2054,9 +2057,9 @@
               <td class="data priority" tc-column="Priority">
                 Low
               </td>
-              <td class="data genre" tc-column="Genre"><span><a href="?status=7&amp;genre=1&amp;preview=1"
-                    data-hydrus="DONE">Action</a></span><span>, <a href="?status=7&amp;genre=24&amp;preview=1"
-                    data-hydrus="DONE">Sci-Fi</a></span></td>
+              <td class="data genre" tc-column="Genre"><span><a onclick="return false;" href="?status=7&amp;genre=1"
+                   >Action</a></span><span>, <a onclick="return false;" href="?status=7&amp;genre=24"
+                   >Sci-Fi</a></span></td>
               <td class="data demographic" tc-column="Demographics"></td>
             </tr>
             <tr id="more-4654" class="more-info" style="display: none;">
@@ -2065,12 +2068,12 @@
                   <tbody>
                     <tr>
                       <td class="td1 borderRBL">
-                        <div style="margin-bottom: 3px;"><a href="/forum/?animeid=4654" target="_blank"
-                            data-hydrus="DONE">Discuss Anime</a></div>
-                        <span title="Anime Database Rating">Rating: R - 17+ (violence &amp; profanity)</span> (<a
+                        <div style="margin-bottom: 3px;"><a onclick="return false;" href="/forum/?animeid=4654" target="_blank"
+                           >Discuss Anime</a></div>
+                        <span title="Anime Database Rating">Rating: R - 17+ (violence &amp; profanity)</span> (<a onclick="return false;"
                           href="javascript:void(0);"
                           onclick="window.open('/info.php?go=mpaa','bbcode','menubar=no,scrollbars=yes,status=no,width=350,height=250');return false;"
-                          data-hydrus="DONE">Why?</a>)<br>Storage: None<br>Rewatch Value: &nbsp;<br>
+                         >Why?</a>)<br>Storage: None<br>Rewatch Value: &nbsp;<br>
                         Deviation Score: -3.4<br>Retail Disks: <br>Start Date: Dec 13, 2017
                         <br>
                         End Date: <br>
@@ -2097,11 +2100,11 @@
             <tr class="list-table-data">
               <td class="data status plantowatch"></td>
               <td class="data number" tc-column="Numbers">6</td>
-              <td class="data image" tc-column="Image"><a href="/anime/47/Akira" target="_blank" class="link sort"><img
+              <td class="data image" tc-column="Image"><a onclick="return false;" href="/anime/47/Akira" target="_blank" class="link sort"><img
                     src="https://cdn.myanimelist.net/r/192x272/images/anime/1408/114012.jpg?s=cccbe98f0a30d6c557aab125064f127d"
-                    class="hover-info image" data-hydrus="DONE"></a></td>
-              <td class="data title clearfix"><a href="/anime/47/Akira" target="_blank" class="link sort"
-                  data-hydrus="DONE">Akira</a>
+                    class="hover-info image"></a></td>
+              <td class="data title clearfix"><a onclick="return false;" href="/anime/47/Akira" target="_blank" class="link sort"
+                 >Akira</a>
                 <div class="icon-watch2">
                   <!---->
                 </div> <span class="rewatching" style="display: none;">
@@ -2109,14 +2112,14 @@
                 </span> <span class="content-status" style="display: none;">
 
                 </span>
-                <div class="add-edit-more"><span class="edit"><a href="/ownlist/anime/47/edit?hideLayout"
-                      class="List_LightBox" data-hydrus="DONE">Edit</a></span>
+                <div class="add-edit-more"><span class="edit"><a onclick="return false;" href="/ownlist/anime/47/edit?hideLayout"
+                      class="List_LightBox">Edit</a></span>
                   <!---->
                   -
-                  <span class="more"><a href="#" data-hydrus="DONE">More</a></span>
+                  <span class="more"><a onclick="return false;" href="#">More</a></span>
                 </div>
               </td>
-              <td class="data score" tc-column="Score"><a href="#" class="link" data-hydrus="DONE"><span class="score-label score-na">
+              <td class="data score" tc-column="Score"><a onclick="return false;" href="#" class="link"><span class="score-label score-na">
                     -
                   </span></a>
                 <!---->
@@ -2125,15 +2128,15 @@
                 Movie
               </td>
               <td class="data progress" tc-column="Episodes">
-                <div class="progress-47"><span><a href="#" class="link" data-hydrus="DONE">-</a>
+                <div class="progress-47"><span><a onclick="return false;" href="#" class="link">-</a>
                     <!---->
                     /
-                  </span> <span>1</span> <a href="#" class="icon-add-episode" data-hydrus="DONE"><i
+                  </span> <span>1</span> <a onclick="return false;" href="#" class="icon-add-episode"><i
                       class="fa-solid fa-circle-plus"></i></a></div>
               </td>
               <td id="tags-47" class="data tags" tc-column="Tags">
                 <div class="tags-47"></div>
-                <!----> <a href="#" class="edit" data-hydrus="DONE">Edit</a>
+                <!----> <a onclick="return false;" href="#" class="edit">Edit</a>
               </td>
               <td class="data rated" tc-column="Rating">
                 R+
@@ -2147,7 +2150,7 @@
               <td class="data days" tc-column="Total Days Watched">
 
               </td>
-              <td class="data season" tc-column="Premiered"><span><a href="/anime/season/1988/summer" data-hydrus="DONE">
+              <td class="data season" tc-column="Premiered"><span><a onclick="return false;" href="/anime/season/1988/summer">
                     Summer 1988
                   </a></span></td>
               <td class="data airing-started" tc-column="Aired Dates">
@@ -2156,26 +2159,26 @@
               <td class="data airing-finished" tc-column="Aired Dates">
                 16-07-88
               </td>
-              <td class="data studio" tc-column="Studios"><span><a href="/anime/producer/65" data-hydrus="DONE">Tokyo Movie
+              <td class="data studio" tc-column="Studios"><span><a onclick="return false;" href="/anime/producer/65">Tokyo Movie
                     Shinsha</a></span></td>
-              <td class="data licensor" tc-column="Licensors"><span><a href="/anime/producer/102"
-                    data-hydrus="DONE">Funimation</a></span><span>, <a href="/anime/producer/233"
-                    data-hydrus="DONE">Bandai Entertainment</a></span><span>, <a href="/anime/producer/1459"
-                    data-hydrus="DONE">Geneon Entertainment USA</a></span></td>
+              <td class="data licensor" tc-column="Licensors"><span><a onclick="return false;" href="/anime/producer/102"
+                   >Funimation</a></span><span>, <a onclick="return false;" href="/anime/producer/233"
+                   >Bandai Entertainment</a></span><span>, <a onclick="return false;" href="/anime/producer/1459"
+                   >Geneon Entertainment USA</a></span></td>
               <td class="data storage" tc-column="Storage">
 
               </td>
               <td class="data priority" tc-column="Priority">
                 Low
               </td>
-              <td class="data genre" tc-column="Genre"><span><a href="?status=7&amp;genre=1&amp;preview=1"
-                    data-hydrus="DONE">Action</a></span><span>, <a href="?status=7&amp;genre=2&amp;preview=1"
-                    data-hydrus="DONE">Adventure</a></span><span>, <a href="?status=7&amp;genre=14&amp;preview=1"
-                    data-hydrus="DONE">Horror</a></span><span>, <a href="?status=7&amp;genre=24&amp;preview=1"
-                    data-hydrus="DONE">Sci-Fi</a></span><span>, <a href="?status=7&amp;genre=37&amp;preview=1"
-                    data-hydrus="DONE">Supernatural</a></span></td>
-              <td class="data demographic" tc-column="Demographics"><span><a href="?status=7&amp;demographic=42&amp;preview=1"
-                    data-hydrus="DONE">Seinen</a></span></td>
+              <td class="data genre" tc-column="Genre"><span><a onclick="return false;" href="?status=7&amp;genre=1"
+                   >Action</a></span><span>, <a onclick="return false;" href="?status=7&amp;genre=2"
+                   >Adventure</a></span><span>, <a onclick="return false;" href="?status=7&amp;genre=14"
+                   >Horror</a></span><span>, <a onclick="return false;" href="?status=7&amp;genre=24"
+                   >Sci-Fi</a></span><span>, <a onclick="return false;" href="?status=7&amp;genre=37"
+                   >Supernatural</a></span></td>
+              <td class="data demographic" tc-column="Demographics"><span><a onclick="return false;" href="?status=7&amp;demographic=42"
+                   >Seinen</a></span></td>
             </tr>
             <tr id="more-47" class="more-info" style="display: none;">
               <td colspan="21" class="more-content">
@@ -2183,12 +2186,12 @@
                   <tbody>
                     <tr>
                       <td class="td1 borderRBL">
-                        <div style="margin-bottom: 3px;"><a href="/forum/?animeid=47" target="_blank"
-                            data-hydrus="DONE">Discuss Anime</a></div>
-                        <span title="Anime Database Rating">Rating: R+ - Mild Nudity</span> (<a
+                        <div style="margin-bottom: 3px;"><a onclick="return false;" href="/forum/?animeid=47" target="_blank"
+                           >Discuss Anime</a></div>
+                        <span title="Anime Database Rating">Rating: R+ - Mild Nudity</span> (<a onclick="return false;"
                           href="javascript:void(0);"
                           onclick="window.open('/info.php?go=mpaa','bbcode','menubar=no,scrollbars=yes,status=no,width=350,height=250');return false;"
-                          data-hydrus="DONE">Why?</a>)<br>Storage: None<br>Rewatch Value: &nbsp;<br>Retail Disks:
+                         >Why?</a>)<br>Storage: None<br>Rewatch Value: &nbsp;<br>Retail Disks:
                         <br>Start Date:
                         <br>
                         End Date: <br>
@@ -2218,17 +2221,19 @@
   </div>
 
   <footer>
-    <div id="footer-block" style="width: 1099px;">
+    <div id="footer-block">
       <div id="copyright">
         MyAnimeList.net is a property of MyAnimeList Co.,Ltd. ©2022 All Rights Reserved.
       </div>
       <div id="recaptcha-terms">
-        This site is protected by reCAPTCHA and the Google <a href="https://policies.google.com/privacy" target="_blank"
-          rel="noopener noreferrer" data-hydrus="DONE">Privacy Policy</a> and <a
-          href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer" data-hydrus="DONE">Terms of
+        This site is protected by reCAPTCHA and the Google <a onclick="return false;" href="https://policies.google.com/privacy" target="_blank"
+          rel="noopener noreferrer">Privacy Policy</a> and <a onclick="return false;"
+          href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer">Terms of
           Service</a> apply.
       </div>
     </div>
   </footer>
 
 </html>
+
+<script src="assets/preview.js" type="text/javascript"></script>
