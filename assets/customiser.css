@@ -361,6 +361,10 @@ input:checked + .toggle--forced::after {
 	float: right;
 }
 
+.option__select {
+	font: inherit;
+}
+
 
 .mod {
 	padding-top: 6px;

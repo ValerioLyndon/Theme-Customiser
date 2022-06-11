@@ -295,7 +295,25 @@ function updateCss() {
 			}
 		}
 		
-		
+		function findAndReplace(str, toFind, toInsert) {
+			if(toFind.startsWith('RegExp')) {
+				toFind = new RegExp(toFind.substr(7), 'g');
+			}
+
+			if(!optData['type'].startsWith('text') && toInsert.startsWith('ExternalUrl/')) {
+				fetchInsert = fetchFile(toInsert.substr(12));
+
+				fetchInsert.then((value) => {
+					toInsert = value;
+				});
+
+				fetchInsert.catch(() => {
+					console.log('[findAndReplace] error fetching file')
+				});
+			}
+
+			return str.replaceAll(toFind, toInsert);
+		}
 		
 		if(optData['type'] === 'toggle') {
 			for(set of optData['replacements']) {
@@ -303,11 +321,17 @@ function updateCss() {
 				let toFind = set[0],
 					toInsert = (insert === true) ? set[2] : set[1];
 
-				if(toFind.startsWith('RegExp')) {
-					toFind = new RegExp(toFind.substr(7), 'g');
-				}
+				css = findAndReplace(css, toFind, toInsert);
+			}
+		}
+		else if(optData['type'] === 'select') {
+			let replacements = optData['selections'][insert]['replacements'];
+			console.log(replacements);
+			for(set of replacements) {
+				let toFind = set[0],
+					toInsert = set[1];
 
-				css = css.replaceAll(toFind, toInsert);
+				css = findAndReplace(css, toFind, toInsert);
 			}
 		}
 		else {
@@ -315,11 +339,7 @@ function updateCss() {
 				let toFind = set[0],
 					toInsert = set[1].replaceAll('{{{insert}}}', insert);
 
-				if(toFind.startsWith('RegExp')) {
-					toFind = new RegExp(toFind.substr(7), 'g');
-				}
-
-				css = css.replaceAll(toFind, toInsert);
+				css = findAndReplace(css, toFind, toInsert);
 			}
 		}
 
@@ -600,6 +620,26 @@ function renderHtml() {
 			div.prepend(toggle);
 
 			toggle.addEventListener('input', () => { updateOption(id, opt['default'], parentModId); });
+		}
+
+		else if(opt['type'] === 'select') {
+			let select = document.createElement('select');
+
+			// would be nice to have a simpler/nicer to look at switch for small lists but would require using radio buttons.
+			select.className = 'option__select';
+			select.id = `theme-${id}`;
+			for(let [selectKey, selectData] of Object.entries(opt['selections'])) {
+				let selectOption = document.createElement('option');
+				selectOption.value = selectKey;
+				selectOption.textContent = selectData['label'];
+				if(selectKey === opt['default']) {
+					selectOption.selected = true;
+				}
+				select.append(selectOption);
+			}
+			div.append(select);
+
+			select.addEventListener('input', () => { updateOption(id, opt['default'], parentModId); });
 		}
 
 		notice.id = `js-theme-${id}-notice`;

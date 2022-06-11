@@ -171,11 +171,11 @@
 						"selections": {
 							"light": {
 								"label": "Light",
-								"replacements": [["RegExp/^[\\s\\S\\n]*$", "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Theme%20Colours.css"]]
+								"replacements": [["RegExp/^[\\s\\S\\n]*$", "/*-S-T-A-R-T--------------------*\\\n| Theme Colours                  |\n\\*------------------------------*/\n\n:root {\n\t/* Generic Colours */\n\t--pbg: #efefef;\n\t--bg: #fff;\n\t--bg-dark: #ddd;\n\t--text: #323232;\n\t--text-h: #787878;\n\t--text-dim: #bababa;\n\t--text-dim-h: #646464;\n\t--text-dark: #111;\n\t--icon: #323232;\n\t--accent: #4065ba;\n\t--banner-text: #fff;\n\t--banner-text-shadow: rgba(0,0,0,0.45);\n\n\t/* Button Colours */\n\t--btn-bg: #ebebeb;\n\t--btn-bg-h: #323232;\n\t--btn-head-bg-h: #1d439b;\n\t--btn-text-h: #fff;\n\n\t/* Header Colours */\n\t--text-head: #9b9b9b;\n\t--text-head-h: #787878;\n\n\t/* Status Colours */\n\t--watching: #2db039;\n\t--completed: #26448f;\n\t--onhold: #f1c83e;\n\t--dropped: #a12f31;\n\t--plantowatch: #c3c3c3;\n\n\t/* Single-Use Colours */\n\t--cover-bg: #323232;\n\t--edit-btn: #d9d9d9;\n\t--checkmark: #9696eb;\n}\n\n/*------------------------E-N-D-*/"]]
 							},
 							"dark": {
 								"label": "Dark",
-								"replacements": [["RegExp/^[\\s\\S\\n]*$", "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Theme%20Colours%20Dark.css"]]
+								"replacements": [["RegExp/^[\\s\\S\\n]*$", "/*-S-T-A-R-T--------------------*\\\n| Theme Colours                  |\n\\*------------------------------*/\n\n:root {\n\t/* Generic Colours */\n\t--pbg: #161616;\n\t--bg: #212121;\n\t--bg-dark: #444;\n\t--text: #ababab;\n\t--text-h: #416abe;\n\t--text-dim: #777;\n\t--text-dim-h: #999;\n\t--text-dark: #ababab;\n\t--icon: #959595;\n\t--accent: #416abe;\n\t--banner-text: #f6f5ff;\n\t--banner-text-shadow: #e4bef4;\n\n\t/* Button Colours */\n\t--btn-bg: #191919;\n\t--btn-bg-h: #ababab;\n\t--btn-head-bg-h: #416abe;\n\t--btn-text-h: #212121;\n\n\t/* Header Colours */\n\t--text-head: #9b9b9b;\n\t--text-head-h: #ababab;\n\n\t/* Status Colours */\n\t--watching: #2db039;\n\t--completed: #26448f;\n\t--onhold: #f1c83e;\n\t--dropped: #a12f31;\n\t--plantowatch: #c3c3c3;\n\n\t/* Single-Use Colours */\n\t--cover-bg: #090909;\n\t--edit-btn: #323232;\n\t--checkmark: #416abe;\n}\n\n/*------------------------E-N-D-*/"]]
 							}
 						}
 					},
