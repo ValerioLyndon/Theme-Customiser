@@ -29,4 +29,8 @@ If applicable, add screenshots to help explain your problem.
  - Version [e.g. 96]
 
 **Additional context**
+<<<<<<< HEAD
 Add any other context about the problem here.
+=======
+Add any other context about the problem here.
+>>>>>>> parent of c40c38a (Merge branch 'main' of https://github.com/ValerioLyndon/theme-customiser)
