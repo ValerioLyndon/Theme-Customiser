@@ -300,18 +300,6 @@ function updateCss() {
 				toFind = new RegExp(toFind.substr(7), 'g');
 			}
 
-			if(!optData['type'].startsWith('text') && toInsert.startsWith('ExternalUrl/')) {
-				fetchInsert = fetchFile(toInsert.substr(12));
-
-				fetchInsert.then((value) => {
-					toInsert = value;
-				});
-
-				fetchInsert.catch(() => {
-					console.log('[findAndReplace] error fetching file')
-				});
-			}
-
 			return str.replaceAll(toFind, toInsert);
 		}
 		
