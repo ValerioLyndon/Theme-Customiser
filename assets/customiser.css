@@ -293,6 +293,32 @@ input:checked + .toggle--forced::after {
 	font-size: 1.25em;
 }
 
+.beta {
+	position: absolute;
+	top: 8px;
+	left: 8px;
+	padding: 3px 6px;
+	background: black;
+	color: #fff;
+	font-weight: 900;
+	text-decoration: none;
+}
+.beta::after {
+	content: " - Report an issue";
+	font-size: 0;
+	opacity: 0;
+	transition:
+		font-size 0.15s ease 0.15s,
+		opacity 0.15s ease;
+}
+.beta:hover::after {
+	font-size: 1em;
+	opacity: 1;
+	transition:
+		font-size 0.15s ease,
+		opacity 0.15s ease 0.15s;
+}
+
 .sidebar__header {
 	font-size: 1.3em;
 	margin: 0 0 8px;
