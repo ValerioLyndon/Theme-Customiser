@@ -283,11 +283,14 @@ function updateCss() {
 	newCss = '/* Theme Customiser Preset\nhttps://github.com/ValerioLyndon/Theme-Customiser\n^TC' + JSON.stringify(userOpts) + 'TC$*/\n\n' + baseCss;
 
 	function applyOptionToCss(css, optData, insert) {
-		if(optData['type'] === 'textarea/content') {
+		let qualifier = optData['type'].split('/')[1],
+			subQualifier = optData['type'].split('/')[2];
+
+		if(qualifier === 'content') {
 			// format text to be valid for CSS content statements
-			insert = `"${insert.replaceAll('"', '\\"').replaceAll('\n', '\\a ').replaceAll('\\','\\\\')}"`;
+			insert = '"' + insert.replaceAll('\\','\\\\').replaceAll('"', '\\"').replaceAll('\n', '\\a ') + '"';
 		}
-		else if(optData['type'] === 'image_url') {
+		else if(qualifier === 'image_url') {
 			if(insert === '') {
 				insert = 'none';
 			} else {
@@ -417,14 +420,16 @@ function validateInput(id, type) {
 	let notice = document.getElementById(`js-theme-${id}-notice`),
 		noticeHTML = '',
 		val = document.getElementById(`theme-${id}`).value.toLowerCase(),
-		problems = 0;
+		problems = 0,
+		qualifier = type.split('/')[1],
+		subQualifier = type.split('/')[2];
 	
 	if(val.length === 0) {
 		notice.classList.add('o-hidden');
 		return undefined;
 	}
 
-	if(type === 'image_url') {
+	if(qualifier === 'image_url') {
 		// Consider replacing this with a script that simply loads the image and tests if it loads. Since we're already doing that with the preview anyway it shouldn't be a problem.
 		noticeHTML = 'We detected some warnings. If your image does not display, fix these issues and try again.<ul class="c-notice__list">';
 
@@ -459,7 +464,7 @@ function validateInput(id, type) {
 		}
 	}
 
-	else if(type === 'size') {
+	else if(qualifier === 'size') {
 		let units = ['px','%','em','rem','vh','vmax','vmin','vw','ch','cm','mm','Q','in','pc','pt','ex']
 		problems += 1;
 		for(unit of units) {
@@ -532,10 +537,12 @@ function renderHtml() {
 		link.target = "_blank";
 		head.appendChild(link);
 
-		if(opt['type'].startsWith('text') || opt['type'] === 'color') {
-			let qualifier = opt['type'].split('/')[1],
-				subQualifier = opt['type'].split('/')[2];
+		let split = opt['type'].split('/');
+			baseType = split[0]
+			qualifier = split[1],
+			subQualifier = split[2];
 
+		if(baseType === 'text' || opt['type'] === 'color') {
 			let input = document.createElement('input');
 			input.id = `theme-${id}`;
 			input.type = 'text';
@@ -584,7 +591,7 @@ function renderHtml() {
 		}
 
 
-		else if(opt['type'] === 'textarea/content') {
+		else if(baseType === 'textarea') {
 			let input = document.createElement('textarea');
 			input.id = `theme-${id}`;
 			input.value = opt['default'];
@@ -595,7 +602,7 @@ function renderHtml() {
 			input.addEventListener('input', () => { updateOption(id, opt['default'], parentModId); });
 		}
 
-		else if(opt['type'] === 'toggle') {
+		else if(baseType === 'toggle') {
 			let toggle = document.createElement('div');
 
 			toggle.className = 'option__toggle-box';
@@ -610,7 +617,7 @@ function renderHtml() {
 			toggle.addEventListener('input', () => { updateOption(id, opt['default'], parentModId); });
 		}
 
-		else if(opt['type'] === 'select') {
+		else if(baseType === 'select') {
 			let select = document.createElement('select');
 
 			// would be nice to have a simpler/nicer to look at switch for small lists but would require using radio buttons.
