@@ -702,7 +702,9 @@ function renderHtml() {
 		optionsEle.parentNode.remove();
 	}
 
-	var modsEle = document.getElementById('js-mods');
+	var modsEle = document.getElementById('js-mods'),
+		tagsEle = document.getElementById('js-mod-tags'),
+		modTags = {};
 
 	if('mods' in theme) {
 		for (const [modId, mod] of Object.entries(theme['mods'])) {
@@ -756,10 +758,34 @@ function renderHtml() {
 			modsEle.appendChild(div);
 
 			document.getElementById(`theme-${modId}`).addEventListener('change', () => { updateMod(modId); });
+
+			// Add mod tag to list of tags
+			if('tags' in mod) {
+				tagsEle.classList.remove('o-hidden');
+				for(tag of mod['tags']) {
+					if(modTags[tag]) {
+						modTags[tag] += 1;
+					} else {
+						modTags[tag] = 1;
+					}
+				}
+			}
 		}
 	} else {
 		modsEle.parentNode.remove();
 	}
+
+	// Add tag links
+	for(let [tag, count] of Object.entries(modTags)) {
+		let tagEle = document.createElement('div'),
+			countEle = document.createElement('span');
+		tagEle.textContent = tag;
+		countEle.textContent = count;
+
+		tagEle.appendChild(countEle);
+		tagsEle.appendChild(tagEle);
+	}
+	console.log(modTags);
 
 	// Help links
 	if('help' in theme) {
