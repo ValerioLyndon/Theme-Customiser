@@ -777,10 +777,12 @@ function renderHtml() {
 
 	// Add tag links
 	for(let [tag, count] of Object.entries(modTags)) {
-		let tagEle = document.createElement('div'),
+		let tagEle = document.createElement('button'),
 			countEle = document.createElement('span');
 		tagEle.textContent = tag;
 		countEle.textContent = count;
+		tagEle.className = 'tags__tag';
+		countEle.className = 'tags__count';
 
 		tagEle.appendChild(countEle);
 		tagsEle.appendChild(tagEle);

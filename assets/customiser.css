@@ -438,6 +438,47 @@ input:checked + .toggle.is-forced::after {
 }
 
 
+/* Tags */
+
+.tags {
+	display: flex;
+	flex-flow: row wrap;
+	margin-bottom: 4px;
+}
+
+.tags__tag {
+	height: 24px;
+	padding: 2px 8px;
+	background: none;
+	border: 2px solid var(--border-light);
+	border-radius: 50px;
+	margin-right: 4px;
+	margin-bottom: 4px;
+	flex: 0 0 auto;
+	white-space: pre-wrap;
+	font: inherit;
+	line-height: 16px;
+	cursor: pointer;
+	transition: background-color 0.2s ease;
+}
+.tags__tag:hover {
+	background: var(--box);
+}
+
+.tags__count {
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	background: var(--box);
+	border-radius: 50%;
+	margin: 0 -4px 0 4px;
+	text-align: center;
+	font-weight: 700;
+}
+
+
+
+
 /* Info Box */
 
 .info-box {
