@@ -761,12 +761,11 @@ function renderHtml() {
 
 			// Add mod tag to list of tags
 			if('tags' in mod) {
-				tagsEle.classList.remove('o-hidden');
 				for(tag of mod['tags']) {
 					if(modTags[tag]) {
-						modTags[tag] += 1;
+						modTags[tag].push(modId);
 					} else {
-						modTags[tag] = 1;
+						modTags[tag] = [modId];
 					}
 				}
 			}
@@ -776,18 +775,55 @@ function renderHtml() {
 	}
 
 	// Add tag links
-	for(let [tag, count] of Object.entries(modTags)) {
-		let tagEle = document.createElement('button'),
-			countEle = document.createElement('span');
-		tagEle.textContent = tag;
-		countEle.textContent = count;
-		tagEle.className = 'tags__tag';
-		countEle.className = 'tags__count';
 
-		tagEle.appendChild(countEle);
-		tagsEle.appendChild(tagEle);
+	// Add mod tag to list of tags
+	if(Object.entries(modTags).length > 0 && Object.entries(theme['mods']).length > 7) {
+		tagsEle.classList.remove('o-hidden');
+
+		function selectTag() {
+			let selectedTag = document.querySelector('.tags__tag.is-selected');
+			if(selectedTag) {
+				selectedTag.click();
+			}
+			this.classList.add('is-selected');
+			let modsToKeep = this.getAttribute('data-mods').split(',');
+			for(let modId of Object.keys(theme['mods'])) {
+				if(modsToKeep.includes(modId)) {
+					continue;
+				} else {
+					document.getElementById(`js-theme-${modId}-parent`).classList.add('is-hidden-by-tag');
+				}
+			}
+			this.removeEventListener('click', selectTag);
+			this.addEventListener('click', clearTag.bind(this));
+		}
+		function clearTag() {
+			let hidden = document.querySelectorAll('.is-hidden-by-tag');
+			for(let ele of hidden) {
+				ele.classList.remove('is-hidden-by-tag');
+			}
+			this.classList.remove('is-selected');
+			this.removeEventListener('click', clearTag);
+			this.addEventListener('click', selectTag.bind(this));
+		}
+		
+		for(let [tag, mods] of Object.entries(modTags)) {
+			let tagEle = document.createElement('button'),
+				countEle = document.createElement('span'),
+				count = mods.length;
+
+			tagEle.textContent = tag;
+			tagEle.className = 'tags__tag';
+			tagEle.setAttribute('data-mods', mods);
+
+			countEle.textContent = count;
+			countEle.className = 'tags__count';
+
+			tagEle.addEventListener('click', selectTag.bind(tagEle));
+			tagEle.appendChild(countEle);
+			tagsEle.appendChild(tagEle);
+		}
 	}
-	console.log(modTags);
 
 	// Help links
 	if('help' in theme) {

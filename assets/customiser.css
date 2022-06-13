@@ -380,6 +380,9 @@ input:checked + .toggle.is-forced::after {
 	padding-top: 6px;
 	border-top: 2px dotted var(--border-light);
 }
+.entry.is-hidden-by-tag {
+	display: none;
+}
 
 .entry__name {
 	display: block;
@@ -446,6 +449,14 @@ input:checked + .toggle.is-forced::after {
 	margin-bottom: 4px;
 }
 
+.tags__blurb {
+	font-size: 11px;
+	display: block;
+	width: 100%;
+	flex: 0 0 auto;
+	margin-bottom: 4px;
+}
+
 .tags__tag {
 	height: 24px;
 	padding: 2px 8px;
@@ -455,14 +466,18 @@ input:checked + .toggle.is-forced::after {
 	margin-right: 4px;
 	margin-bottom: 4px;
 	flex: 0 0 auto;
-	white-space: pre-wrap;
 	font: inherit;
 	line-height: 16px;
+	white-space: pre-wrap;
 	cursor: pointer;
 	transition: background-color 0.2s ease;
 }
 .tags__tag:hover {
 	background: var(--box);
+}
+.tags__tag.is-selected {
+	background: var(--accent);
+	color: var(--accent-text);
 }
 
 .tags__count {

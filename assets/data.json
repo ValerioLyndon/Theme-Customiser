@@ -42,7 +42,7 @@
 				"name": "Dark Mode",
 				"description": "Darker visuals. 100% fewer flashbangs!",
 				"css": {"bottom": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Dark%20Mode%20Compressed.css"},
-				"tags": ["theme", "simple"]
+				"tags": ["theme"]
 			},
 			"image-row": {
 				"name": "Image Hover Mod (On Row variant)",
@@ -100,14 +100,14 @@
 						"default": "240px"
 					}
 				},
-				"tags": ["alternate uses", "tags"]
+				"tags": ["transformations", "tags"]
 			},
 			"horizontal": {
 				"name": "Horizontal Tags",
 				"description": "Convert the vertical tags into a horizontal line across the bottom of each list item.",
 				"conflicts": ["review"],
 				"css": {"bottom": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Horizontal%20Tags%20Compressed.css"},
-				"tags": ["visual flare", "tags"]
+				"tags": ["transformations", "visual flare", "tags"]
 			},
 			"fav-l": {
 				"name": "Favourite Hearts (Left variant)",
@@ -165,7 +165,7 @@
 						"default": "contain"
 					}
 				},
-				"tags": ["visual flare", "imagery"]
+				"tags": ["visual flare", "imagery", "in-depth customisation"]
 			},
 			"cat-banner": {
 				"name": "Per-category Banner Images",
