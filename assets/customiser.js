@@ -781,30 +781,34 @@ function renderHtml() {
 		tagsEle.classList.remove('o-hidden');
 
 		function selectTag() {
-			let selectedTag = document.querySelector('.tags__tag.is-selected');
-			if(selectedTag) {
-				selectedTag.click();
-			}
-			this.classList.add('is-selected');
-			let modsToKeep = this.getAttribute('data-mods').split(',');
-			for(let modId of Object.keys(theme['mods'])) {
-				if(modsToKeep.includes(modId)) {
-					continue;
-				} else {
-					document.getElementById(`js-theme-${modId}-parent`).classList.add('is-hidden-by-tag');
-				}
-			}
-			this.removeEventListener('click', selectTag);
-			this.addEventListener('click', clearTag.bind(this));
-		}
-		function clearTag() {
-			let hidden = document.querySelectorAll('.is-hidden-by-tag');
+			console.log('selectTag');
+
+			// Clear previous selection
+			let hidden = document.querySelectorAll('.is-hidden-by-tag'),
+				isSelected = this.className.includes('is-selected');
 			for(let ele of hidden) {
 				ele.classList.remove('is-hidden-by-tag');
 			}
-			this.classList.remove('is-selected');
-			this.removeEventListener('click', clearTag);
-			this.addEventListener('click', selectTag.bind(this));
+
+			// Remove other tags' styling & set our own
+			let selectedTags = document.querySelectorAll('.js-tag.is-selected');
+
+			for(tag of selectedTags) {
+				tag.classList.remove('is-selected');
+			}
+
+			// Select new tags
+			if(!isSelected) {
+				let modsToKeep = this.getAttribute('data-mods').split(',');
+				for(let modId of Object.keys(theme['mods'])) {
+					if(modsToKeep.includes(modId)) {
+						continue;
+					} else {
+						document.getElementById(`js-theme-${modId}-parent`).classList.add('is-hidden-by-tag');
+					}
+				}
+				this.classList.add('is-selected');
+			}
 		}
 		
 		for(let [tag, mods] of Object.entries(modTags)) {
@@ -813,7 +817,7 @@ function renderHtml() {
 				count = mods.length;
 
 			tagEle.textContent = tag;
-			tagEle.className = 'tags__tag';
+			tagEle.className = 'tags__tag js-tag';
 			tagEle.setAttribute('data-mods', mods);
 
 			countEle.textContent = count;

@@ -470,12 +470,15 @@ input:checked + .toggle.is-forced::after {
 	line-height: 16px;
 	white-space: pre-wrap;
 	cursor: pointer;
-	transition: background-color 0.2s ease;
+	transition-property: background-color, color, border-color;
+	transition-duration: 0.1s;
+	transition-timing-function: ease;
 }
 .tags__tag:hover {
 	background: var(--box);
 }
 .tags__tag.is-selected {
+	border-color: var(--accent);
 	background: var(--accent);
 	color: var(--accent-text);
 }
@@ -489,8 +492,11 @@ input:checked + .toggle.is-forced::after {
 	margin: 0 -4px 0 4px;
 	text-align: center;
 	font-weight: 700;
+	transition: inherit;
 }
-
+.tags__tag.is-selected .tags__count {
+	background: var(--accent);
+}
 
 
 
