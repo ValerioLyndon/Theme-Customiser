@@ -497,28 +497,55 @@ input:checked + .toggle.is-forced::after {
 }
 
 
-.columns {
-	display: grid;
+.intended-config {
+
+}
+
+.intended-config__section {
 	padding-bottom: 8px;
 	border-bottom: 2px dotted var(--border-light);
 	margin-bottom: 8px;
-	grid-template-columns: 1fr 1fr;
-	grid-template-areas: "top top" "left right";
 }
 
-.columns__blurb {
-	grid-area: top;
+.intended-config__header {
+	margin: 0 0 8px;
+}
+
+.intended-config__blurb {
+	margin: 0;
+}
+
+.columns {
+	display: flex;
+	overflow-x: auto;
+	padding: 8px 0;
+}
+
+.columns__wrapper {
+	flex-grow: 1;
+}
+
+.columns__glue {
+	display: flex;
+}
+
+.columns__header {
+	display: block;
+	margin-bottom: 4px;
+	font-weight: 700;
 }
 
 .columns__split {
 	display: flex;
 	flex-flow: column nowrap;
+	width: 150px;
+	flex: 1 0 auto;
 }
-.columns__split--left {
-	grid-area: left;
-}
-.columns__split--right {
-	grid-area: right;
+
+.columns__split-header {
+	display: block;
+	font-weight: 700;
+	margin-bottom: 5px;
 }
 
 

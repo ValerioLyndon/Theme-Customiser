@@ -1,8 +1,6 @@
 // Preview-only HTML - replicating default functionality
 
 function toggle(defaultDisplay = 'block') {
-	console.log(this);
-	console.log(defaultDisplay);
 	if(this.style.display === 'none' || this.style.display === '') {
 		this.style.display = defaultDisplay;
 	} else {

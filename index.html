@@ -62,7 +62,21 @@
 				<div class="sidebar__section">
 					<h3 class="sidebar__header">Use your customised theme</h3>
 					
-					<div id="js-columns"></div>
+					<div class="intended-config o-hidden" id="js-intended-config">
+						<div class="intended-config__section">
+							<b class="intended-config__header">This theme has a recommended configuration.</b>
+
+							<p class="intended-config__blurb">Using unrecommended configurations may cause visual errors not intended by the theme designer.</p>
+						</div>
+
+						<div class="intended-config__section o-hidden" id="js-list-type"></div>
+
+						<div class="intended-config__section o-hidden" id="js-columns">
+							<p class="intended-config__blurb">These list columns are recommended. You can set your list columns to match in your <a class="hyperlink" href="https://myanimelist.net/editprofile.php?go=listpreferences">list preferences</a></p>
+						</div>
+					</div>
+
+					<p class="o-hidden sidebar__intended-use" id="js-intended-use"></p>
 
 					<div class="code">
 						<b class="code__title">CSS to Install</b>

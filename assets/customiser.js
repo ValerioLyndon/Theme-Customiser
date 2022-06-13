@@ -769,15 +769,30 @@ function renderHtml() {
 		}
 	}
 
-	// Set theme columns and push to iframe
-	if('columns' in theme) {
-		// Get column info
-		let baseAnimeCol = ['Numbers', 'Score', 'Type', 'Episodes', 'Rating', 'Start/End Dates', 'Total Days Watched', 'Storage', 'Tags', 'Priority', 'Genre', 'Demographics', 'Image', 'Premiered', 'Aired Dates', 'Studios', 'Licensors'],
-			baseMangaCol = ['Numbers', 'Score', 'Type', 'Chapters', 'Volumes', 'Start/End Dates', 'Total Days Read', 'Retail Manga', 'Tags', 'Priority', 'Genres', 'Demographics', 'Image', 'Published Dates', 'Magazine'],
-			mode = 'mode' in theme['columns'] ? theme['columns']['mode'] : 'whitelist',
-			animeCol = theme['columns']['animelist'],
-			mangaCol = theme['columns']['mangalist'];
+	let intendedConfig = document.getElementById('js-intended-config');
 
+	// Add support
+	if('supports' in theme && theme['supports'].length === 1) {
+		if(['animelist','mangalist'].includes(theme['supports'][0])) {
+			intendedConfig.classList.remove('o-hidden');
+			
+			let parent = document.getElementById('js-list-type');
+			parent.classList.remove('o-hidden');
+			parent.innerHTML = `Use only with your <b>${theme['supports'][0]}</b>.`;
+		}
+		else {
+			messenger.warn('The supported list was ignored due to being invalid. The only accepted values are "animelist" and "mangalist".');
+		}
+	} else {
+		theme['supports'] = ['animelist','mangalist'];
+	}
+
+	// Set theme columns and push to iframe
+
+	if('columns' in theme) {
+		intendedConfig.classList.remove('o-hidden');
+
+		// functions
 		function processColumns(base, mode, todo) {
 			let columns = {};
 
@@ -792,38 +807,65 @@ function renderHtml() {
 			return columns;
 		}
 
-		let columns = processColumns(baseAnimeCol, mode, animeCol);
+		function renderColumns(columns, listtype) {
+			let typeWrapper = document.createElement('div'),
+				glue = document.createElement('div'),
+				classic = document.createElement('div'),
+				modern = document.createElement('div');
+			
+			typeWrapper.className = 'columns__wrapper';
+			glue.className = 'columns__glue';
+			classic.className = 'columns__split';
+			modern.className = 'columns__split';
 
-		// Render HTML
-
-		let parent = document.getElementById('js-columns'),
-			left = document.createElement('div'),
-			right = document.createElement('div');
-		parent.className = 'columns';
-		parent.innerHTML = `
-			<div class="columns__blurb">
-				<b>This theme has a recommended set of list columns.</b>
-
-				<p>You can set your list columns to match in your <a class="hyperlink" href="https://myanimelist.net/editprofile.php?go=listpreferences">list preferences.</a> Using unrecommended configurations may cause visual errors not intended by the theme designer.</p>
-			</div>
-		`;
-		left.className = 'columns__split columns__split--left';
-		right.className = 'columns__split columns__split--right';
-
-		for(let [name, value] of Object.entries(columns)) {
-			let col = document.createElement('columns__item');
-			col.innerHTML = `
-				<input class="columns__check" type="checkbox" disabled="disabled" ${value ? 'checked="checked"' : ''}>
-				<span class="columns__name">${name}</span>
-			`;
-			if(['Image', 'Premiered', 'Aired Dates', 'Studios', 'Licensors', 'Published Dates', 'Magazine'].includes(name)) {
-				right.appendChild(col);
-			} else {
-				left.appendChild(col);
+			typeWrapper.innerHTML = `<b class="columns__header">${listtype[0].toUpperCase()}${listtype.substr(1)} Columns</b>`;
+			typeWrapper.appendChild(glue);
+			glue.appendChild(classic);
+			if(theme['type'] === 'modern') {
+				glue.appendChild(modern);
+				classic.innerHTML = `<b class="columns__split-header">Common</b>`;
+				modern.innerHTML = `<b class="columns__split-header">Modern Only</b>`;
 			}
+
+			for(let [name, value] of Object.entries(columns)) {
+				let col = document.createElement('div');
+				col.className = 'columns__item';
+				col.innerHTML = `
+					<input class="columns__check" type="checkbox" disabled="disabled" ${value ? 'checked="checked"' : ''}>
+					<span class="columns__name">${name}</span>
+				`;
+				if(['Image', 'Premiered', 'Aired Dates', 'Studios', 'Licensors', 'Published Dates', 'Magazine'].includes(name)) {
+					modern.appendChild(col);
+				} else {
+					classic.appendChild(col);
+				}
+			}
+			columnsContainer.appendChild(typeWrapper);
 		}
-		parent.appendChild(left);
-		parent.appendChild(right);
+
+		// Get column info
+		let mode = 'mode' in theme['columns'] ? theme['columns']['mode'] : 'whitelist',
+			baseColumns = {
+				'animelist': ['Numbers', 'Score', 'Type', 'Episodes', 'Rating', 'Start/End Dates', 'Total Days Watched', 'Storage', 'Tags', 'Priority', 'Genre', 'Demographics', 'Image', 'Premiered', 'Aired Dates', 'Studios', 'Licensors'],
+				'mangalist': ['Numbers', 'Score', 'Type', 'Chapters', 'Volumes', 'Start/End Dates', 'Total Days Read', 'Retail Manga', 'Tags', 'Priority', 'Genres', 'Demographics', 'Image', 'Published Dates', 'Magazine']
+			};
+
+		// Do actual stuff here
+		let parent = document.getElementById('js-columns');
+		parent.classList.remove('o-hidden');
+
+		var columns = [],
+			columnsContainer = document.createElement('div');
+		columnsContainer.className = 'columns';
+
+		for(listtype of theme['supports']) {
+			let tempcolumns = processColumns(baseColumns[listtype], mode, theme['columns'][listtype]);
+			columns.push(tempcolumns);
+			
+			renderColumns(tempcolumns, listtype);
+		}
+
+		parent.appendChild(columnsContainer);
 
 		// Update iframe
 		var iframe = document.getElementById('js-frame');
