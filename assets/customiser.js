@@ -629,6 +629,9 @@ function renderHtml() {
 				input.placeholder = 'https://example.com/image.jpg';
 				div.appendChild(input);
 
+				link.textContent = 'Image Tips';
+				link.href = 'https://github.com/ValerioLyndon/MAL-Public-List-Designs/wiki/Image-Hosting-Tips';
+
 				input.addEventListener('input', () => { validateInput(id, opt['type']); });
 			}
 
