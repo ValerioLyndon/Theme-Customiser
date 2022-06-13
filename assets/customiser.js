@@ -535,6 +535,12 @@ class messageHandler {
 function renderHtml() {
 	// options & mods
 	document.getElementById('js-title').textContent = theme['name'];
+	let credit = document.getElementById('js-theme-credit');
+	if('author' in theme && theme['author']) {
+		credit.textContent = `Customising "${theme['name']}" by ${theme['author']}`;
+	} else {
+		credit.textContent = `Customising "${theme['name']}"`;
+	}
 
 	var optionsEle = document.getElementById('js-options');
 
