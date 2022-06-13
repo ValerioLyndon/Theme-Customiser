@@ -1,24 +1,6 @@
-// GENERIC VARIABLES & FUNCTIONS
-
-var query = (new URL(document.location)).searchParams,
-	dataJson = query.get('data'),
-	selectedTheme = query.get('theme').toLowerCase(),
-	theme = '',
-	data = null;
-
-if(dataJson === null) {
-	dataJson = './assets/data.json';
-}
-
-// Setup some basic variables
-var baseCss = '';
-
-var userOpts = {
-	'theme': selectedTheme,
-	'data': dataJson,
-	'options': {},
-	'mods': {}
-};
+// ================
+// COMMON FUNCTIONS
+// ================
 
 function fetchFile(path, cacheResult = true) {
 	return new Promise((resolve, reject) => {
@@ -139,35 +121,6 @@ function createBB(text) {
 	return parent;
 }
 
-class loadingScreen {
-	constructor() {
-		this.pageContent = document.getElementById('js-content');
-		this.parent = document.getElementById('js-loader');
-		this.icon = document.getElementById('js-loader-icon');
-		this.text = document.getElementById('js-loader-text');
-		this.subText = document.getElementById('js-loader-subtext');
-		this.subText2 = document.getElementById('js-loader-subsubtext');
-	}
-
-	loaded() {
-		this.pageContent.classList.add('loaded');
-		this.parent.classList.add('hidden');
-		var that = this;
-		setTimeout(function() {
-			that.parent.classList.add('o-hidden');
-		}, 1500)
-	}
-
-	failed(reason_array) {
-		this.icon.className = 'loading-screen__cross';
-		this.text.textContent = 'Page Failure.';
-		this.subText.textContent = reason_array[0];
-		this.subText2.classList.remove('o-hidden');
-		this.subText2.textContent = `Code: ${reason_array[1]}`;
-	}
-}
-var loader = new loadingScreen();
-
 function updateOption(id, defaultValue = '', parentModId = false) {
 	// set values and default value
 	let input = document.getElementById(`theme-${id}`),
@@ -205,7 +158,7 @@ function updateMod(id) {
 	// Enable required mods
 	if('requires' in mod) {
 		for(requirement of mod['requires']) {
-			try {
+			if(requirement in theme['mods']) {
 				if(val) {
 					userOpts['mods'][requirement] = val;
 				} else {
@@ -213,7 +166,7 @@ function updateMod(id) {
 				}
 
 				// todo: do this using js classes or something that won't fall apart the moment you change the DOM
-				let check = document.getElementById(requirement),
+				let check = document.getElementById(`theme-${requirement}`),
 					toggle = check.nextElementSibling,
 					toggleInfo = toggle.firstElementChild;
 				
@@ -221,14 +174,14 @@ function updateMod(id) {
 				check.checked = val;
 
 				if(val) {
-					toggle.classList.add('toggle--forced', 'toggle--has-extra-info');
+					toggle.classList.add('is-forced', 'has-info');
 					toggleInfo.textContent = 'This must be enabled for other options to work.';
 				} else {
-					toggle.classList.remove('toggle--forced', 'toggle--has-extra-info');
+					toggle.classList.remove('is-forced', 'has-info');
 				}
-			} catch(e) {
-				console.log('error in data json todo: add user-facing error report here');
-				console.log(e);
+			}
+			else {
+				messenger.warn(`Failed to set "${requirement}" requirement of mod "${id}". This usually indicates a problem with the theme JSON. Does the mod "${requirement}" exist?`);
 			}
 		}
 	}
@@ -236,32 +189,32 @@ function updateMod(id) {
 	// Disable incompatible mods
 	if('conflicts' in mod) {
 		for(conflict of mod['conflicts']) {
-			try {
+			if(conflict in theme['mods']) {
 				// todo: do this using js classes or something that won't fall apart the moment you change the DOM
-				let check = document.getElementById(conflict),
+				let check = document.getElementById(`theme-${conflict}`),
 					toggle = check.nextElementSibling,
 					toggleInfo = toggle.firstElementChild;
 
 				check.disabled = val;
 
 				if(val) {
-					toggle.classList.add('toggle--disabled', 'toggle--has-extra-info');
+					toggle.classList.add('is-disabled', 'has-info');
 					toggleInfo.textContent = 'You cannot use this with your current configuration due to conflicts with other options.';
 				} else {
-					toggle.classList.remove('toggle--disabled', 'toggle--has-extra-info');
+					toggle.classList.remove('is-disabled', 'has-info');
 				}
-			} catch(e) {
-				console.log('error in data json todo: add user-facing error report here');
-				console.log(e);
+			}
+			else {
+				messenger.warn(`Failed to set the "${conflict}" conflict of mod "${id}". This usually indicates a problem with the theme JSON. Does the mod "${conflict}" exist?`);
 			}
 		}
 	}
 
 	// Add some CSS style rules
 	if(val === true) {
-		document.getElementById(`js-theme-${id}-parent`).classList.add('mod--checked');
+		document.getElementById(`js-theme-${id}-parent`).classList.add('is-enabled');
 	} else {
-		document.getElementById(`js-theme-${id}-parent`).classList.remove('mod--checked');
+		document.getElementById(`js-theme-${id}-parent`).classList.remove('is-enabled');
 	}
 
 	// Add to userOpts unless matches default value (i.e disabled)
@@ -278,16 +231,17 @@ function updateMod(id) {
 function updateCss() {
 	let newCss = baseCss;
 
-	// Encode options at top
-
-	newCss = '/* Theme Customiser Preset\nhttps://github.com/ValerioLyndon/Theme-Customiser\n^TC' + JSON.stringify(userOpts) + 'TC$*/\n\n' + baseCss;
+	// Encode options & sanitise any CSS character
+	let optsStr = JSON.stringify(userOpts).replaceAll('*/','*\\/').replaceAll('/*','\\/*');
+	// Place options at top
+	newCss = '/* Theme Customiser Preset\nhttps://github.com/ValerioLyndon/Theme-Customiser\n^TC' + optsStr + 'TC$*/\n\n' + baseCss;
 
 	function applyOptionToCss(css, optData, insert) {
 		let qualifier = optData['type'].split('/')[1],
 			subQualifier = optData['type'].split('/')[2];
 
 		if(qualifier === 'content') {
-			// format text to be valid for CSS content statements
+			// formats text to be valid for CSS content statements
 			insert = '"' + insert.replaceAll('\\','\\\\').replaceAll('"', '\\"').replaceAll('\n', '\\a ') + '"';
 		}
 		else if(qualifier === 'image_url') {
@@ -317,7 +271,6 @@ function updateCss() {
 		}
 		else if(optData['type'] === 'select') {
 			let replacements = optData['selections'][insert]['replacements'];
-			console.log(replacements);
 			for(set of replacements) {
 				let toFind = set[0],
 					toInsert = set[1];
@@ -357,62 +310,55 @@ function updateCss() {
 		}
 	}
 	
-	if('mods' in theme) {
-		let totalCount = Object.keys(userOpts['mods']).length;
-
-		if(totalCount === 0) {
-			pushCss(newCss);
-		} else {
-			(async () => {
-				for(let [id, value] of Object.entries(userOpts['mods'])) {
-					let modData = theme['mods'][id];
-					for(let [location, resource] of Object.entries(modData['css'])) {
-						if(resource.startsWith('http')) {
-							try {
-								var modCss = await fetchFile(resource);
-							} catch (failure) {
-								console.log(failure);
-							}
-						} else {
-							var modCss = resource;
+	if('mods' in theme && Object.keys(userOpts['mods']).length > 0) {
+		(async () => {
+			for(let [id, value] of Object.entries(userOpts['mods'])) {
+				let modData = theme['mods'][id];
+				for(let [location, resource] of Object.entries(modData['css'])) {
+					if(resource.startsWith('http')) {
+						try {
+							var modCss = await fetchFile(resource);
+						} catch (failure) {
+							console.log(`[updateCss] Failed during mods fetchfile: ${failure}`);
+							messenger.error(`Failed to fetch CSS for mod "${id}". Try waiting 30s then disabling and re-enabling the mod. If this continues to happen, check if the listed resource still exists.`, failure[1] ? failure[1] : 'fetchfile');
 						}
-
-						for(let [optId, val] of Object.entries(userOpts['mods'][id])) {
-							modCss = applyOptionToCss(modCss, modData['options'][optId], val);
-						}
-
-						extendCss(modCss, location);
+					} else {
+						var modCss = resource;
 					}
-				}
 
-				pushCss(newCss);
-			})();
-		}
+					for(let [optId, val] of Object.entries(userOpts['mods'][id])) {
+						modCss = applyOptionToCss(modCss, modData['options'][optId], val);
+					}
+
+					extendCss(modCss, location);
+				}
+			}
+			pushCss(newCss);
+		})();
 	}
 	else {
 		pushCss(newCss);
 	}
-}
 
-function pushCss(css) {
-	// Update output
-	document.getElementById('js-output').textContent = css;
+	function pushCss(css) {
+		// Update output
+		document.getElementById('js-output').textContent = css;
 
-	// Add notice if necessary
-	let notice = document.getElementById('js-output-notice');
-	if(css.length > 65535) {
-		let excess = css.length - 65535;
-		notice.textContent = `This configuration exceeds MyAnimeList's maximum CSS length by ${excess} characters. You will need to shorten this code or host it on an external site to bypass the limit.`;
-		// todo: add link to external hosting guide
-		notice.classList.remove('o-hidden');
-	} else {
-		notice.classList.add('o-hidden');
-	}
+		// Add notice if necessary
+		let notice = document.getElementById('js-output-notice');
+		if(css.length > 65535) {
+			let excess = css.length - 65535;
+			notice.innerHTML = `This configuration exceeds MyAnimeList's maximum CSS length by ${excess} characters. You will need to shorten this code or host it on an external site to bypass the limit. For help hosting the CSS, see <a class="hyperlink" href="https://myanimelist.net/forum/?topicid=1911384" target="_blank">this guide</a>.`;
+			notice.classList.remove('o-hidden');
+		} else {
+			notice.classList.add('o-hidden');
+		}
 
-	// Update iframe
-	var iframe = document.getElementById('js-frame');
-	if (iframe && iframe.contentWindow) {
-		iframe.contentWindow.postMessage(['css', css]);
+		// Update iframe
+		var iframe = document.getElementById('js-frame');
+		if (iframe && iframe.contentWindow) {
+			iframe.contentWindow.postMessage(['css', css]);
+		}
 	}
 }
 
@@ -431,11 +377,11 @@ function validateInput(id, type) {
 
 	if(qualifier === 'image_url') {
 		// Consider replacing this with a script that simply loads the image and tests if it loads. Since we're already doing that with the preview anyway it shouldn't be a problem.
-		noticeHTML = 'We detected some warnings. If your image does not display, fix these issues and try again.<ul class="c-notice__list">';
+		noticeHTML = 'We detected some warnings. If your image does not display, fix these issues and try again.<ul class="info-box__list">';
 
 		function problem(text) {
 			problems += 1;
-			noticeHTML += `<li class="c-notice__list-item">${text}</li>`;
+			noticeHTML += `<li class="info-box__list-item">${text}</li>`;
 		}
 		
 		if(!val.startsWith('http')) {
@@ -490,9 +436,100 @@ function validateInput(id, type) {
 	}
 }
 
+class loadingScreen {
+	constructor() {
+		this.pageContent = document.getElementById('js-content');
+		this.parent = document.getElementById('js-loader');
+		this.icon = document.getElementById('js-loader-icon');
+		this.text = document.getElementById('js-loader-text');
+		this.subText = document.getElementById('js-loader-subtext');
+		this.subText2 = document.getElementById('js-loader-subsubtext');
+	}
+
+	loaded() {
+		this.pageContent.classList.add('is-loaded');
+		this.parent.classList.add('is-hidden');
+		var that = this;
+		setTimeout(function() {
+			that.parent.classList.add('o-hidden');
+		}, 1500)
+	}
+
+	failed(reason_array, stopExecution = true) {
+		this.icon.className = 'loading-screen__cross';
+		this.text.textContent = 'Page Failure.';
+		this.subText.textContent = reason_array[0];
+		this.subText2.classList.remove('o-hidden');
+		this.subText2.textContent = `Code: ${reason_array[1]}`;
+		if(stopExecution === true) {
+			throw new Error(reason_array[1]);
+		}
+	}
+}
+
+class messageHandler {
+	constructor() {
+		this.parent = document.getElementById('js-messenger');
+	}
+
+	send(text, type = 'notice', subtext = null) {
+		let msg = document.createElement('div'),
+			head = document.createElement('b');
+
+		msg.className = 'messenger__message js-message';
+		msg.innerHTML = text;
+		head.className = 'messenger__message-header';
+		head.textContent = type.toUpperCase();
+		msg.prepend(head);
+
+		if(type === 'error') {
+			msg.classList.add('messenger__message--error');
+		}
+		else if(type === 'warning') {
+			msg.classList.add('messenger__message--warning');
+		}
+
+		if(subtext) {
+			let sub = document.createElement('i');
+			sub.className = 'messenger__message-subtext';
+			sub.textContent = subtext;
+			msg.appendChild(sub);
+		}
+
+		this.parent.appendChild(msg);
+	}
+
+	warn(msg, code = null) {
+		if(code) {
+			code = `Code: ${code}`;
+		}
+		this.send(msg, 'warning', code);
+	}
+
+	error(msg, code = null) {
+		if(code) {
+			code = `Code: ${code}`;
+		}
+		this.send(msg, 'error', code);
+	}
+
+	clear(amount = 0) {
+		let msgs = this.parent.getElementsByClassName('js-message');
+		if(amount > 0) {
+			for(let i = 0; i < msgs.length && i < amount; i++) {
+				msgs[i].remove();
+			}
+		} else {
+			for(let msg of msgs) {
+				msg.remove();
+			}
+		}
+	}
+}
 
 
-// MAIN PROGRAM
+
+// ONE-TIME FUNCTIONS
 
 // Setup basic options structure and add event listeners
 function renderHtml() {
@@ -509,7 +546,7 @@ function renderHtml() {
 			head = document.createElement('b'),
 			expando = document.createElement('div'),
 			desc = document.createElement('div'),
-			notice = document.createElement('div'),
+			notice = document.createElement('p'),
 			link = document.createElement('a');
 
 		if(opt['default'] === undefined && opt['type'] === 'toggle') {
@@ -518,22 +555,22 @@ function renderHtml() {
 			opt['default'] = '';
 		}
 
-		div.className = 'option';
+		div.className = 'entry has-help';
 		head.textContent = opt['name'];
-		head.className = 'option__name';
+		head.className = 'entry__name';
 		div.appendChild(head);
 
-		expando.className = 'c-expando js-expando';
+		expando.className = 'expando js-expando';
 		expando.setAttribute('data-expando-limit', "100");
-		expando.innerHTML = '<button class="c-expando__button c-expando__button--subtle js-expando-button">Expand</button>';
-		desc.className = 'option__desc';
+		expando.innerHTML = '<button class="expando__button expando__button--subtle js-expando-button">Expand</button>';
+		desc.className = 'entry__desc';
 		expando.appendChild(desc);
 		if('description' in opt) {
 			desc.appendChild(createBB(opt['description']));
 			div.appendChild(expando);
 		}
 
-		link.className = 'option__help hyperlink';
+		link.className = 'entry__help hyperlink';
 		link.target = "_blank";
 		head.appendChild(link);
 
@@ -541,13 +578,17 @@ function renderHtml() {
 			baseType = split[0]
 			qualifier = split[1],
 			subQualifier = split[2];
+		
+		if('help' in opt) {
+			div.classList.add('has-help');
+		}
 
 		if(baseType === 'text' || opt['type'] === 'color') {
 			let input = document.createElement('input');
 			input.id = `theme-${id}`;
 			input.type = 'text';
 			input.value = opt['default'];
-			input.className = 'option__input';
+			input.className = 'input';
 			input.placeholder = 'Your text here.';
 			div.appendChild(input);
 
@@ -563,7 +604,7 @@ function renderHtml() {
 				input.placeholder = 'Your colour here. e.x rgba(0, 135, 255, 1.0)';
 
 				let display = document.createElement('div');
-				display.className = 'option__colour';
+				display.className = 'entry__colour';
 
 				div.appendChild(display);
 
@@ -595,7 +636,7 @@ function renderHtml() {
 			let input = document.createElement('textarea');
 			input.id = `theme-${id}`;
 			input.value = opt['default'];
-			input.className = 'option__input option__input--textarea';
+			input.className = 'entry__textarea input input--textarea';
 			input.placeholder = 'Your text here.';
 			div.appendChild(input);
 
@@ -605,7 +646,7 @@ function renderHtml() {
 		else if(baseType === 'toggle') {
 			let toggle = document.createElement('div');
 
-			toggle.className = 'option__toggle-box';
+			toggle.className = 'entry__toggle-box';
 			toggle.innerHTML = `
 				<input id="theme-${id}" type="checkbox" class="o-hidden" ${('default' in opt && opt['default'] == true) ? 'checked="checked"' : ''}" />
 				<label class="toggle" for="theme-${id}">
@@ -621,7 +662,7 @@ function renderHtml() {
 			let select = document.createElement('select');
 
 			// would be nice to have a simpler/nicer to look at switch for small lists but would require using radio buttons.
-			select.className = 'option__select';
+			select.className = 'entry__select';
 			select.id = `theme-${id}`;
 			for(let [selectKey, selectData] of Object.entries(opt['selections'])) {
 				let selectOption = document.createElement('option');
@@ -638,7 +679,7 @@ function renderHtml() {
 		}
 
 		notice.id = `js-theme-${id}-notice`;
-		notice.className = 'c-notice o-hidden';
+		notice.className = 'info-box info-box--indented info-box--error o-hidden';
 		div.appendChild(notice);
 
 		return div;
@@ -663,7 +704,7 @@ function renderHtml() {
 				desc = document.createElement('div'),
 				toggle = document.createElement('div');
 
-			toggle.className = 'mod__toggle-box';
+			toggle.className = 'entry__toggle-box';
 			toggle.innerHTML = `
 				<input id="theme-${modId}" type="checkbox" class="o-hidden" />
 				<label class="toggle" for="theme-${modId}">
@@ -672,25 +713,25 @@ function renderHtml() {
 			`;
 			div.appendChild(toggle);
 
-			div.className = 'mod';
+			div.className = 'entry';
 			div.id = `js-theme-${modId}-parent`;
 			head.textContent = mod['name'];
-			head.className = 'mod__name';
+			head.className = 'entry__name entry__name--emphasised';
 			div.appendChild(head);
 
-			expando.className = 'c-expando js-expando';
+			expando.className = 'expando js-expando';
 			expando.setAttribute('data-expando-limit', "100");
-			expando.innerHTML = '<button class="c-expando__button c-expando__button--subtle js-expando-button">Expand</button>';
+			expando.innerHTML = '<button class="expando__button expando__button--subtle js-expando-button">Expand</button>';
 			if('description' in mod) {
 				desc.appendChild(createBB(mod['description']));
 			}
-			desc.className = 'mod__desc';
+			desc.className = 'entry__desc';
 			expando.appendChild(desc);
 			div.appendChild(expando);
 
 			if('options' in mod) {
 				let optDiv = document.createElement('div');
-				optDiv.className = 'mod__options';
+				optDiv.className = 'entry__options';
 
 				for(opt of Object.entries(mod['options'])) {
 					optDiv.appendChild(generateOptionHtml(opt, modId));
@@ -724,7 +765,7 @@ function renderHtml() {
 				link.href = theme['help'];
 			}
 		} else {
-			console.log('invalid help url');
+			messenger.warn('The help URL provided by the theme was ignored due to being invalid. Only HTTP and MAILTO protocols are accepted.');
 		}
 	}
 
@@ -758,22 +799,22 @@ function renderHtml() {
 		let parent = document.getElementById('js-columns'),
 			left = document.createElement('div'),
 			right = document.createElement('div');
-		parent.className = 'c-columns';
+		parent.className = 'columns';
 		parent.innerHTML = `
-			<div class="c-columns__blurb">
+			<div class="columns__blurb">
 				<b>This theme has a recommended set of list columns.</b>
 
 				<p>You can set your list columns to match in your <a class="hyperlink" href="https://myanimelist.net/editprofile.php?go=listpreferences">list preferences.</a> Using unrecommended configurations may cause visual errors not intended by the theme designer.</p>
 			</div>
 		`;
-		left.className = 'c-columns__split c-columns__split--left';
-		right.className = 'c-columns__split c-columns__split--right';
+		left.className = 'columns__split columns__split--left';
+		right.className = 'columns__split columns__split--right';
 
 		for(let [name, value] of Object.entries(columns)) {
-			let col = document.createElement('c-columns__item');
+			let col = document.createElement('columns__item');
 			col.innerHTML = `
-				<input class="c-columns__check" type="checkbox" disabled="disabled" ${value ? 'checked="checked"' : ''}>
-				<span class="c-columns__name">${name}</span>
+				<input class="columns__check" type="checkbox" disabled="disabled" ${value ? 'checked="checked"' : ''}>
+				<span class="columns__name">${name}</span>
 			`;
 			if(['Image', 'Premiered', 'Aired Dates', 'Studios', 'Licensors', 'Published Dates', 'Magazine'].includes(name)) {
 				right.appendChild(col);
@@ -799,7 +840,7 @@ function renderHtml() {
 		let parent = this.parentNode,
 			expandedHeight = parent.scrollHeight;
 			collapsedHeight = parent.getAttribute('data-expando-limit'),
-			expanded = parent.classList.contains('c-expando--expanded'),
+			expanded = parent.classList.contains('is-expanded'),
 			animTiming = {
 				duration: 300 + expandedHeight / 3,
 				iterations: 1,
@@ -812,7 +853,7 @@ function renderHtml() {
 				{ height: `${collapsedHeight}px`}
 			];
 			parent.style = `height: ${collapsedHeight}px`;
-			parent.classList.remove('c-expando--expanded');
+			parent.classList.remove('is-expanded');
 			parent.animate(animFrames, animTiming);
 			this.textContent = 'Expand';
 		} else {
@@ -822,7 +863,7 @@ function renderHtml() {
 				  paddingBottom: '25px' }
 			];
 			parent.style = `height: auto; padding-bottom: 25px;`;
-			parent.classList.add('c-expando--expanded');
+			parent.classList.add('is-expanded');
 			parent.animate(animFrames, animTiming);
 			this.textContent = 'Collapse';
 		}
@@ -831,16 +872,35 @@ function renderHtml() {
 	for(let expando of expandos) {
 		let limit = expando.getAttribute('data-expando-limit');
 		if(expando.scrollHeight < limit) {
-			expando.classList.add('c-expando--innert');
+			expando.classList.add('is-innert');
 		} else {
 			expando.style.height = `${limit}px`;
 			let btn = expando.getElementsByClassName('js-expando-button')[0];
 			btn.addEventListener('click', toggleExpando.bind(btn));
 		}
 	}
-}
 
-// Add functionality to some parts of the page
+	// Add swappable text functions
+
+	let swaps = document.getElementsByClassName('js-swappable-text');
+
+	function swapText() {
+		let toSwap = this.querySelector('.swappable-text');
+		
+		toSwap.classList.add('is-swapped');
+		setTimeout(() => {
+			toSwap.classList.remove('is-swapped')
+		}, 666);
+	}
+
+	for(let swap of swaps) {
+		swap.addEventListener('click', swapText.bind(swap));
+	}
+
+	// Add other functions
+
+	document.getElementById('js-import-button').addEventListener('click', () => { importPreviousOpts(); });
+}
 
 function importPreviousOpts(opts = undefined) {
 	if(opts === undefined) {
@@ -850,9 +910,9 @@ function importPreviousOpts(opts = undefined) {
 		// process previous CSS/input, removing everything except the json.
 		previous = previous.match(/\^TC{.*?}}TC\$/);
 
-		if(previous.length === 0) {
-			// todo: these return values are unused. Please use them to create a user-facing notice
-			return [false, ['Import failed, could not interpret your options. Are you sure your input contains valid options?', 'regex.match']];
+		if(previous === null) {
+			messenger.error('Import failed, could not interpret your options. Are you sure you input the correct text?', ' regex.match');
+			return false;
 		}
 
 		previous = previous[0].substr(3, previous[0].length - 6);
@@ -860,8 +920,8 @@ function importPreviousOpts(opts = undefined) {
 		try {
 			var previousOpts = JSON.parse(previous);
 		} catch {
-			// todo: these return values are unused. Please use them to create a user-facing notice
-			return [false, ['Import failed, could not interpret your options.', 'json.parse']];
+			messenger.error('Import failed, could not interpret your options. Are you sure you copied and pasted all the settings?', 'json.parse');
+			return false;
 		}
 	} else {
 		var previousOpts = opts;
@@ -888,7 +948,7 @@ function importPreviousOpts(opts = undefined) {
 	}
 	for([modId, modOpts] of Object.entries(userOpts['mods'])) {
 		document.getElementById(`theme-${modId}`).checked = true;
-		document.getElementById(`js-theme-${modId}-parent`).classList.add('mod--checked');
+		document.getElementById(`js-theme-${modId}-parent`).classList.add('is-enabled');
 		
 		for([optId, optVal] of Object.entries(modOpts)) {
 			document.getElementById(`theme-${optId}`).value = optVal;
@@ -896,13 +956,9 @@ function importPreviousOpts(opts = undefined) {
 	}
 
 	updateCss();
-	return true;
 }
 
-document.getElementById('js-import-button').addEventListener('click', () => { importPreviousOpts(); });
-
 // Updates preview CSS & removes loader
-
 function finalSetup() {
 	// Get theme CSS
 	if(theme['css'].startsWith('http')) {
@@ -927,14 +983,12 @@ function finalSetup() {
 		if(query.get('import')) {
 			let opts = localStorage.getItem('tcUserOptsImported');
 			if(opts === null) {
-				console.log('failed to import options');
-				// todo: alert user of error here.
+				messenger.error('Failed to import options. If you initiated this operation, please report this issue.', 'localstorage.getitem');
 			} else {
 				try {
 					opts = JSON.parse(opts);
 				} catch {
-					console.log('failed to import options json stringify');
-					// todo: alert user of error here.
+					messenger.error('Failed to import options. Could not parse settings.', 'json.stringify');
 				}
 				// importpreviousopts will call updateCss and pushCss
 				importPreviousOpts(opts);
@@ -943,7 +997,7 @@ function finalSetup() {
 
 		// Push to iframe
 		else {
-			pushCss(css);
+			updateCss(css);
 		}
 
 		// Remove Loader
@@ -951,28 +1005,59 @@ function finalSetup() {
 	}
 }
 
-// INITIALISE PAGE
+
+
+// BEGIN PROGRAM & INITIALISE PAGE
+
+// Variables
+
+var query = (new URL(document.location)).searchParams,
+	dataJson = query.get('data'),
+	selectedTheme = query.get('theme'),
+	theme = '',
+	data = null,
+	baseCss = '',
+	loader = new loadingScreen(),
+	messenger = new messageHandler();
+
+if(dataJson === null) {
+	dataJson = './assets/data.json';
+}
+
+var userOpts = {
+	'theme': selectedTheme,
+	'data': dataJson,
+	'options': {},
+	'mods': {}
+};
+
+if(selectedTheme === null) {
+	loader.failed(['No theme was specified in the URL. Did you follow a broken link?', 'select']);
+}
+
+// Get data for all themes and call other functions
 
 let fetchData = fetchFile(dataJson, false);
 
 fetchData.then((json) => {
-	// Get theme info via json
+	// Attempt to parse provided data.
 	try {
 		data = JSON.parse(json);
-
-		// Get theme info & redirect if problematic
-		if(theme === null || !(selectedTheme in data)) {
-			window.location = '?';
-		} else {
-			theme = data[selectedTheme];
-		}
-
-		renderHtml();
-		finalSetup();
 	} catch(e) {
 		loader.failed(['Encountered a problem while parsing theme information.', 'json.parse']);
-		console.log(`[initialisePage] Json parsing error: ${e}`);
 	}
+
+	// Get theme info from URL & take action if problematic
+	if(theme === null || !(selectedTheme.toLowerCase() in data)) {
+		// redirect in future using: window.location = '?';
+		// for now, simply fails
+		loader.failed(['Encountered a problem while parsing theme information.', 'invalid theme']);
+	} else {
+		theme = data[selectedTheme.toLowerCase()];
+	}
+
+	renderHtml();
+	finalSetup();
 });
 
 fetchData.catch((reason) => {
