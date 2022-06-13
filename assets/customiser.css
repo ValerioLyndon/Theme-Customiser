@@ -19,6 +19,7 @@ js  | javascript. Adds functionality, *not* used for style
 
 html {
 	--background: #fff;
+	--invert-background: #212121;
 	--text: #020202;
 	--accent: #2e51a2;
 	--accent-text: #fff;
@@ -35,7 +36,9 @@ html {
 }
 
 body {
+	background: var(--background);
 	margin: 0;
+	color: var(--text);
 	font: 14px/1.3 Roboto, Arial, Helvetica, sans-serif;
 }
 
@@ -164,7 +167,7 @@ input:checked + .toggle.is-forced::after {
 	display: none;
 	width: 270px;
 	padding: 8px;
-	background: #fff;
+	background: var(--background);
 	border: 2px solid var(--border-light);
 
 	box-shadow: 2px 3px 6px rgba(0,0,0,0.3);
@@ -236,6 +239,7 @@ input:checked + .toggle.is-forced::after {
 	border-radius: 7px 7px 0 0;
 	box-shadow: 0 3px 5px 3px var(--background);
 	margin: 0;
+	color: inherit;
 	font-size: 14px;
 	font-weight: bold;
 	font-family: inherit;
@@ -311,10 +315,10 @@ input:checked + .toggle.is-forced::after {
 	bottom: -20px;
 }
 .sidebar__section--title::before {
-	background: #2e51a2;
+	background: var(--accent);
 }
 .sidebar__section--title::after {
-	background: white;
+	background: var(--background);
 	border-radius: 0 100% 0 0;
 }
 
@@ -341,7 +345,7 @@ input:checked + .toggle.is-forced::after {
 	left: 50%;
 	top: 120%;
 	padding: 3px 9px;
-	background: #212121;
+	background: var(--invert-background);
 	border-radius: 20px;
 	color: var(--accent-text);
 	white-space: nowrap;
