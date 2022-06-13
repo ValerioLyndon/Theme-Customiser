@@ -41,8 +41,7 @@
 			"dark": {
 				"name": "Dark Mode",
 				"description": "Darker visuals. 100% fewer flashbangs!",
-				"css": {"bottom": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Dark%20Mode%20Compressed.css"},
-				"tags": ["theme"]
+				"css": {"bottom": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Dark%20Mode%20Compressed.css"}
 			},
 			"image-row": {
 				"name": "Image Hover Mod (On Row variant)",
@@ -63,7 +62,7 @@
 						"default": ""
 					}
 				},
-				"tags": ["visual flare", "imagery"]
+				"tags": ["visual flare", "additional imagery"]
 			},
 			"image-img": {
 				"name": "Image Hover Mod (On Image variant)",
@@ -84,7 +83,7 @@
 						"default": ""
 					}
 				},
-				"tags": ["visual flare", "imagery"]
+				"tags": ["visual flare", "additional imagery"]
 			},
 			"review": {
 				"name": "Review-style/note-style Tags",
@@ -100,14 +99,14 @@
 						"default": "240px"
 					}
 				},
-				"tags": ["transformations", "tags"]
+				"tags": ["tags"]
 			},
 			"horizontal": {
 				"name": "Horizontal Tags",
 				"description": "Convert the vertical tags into a horizontal line across the bottom of each list item.",
 				"conflicts": ["review"],
 				"css": {"bottom": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Mod%20-%20Horizontal%20Tags%20Compressed.css"},
-				"tags": ["transformations", "visual flare", "tags"]
+				"tags": ["visual flare", "tags"]
 			},
 			"fav-l": {
 				"name": "Favourite Hearts (Left variant)",
@@ -165,7 +164,7 @@
 						"default": "contain"
 					}
 				},
-				"tags": ["visual flare", "imagery", "in-depth customisation"]
+				"tags": ["visual flare", "additional imagery", "in-depth customisation"]
 			},
 			"cat-banner": {
 				"name": "Per-category Banner Images",
@@ -203,7 +202,7 @@
 						"replacements": [["6'] { --banner: url(URLHERE)", "7'] { --banner: {{{insert}}}"]]
 					}
 				},
-				"tags": ["per-category options", "imagery"]
+				"tags": ["per-category options", "additional imagery"]
 			},
 			"cat-character": {
 				"name": "Per-category Character Images",
@@ -241,7 +240,7 @@
 						"replacements": [["6'] { --character: url(URLHERE)", "7'] { --character: {{{insert}}}"]]
 					}
 				},
-				"tags": ["per-category options", "imagery"]
+				"tags": ["per-category options", "additional imagery"]
 			},
 			"cat-background": {
 				"name": "Per-category Background Images",
@@ -279,7 +278,7 @@
 						"replacements": [["6'] { --background: url(URLHERE)", "7'] { --background: {{{insert}}}"]]
 					}
 				},
-				"tags": ["per-category options", "imagery", "background image"]
+				"tags": ["per-category options", "additional imagery", "background image"]
 			},
 			"background-tint": {
 				"name": "Tint the Background Image",
