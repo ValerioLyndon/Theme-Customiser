@@ -520,18 +520,21 @@
 			"info-category-headers": {
 				"name": "Section/category Headers",
 				"description": "If you want section/category headers on the all anime page, just like classic lists, this is as close as you'll get.\n\nThis ",
+				"tags": ["visual flare"],
 				"flags": ["hidden"]
 			},
 			"info-coloured-tags": {
 				"name": "DIY Coloured Tags",
 				"description": "",
 				"url": "https://myanimelist.net/forum/?topicid=1723114",
+				"tags": ["tags", "in-depth customisation"],
 				"flags": ["hidden"]
 			},
 			"info-tag-descriptions": {
 				"name": "DIY Tag Descriptions",
 				"description": "https://myanimelist.net/forum/?topicid=1723114",
 				"url": "https://myanimelist.net/forum/?topicid=1723114",
+				"tags": ["tags", "in-depth customisation"],
 				"flags": ["hidden"]
 			}
 		}

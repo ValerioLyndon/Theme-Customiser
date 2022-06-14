@@ -770,6 +770,8 @@ function renderHtml() {
 
 			if('flags' in mod && mod['flags'].includes('hidden')) {
 				div.classList.add('o-hidden');
+				// skips tags on hidden items to prevent weird item counts on the GUI
+				delete mod['tags'];
 			}
 
 			modsEle.appendChild(div);
