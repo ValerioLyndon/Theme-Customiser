@@ -436,6 +436,23 @@ function validateInput(id, type) {
 	}
 }
 
+function toggleEle(selector, btn = false, set = undefined) {
+	let ele = document.querySelector(selector),
+		cls = 'is-hidden',
+		btnCls = 'is-active';
+	if(set === true) {
+		ele.classList.add(cls);
+		if(btn) { btn.classList.add(btnCls); }
+	} else if(set === false) {
+		ele.classList.remove(cls);
+		if(btn) { btn.classList.remove(btnCls); }
+	} else {
+		ele.classList.toggle(cls);
+		if(btn) { btn.classList.toggle(btnCls); }
+	}
+
+}
+
 class loadingScreen {
 	constructor() {
 		this.pageContent = document.getElementById('js-content');
@@ -777,12 +794,10 @@ function renderHtml() {
 	// Add tag links
 
 	// Add mod tag to list of tags
-	if(Object.entries(modTags).length > 0 && Object.entries(theme['mods']).length > 7) {
+	if(Object.entries(modTags).length > 0 && Object.entries(theme['mods']).length > 3) {
 		tagsEle.classList.remove('o-hidden');
 
 		function selectTag() {
-			console.log('selectTag');
-
 			// Clear previous selection
 			let hidden = document.querySelectorAll('.is-hidden-by-tag'),
 				isSelected = this.className.includes('is-selected');
@@ -791,6 +806,7 @@ function renderHtml() {
 			}
 
 			// Remove other tags' styling & set our own
+			tagsEle.classList.remove('has-selected');
 			let selectedTags = document.querySelectorAll('.js-tag.is-selected');
 
 			for(tag of selectedTags) {
@@ -799,6 +815,7 @@ function renderHtml() {
 
 			// Select new tags
 			if(!isSelected) {
+				tagsEle.classList.add('has-selected');
 				let modsToKeep = this.getAttribute('data-mods').split(',');
 				for(let modId of Object.keys(theme['mods'])) {
 					if(modsToKeep.includes(modId)) {
@@ -810,6 +827,9 @@ function renderHtml() {
 				this.classList.add('is-selected');
 			}
 		}
+		
+
+		let cloudEle = document.getElementById('js-mod-tags-cloud');
 		
 		for(let [tag, mods] of Object.entries(modTags)) {
 			let tagEle = document.createElement('button'),
@@ -825,7 +845,7 @@ function renderHtml() {
 
 			tagEle.addEventListener('click', selectTag.bind(tagEle));
 			tagEle.appendChild(countEle);
-			tagsEle.appendChild(tagEle);
+			cloudEle.appendChild(tagEle);
 		}
 	}
 

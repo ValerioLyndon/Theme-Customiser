@@ -444,9 +444,20 @@ input:checked + .toggle.is-forced::after {
 /* Tags */
 
 .tags {
-	display: flex;
-	flex-flow: row wrap;
 	margin-bottom: 4px;
+}
+
+.tags__button {
+	margin-bottom: 4px;
+	font-weight: 700;
+}
+.tags__button:hover {
+	color: var(--accent);
+}
+.tags.has-selected .tags__button {
+	color: var(--accent);
+	border-color: var(--accent);
+
 }
 
 .tags__blurb {
@@ -455,6 +466,14 @@ input:checked + .toggle.is-forced::after {
 	width: 100%;
 	flex: 0 0 auto;
 	margin-bottom: 4px;
+}
+
+.tags__cloud {
+	display: flex;
+	flex-flow: row wrap;
+}
+.tags__cloud.is-hidden {
+	display: none;
 }
 
 .tags__tag {
@@ -669,6 +688,9 @@ input:checked + .toggle.is-forced::after {
 	z-index: 10;
 	overflow: auto;
 	background: rgba(0,0,0,0.6);
+}
+.popup.is-hidden {
+	display: none;
 }
 .popup__inner {
 	position: relative;

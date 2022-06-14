@@ -20,7 +20,7 @@
 						<i class="sidebar__nav-link-icon fa-solid fa-question"></i>
 						<span class="sidebar__nav-link-text">Theme Help</span>
 					</a>
-					<a href="#" class="sidebar__nav-link" onclick="document.getElementById('js-import').classList.toggle('o-hidden')">
+					<a href="#" class="sidebar__nav-link" onclick="toggleEle('#js-import')">
 						<i class="sidebar__nav-link-icon fa-solid fa-upload"></i>
 						<span class="sidebar__nav-link-text">Import</span>
 					</a>
@@ -53,10 +53,15 @@
 					<div class="expando js-expando" data-expando-limit="400" id="js-mods">
 						<button class="expando__button js-expando-button">Expand</button>
 						
-						<h3 class="sidebar__header">Choose theme modifications</h3>
-
+						<h3 class="sidebar__header">
+							Choose theme modifications
+						</h3>
 						<div class="tags o-hidden" id="js-mod-tags">
-							<small class="tags__blurb">Select a tag that interests you to narrow results.</small>
+							<button class="tags__button button" onclick="toggleEle('#js-mod-tags-cloud', this)"><i class="fa-solid fa-tags"></i> Tags</button>
+							<div class="tags__cloud is-hidden" id="js-mod-tags-cloud">
+								<small class="tags__blurb">Select a tag that interests you to narrow results.</small>
+
+							</div>
 						</div>
 						
 						<!-- mods gets put here by customiser.js -->
@@ -100,7 +105,7 @@
 							</div>
 						</button>
 
-						<a class="hyperlink" onclick="document.getElementById('js-installation').classList.toggle('o-hidden')">How do I install this?</a>
+						<a class="hyperlink" onclick="toggleEle('#js-installation')">How do I install this?</a>
 					</div>
 				</div>
 
@@ -127,9 +132,9 @@
 			</div>
 		</div>
 
-		<div class="popup o-hidden" id="js-installation">
+		<div class="popup is-hidden" id="js-installation">
 			<div class="popup__inner">
-				<div class="popup__invisibutton" onclick="document.getElementById('js-installation').classList.toggle('o-hidden')"></div>
+				<div class="popup__invisibutton" onclick="toggleEle('#js-installation')"></div>
 				<div class="popup__content popup__content--wide">
 					<h4 class="popup__header">How to install list CSS.</h4>
 
@@ -165,9 +170,9 @@
 			</div>
 		</div>
 
-		<div class="popup o-hidden" id="js-import">
+		<div class="popup is-hidden" id="js-import">
 			<div class="popup__inner">
-				<div class="popup__invisibutton" onclick="document.getElementById('js-import').classList.toggle('o-hidden')"></div>
+				<div class="popup__invisibutton" onclick="toggleEle('#js-import')"></div>
 				<div class="popup__content">
 					<h4 class="popup__header">Import previous settings.</h4>
 					
