@@ -117,7 +117,6 @@ body {
 /* Checkbox toggles */
 
 .toggle {
-	position: relative;
 	display: block;
 	width: 32px;
 	height: 16px;
@@ -158,9 +157,13 @@ input:checked + .toggle.is-forced::after {
 .toggle.has-info {
 	cursor: help;
 }
-.toggle__info {
+
+.info-popup {
+	position: relative;
+}
+.info-popup__box {
 	position: absolute;
-	bottom: 22px;
+	bottom: calc(100% + 10px);
 	right: -8px;
 	z-index: 5;
 	display: none;
@@ -169,33 +172,36 @@ input:checked + .toggle.is-forced::after {
 	background: var(--background);
 	border: 2px solid var(--border-light);
 
+	color: var(--text);
+
 	box-shadow: 2px 3px 6px rgba(0,0,0,0.3);
 	opacity: 0;
 	transition: opacity 0.1s ease;
 	pointer-events: none;
 }
-.toggle:hover .toggle__info {
+.info-popup:hover .info-popup__box {
 	opacity: 1;
 }
-.toggle.has-info .toggle__info {
+.info-popup--activated-on-hover .info-popup__box,
+.info-popup.has-info .info-popup__box {
 	display: block;
 }
 
 /* decorative arrow */
-.toggle__info::before,
-.toggle__info::after {
+.info-popup__box::before,
+.info-popup__box::after {
 	content: "";
 	position: absolute;
 	border-style: solid;
 	border-color: transparent;
 }
-.toggle__info::before {
+.info-popup__box::before {
 	top: 100%;
 	right: 12px;
 	border-width: 10px;
 	border-top-color: var(--border-light);
 }
-.toggle__info::after {
+.info-popup__box::after {
 	bottom: -12px;
 	right: 16px;
 	border-width: 6px;
@@ -206,10 +212,11 @@ input:checked + .toggle.is-forced::after {
 /* Expando */
 
 .expando {
+	--margin: 5px;
 	position: relative;
-	width: calc(100% + 10px);
-	padding: 0 5px;
-	left: -5px;
+	width: calc(100% + var(--margin) * 2);
+	padding: 0 var(--margin);
+	left: calc(var(--margin) * -1);
 	overflow: hidden;
 }
 .expando::after {
@@ -384,8 +391,14 @@ input:checked + .toggle.is-forced::after {
 	display: none;
 }
 
+.entry__head {
+	display: flex;
+	height: 22px;
+}
 .entry__name {
 	display: block;
+	width: 50%;
+	flex: 2 0 auto;
 	font-weight: 400;
 	margin-bottom: 2px;
 }
@@ -425,8 +438,14 @@ input:checked + .toggle.is-forced::after {
 	border-radius: 50%;
 }
 
-.entry__toggle-box {
-	float: right;
+.entry__external-link {
+	color: var(--text);
+}
+.entry__external-link:hover {
+	color: var(--accent);
+}
+.entry__external-link-icon {
+	font-size: 20px;
 }
 
 .entry__select {

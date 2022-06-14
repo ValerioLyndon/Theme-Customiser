@@ -727,24 +727,41 @@ function renderHtml() {
 		for (const [modId, mod] of Object.entries(theme['mods'])) {
 
 			let div = document.createElement('div'),
-				head = document.createElement('b'),
+				head = document.createElement('div'),
+				headLeft = document.createElement('b'),
+				headRight = document.createElement('div');
 				expando = document.createElement('div'),
-				desc = document.createElement('div'),
-				toggle = document.createElement('div');
+				desc = document.createElement('div');
 
-			toggle.className = 'entry__toggle-box';
-			toggle.innerHTML = `
-				<input id="theme-${modId}" type="checkbox" class="o-hidden" />
-				<label class="toggle" for="theme-${modId}">
-					<div class="toggle__info"></div>
-				</label>
-			`;
-			div.appendChild(toggle);
+			if('css' in mod) {
+				headRight.innerHTML = `
+					<input id="theme-${modId}" type="checkbox" class="o-hidden" />
+					<label class="toggle info-popup" for="theme-${modId}">
+						<div class="info-popup__box"></div>
+					</label>
+				`;
+			} else if('url' in mod) {
+				let link = document.createElement('a');
+				link.className = 'entry__external-link info-popup info-popup--activated-on-hover';
+				link.href = mod['url'];
+				link.target = "_blank";
+				link.innerHTML = `
+					<i class="entry__external-link-icon fa-solid fa-arrow-up-right-from-square"></i>
+					<div class="info-popup__box">
+						This mod has linked an external resource or guide for you to install. Unless otherwise instructed, these should be installed <b>after</b> you install the main theme.
+					</div>
+				`;
+				headRight.appendChild(link);
+			}
 
 			div.className = 'entry';
 			div.id = `js-theme-${modId}-parent`;
-			head.textContent = mod['name'];
-			head.className = 'entry__name entry__name--emphasised';
+			head.className = 'entry__head';
+			headLeft.textContent = mod['name'];
+			headLeft.className = 'entry__name entry__name--emphasised';
+			headRight.className = 'entry__action-box';
+			head.appendChild(headLeft);
+			head.appendChild(headRight);
 			div.appendChild(head);
 
 			expando.className = 'expando js-expando';
@@ -776,7 +793,9 @@ function renderHtml() {
 
 			modsEle.appendChild(div);
 
-			document.getElementById(`theme-${modId}`).addEventListener('change', () => { updateMod(modId); });
+			if('css' in mod) {
+				document.getElementById(`theme-${modId}`).addEventListener('change', () => { updateMod(modId); });
+			}
 
 			// Add mod tag to list of tags
 			if('tags' in mod) {
@@ -993,7 +1012,8 @@ function renderHtml() {
 				{ height: `${expandedHeight}px` },
 				{ height: `${collapsedHeight}px`}
 			];
-			parent.style = `height: ${collapsedHeight}px`;
+			parent.style.height = `${collapsedHeight}px`;
+			parent.style.paddingBottom = `0px`;
 			parent.classList.remove('is-expanded');
 			parent.animate(animFrames, animTiming);
 			this.textContent = 'Expand';
@@ -1003,7 +1023,8 @@ function renderHtml() {
 				{ height: `${expandedHeight + 25}px`,
 				  paddingBottom: '25px' }
 			];
-			parent.style = `height: auto; padding-bottom: 25px;`;
+			parent.style.height = `auto`;
+			parent.style.paddingBottom = `25px`;
 			parent.classList.add('is-expanded');
 			parent.animate(animFrames, animTiming);
 			this.textContent = 'Collapse';

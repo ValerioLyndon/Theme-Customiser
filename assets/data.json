@@ -519,23 +519,21 @@
 			},
 			"info-category-headers": {
 				"name": "Section/category Headers",
-				"description": "If you want section/category headers on the all anime page, just like classic lists, this is as close as you'll get.\n\nThis ",
-				"tags": ["visual flare"],
-				"flags": ["hidden"]
+				"description": "If you want section/category headers on the all anime page, just like classic lists, this is as close as you'll get. See the linked guide to install.",
+				"url": "https://github.com/ValerioLyndon/MAL-Public-List-Designs/wiki/Install-Section-Category-Headers",
+				"tags": ["visual flare"]
 			},
 			"info-coloured-tags": {
 				"name": "DIY Coloured Tags",
-				"description": "",
-				"url": "https://myanimelist.net/forum/?topicid=1723114",
-				"tags": ["tags", "in-depth customisation"],
-				"flags": ["hidden"]
+				"description": "Want to add some visual flare to your tag system? Check the linked guide for information on how to.",
+				"url": "https://github.com/ValerioLyndon/MAL-Public-List-Designs/wiki/Add-your-own-coloured-tags.",
+				"tags": ["tags", "visual flare", "in-depth customisation"]
 			},
 			"info-tag-descriptions": {
 				"name": "DIY Tag Descriptions",
-				"description": "https://myanimelist.net/forum/?topicid=1723114",
-				"url": "https://myanimelist.net/forum/?topicid=1723114",
-				"tags": ["tags", "in-depth customisation"],
-				"flags": ["hidden"]
+				"description": "Want to explain your tag system to your list visitors, or perhaps just remind yourself? Tag descriptions can be useful! Check the linked guide for information on how to.",
+				"url": "https://github.com/ValerioLyndon/MAL-Public-List-Designs/wiki/Add-tag-descriptions-on-hover.",
+				"tags": ["tags", "in-depth customisation"]
 			}
 		}
 	},
