@@ -910,31 +910,39 @@ input:checked + .toggle.is-forced::after {
 
 .messenger {
 	position: fixed;
-	bottom: 24px;
-	right: 24px;
+	top: 8px;
+	bottom: 8px;
+	right: 8px;
 	z-index: 999;
 	display: flex;
-	width: 300px;
-	height: calc(100vh - 48px);
-	padding-bottom: 16px;
+	width: 332px;
+	padding: 16px 16px 32px;
 	flex-flow: column;
 	justify-content: flex-end;
 	pointer-events: none;
+	transition: opacity 0.3s ease;
 }
 .messenger:hover {
 	pointer-events: auto;
 }
+.messenger.is-hidden {
+	opacity: 0;
+}
 
 .messenger__show-button {
 	position: absolute;
-	bottom: 0;
-	right: 0;
-	width: 100%;
+	bottom: 16px;
+	right: 16px;
+	left: 16px;
 	height: 6px;
 	background: rgb(255,255,255,0.5);
 	box-shadow: 1px 1px 5px rgba(0,0,0,0.45);
 	border-radius: 3px;
 	pointer-events: auto;
+	cursor: help;
+}
+.messenger.is-hidden .messenger__show-button {
+	pointer-events: none;
 }
 
 .messenger__message {

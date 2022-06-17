@@ -628,13 +628,132 @@
 						"name": "Your MyAnimeList Username",
 						"description": "Must be entered exactly as it appears on MyAnimeList. This is not required, but will reduce the impact on page loads slightly.",
 						"type": "text",
-						"replacements": [		["all/anime/presets", "anime/{{{insert}}}/presets"],
+						"replacements": [
+							["all/anime/presets", "anime/{{{insert}}}/presets"],
 							["all/manga/presets", "manga/{{{insert}}}/presets"]
-						],
-						"default": ""
+						]
 					}
 				},
 				"tags": ["imagery"]
+			},
+			"light": {
+				"name": "Light Theme",
+				"description": "Who turned the lights on?",
+				"css": {"bottom": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Brink%20Theme/modThemeLight.min.css"},
+				"options": {
+					"light-d": {
+						"name": "Dynamic Mode",
+						"description": "With this enabled, the list will automatically switch between light and dark modes depending on the visitor preference.",
+						"type": "toggle",
+						"replacements": [
+							[":root", ":root", "@media (prefers-color-scheme: light) {:root"],
+							["RegExp/$", "", "}"]
+						]
+					}
+				},
+				"tags": ["visual style"]
+			},
+			"cat-info": {
+				"name": "Category-Coloured Title Backgrounds",
+				"description": "Adds some extra per-category flavouring to list items.",
+				"css": {"botton":"https://valeriolyndon.github.io/MAL-Public-List-Designs/Brink%20Theme/modCatColInfoBG.css"},
+				"tags": ["per-category options", "visual style"]
+			},
+			"cat-images": {
+				"name": "Per-Category Images",
+				"description": "Add background and banner images per category as desired.",
+				"css": {"bottom": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Brink%20Theme/modPerCategoryImages.css"},
+				"options": {
+					"cat-images-7b": {
+						"name": "All Anime/Manga Background",
+						"type": "text/image_url",
+						"replacements": [["RegExp/(:7[\\s\\S\\n]*?--background-image: )url\\(URLHERE\\);", "$1{{{insert}}};"]]
+					},
+					"cat-images-7c": {
+						"name": "All Anime/Manga Banner",
+						"type": "text/image_url",
+						"replacements": [["RegExp/(:7[\\s\\S\\n]*?--banner-image: )url\\(URLHERE\\);", "$1{{{insert}}};"]]
+					},
+					"cat-images-1b": {
+						"name": "Current Background",
+						"type": "text/image_url",
+						"replacements": [["RegExp/(:1[\\s\\S\\n]*?--background-image: )url\\(URLHERE\\);", "$1{{{insert}}};"]]
+					},
+					"cat-images-1c": {
+						"name": "Current Banner",
+						"type": "text/image_url",
+						"replacements": [["RegExp/(:1[\\s\\S\\n]*?--banner-image: )url\\(URLHERE\\);", "$1{{{insert}}};"]]
+					},
+					"cat-images-2b": {
+						"name": "Completed Background",
+						"type": "text/image_url",
+						"replacements": [["RegExp/(:2[\\s\\S\\n]*?--background-image: )url\\(URLHERE\\);", "$1{{{insert}}};"]]
+					},
+					"cat-images-2c": {
+						"name": "Completed Banner",
+						"type": "text/image_url",
+						"replacements": [["RegExp/(:2[\\s\\S\\n]*?--banner-image: )url\\(URLHERE\\);", "$1{{{insert}}};"]]
+					},
+					"cat-images-3b": {
+						"name": "Paused Background",
+						"type": "text/image_url",
+						"replacements": [["RegExp/(:3[\\s\\S\\n]*?--background-image: )url\\(URLHERE\\);", "$1{{{insert}}};"]]
+					},
+					"cat-images-3c": {
+						"name": "Paused Banner",
+						"type": "text/image_url",
+						"replacements": [["RegExp/(:3[\\s\\S\\n]*?--banner-image: )url\\(URLHERE\\);", "$1{{{insert}}};"]]
+					},
+					"cat-images-4b": {
+						"name": "Dropped Background",
+						"type": "text/image_url",
+						"replacements": [["RegExp/(:4[\\s\\S\\n]*?--background-image: )url\\(URLHERE\\);", "$1{{{insert}}};"]]
+					},
+					"cat-images-4c": {
+						"name": "Dropped Banner",
+						"type": "text/image_url",
+						"replacements": [["RegExp/(:4[\\s\\S\\n]*?--banner-image: )url\\(URLHERE\\);", "$1{{{insert}}};"]]
+					},
+					"cat-images-6b": {
+						"name": "Planned Background",
+						"type": "text/image_url",
+						"replacements": [["RegExp/(:6[\\s\\S\\n]*?--background-image: )url\\(URLHERE\\);", "$1{{{insert}}};"]]
+					},
+					"cat-images-6c": {
+						"name": "Planned Banner",
+						"type": "text/image_url",
+						"replacements": [["RegExp/(:6[\\s\\S\\n]*?--banner-image: )url\\(URLHERE\\);", "$1{{{insert}}};"]]
+					}
+				},
+				"tags": ["per-category options", "imagery"]
+			},
+			"hide-tag": {
+				"name": "Hide Hentai Covers",
+				"description": "This mod will darken and blur [i](if supported by your browser)[/i] any covers with the tag \"Hentai\".",
+				"css": {"botton":"https://valeriolyndon.github.io/MAL-Public-List-Designs/Brink%20Theme/modHideHentaiCovers.min.css"},
+				"options": {
+					"hide-tag-t": {
+						"name": "Tag to Target",
+						"description": "Want to apply this mod to a tag other than \"Hentai\"? Input your tag here. Tag must be in URL format.",
+						"type": "text",
+						"replacements": [["Hentai","{{{insert}}}"]],
+						"default": "Hentai"
+					},
+					"hide-tag-c": {
+						"name": "Text to Display",
+						"description": "You can also change the \"Explicit Content\" text here.",
+						"type": "text/content",
+						"replacements": [["\"EXPLICIT CONTENT\"","{{{insert}}}"]],
+						"default": "EXPLICIT CONTENT"
+					}
+				},
+				"tags": ["functionality"]
+			},
+			"edit-overlay": {
+				"name": "Edit Overlay Redesign",
+				"description": "Adds styling to the overlay popup that shows when you edit a list entry. See the linked guide to install.",
+				"url": "https://myanimelist.net/forum/?topicid=1772180",
+				"tags": ["visual style"]
 			}
 		}
 	},

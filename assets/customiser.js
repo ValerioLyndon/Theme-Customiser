@@ -490,6 +490,8 @@ class messageHandler {
 	}
 
 	send(text, type = 'notice', subtext = null) {
+		this.parent.classList.remove('is-hidden');
+
 		let msg = document.createElement('div'),
 			head = document.createElement('b');
 
@@ -540,6 +542,10 @@ class messageHandler {
 			for(let msg of msgs) {
 				msg.remove();
 			}
+		}
+		msgs = this.parent.getElementsByClassName('js-message');
+		if(msgs.length === 0) {
+			this.parent.classList.add('is-hidden');
 		}
 	}
 }
