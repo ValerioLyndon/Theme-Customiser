@@ -924,23 +924,28 @@ function renderHtml() {
 
 	// Set theme columns and push to iframe
 
+	let baseColumns = {
+			'animelist': ['Numbers', 'Score', 'Type', 'Episodes', 'Rating', 'Start/End Dates', 'Total Days Watched', 'Storage', 'Tags', 'Priority', 'Genre', 'Demographics', 'Image', 'Premiered', 'Aired Dates', 'Studios', 'Licensors'],
+			'mangalist': ['Numbers', 'Score', 'Type', 'Chapters', 'Volumes', 'Start/End Dates', 'Total Days Read', 'Retail Manga', 'Tags', 'Priority', 'Genres', 'Demographics', 'Image', 'Published Dates', 'Magazine']
+		};
+
+	function processColumns(base, mode, todo) {
+		let columns = {};
+
+		for(let col of base) {
+			if(todo.includes(col)) {
+				columns[col] = (mode === 'whitelist') ? true : false;
+			} else {
+				columns[col] = (mode === 'whitelist') ? false : true;
+			}
+		}
+		
+		return columns;
+	}
+
 	if('columns' in theme) {
 		intendedConfig.classList.remove('o-hidden');
 
-		// functions
-		function processColumns(base, mode, todo) {
-			let columns = {};
-
-			for(let col of base) {
-				if(todo.includes(col)) {
-					columns[col] = (mode === 'whitelist') ? true : false;
-				} else {
-					columns[col] = (mode === 'whitelist') ? false : true;
-				}
-			}
-			
-			return columns;
-		}
 
 		function renderColumns(columns, listtype) {
 			let typeWrapper = document.createElement('div'),
@@ -979,11 +984,7 @@ function renderHtml() {
 		}
 
 		// Get column info
-		let mode = 'mode' in theme['columns'] ? theme['columns']['mode'] : 'whitelist',
-			baseColumns = {
-				'animelist': ['Numbers', 'Score', 'Type', 'Episodes', 'Rating', 'Start/End Dates', 'Total Days Watched', 'Storage', 'Tags', 'Priority', 'Genre', 'Demographics', 'Image', 'Premiered', 'Aired Dates', 'Studios', 'Licensors'],
-				'mangalist': ['Numbers', 'Score', 'Type', 'Chapters', 'Volumes', 'Start/End Dates', 'Total Days Read', 'Retail Manga', 'Tags', 'Priority', 'Genres', 'Demographics', 'Image', 'Published Dates', 'Magazine']
-			};
+		let mode = 'mode' in theme['columns'] ? theme['columns']['mode'] : 'whitelist';
 
 		// Do actual stuff here
 		let parent = document.getElementById('js-columns');
@@ -995,18 +996,35 @@ function renderHtml() {
 
 		for(listtype of theme['supports']) {
 			let tempcolumns = processColumns(baseColumns[listtype], mode, theme['columns'][listtype]);
-			columns.push(tempcolumns);
 			
 			renderColumns(tempcolumns, listtype);
 		}
 
 		parent.appendChild(columnsContainer);
+	}
+	// Set random columns if they aren't set
+	else {
+		var tempcolumns = {
+			'animelist': ['Score', 'Episodes', 'Image'],
+			'mangalist': ['Score', 'Chapters', 'Volumes', 'Image']
+		};
+		let listtype = theme['supports'][0];
+		for(col of baseColumns[listtype]) {
+			if(tempcolumns[listtype].length > 8) {
+				break;
+			}
 
-		// Update iframe
-		var iframe = document.getElementById('js-frame');
-		if (iframe && iframe.contentWindow) {
-			iframe.contentWindow.postMessage(['columns', columns]);
+			if(!tempcolumns[listtype].includes(col) && Math.round(Math.random()) === 1) {
+				tempcolumns[listtype].push(col);
+			}
 		}
+		var columns = processColumns(baseColumns[listtype], 'whitelist', tempcolumns[listtype]);
+	}
+
+	// Update iframe
+	var iframe = document.getElementById('js-frame');
+	if (iframe && iframe.contentWindow) {
+		iframe.contentWindow.postMessage(['columns', columns]);
 	}
 
 	// Add expando functions
