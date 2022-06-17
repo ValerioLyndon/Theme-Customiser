@@ -566,7 +566,9 @@ function renderHtml() {
 			opt = dictionary[1];
 
 		let div = document.createElement('div'),
-			head = document.createElement('b'),
+			head = document.createElement('div'),
+			headLeft = document.createElement('b'),
+			headRight = document.createElement('div');
 			expando = document.createElement('div'),
 			desc = document.createElement('div'),
 			notice = document.createElement('p'),
@@ -579,8 +581,12 @@ function renderHtml() {
 		}
 
 		div.className = 'entry has-help';
-		head.textContent = opt['name'];
-		head.className = 'entry__name';
+		head.className = 'entry__head';
+		headLeft.textContent = opt['name'];
+		headLeft.className = 'entry__name';
+		headRight.className = 'entry__action-box';
+		head.appendChild(headLeft);
+		head.appendChild(headRight);
 		div.appendChild(head);
 
 		expando.className = 'expando js-expando';
@@ -670,16 +676,21 @@ function renderHtml() {
 		}
 
 		else if(baseType === 'toggle') {
-			let toggle = document.createElement('div');
-
-			toggle.className = 'entry__toggle-box';
-			toggle.innerHTML = `
-				<input id="theme-${id}" type="checkbox" class="o-hidden" ${('default' in opt && opt['default'] == true) ? 'checked="checked"' : ''}" />
-				<label class="toggle" for="theme-${id}">
-					<div class="toggle__info"></div>
+			let toggle = document.createElement('input');
+			toggle.type = 'checkbox';
+			toggle.id = `theme-${id}`;
+			toggle.className = 'o-hidden';
+			if('default' in opt && opt['default'] == true) {
+				toggle.checked = true;
+			}
+			headRight.innerHTML = `
+				<label class="toggle info-popup" for="theme-${id}">
+					<div class="info-popup__box"></div>
 				</label>
 			`;
-			div.prepend(toggle);
+			headRight.prepend(toggle);
+
+
 
 			toggle.addEventListener('input', () => { updateOption(id, opt['default'], parentModId); });
 		}
@@ -1081,7 +1092,8 @@ function importPreviousOpts(opts = undefined) {
 
 		try {
 			var previousOpts = JSON.parse(previous);
-		} catch {
+		} catch(e) {
+			console.log(`[importPreviousOpts] Error during JSON.parse: ${e}`);
 			messenger.error('Import failed, could not interpret your options. Are you sure you copied and pasted all the settings?', 'json.parse');
 			return false;
 		}
@@ -1149,7 +1161,8 @@ function finalSetup() {
 			} else {
 				try {
 					opts = JSON.parse(opts);
-				} catch {
+				} catch(e) {
+					console.log(`[finalise] Error during JSON.parse: ${e}`);
 					messenger.error('Failed to import options. Could not parse settings.', 'json.stringify');
 				}
 				// importpreviousopts will call updateCss and pushCss
@@ -1206,6 +1219,7 @@ fetchData.then((json) => {
 	try {
 		data = JSON.parse(json);
 	} catch(e) {
+		console.log(`[fetchData] Error during JSON.parse: ${e}`);
 		loader.failed(['Encountered a problem while parsing theme information.', 'json.parse']);
 	}
 
