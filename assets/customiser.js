@@ -932,11 +932,18 @@ function renderHtml() {
 	function processColumns(base, mode, todo) {
 		let columns = {};
 
-		for(let col of base) {
-			if(todo.includes(col)) {
-				columns[col] = (mode === 'whitelist') ? true : false;
-			} else {
-				columns[col] = (mode === 'whitelist') ? false : true;
+		for(col of base) {
+			if(Object.keys(todo).includes(col)) {
+				columns[col] = todo[col];
+			}
+			else if(mode === 'whitelist') {
+				columns[col] = false;
+			}
+			else if(mode === 'blacklist') {
+				columns[col] = true;
+			}
+			else if(mode === 'greylist') {
+				columns[col] = null;
 			}
 		}
 		
@@ -971,9 +978,23 @@ function renderHtml() {
 				let col = document.createElement('div');
 				col.className = 'columns__item';
 				col.innerHTML = `
-					<input class="columns__check" type="checkbox" disabled="disabled" ${value ? 'checked="checked"' : ''}>
+					<input type="checkbox" disabled="disabled" style="display:none">
+					<label class="columns__check"></label>
 					<span class="columns__name">${name}</span>
 				`;
+				
+				let input = col.getElementsByTagName('input')[0];
+				console.log(input);
+				if(value === true) {
+					input.checked = true;
+				}
+				else if(value === false) {
+					input.checked = false;
+				}
+				else if(value === null) {
+					input.indeterminate = true;
+				}
+
 				if(['Image', 'Premiered', 'Aired Dates', 'Studios', 'Licensors', 'Published Dates', 'Magazine'].includes(name)) {
 					modern.appendChild(col);
 				} else {
@@ -1005,17 +1026,26 @@ function renderHtml() {
 	// Set random columns if they aren't set
 	else {
 		var tempcolumns = {
-			'animelist': ['Score', 'Episodes', 'Image'],
-			'mangalist': ['Score', 'Chapters', 'Volumes', 'Image']
+			'animelist': {
+				'Score': true,
+				'Episodes': true,
+				'Image': true
+			},
+			'mangalist': {
+				'Score': true,
+				'Chapters': true,
+				'Volumes': true,
+				'Image': true
+			}
 		};
 		let listtype = theme['supports'][0];
 		for(col of baseColumns[listtype]) {
-			if(tempcolumns[listtype].length > 8) {
+			if(Object.keys(tempcolumns[listtype]).length > 8) {
 				break;
 			}
 
-			if(!tempcolumns[listtype].includes(col) && Math.round(Math.random()) === 1) {
-				tempcolumns[listtype].push(col);
+			if(!Object.keys(tempcolumns[listtype]).includes(col) && Math.round(Math.random()) === 1) {
+				tempcolumns[listtype][col] = true;
 			}
 		}
 		var columns = processColumns(baseColumns[listtype], 'whitelist', tempcolumns[listtype]);

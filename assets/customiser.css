@@ -652,6 +652,39 @@ input:checked + .toggle.is-forced::after {
 }
 
 
+.columns__check {
+	display: inline-block;
+	width: 14px;
+	height: 14px;
+	border: 2px solid var(--border-light);
+	border-radius: 4px;
+	vertical-align: top;
+	margin-top: .15em;
+}
+.columns__check::before {
+	display: block;
+	text-align: center;
+	color: var(--accent-text);
+	font-size: 12px;
+	line-height: 12px;
+}
+
+:checked + .columns__check {
+	background: var(--accent);
+	border-color: var(--accent);
+}
+:checked + .columns__check::before {
+	content: "✔";
+}
+
+:indeterminate + .columns__check {
+	background: rgb(29, 122, 35);
+	border-color: rgb(29, 122, 35);
+}
+:indeterminate + .columns__check::before {
+	content: "—";
+}
+
 /* Footer */
 
 .footer__row {
