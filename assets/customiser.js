@@ -927,7 +927,8 @@ function renderHtml() {
 	let baseColumns = {
 			'animelist': ['Numbers', 'Score', 'Type', 'Episodes', 'Rating', 'Start/End Dates', 'Total Days Watched', 'Storage', 'Tags', 'Priority', 'Genre', 'Demographics', 'Image', 'Premiered', 'Aired Dates', 'Studios', 'Licensors'],
 			'mangalist': ['Numbers', 'Score', 'Type', 'Chapters', 'Volumes', 'Start/End Dates', 'Total Days Read', 'Retail Manga', 'Tags', 'Priority', 'Genres', 'Demographics', 'Image', 'Published Dates', 'Magazine']
-		};
+		},
+		columns = {};
 
 	function processColumns(base, mode, todo) {
 		let columns = {};
@@ -984,7 +985,7 @@ function renderHtml() {
 				`;
 				
 				let input = col.getElementsByTagName('input')[0];
-				console.log(input);
+				
 				if(value === true) {
 					input.checked = true;
 				}
@@ -1011,8 +1012,7 @@ function renderHtml() {
 		let parent = document.getElementById('js-columns');
 		parent.classList.remove('o-hidden');
 
-		var columns = [],
-			columnsContainer = document.createElement('div');
+		var columnsContainer = document.createElement('div');
 		columnsContainer.className = 'columns';
 
 		for(listtype of theme['supports']) {
@@ -1020,6 +1020,8 @@ function renderHtml() {
 			
 			renderColumns(tempcolumns, listtype);
 		}
+
+		columns = processColumns(baseColumns[theme['supports'][0]], mode, theme['columns'][theme['supports'][0]])
 
 		parent.appendChild(columnsContainer);
 	}
@@ -1048,7 +1050,7 @@ function renderHtml() {
 				tempcolumns[listtype][col] = true;
 			}
 		}
-		var columns = processColumns(baseColumns[listtype], 'whitelist', tempcolumns[listtype]);
+		columns = processColumns(baseColumns[listtype], 'whitelist', tempcolumns[listtype]);
 	}
 
 	// Update iframe
