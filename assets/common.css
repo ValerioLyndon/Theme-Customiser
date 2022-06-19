@@ -41,6 +41,74 @@ body {
 	font: 14px/1.3 Roboto, Arial, Helvetica, sans-serif;
 }
 
+.hyperlink {
+	text-decoration: none;
+	color: var(--accent);
+	cursor: pointer;
+}
+.hyperlink:link:hover {
+	text-decoration: underline;
+}
+
+
+
+
+
+/* CONTENT */
+
+.content {
+	min-height: 100vh;
+	opacity: 0;
+	transition: opacity 200ms ease;
+}
+.content.is-loaded {
+	opacity: 1;
+}
+.content__customiser {
+	display: flex;
+}
+
+
+/* Header */
+
+.title {
+	margin: 0;
+	font-size: 2em;
+}
+
+.sub-title {
+	margin: 0;
+	font-size: 1.25em;
+}
+
+
+/* Footer */
+
+.footer__row {
+	display: block;
+	padding: 4px 0;
+	text-align: center;
+}
+
+.footer__subtle-text {
+	font-size: 1.1em;
+}
+
+.footer__subtle-text {
+	font-size: 0.9em;
+}
+
+.footer__separator {
+	display: inline-block;
+	width: 6px;
+	height: 6px;
+	background: #4a4a4a;
+	border-radius: 50%;
+	margin: 0 3px;
+	color: transparent;
+	vertical-align: middle;
+}
+
 
 
 /* LOADER */
@@ -231,6 +299,11 @@ body {
 	color: #fff;
 	font-weight: 900;
 	text-decoration: none;
+}
+.beta__inline {
+	position: static;
+	display: inline-block;
+	font-size: 0.9em;
 }
 .beta::after {
 	content: " - Report an issue?";

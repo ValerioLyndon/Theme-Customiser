@@ -28,27 +28,61 @@ if(theme) {
 // ==================
 
 function renderHtml() {
-	console.log(data);
+	// Render theme list
 	for(let [themeId, theme] of Object.entries(data)) {
-		let parent = document.createElement('div');
-		parent.className = '';
+		let cardParent = document.createElement('a');
+		cardParent.className = 'browser__card';
+		cardParent.href = `./theme?q=${themeId}&data=${dataJson}`;
+
+		let card = document.createElement('div');
+		card.className = 'card';
+		cardParent.appendChild(card);
+
+		let info = document.createElement('div');
+		info.className = 'card__info';
+		card.appendChild(info);
 		
-		let header = document.createElement('h3');
-		header.className = '';
-		header.textContent = theme['name'];
-		parent.appendChild(header);
+		let title = document.createElement('h3');
+		title.className = 'card__title';
+		title.textContent = theme['name'];
+		info.appendChild(title);
 		
 		let author = document.createElement('span');
-		author.className = '';
-		author.textContent = theme['author'];
-		parent.appendChild(author);
-		
-		let listtype = document.createElement('span');
-		listtype.className = '';
-		listtype.textContent = theme['type'];
-		parent.appendChild(listtype);
+		author.className = 'card__author';
+		author.textContent = `by ${theme['author']}`;
+		info.appendChild(author);
 
-		document.getElementById('js-content').appendChild(parent);
+		let display = document.createElement('div');
+		display.className = 'card__display';
+		card.appendChild(display);
+
+		let tagArea = document.createElement('span');
+		tagArea.className = 'card__tag-list';
+		display.appendChild(tagArea);
+
+		let tagType = document.createElement('span');
+		tagType.className = 'card__tag';
+		tagType.textContent = theme['type'];
+		tagArea.appendChild(tagType);
+
+		if('supports' in theme && theme['supports'].length === 1) {
+			let tagSupport = document.createElement('span');
+			tagSupport.className = 'card__tag';
+			tagSupport.textContent = `${theme['supports'][0]} only`;
+			tagArea.appendChild(tagSupport);
+		}
+		
+		let image = document.createElement('img');
+		image.className = 'card__image';
+		image.textContent = theme['type'];
+		if('image' in theme) {
+			image.src = theme['image'];
+		} else {
+			image.classList.add('card__image--blank');
+		}
+		display.appendChild(image);
+
+		document.getElementById('js-theme-list').appendChild(cardParent);
 	}
 }
 

@@ -2,6 +2,7 @@
 	"clarity": {
 		"name": "Clarity",
 		"author": "Valerio Lyndon",
+		"image": "https://i.imgur.com/1yNoy4U.png",
 		"css": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Clarity%20Theme/Theme%20-%20Compressed.css",
 		"type": "modern",
 		"help": "https://myanimelist.net/forum/?topicid=1723114",
@@ -540,6 +541,7 @@
 	"clarified": {
 		"name": "Clarified",
 		"author": "Valerio Lyndon",
+		"image": "https://i.imgur.com/Xs3sSiX.png",
 		"css": "",
 		"type": "modern",
 		"help": "https://github.com/ValerioLyndon/MAL-Public-List-Designs/"
@@ -547,6 +549,7 @@
 	"brink": {
 		"name": "Brink",
 		"author": "Valerio Lyndon",
+		"image": "https://i.imgur.com/74qOUYe.jpg",
 		"css": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Brink%20Theme/Brink.min.css",
 		"type": "modern",
 		"help": "https://myanimelist.net/forum/?topicid=1772180",
@@ -893,6 +896,7 @@
 	"puni": {
 		"name": "Puni",
 		"author": "Valerio Lyndon",
+		"image": "https://i.imgur.com/hTeyd5W.jpg",
 		"css": "@\\import \"https://valeriolyndon.github.io/MAL-Public-List-Designs/Puni%20Theme/Puni.css\";",
 		"type": "modern",
 		"columns": {
@@ -922,6 +926,7 @@
 	"tilt": {
 		"name": "Tilt",
 		"author": "Valerio Lyndon",
+		"image": "https://i.imgur.com/BKV7wwg.png",
 		"css": "https://valeriolyndon.github.io/MAL-Public-List-Designs/Tilt%20Theme/Theme%20-%20Compressed.css",
 		"type": "modern",
 		"columns": {
@@ -1128,8 +1133,10 @@
 	"9anime": {
 		"name": "9anime",
 		"author": "Valerio Lyndon",
+		"image": "https://i.imgur.com/Pvd6LCn.png",
 		"css": "https://valeriolyndon.github.io/MAL-Public-List-Designs/9anime%20Theme/Theme%20-%20Compressed%20FI.css",
 		"type": "modern",
+		"supports": ["animelist"],
 		"columns": {
 			"animelist": {
 				"Score": true,

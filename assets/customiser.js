@@ -739,6 +739,13 @@ function renderHtml() {
 		}
 	}
 
+	// Back link
+	if(Object.keys(data).length > 1) {
+		let back = document.getElementById('js-back');
+		back.classList.remove('o-hidden');
+		back.href = `../?data=${dataJson}`;
+	}
+
 	// Help links
 	if('help' in theme) {
 		if(theme['help'].startsWith('http') || theme['help'].startsWith('mailto:')) {
