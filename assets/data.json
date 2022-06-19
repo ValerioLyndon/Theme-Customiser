@@ -15,6 +15,7 @@
 			},
 			"avatar": {
 				"name": "Avatar",
+				"description": "[url=https://github.com/ValerioLyndon/MAL-Public-List-Designs/wiki/Clarity#how-to-find-your-myanimelist-avatar-url]Want to use your MyAnimeList avatar?[/url]",
 				"type": "text/image_url",
 				"replacements": [["--avatar:none;", "--avatar:{{{insert}}};"]],
 				"default": ""

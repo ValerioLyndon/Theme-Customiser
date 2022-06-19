@@ -29,6 +29,10 @@ function createBB(text) {
 	function strike(fullmatch, captureGroup, offset, str) {
 		return '<span style="text-decoration:line-through;" class="bb-strike">'+captureGroup+'</span>';
 	}
+    
+	function link(fullmatch, captureGroup1, captureGroup2, offset, str) {
+		return '<a href="'+captureGroup1.substr(1)+'" target="_blank" class="hyperlink">'+captureGroup2+'</a>';
+	}
 
 	function list(fullmatch, captureGroup1, captureGroup2, offset, str) {
 		let contents = captureGroup2.replaceAll('[*]', '</li><li class="bb-list-item">');
@@ -56,6 +60,7 @@ function createBB(text) {
 		/\[i\]((?:(?!\[i\]).)*?)\[\/i\]/ig,
 		/\[u\]((?:(?!\[u\]).)*?)\[\/u\]/ig,
 		/\[s\]((?:(?!\[s\]).)*?)\[\/s\]/ig,
+		/\[url(=.*?)\]((?:(?!\[url\]).)*?)\[\/url\]/ig,
 		/\[list(=.*?){0,1}\]((?:(?!\[list\]).)*?)\[\/list\]/ig,
 		/\[yt\](.*?)\[\/yt\]/ig
 	];
@@ -68,6 +73,7 @@ function createBB(text) {
 		italic,
 		underline,
 		strike,
+		link,
 		list
 	];
 
