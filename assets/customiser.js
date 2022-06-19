@@ -48,26 +48,30 @@ function createBB(text) {
 
 	// Define BB patterns
 
-    function bold(fullmatch, captureGroup, offset, str) {
-      return '<b class="bb-bold">'+captureGroup+'</b>';
-    }
+	function bold(fullmatch, captureGroup, offset, str) {
+		return '<b class="bb-bold">'+captureGroup+'</b>';
+	}
 
-    function italic(fullmatch, captureGroup, offset, str) {
-      return '<i class="bb-italic">'+captureGroup+'</i>';
-    }
+	function italic(fullmatch, captureGroup, offset, str) {
+		return '<i class="bb-italic">'+captureGroup+'</i>';
+	}
 
-    function underline(fullmatch, captureGroup, offset, str) {
-      return '<span style="text-decoration:underline;" class="bb-underline">'+captureGroup+'</span>';
-    }
+	function underline(fullmatch, captureGroup, offset, str) {
+		return '<span style="text-decoration:underline;" class="bb-underline">'+captureGroup+'</span>';
+	}
 
-    function strike(fullmatch, captureGroup, offset, str) {
-      return '<span style="text-decoration:line-through;" class="bb-strike">'+captureGroup+'</span>';
-    }
+	function strike(fullmatch, captureGroup, offset, str) {
+		return '<span style="text-decoration:line-through;" class="bb-strike">'+captureGroup+'</span>';
+	}
     
-    function list(fullmatch, captureGroup1, captureGroup2, offset, str) {
-        contents = captureGroup2.replaceAll('[*]', '</li><li class="bb-list-item">');
-        contents = contents.replace(/l>.*?<\/li>/, 'l>');
-        
+	function link(fullmatch, captureGroup1, captureGroup2, offset, str) {
+		return '<a href="'+captureGroup1.substr(1)+'" target="_blank" class="hyperlink">'+captureGroup2+'</a>';
+	}
+
+	function list(fullmatch, captureGroup1, captureGroup2, offset, str) {
+		let contents = captureGroup2.replaceAll('[*]', '</li><li class="bb-list-item">');
+		contents = contents.replace(/l>.*?<\/li>/, 'l>');
+		
 		let ol = '<ol class="bb-list bb-list--ordered">'+contents+'</li></ol>',
 			ul = '<ul class="bb-list">'+contents+'</li></ul>';
 
@@ -83,36 +87,38 @@ function createBB(text) {
     }
 
 	// The array of regex patterns to look for
-	
-    let format_search = [
-        /\n/ig,
-        /\[b\]((?:(?!\[b\]).)*?)\[\/b\]/ig,
-        /\[i\]((?:(?!\[i\]).)*?)\[\/i\]/ig,
-        /\[u\]((?:(?!\[u\]).)*?)\[\/u\]/ig,
-        /\[s\]((?:(?!\[s\]).)*?)\[\/s\]/ig,
-        /\[list(=.*?){0,1}\]((?:(?!\[list\]).)*?)\[\/list\]/ig,
-        /\[yt\](.*?)\[\/yt\]/ig
-    ];
+
+	let format_search = [
+		/\n/ig,
+		/\[b\]((?:(?!\[b\]).)*?)\[\/b\]/ig,
+		/\[i\]((?:(?!\[i\]).)*?)\[\/i\]/ig,
+		/\[u\]((?:(?!\[u\]).)*?)\[\/u\]/ig,
+		/\[s\]((?:(?!\[s\]).)*?)\[\/s\]/ig,
+		/\[url(=.*?)\]((?:(?!\[url\]).)*?)\[\/url\]/ig,
+		/\[list(=.*?){0,1}\]((?:(?!\[list\]).)*?)\[\/list\]/ig,
+		/\[yt\](.*?)\[\/yt\]/ig
+	];
 
 	// The array of strings to replace regex matches with
 
-    let format_replace = [
-        '<br>',
-        bold,
-        italic,
-        underline,
-        strike,
-        list
-    ];
+	let format_replace = [
+		'<br>',
+		bold,
+		italic,
+		underline,
+		strike,
+		link,
+		list
+	];
 
-    // Convert BBCode using patterns defined above.
-    for ( var i = 0; i < format_search.length; i++ ) {
-        oldText = null;
-        while(text !== oldText) {    
-            oldText = text;
-            text = text.replace( format_search[i], format_replace[i] );
-        }
-    }
+	// Convert BBCode using patterns defined above.
+	for ( var i = 0; i < format_search.length; i++ ) {
+		let oldText = null;
+		while(text !== oldText) {    
+			oldText = text;
+			text = text.replace( format_search[i], format_replace[i] );
+		}
+	}
 
 	// Return
 
