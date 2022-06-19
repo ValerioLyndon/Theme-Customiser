@@ -2,40 +2,6 @@
 // COMMON FUNCTIONS
 // ================
 
-function fetchFile(path, cacheResult = true) {
-	return new Promise((resolve, reject) => {
-		// Checks if item has previously been fetched and returns the cached result if so
-		let cache = sessionStorage.getItem(path);
-
-		if(cacheResult && cache) {
-			console.log(`[fetchFile] Retrieving cached result for ${path}`);
-			resolve(cache);
-		}
-		else {
-			console.log(`[fetchFile] Fetching ${path}`);
-			var request = new XMLHttpRequest();
-			request.open("GET", path, true);
-			request.send(null);
-			request.onreadystatechange = function() {
-				if (request.readyState === 4) {
-					if (request.status === 200) {
-						// Cache result on success and then return it
-						if(cacheResult) {
-							sessionStorage.setItem(path, request.responseText);
-						}
-						resolve(request.responseText);
-					} else {
-						reject(['Encountered a problem while loading a resource.', `request.status.${request.status}`]);
-					}
-				}
-			}
-			request.onerror = function(e) {
-				reject(['Encountered a problem while loading a resource.', 'request.error']);
-			}
-		}
-	});
-}
-
 function createBB(text) {
 	let parent = document.createElement('p');
 	parent.classList.add('bb');
@@ -75,16 +41,16 @@ function createBB(text) {
 		let ol = '<ol class="bb-list bb-list--ordered">'+contents+'</li></ol>',
 			ul = '<ul class="bb-list">'+contents+'</li></ul>';
 
-        if(typeof captureGroup1 !== 'undefined') {
-            if(captureGroup1 === '=0' || captureGroup1 === '') {
-                return ul;
-            }
-            else if(captureGroup1 === '=1' || captureGroup1 === '') {
-                return ol;
-            }
-        }
-        return ul;
-    }
+		if(typeof captureGroup1 !== 'undefined') {
+			if(captureGroup1 === '=0' || captureGroup1 === '') {
+				return ul;
+			}
+			else if(captureGroup1 === '=1' || captureGroup1 === '') {
+				return ol;
+			}
+		}
+		return ul;
+	}
 
 	// The array of regex patterns to look for
 
@@ -163,7 +129,7 @@ function updateMod(id) {
 
 	// Enable required mods
 	if('requires' in mod) {
-		for(requirement of mod['requires']) {
+		for(let requirement of mod['requires']) {
 			if(requirement in theme['mods']) {
 				if(val) {
 					userOpts['mods'][requirement] = val;
@@ -194,7 +160,7 @@ function updateMod(id) {
 	
 	// Disable incompatible mods
 	if('conflicts' in mod) {
-		for(conflict of mod['conflicts']) {
+		for(let conflict of mod['conflicts']) {
 			if(conflict in theme['mods']) {
 				// todo: do this using js classes or something that won't fall apart the moment you change the DOM
 				let check = document.getElementById(`theme-${conflict}`),
@@ -267,7 +233,7 @@ function updateCss() {
 		}
 		
 		if(optData['type'] === 'toggle') {
-			for(set of optData['replacements']) {
+			for(let set of optData['replacements']) {
 				// Choose the correct replacement set based on whether the toggle is on or off
 				let toFind = set[0],
 					toInsert = (insert === true) ? set[2] : set[1];
@@ -277,7 +243,7 @@ function updateCss() {
 		}
 		else if(optData['type'] === 'select') {
 			let replacements = optData['selections'][insert]['replacements'];
-			for(set of replacements) {
+			for(let set of replacements) {
 				let toFind = set[0],
 					toInsert = set[1];
 
@@ -285,7 +251,7 @@ function updateCss() {
 			}
 		}
 		else {
-			for(set of optData['replacements']) {
+			for(let set of optData['replacements']) {
 				let toFind = set[0],
 					toInsert = set[1].replaceAll('{{{insert}}}', insert);
 
@@ -419,7 +385,7 @@ function validateInput(id, type) {
 	else if(qualifier === 'size') {
 		let units = ['px','%','em','rem','vh','vmax','vmin','vw','ch','cm','mm','Q','in','pc','pt','ex']
 		problems += 1;
-		for(unit of units) {
+		for(let unit of units) {
 			if(val.endsWith(unit)) {
 				problems -= 1;
 			}
@@ -439,120 +405,6 @@ function validateInput(id, type) {
 	} else {
 		notice.classList.add('o-hidden');
 		return true;
-	}
-}
-
-function toggleEle(selector, btn = false, set = undefined) {
-	let ele = document.querySelector(selector),
-		cls = 'is-hidden',
-		btnCls = 'is-active';
-	if(set === true) {
-		ele.classList.add(cls);
-		if(btn) { btn.classList.add(btnCls); }
-	} else if(set === false) {
-		ele.classList.remove(cls);
-		if(btn) { btn.classList.remove(btnCls); }
-	} else {
-		ele.classList.toggle(cls);
-		if(btn) { btn.classList.toggle(btnCls); }
-	}
-
-}
-
-class loadingScreen {
-	constructor() {
-		this.pageContent = document.getElementById('js-content');
-		this.parent = document.getElementById('js-loader');
-		this.icon = document.getElementById('js-loader-icon');
-		this.text = document.getElementById('js-loader-text');
-		this.subText = document.getElementById('js-loader-subtext');
-		this.subText2 = document.getElementById('js-loader-subsubtext');
-	}
-
-	loaded() {
-		this.pageContent.classList.add('is-loaded');
-		this.parent.classList.add('is-hidden');
-		var that = this;
-		setTimeout(function() {
-			that.parent.classList.add('o-hidden');
-		}, 1500)
-	}
-
-	failed(reason_array, stopExecution = true) {
-		this.icon.className = 'loading-screen__cross';
-		this.text.textContent = 'Page Failure.';
-		this.subText.textContent = reason_array[0];
-		this.subText2.classList.remove('o-hidden');
-		this.subText2.textContent = `Code: ${reason_array[1]}`;
-		if(stopExecution === true) {
-			throw new Error(reason_array[1]);
-		}
-	}
-}
-
-class messageHandler {
-	constructor() {
-		this.parent = document.getElementById('js-messenger');
-	}
-
-	send(text, type = 'notice', subtext = null) {
-		this.parent.classList.remove('is-hidden');
-
-		let msg = document.createElement('div'),
-			head = document.createElement('b');
-
-		msg.className = 'messenger__message js-message';
-		msg.innerHTML = text;
-		head.className = 'messenger__message-header';
-		head.textContent = type.toUpperCase();
-		msg.prepend(head);
-
-		if(type === 'error') {
-			msg.classList.add('messenger__message--error');
-		}
-		else if(type === 'warning') {
-			msg.classList.add('messenger__message--warning');
-		}
-
-		if(subtext) {
-			let sub = document.createElement('i');
-			sub.className = 'messenger__message-subtext';
-			sub.textContent = subtext;
-			msg.appendChild(sub);
-		}
-
-		this.parent.appendChild(msg);
-	}
-
-	warn(msg, code = null) {
-		if(code) {
-			code = `Code: ${code}`;
-		}
-		this.send(msg, 'warning', code);
-	}
-
-	error(msg, code = null) {
-		if(code) {
-			code = `Code: ${code}`;
-		}
-		this.send(msg, 'error', code);
-	}
-
-	clear(amount = 0) {
-		let msgs = this.parent.getElementsByClassName('js-message');
-		if(amount > 0) {
-			for(let i = 0; i < msgs.length && i < amount; i++) {
-				msgs[i].remove();
-			}
-		} else {
-			for(let msg of msgs) {
-				msg.remove();
-			}
-		}
-		msgs = this.parent.getElementsByClassName('js-message');
-		if(msgs.length === 0) {
-			this.parent.classList.add('is-hidden');
-		}
 	}
 }
 
@@ -580,7 +432,7 @@ function renderHtml() {
 		let div = document.createElement('div'),
 			head = document.createElement('div'),
 			headLeft = document.createElement('b'),
-			headRight = document.createElement('div');
+			headRight = document.createElement('div'),
 			expando = document.createElement('div'),
 			desc = document.createElement('div'),
 			notice = document.createElement('p'),
@@ -615,8 +467,8 @@ function renderHtml() {
 		link.target = "_blank";
 		head.appendChild(link);
 
-		let split = opt['type'].split('/');
-			baseType = split[0]
+		let split = opt['type'].split('/'),
+			baseType = split[0],
 			qualifier = split[1],
 			subQualifier = split[2];
 		
@@ -735,7 +587,7 @@ function renderHtml() {
 	}
 
 	if('options' in theme) {
-		for(opt of Object.entries(theme['options'])) {
+		for(let opt of Object.entries(theme['options'])) {
 			optionsEle.appendChild(generateOptionHtml(opt));
 		}
 	} else {
@@ -752,7 +604,7 @@ function renderHtml() {
 			let div = document.createElement('div'),
 				head = document.createElement('div'),
 				headLeft = document.createElement('b'),
-				headRight = document.createElement('div');
+				headRight = document.createElement('div'),
 				expando = document.createElement('div'),
 				desc = document.createElement('div');
 
@@ -801,7 +653,7 @@ function renderHtml() {
 				let optDiv = document.createElement('div');
 				optDiv.className = 'entry__options';
 
-				for(opt of Object.entries(mod['options'])) {
+				for(let opt of Object.entries(mod['options'])) {
 					optDiv.appendChild(generateOptionHtml(opt, modId));
 				}
 
@@ -822,7 +674,7 @@ function renderHtml() {
 
 			// Add mod tag to list of tags
 			if('tags' in mod) {
-				for(tag of mod['tags']) {
+				for(let tag of mod['tags']) {
 					if(modTags[tag]) {
 						modTags[tag].push(modId);
 					} else {
@@ -853,7 +705,7 @@ function renderHtml() {
 			tagsEle.classList.remove('has-selected');
 			let selectedTags = document.querySelectorAll('.js-tag.is-selected');
 
-			for(tag of selectedTags) {
+			for(let tag of selectedTags) {
 				tag.classList.remove('is-selected');
 			}
 
@@ -893,16 +745,23 @@ function renderHtml() {
 		}
 	}
 
+	// Back link
+	if(Object.keys(data).length > 1) {
+		let back = document.getElementById('js-back');
+		back.classList.remove('o-hidden');
+		back.href = `./?data=${dataUrls.join('&data=')}`;
+	}
+
 	// Help links
 	if('help' in theme) {
 		if(theme['help'].startsWith('http') || theme['help'].startsWith('mailto:')) {
 			let help = document.getElementsByClassName('js-help'),
 				helpLinks = document.getElementsByClassName('js-help-href');
 
-			for(ele of help) {
+			for(let ele of help) {
 				ele.classList.remove('o-hidden');
 			}
-			for(link of helpLinks) {
+			for(let link of helpLinks) {
 				link.href = theme['help'];
 			}
 		} else {
@@ -939,7 +798,7 @@ function renderHtml() {
 	function processColumns(base, mode, todo) {
 		let columns = {};
 
-		for(col of base) {
+		for(let col of base) {
 			if(Object.keys(todo).includes(col)) {
 				columns[col] = todo[col];
 			}
@@ -1021,7 +880,7 @@ function renderHtml() {
 		var columnsContainer = document.createElement('div');
 		columnsContainer.className = 'columns';
 
-		for(listtype of theme['supports']) {
+		for(let listtype of theme['supports']) {
 			let tempcolumns = processColumns(baseColumns[listtype], mode, theme['columns'][listtype]);
 			
 			renderColumns(tempcolumns, listtype);
@@ -1047,7 +906,7 @@ function renderHtml() {
 			}
 		};
 		let listtype = theme['supports'][0];
-		for(col of baseColumns[listtype]) {
+		for(let col of baseColumns[listtype]) {
 			if(Object.keys(tempcolumns[listtype]).length > 8) {
 				break;
 			}
@@ -1071,7 +930,7 @@ function renderHtml() {
 
 	function toggleExpando() {
 		let parent = this.parentNode,
-			expandedHeight = parent.scrollHeight;
+			expandedHeight = parent.scrollHeight,
 			collapsedHeight = parent.getAttribute('data-expando-limit'),
 			expanded = parent.classList.contains('is-expanded'),
 			animTiming = {
@@ -1172,21 +1031,21 @@ function importPreviousOpts(opts = undefined) {
 		alert('You are on the wrong theme page for the imported settings. Redirecting to the correct theme page.');
 
 		localStorage.setItem('tcUserOptsImported', JSON.stringify(previousOpts));
-		window.location = `./?theme=${previousOpts['theme']}&data=${previousOpts['data']}&import=1`;
+		window.location = `./theme?q=${previousOpts['theme']}&data=${previousOpts['data']}&import=1`;
 	}
 
 	// set current options to match
 	userOpts = previousOpts;
 	
 	// update HTML to match new options
-	for([optId, val] of Object.entries(userOpts['options'])) {
+	for(let [optId, val] of Object.entries(userOpts['options'])) {
 		document.getElementById(`theme-${optId}`).value = val;
 	}
-	for([modId, modOpts] of Object.entries(userOpts['mods'])) {
+	for(let [modId, modOpts] of Object.entries(userOpts['mods'])) {
 		document.getElementById(`theme-${modId}`).checked = true;
 		document.getElementById(`js-theme-${modId}-parent`).classList.add('is-enabled');
 		
-		for([optId, optVal] of Object.entries(modOpts)) {
+		for(let [optId, optVal] of Object.entries(modOpts)) {
 			document.getElementById(`theme-${optId}`).value = optVal;
 		}
 	}
@@ -1206,6 +1065,7 @@ function finalSetup() {
 
 		fetchThemeCss.catch((reason) => {
 			loader.failed(reason);
+			throw new Error(reason);
 		});
 	} else {
 		finalise(theme['css']);
@@ -1248,33 +1108,26 @@ function finalSetup() {
 
 // Variables
 
-var query = (new URL(document.location)).searchParams,
-	dataJson = query.get('data'),
-	selectedTheme = query.get('theme'),
+var selectedTheme = query.get('q'),
 	theme = '',
 	data = null,
-	baseCss = '',
-	loader = new loadingScreen(),
-	messenger = new messageHandler();
-
-if(dataJson === null) {
-	dataJson = './assets/data.json';
-}
+	baseCss = '';
 
 var userOpts = {
 	'theme': selectedTheme,
-	'data': dataJson,
+	'data': dataUrls[0],
 	'options': {},
 	'mods': {}
 };
 
 if(selectedTheme === null) {
 	loader.failed(['No theme was specified in the URL. Did you follow a broken link?', 'select']);
+	throw new Error('select');
 }
 
 // Get data for all themes and call other functions
 
-let fetchData = fetchFile(dataJson, false);
+let fetchData = fetchFile(dataUrls[0], false);
 
 fetchData.then((json) => {
 	// Attempt to parse provided data.
@@ -1283,6 +1136,7 @@ fetchData.then((json) => {
 	} catch(e) {
 		console.log(`[fetchData] Error during JSON.parse: ${e}`);
 		loader.failed(['Encountered a problem while parsing theme information.', 'json.parse']);
+		throw new Error('json.parse');
 	}
 
 	// Get theme info from URL & take action if problematic
@@ -1290,9 +1144,12 @@ fetchData.then((json) => {
 		// redirect in future using: window.location = '?';
 		// for now, simply fails
 		loader.failed(['Encountered a problem while parsing theme information.', 'invalid theme']);
+		throw new Error('invalid theme');
 	} else {
 		theme = data[selectedTheme.toLowerCase()];
 	}
+
+	document.getElementsByTagName('title')[0].textContent = `Theme Customiser - ${theme['name']}`;
 
 	renderHtml();
 	finalSetup();
@@ -1300,4 +1157,5 @@ fetchData.then((json) => {
 
 fetchData.catch((reason) => {
 	loader.failed(reason);
+	throw new Error(reason);
 });
