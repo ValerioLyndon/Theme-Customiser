@@ -85,17 +85,19 @@ for(let i = 0; i < dataUrls.length; i++) {
 	dataFiles.push(fetchFile(dataUrls[i], false));
 }
 
-Promise.all(dataFiles)
+Promise.allSettled(dataFiles)
 	.then((files) => {
+		let failures = 0;
+
 		for(let i = 0; i < files.length; i++) {
 			let tempData = {};
 			// Attempt to parse provided data.
 			try {
-				tempData = JSON.parse(files[i]);
+				tempData = JSON.parse(files[i]['value']);
 			} catch(e) {
 				console.log(`[fetchData] Error during JSON.parse: ${e}`);
-				loader.failed(['Encountered a problem while parsing theme information.', 'json.parse']);
-				throw new Error('json.parse');
+				failures++;
+				continue;
 			}
 
 			// Put the relevant dataUrl at the beginning so the theme will read the correct one
@@ -109,10 +111,12 @@ Promise.all(dataFiles)
 			renderCards(tempData, orderedDataUrls);
 		}
 
+		if(failures >= files.length) {
+			loader.failed(['Encountered a problem while parsing theme information.', 'json.parse']);
+			throw new Error('too many failures');
+		} else if(failures > 0) {
+			messenger.error('Encountered a problem while parsing theme information. Some themes may not have loaded.', 'json.parse');
+		}
+
 		loader.loaded();
-	})
-	// Todo: this catch block does not work correctly. It reports undefined and fails even if the earlier try/except goes off.
-	.catch((reason) => {
-		loader.failed(reason);
-		throw new Error(reason);
 	});
