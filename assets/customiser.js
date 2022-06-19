@@ -1244,7 +1244,7 @@ function finalSetup() {
 
 var query = (new URL(document.location)).searchParams,
 	dataJson = query.get('data'),
-	selectedTheme = query.get('theme'),
+	selectedTheme = query.get('q'),
 	theme = '',
 	data = null,
 	baseCss = '',
@@ -1287,6 +1287,8 @@ fetchData.then((json) => {
 	} else {
 		theme = data[selectedTheme.toLowerCase()];
 	}
+
+	document.getElementsByTagName('title')[0].textContent = `Theme Customiser - ${theme['name']}`;
 
 	renderHtml();
 	finalSetup();
