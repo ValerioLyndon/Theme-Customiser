@@ -1,0 +1,257 @@
+/* * * INFO * * *\
+CSS is generally written in BEM style. getbem.com
+
+Classes also have various prefixes to define their purpose.
+
+List of prefixes: 
+    | no prefix. Generic block. 
+is  | is-something. Implies a togglable state
+has | has-something. Implies a togglable state
+^   | ^ is & has do nothing on their own and are applied over other classes.
+o   | override. Applied to many elements to override styles
+js  | javascript. Adds functionality, *not* used for style
+\* * * **** * * */
+
+
+
+/* BASICS */
+
+html {
+	--background: #fff;
+	--invert-background: #212121;
+	--text: #020202;
+	--accent: #2e51a2;
+	--accent-text: #fff;
+	--accent--error: rgb(188, 70, 70);
+	--accent--warn: rgb(156, 156, 71);
+	--border-light: rgb(216, 216, 216);
+	--border-heavy: rgb(107, 107, 107);
+	--box: #ececec;
+
+	box-sizing: border-box;
+}
+* {
+	box-sizing: inherit;
+}
+
+body {
+	background: var(--background);
+	margin: 0;
+	color: var(--text);
+	font: 14px/1.3 Roboto, Arial, Helvetica, sans-serif;
+}
+
+
+
+/* LOADER */
+
+.loading-screen {
+	position: fixed;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	background: var(--background);
+	animation: 500ms ease 500ms both loader-fade-in;
+	transition: transform 0.4s ease;
+}
+.loading-screen.is-hidden {
+	transform: translateY(100%);
+}
+
+@keyframes loader-fade-in {
+	from {
+		opacity: 0;
+	} to {
+		opacity: 1;
+	}
+}
+
+.loading-screen__spinner {
+	width: 118px;
+	height: 118px;
+	border: 6px solid transparent;
+	border-top-color: #000;
+	border-left-color: #000;
+	border-radius: 50%;
+	margin-bottom: 16px;
+	animation: 1s cubic-bezier(.54,.39,.45,.63) 0s infinite loader-spin;
+}
+.loading-screen__cross {
+	position: relative;
+	width: 124px;
+	height: 124px;
+	overflow: hidden;
+}
+.loading-screen__cross::before,
+.loading-screen__cross::after {
+	content: "";
+	position: absolute;
+	top: calc(50% - 8px);
+	left: 0;
+	width: 100%;
+	height: 16px;
+	background: #000;
+}
+.loading-screen__cross::before {
+	transform: rotate(45deg);
+}
+.loading-screen__cross::after {
+	transform: rotate(-45deg);
+}
+
+@keyframes loader-spin {
+	from {
+		transform: rotate(30deg);
+	} to {
+		transform: rotate(390deg);
+	}
+}
+
+.loading-screen__text {
+	margin-bottom: 8px;
+	font-size: 20px;
+	white-space: nowrap;
+}
+
+.loading-screen__subtext {
+	margin-bottom: 6px;
+	opacity: 0.65;
+	font-size: 14px;
+	font-style: italic;
+}
+
+
+
+/* MESSENGER */
+
+.messenger {
+	position: fixed;
+	top: 8px;
+	bottom: 8px;
+	right: 8px;
+	z-index: 999;
+	display: flex;
+	width: 332px;
+	padding: 16px 16px 32px;
+	flex-flow: column;
+	justify-content: flex-end;
+	pointer-events: none;
+	transition: opacity 0.3s ease;
+}
+.messenger:hover {
+	pointer-events: auto;
+}
+.messenger.is-hidden {
+	opacity: 0;
+}
+
+.messenger__show-button {
+	position: absolute;
+	bottom: 16px;
+	right: 16px;
+	left: 16px;
+	height: 6px;
+	background: rgb(255,255,255,0.5);
+	box-shadow: 1px 1px 5px rgba(0,0,0,0.45);
+	border-radius: 3px;
+	pointer-events: auto;
+	cursor: help;
+}
+.messenger.is-hidden .messenger__show-button {
+	pointer-events: none;
+}
+
+.messenger__message {
+	--message-accent: var(--background);
+	background: var(--background);
+	border-left: 4px solid var(--message-accent);
+	padding: 8px;
+	border-radius: 4px;
+	box-shadow: 1px 1px 5px 1px rgba(0,0,0,0.75);
+	margin-top: 8px;
+	opacity: 0;
+	transition: opacity 0.3s ease;
+	animation: pop-in 10s ease;
+}
+.messenger:hover .messenger__message {
+	opacity: 1;
+	pointer-events: auto;
+}
+.messenger__message--highlighted {
+	--message-accent: var(--accent);
+}
+.messenger__message--error {
+	--message-accent: var(--accent--error);
+}
+.messenger__message--warning {
+	--message-accent: var(--accent--warn);
+}
+@keyframes pop-in {
+	0% {
+		transform: translateY(30px);
+	}
+	0%, 100% {
+		opacity: 0;
+	}
+	7%, 86% {
+		transform: translateY(0);
+		opacity: 1;
+	}
+}
+
+.messenger__message-header {
+	display: block;
+	margin-bottom: 6px;
+	font-weight: bold;
+}
+
+.messenger__message-subtext {
+	display: block;
+	margin-top: 6px;
+	font-size: 0.9em;
+	font-style: italic;
+	opacity: 0.65;
+}
+
+
+
+/* TEMPORARY */
+
+.beta {
+	position: fixed;
+	bottom: 8px;
+	left: 8px;
+	padding: 3px 6px;
+	background: #000;
+	color: #fff;
+	font-weight: 900;
+	text-decoration: none;
+}
+.beta::after {
+	content: " - Report an issue?";
+	font-size: 0;
+	opacity: 0;
+	transition:
+		font-size 0.15s ease 0.15s,
+		opacity 0.15s ease;
+}
+.beta:hover::after {
+	font-size: 1em;
+	opacity: 1;
+	transition:
+		font-size 0.15s ease,
+		opacity 0.15s ease 0.15s;
+}
+
+
+
+/* OVERRIDES */
+
+.o-hidden {
+	display: none !important;
+}

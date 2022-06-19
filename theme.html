@@ -15,6 +15,23 @@ permalink: /theme
 		<link rel="icon" type="image/png" href="./assets/favicon_32.png" sizes="32x32">
 		<link rel="icon" type="image/png" href="./assets/favicon_128.png" sizes="128x128">
 		<link rel="icon" type="image/png" href="./assets/favicon_256.png" sizes="256x256">
+		<script type="text/javascript">
+			function toggleEle(selector, btn = false, set = undefined) {
+				let ele = document.querySelector(selector),
+					cls = 'is-hidden',
+					btnCls = 'is-active';
+				if(set === true) {
+					ele.classList.add(cls);
+					if(btn) { btn.classList.add(btnCls); }
+				} else if(set === false) {
+					ele.classList.remove(cls);
+					if(btn) { btn.classList.remove(btnCls); }
+				} else {
+					ele.classList.toggle(cls);
+					if(btn) { btn.classList.toggle(btnCls); }
+				}
+			}
+		</script>
 	</head>
 	<body>
 		<div class="content" id="js-content">
@@ -208,5 +225,6 @@ permalink: /theme
 		</div>
 	</body>
 
+	<script src="./assets/common.js" type="text/javascript"></script>
 	<script src="./assets/customiser.js" type="text/javascript"></script>
 </html>
