@@ -6,6 +6,7 @@ class loadingScreen {
 		this.text = document.getElementById('js-loader-text');
 		this.subText = document.getElementById('js-loader-subtext');
 		this.subText2 = document.getElementById('js-loader-subsubtext');
+		this.stop = false;
 	}
 
 	loaded() {
@@ -17,14 +18,16 @@ class loadingScreen {
 		}, 1500)
 	}
 
-	failed(reason_array, stopExecution = true) {
-		this.icon.className = 'loading-screen__cross';
-		this.text.textContent = 'Page Failure.';
-		this.subText.textContent = reason_array[0];
-		this.subText2.classList.remove('o-hidden');
-		this.subText2.textContent = `Code: ${reason_array[1]}`;
-		if(stopExecution === true) {
-			throw new Error(reason_array[1]);
+	failed(reason_array) {
+		// only runs once
+		if(!this.stop) {
+			this.icon.className = 'loading-screen__cross';
+			this.text.textContent = 'Page Failure.';
+			this.subText.textContent = reason_array[0];
+			this.subText2.classList.remove('o-hidden');
+			this.subText2.textContent = `Code: ${reason_array[1]}`;
+			this.stop = true;
+			return new Error(reason_array[1]);
 		}
 	}
 }
@@ -118,13 +121,27 @@ function fetchFile(path, cacheResult = true) {
 						}
 						resolve(request.responseText);
 					} else {
-						reject(['Encountered a problem while loading a resource.', `request.status.${request.status}`]);
+						console.log(`[FetchFile] Failed while fetching "${path}". Code: request.status.${request.status}`);
+						reject([`Encountered a problem while loading a resource.`, `request.status.${request.status}`]);
 					}
 				}
 			}
 			request.onerror = function(e) {
+				console.log(`[FetchFile] Failed while fetching "${path}". Code: request.error`);
 				reject(['Encountered a problem while loading a resource.', 'request.error']);
 			}
 		}
 	});
+}
+
+// VARIABLES
+
+const
+	query = (new URL(document.location)).searchParams,
+	dataUrls = query.getAll('data'),
+	loader = new loadingScreen(),
+	messenger = new messageHandler();
+
+if(dataUrls === null) {
+	dataUrls = ['./assets/data.json'];
 }

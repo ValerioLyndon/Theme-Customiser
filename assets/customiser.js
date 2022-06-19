@@ -743,7 +743,7 @@ function renderHtml() {
 	if(Object.keys(data).length > 1) {
 		let back = document.getElementById('js-back');
 		back.classList.remove('o-hidden');
-		back.href = `../?data=${dataJson}`;
+		back.href = `../?data=${dataUrls.join('&data=')}`;
 	}
 
 	// Help links
@@ -1059,6 +1059,7 @@ function finalSetup() {
 
 		fetchThemeCss.catch((reason) => {
 			loader.failed(reason);
+			throw new Error(reason);
 		});
 	} else {
 		finalise(theme['css']);
@@ -1101,34 +1102,26 @@ function finalSetup() {
 
 // Variables
 
-var query = (new URL(document.location)).searchParams,
-	dataJson = query.get('data'),
-	selectedTheme = query.get('q'),
+var selectedTheme = query.get('q'),
 	theme = '',
 	data = null,
-	baseCss = '',
-	loader = new loadingScreen(),
-	messenger = new messageHandler();
-
-if(dataJson === null) {
-	dataJson = './assets/data.json';
-}
-console.log(dataJson);
+	baseCss = '';
 
 var userOpts = {
 	'theme': selectedTheme,
-	'data': dataJson,
+	'data': dataUrls[0],
 	'options': {},
 	'mods': {}
 };
 
 if(selectedTheme === null) {
 	loader.failed(['No theme was specified in the URL. Did you follow a broken link?', 'select']);
+	throw new Error('select');
 }
 
 // Get data for all themes and call other functions
 
-let fetchData = fetchFile(dataJson, false);
+let fetchData = fetchFile(dataUrls[0], false);
 
 fetchData.then((json) => {
 	// Attempt to parse provided data.
@@ -1137,6 +1130,7 @@ fetchData.then((json) => {
 	} catch(e) {
 		console.log(`[fetchData] Error during JSON.parse: ${e}`);
 		loader.failed(['Encountered a problem while parsing theme information.', 'json.parse']);
+		throw new Error('json.parse');
 	}
 
 	// Get theme info from URL & take action if problematic
@@ -1144,6 +1138,7 @@ fetchData.then((json) => {
 		// redirect in future using: window.location = '?';
 		// for now, simply fails
 		loader.failed(['Encountered a problem while parsing theme information.', 'invalid theme']);
+		throw new Error('invalid theme');
 	} else {
 		theme = data[selectedTheme.toLowerCase()];
 	}
@@ -1156,4 +1151,5 @@ fetchData.then((json) => {
 
 fetchData.catch((reason) => {
 	loader.failed(reason);
+	throw new Error(reason);
 });

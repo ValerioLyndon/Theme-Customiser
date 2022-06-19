@@ -2,37 +2,17 @@
 // COMMON FUNCTIONS
 // ================
 
-// BEGIN PROGRAM & INITIALISE PAGE
-
-// Variables
-
-var query = (new URL(document.location)).searchParams,
-	dataJson = query.get('data'),
-	data = null,
-	loader = new loadingScreen(),
-	messenger = new messageHandler();
-
-if(dataJson === null) {
-	dataJson = './assets/data.json';
-}
-
-let theme = query.get('q') || query.get('theme');
-if(theme) {
-	window.location = `/theme?q=${theme}&data=${dataJson}`;
-	throw new Error();
-}
-
 
 // ==================
 // ONE-TIME FUNCTIONS
 // ==================
 
-function renderHtml() {
+function renderCards(cardData, orderedDataUrls) {
 	// Render theme list
-	for(let [themeId, theme] of Object.entries(data)) {
+	for(let [themeId, theme] of Object.entries(cardData)) {
 		let cardParent = document.createElement('a');
 		cardParent.className = 'browser__card';
-		cardParent.href = `./theme?q=${themeId}&data=${dataJson}`;
+		cardParent.href = `./theme?q=${themeId}&data=${orderedDataUrls.join('&data=')}`;
 
 		let card = document.createElement('div');
 		card.className = 'card';
@@ -72,15 +52,14 @@ function renderHtml() {
 			tagArea.appendChild(tagSupport);
 		}
 		
-		let image = document.createElement('img');
-		image.className = 'card__image';
-		image.textContent = theme['type'];
 		if('image' in theme) {
+			let image = document.createElement('img');
+			image.className = 'card__image';
 			image.src = theme['image'];
+			display.appendChild(image);
 		} else {
-			image.classList.add('card__image--blank');
+			display.classList.add('card__display--no-image');
 		}
-		display.appendChild(image);
 
 		document.getElementById('js-theme-list').appendChild(cardParent);
 	}
@@ -88,23 +67,52 @@ function renderHtml() {
 
 
 
+// BEGIN PROGRAM & INITIALISE PAGE
+
+// Variables
+
+let theme = query.get('q') || query.get('theme');
+if(theme) {
+	window.location = `/theme?q=${theme}&data=${dataUrls.join('&data=')}`;
+	throw new Error();
+}
+
 // Get data for all themes and call other functions
 
-let fetchData = fetchFile(dataJson, false);
+const dataFiles = [];
 
-fetchData.then((json) => {
-	// Attempt to parse provided data.
-	try {
-		data = JSON.parse(json);
-	} catch(e) {
-		console.log(`[fetchData] Error during JSON.parse: ${e}`);
-		loader.failed(['Encountered a problem while parsing theme information.', 'json.parse']);
-	}
+for(let i = 0; i < dataUrls.length; i++) {
+	dataFiles.push(fetchFile(dataUrls[i], false));
+}
 
-	renderHtml();
-	loader.loaded();
-});
+Promise.all(dataFiles)
+	.then((files) => {
+		for(let i = 0; i < files.length; i++) {
+			let tempData = {};
+			// Attempt to parse provided data.
+			try {
+				tempData = JSON.parse(files[i]);
+			} catch(e) {
+				console.log(`[fetchData] Error during JSON.parse: ${e}`);
+				loader.failed(['Encountered a problem while parsing theme information.', 'json.parse']);
+				throw new Error('json.parse');
+			}
 
-fetchData.catch((reason) => {
-	loader.failed(reason);
-});
+			// Put the relevant dataUrl at the beginning so the theme will read the correct one
+			let orderedDataUrls = dataUrls;
+			if(i > 0) {
+				let temp = orderedDataUrls[i];
+				orderedDataUrls.splice(i, 1);
+				orderedDataUrls.unshift(temp);
+			}
+
+			renderCards(tempData, orderedDataUrls);
+		}
+
+		loader.loaded();
+	})
+	// Todo: this catch block does not work correctly. It reports undefined and fails even if the earlier try/except goes off.
+	.catch((reason) => {
+		loader.failed(reason);
+		throw new Error(reason);
+	});
