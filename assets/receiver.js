@@ -1,9 +1,12 @@
 // Customiser-related code
 function setColumns(columns) {
+	console.log(columns);
 	let selectors = [];
 
 	for(let [column, enabled] of Object.entries(columns)) {
-		if(!enabled) {
+		// Add selector for removal if the item is optional or disabled
+		if(enabled === null && selectors.length < 7 && Math.round(Math.random()) === 1
+		|| enabled === false) {
 			selectors.push(`[tc-column="${column}"]`);
 		}
 	}

@@ -912,7 +912,12 @@
 				"Image": true
 			}
 		},
-		"help": "https://myanimelist.net/forum/?topicid=393503"
+		"help": "https://myanimelist.net/forum/?topicid=393503",
+		"mods": {
+			"theme": {
+				"name": "todo"
+			}
+		}
 	},
 	"tilt": {
 		"name": "Tilt",
