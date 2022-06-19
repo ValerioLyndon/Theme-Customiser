@@ -142,6 +142,6 @@ const
 	loader = new loadingScreen(),
 	messenger = new messageHandler();
 
-if(dataUrls === null) {
-	dataUrls = ['./assets/data.json'];
+if(dataUrls.length === 0) {
+	dataUrls.push(['./assets/data.json']);
 }
