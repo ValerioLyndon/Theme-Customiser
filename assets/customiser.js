@@ -93,7 +93,7 @@ function createBB(text) {
 	return parent;
 }
 
-function updateOption(id, defaultValue = '', parentModId = false) {
+function updateOption(id, defaultValue = '', parentModId = false, skipCss = false) {
 	// set values and default value
 	let input = document.getElementById(`theme-${id}`),
 		val = undefined;
@@ -120,7 +120,9 @@ function updateOption(id, defaultValue = '', parentModId = false) {
 		}
 	}
 
-	updateCss();
+	if(!skipCss) {
+		updateCss();
+	}
 }
 
 function updateMod(id) {
@@ -195,6 +197,18 @@ function updateMod(id) {
 	}
 	else {
 		userOpts['mods'][id] = {};
+
+		// Update options if it has any before calling CSS
+		if('options' in mod) {
+			for(let [optId, opt] of Object.entries(mod['options'])) {
+				if(opt['default'] === undefined && opt['type'] === 'toggle') {
+					opt['default'] = false;
+				} else if(opt['default'] === undefined) {
+					opt['default'] = '';
+				}
+				updateOption(optId, opt['default'], id, true);
+			}
+		}
 	}
 
 	updateCss();
