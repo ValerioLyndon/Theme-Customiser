@@ -2,6 +2,21 @@
 // COMMON FUNCTIONS
 // ================
 
+// Capitalises the first letter of every word. To capitalise sentences, set the divider to ".".
+function capitalise(str, divider = ' ') {
+	let words = str.split(divider);
+	
+	for(i = 0; i < words.length; i++) {
+		let first = words[i].substring(0,1).toUpperCase(),
+			theRest = words[i].substring(1);
+		words[i] = first + theRest;
+	}
+	
+	str = words.join(divider);
+	return str;
+}
+
+
 
 // ==================
 // ONE-TIME FUNCTIONS
@@ -42,13 +57,13 @@ function renderCards(cardData, orderedDataUrls) {
 
 		let tagType = document.createElement('span');
 		tagType.className = 'card__tag';
-		tagType.textContent = theme['type'];
+		tagType.textContent =capitalise(theme['type']);
 		tagArea.appendChild(tagType);
 
 		if('supports' in theme && theme['supports'].length === 1) {
 			let tagSupport = document.createElement('span');
 			tagSupport.className = 'card__tag';
-			tagSupport.textContent = `${theme['supports'][0]} only`;
+			tagSupport.textContent = capitalise(`${theme['supports'][0]} only`);
 			tagArea.appendChild(tagSupport);
 		}
 		
