@@ -4,7 +4,7 @@
 
 A tool to felicitate easier customisation and installation of list designs for MyAnimeList.
 
-View it in action on Github Pages: [Link](https://valeriolyndon.github.io/Theme-Customiser/)
+View it in action on Github Pages: [Link](https://valeriolyndon.github.io/Theme-Customiser/?data=./assets/data.json&data=https://valeriolyndon.github.io/MAL-Public-List-Designs/customiser.json)
 
 > Currently in a beta state. It works, but it has a lot of improvements to be made!
 
@@ -12,9 +12,9 @@ If you have any feedback, bug reports, or suggestions, I welcome you to [open an
 
 ## Using the Customiser
 
-As a user, you can use the customiser by finding links to it on MyAnimeList or anywhere else. I am currently in the process of adopting it for all of [my own themes](https://myanimelist.net/blog.php?eid=805506).
+**As a user,** you can utilise the customiser by visiting the link above or by finding designers linking to it in the wild.
 
-As a list designer, please check ["Creating your own data.json"](https://github.com/ValerioLyndon/Theme-Customiser/wiki/Creating-your-own-data.json) on the wiki.
+**As a list designer,** please check ["Creating your own data.json"](https://github.com/ValerioLyndon/Theme-Customiser/wiki/Creating-your-own-data.json) on the wiki.
 
 ## Contributing
 
