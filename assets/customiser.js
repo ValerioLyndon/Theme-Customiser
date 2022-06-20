@@ -93,9 +93,13 @@ function createBB(text) {
 	return parent;
 }
 
-function updateOption(id, defaultValue = '', parentModId = false, skipCss = false) {
+function updateOption(optId, defaultValue = '', parentModId = false, skipCss = false) {
 	// set values and default value
-	let input = document.getElementById(`theme-${id}`),
+	let fullId = `opt:${optId}`;
+	if(parentModId) {
+		fullId = `mod:${parentModId}:${optId}`;
+	}
+	let input = document.getElementById(fullId),
 		val = undefined;
 
 	if(input.type === 'checkbox') {
@@ -107,16 +111,16 @@ function updateOption(id, defaultValue = '', parentModId = false, skipCss = fals
 	// Add to userOpts unless matches default value
 	if(val === defaultValue) {
 		if(parentModId) {
-			delete userOpts['mods'][parentModId][id];
+			delete userOpts['mods'][parentModId][optId];
 		} else {
-			delete userOpts['options'][id];
+			delete userOpts['options'][optId];
 		}
 	}
 	else {
 		if(parentModId) {
-			userOpts['mods'][parentModId][id] = val;
+			userOpts['mods'][parentModId][optId] = val;
 		} else {
-			userOpts['options'][id] = val;
+			userOpts['options'][optId] = val;
 		}
 	}
 
@@ -126,7 +130,7 @@ function updateOption(id, defaultValue = '', parentModId = false, skipCss = fals
 }
 
 function updateMod(id) {
-	let val = document.getElementById(`theme-${id}`).checked,
+	let val = document.getElementById(`mod:${id}`).checked,
 		mod = theme['mods'][id];
 
 	// Enable required mods
@@ -140,7 +144,7 @@ function updateMod(id) {
 				}
 
 				// todo: do this using js classes or something that won't fall apart the moment you change the DOM
-				let check = document.getElementById(`theme-${requirement}`),
+				let check = document.getElementById(`mod:${requirement}`),
 					toggle = check.nextElementSibling,
 					toggleInfo = toggle.firstElementChild;
 				
@@ -165,7 +169,7 @@ function updateMod(id) {
 		for(let conflict of mod['conflicts']) {
 			if(conflict in theme['mods']) {
 				// todo: do this using js classes or something that won't fall apart the moment you change the DOM
-				let check = document.getElementById(`theme-${conflict}`),
+				let check = document.getElementById(`mod:${conflict}`),
 					toggle = check.nextElementSibling,
 					toggleInfo = toggle.firstElementChild;
 
@@ -186,9 +190,9 @@ function updateMod(id) {
 
 	// Add some CSS style rules
 	if(val === true) {
-		document.getElementById(`js-theme-${id}-parent`).classList.add('is-enabled');
+		document.getElementById(`mod-parent:${id}`).classList.add('is-enabled');
 	} else {
-		document.getElementById(`js-theme-${id}-parent`).classList.remove('is-enabled');
+		document.getElementById(`mod-parent:${id}`).classList.remove('is-enabled');
 	}
 
 	// Add to userOpts unless matches default value (i.e disabled)
@@ -348,10 +352,10 @@ function updateCss() {
 	}
 }
 
-function validateInput(id, type) {
-	let notice = document.getElementById(`js-theme-${id}-notice`),
+function validateInput(fullid, type) {
+	let notice = document.getElementById(`${fullid}-notice`),
 		noticeHTML = '',
-		val = document.getElementById(`theme-${id}`).value.toLowerCase(),
+		val = document.getElementById(`${fullid}`).value.toLowerCase(),
 		problems = 0,
 		qualifier = type.split('/')[1],
 		subQualifier = type.split('/')[2];
@@ -441,7 +445,12 @@ function renderHtml() {
 
 	function generateOptionHtml(dictionary, parentModId) {
 		let id = dictionary[0],
-			opt = dictionary[1];
+			opt = dictionary[1],
+			fullId = `opt:${id}`;
+		
+		if(parentModId) {
+			fullId = `mod:${parentModId}:${id}`;
+		}
 
 		let div = document.createElement('div'),
 			head = document.createElement('div'),
@@ -492,7 +501,7 @@ function renderHtml() {
 
 		if(baseType === 'text' || opt['type'] === 'color') {
 			let input = document.createElement('input');
-			input.id = `theme-${id}`;
+			input.id = fullId;
 			input.type = 'text';
 			input.value = opt['default'];
 			input.className = 'input';
@@ -518,12 +527,12 @@ function renderHtml() {
 				link.textContent = 'Colour Picker';
 				link.href = 'https://mdn.github.io/css-examples/tools/color-picker/';
 
-				input.addEventListener('input', validateInput.bind(display, id, opt['type']));
+				input.addEventListener('input', validateInput.bind(display, fullId, opt['type']));
 			}
 			else if(qualifier === 'size') {
 				input.placeholder = 'Your size here. e.x 200px, 33%, 20vw, etc.';
 
-				input.addEventListener('input', () => { validateInput(id, opt['type']) });
+				input.addEventListener('input', () => { validateInput(fullId, opt['type']) });
 			}
 			else if(qualifier === 'image_url') {
 				input.type = 'url';
@@ -533,7 +542,7 @@ function renderHtml() {
 				link.textContent = 'Image Tips';
 				link.href = 'https://github.com/ValerioLyndon/MAL-Public-List-Designs/wiki/Image-Hosting-Tips';
 
-				input.addEventListener('input', () => { validateInput(id, opt['type']); });
+				input.addEventListener('input', () => { validateInput(fullId, opt['type']); });
 			}
 
 			input.addEventListener('input', () => {
@@ -544,7 +553,7 @@ function renderHtml() {
 
 		else if(baseType === 'textarea') {
 			let input = document.createElement('textarea');
-			input.id = `theme-${id}`;
+			input.id = fullId;
 			input.value = opt['default'];
 			input.className = 'entry__textarea input input--textarea';
 			input.placeholder = 'Your text here.';
@@ -556,13 +565,13 @@ function renderHtml() {
 		else if(baseType === 'toggle') {
 			let toggle = document.createElement('input');
 			toggle.type = 'checkbox';
-			toggle.id = `theme-${id}`;
+			toggle.id = fullId;
 			toggle.className = 'o-hidden';
 			if('default' in opt && opt['default'] == true) {
 				toggle.checked = true;
 			}
 			headRight.innerHTML = `
-				<label class="toggle info-popup" for="theme-${id}">
+				<label class="toggle info-popup" for="${fullId}">
 					<div class="info-popup__box"></div>
 				</label>
 			`;
@@ -578,7 +587,7 @@ function renderHtml() {
 
 			// would be nice to have a simpler/nicer to look at switch for small lists but would require using radio buttons.
 			select.className = 'entry__select';
-			select.id = `theme-${id}`;
+			select.id = fullId;
 			for(let [selectKey, selectData] of Object.entries(opt['selections'])) {
 				let selectOption = document.createElement('option');
 				selectOption.value = selectKey;
@@ -593,7 +602,7 @@ function renderHtml() {
 			select.addEventListener('input', () => { updateOption(id, opt['default'], parentModId); });
 		}
 
-		notice.id = `js-theme-${id}-notice`;
+		notice.id = `${fullId}-notice`;
 		notice.className = 'info-box info-box--indented info-box--error o-hidden';
 		div.appendChild(notice);
 
@@ -624,8 +633,8 @@ function renderHtml() {
 
 			if('css' in mod) {
 				headRight.innerHTML = `
-					<input id="theme-${modId}" type="checkbox" class="o-hidden" />
-					<label class="toggle info-popup" for="theme-${modId}">
+					<input id="mod:${modId}" type="checkbox" class="o-hidden" />
+					<label class="toggle info-popup" for="mod:${modId}">
 						<div class="info-popup__box"></div>
 					</label>
 				`;
@@ -644,7 +653,7 @@ function renderHtml() {
 			}
 
 			div.className = 'entry';
-			div.id = `js-theme-${modId}-parent`;
+			div.id = `mod-parent:${modId}`;
 			head.className = 'entry__head';
 			headLeft.textContent = mod['name'];
 			headLeft.className = 'entry__name entry__name--emphasised';
@@ -683,7 +692,7 @@ function renderHtml() {
 			modsEle.appendChild(div);
 
 			if('css' in mod) {
-				document.getElementById(`theme-${modId}`).addEventListener('change', () => { updateMod(modId); });
+				document.getElementById(`mod:${modId}`).addEventListener('change', () => { updateMod(modId); });
 			}
 
 			// Add mod tag to list of tags
@@ -731,7 +740,7 @@ function renderHtml() {
 					if(modsToKeep.includes(modId)) {
 						continue;
 					} else {
-						document.getElementById(`js-theme-${modId}-parent`).classList.add('is-hidden-by-tag');
+						document.getElementById(`mod-parent:${modId}`).classList.add('is-hidden-by-tag');
 					}
 				}
 				this.classList.add('is-selected');
@@ -1053,14 +1062,14 @@ function importPreviousOpts(opts = undefined) {
 	
 	// update HTML to match new options
 	for(let [optId, val] of Object.entries(userOpts['options'])) {
-		document.getElementById(`theme-${optId}`).value = val;
+		document.getElementById(`opt:${optId}`).value = val;
 	}
 	for(let [modId, modOpts] of Object.entries(userOpts['mods'])) {
-		document.getElementById(`theme-${modId}`).checked = true;
-		document.getElementById(`js-theme-${modId}-parent`).classList.add('is-enabled');
+		document.getElementById(`mod:${modId}`).checked = true;
+		document.getElementById(`mod-parent:${modId}`).classList.add('is-enabled');
 		
 		for(let [optId, optVal] of Object.entries(modOpts)) {
-			document.getElementById(`theme-${optId}`).value = optVal;
+			document.getElementById(`mod:${modId}:${optId}`).value = optVal;
 		}
 	}
 
