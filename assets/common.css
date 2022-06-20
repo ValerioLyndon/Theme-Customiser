@@ -66,6 +66,7 @@ body {
 }
 .content__customiser {
 	display: flex;
+	height: 100vh;
 }
 
 
