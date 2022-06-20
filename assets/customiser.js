@@ -302,7 +302,7 @@ function updateCss() {
 	
 	if('mods' in theme && Object.keys(userOpts['mods']).length > 0) {
 		(async () => {
-			for(let [id, value] of Object.entries(userOpts['mods'])) {
+			for(let id of Object.keys(userOpts['mods'])) {
 				let modData = theme['mods'][id];
 				for(let [location, resource] of Object.entries(modData['css'])) {
 					if(resource.startsWith('http')) {
@@ -1054,7 +1054,9 @@ function importPreviousOpts(opts = undefined) {
 		alert('You are on the wrong theme page for the imported settings. Redirecting to the correct theme page.');
 
 		localStorage.setItem('tcUserOptsImported', JSON.stringify(previousOpts));
-		window.location = `./theme?q=${previousOpts['theme']}&data=${previousOpts['data']}&import=1`;
+		localStorage.setItem('tcImport', true);
+		window.location = `./theme?q=${previousOpts['theme']}&data=${previousOpts['data']}`;
+		return false;
 	}
 
 	// set current options to match
@@ -1062,18 +1064,37 @@ function importPreviousOpts(opts = undefined) {
 	
 	// update HTML to match new options
 	for(let [optId, val] of Object.entries(userOpts['options'])) {
-		document.getElementById(`opt:${optId}`).value = val;
+		try {
+			document.getElementById(`opt:${optId}`).value = val;
+		} catch {
+			delete userOpts['options'][optId];
+			console.log(`Could not read value of option "${optId}". Did the JSON change since this theme was customised?`);
+			messenger.error(`Could not import settings for option "${optId}".`);
+		}
 	}
 	for(let [modId, modOpts] of Object.entries(userOpts['mods'])) {
-		document.getElementById(`mod:${modId}`).checked = true;
-		document.getElementById(`mod-parent:${modId}`).classList.add('is-enabled');
+		try {
+			document.getElementById(`mod:${modId}`).checked = true;
+			document.getElementById(`mod-parent:${modId}`).classList.add('is-enabled');
+		} catch {
+			delete userOpts['mods'][modId];
+			console.log(`Could not read value of mod "${modId}". Did the JSON change since this theme was customised?`);
+			messenger.error(`Could not import settings for mod "${modId}".`);
+		}
 		
 		for(let [optId, optVal] of Object.entries(modOpts)) {
-			document.getElementById(`mod:${modId}:${optId}`).value = optVal;
+			try {
+				document.getElementById(`mod:${modId}:${optId}`).value = optVal;
+			} catch {
+				delete userOpts['mods'][modId][optId];
+				console.log(`Could not read value of option "${optId}" of mod "${modId}". Did the JSON change since this theme was customised?`);
+				messenger.error(`Could not import settings for option "${optId}" of mod "${modId}".`);
+			}
 		}
 	}
 
 	updateCss();
+	return true;
 }
 
 // Updates preview CSS & removes loader
@@ -1099,7 +1120,7 @@ function finalSetup() {
 		baseCss = css;
 	
 		// Import settings if requested by URL
-		if(query.get('import')) {
+		if(localStorage.getItem('tcImport')) {
 			let opts = localStorage.getItem('tcUserOptsImported');
 			if(opts === null) {
 				messenger.error('Failed to import options. If you initiated this operation, please report this issue.', 'localstorage.getitem');
@@ -1111,7 +1132,9 @@ function finalSetup() {
 					messenger.error('Failed to import options. Could not parse settings.', 'json.stringify');
 				}
 				// importpreviousopts will call updateCss and pushCss
-				importPreviousOpts(opts);
+				if(importPreviousOpts(opts)) {
+					localStorage.removeItem('tcImport');
+				}
 			}
 		}
 
