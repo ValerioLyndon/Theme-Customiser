@@ -316,7 +316,7 @@ input:checked + .toggle.is-forced::after {
 
 .entry__head {
 	display: flex;
-	height: 22px;
+	min-height: 22px;
 }
 .entry__name {
 	display: block;
