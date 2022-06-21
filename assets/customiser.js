@@ -56,6 +56,22 @@ function confirm(msg, options = {'Yes': {'value': true, 'type': 'suggested'}, 'N
 	});
 }
 
+function toggleEle(selector, btn = false, set = undefined) {
+	let ele = document.querySelector(selector),
+		cls = 'is-hidden',
+		btnCls = 'is-active';
+	if(set === true) {
+		ele.classList.add(cls);
+		if(btn) { btn.classList.add(btnCls); }
+	} else if(set === false) {
+		ele.classList.remove(cls);
+		if(btn) { btn.classList.remove(btnCls); }
+	} else {
+		ele.classList.toggle(cls);
+		if(btn) { btn.classList.toggle(btnCls); }
+	}
+}
+
 function createBB(text) {
 	let parent = document.createElement('p');
 	parent.classList.add('bb');

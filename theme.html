@@ -15,23 +15,6 @@ permalink: /theme
 		<link rel="icon" type="image/png" href="./assets/favicon_32.png" sizes="32x32">
 		<link rel="icon" type="image/png" href="./assets/favicon_128.png" sizes="128x128">
 		<link rel="icon" type="image/png" href="./assets/favicon_256.png" sizes="256x256">
-		<script type="text/javascript">
-			function toggleEle(selector, btn = false, set = undefined) {
-				let ele = document.querySelector(selector),
-					cls = 'is-hidden',
-					btnCls = 'is-active';
-				if(set === true) {
-					ele.classList.add(cls);
-					if(btn) { btn.classList.add(btnCls); }
-				} else if(set === false) {
-					ele.classList.remove(cls);
-					if(btn) { btn.classList.remove(btnCls); }
-				} else {
-					ele.classList.toggle(cls);
-					if(btn) { btn.classList.toggle(btnCls); }
-				}
-			}
-		</script>
 	</head>
 	<body>
 		<main class="content content__customiser" id="js-content">
@@ -110,9 +93,9 @@ permalink: /theme
 
 					<div class="code">
 						<b class="code__title">CSS to Install</b>
-						<code class="code__preview" id="js-output">
+						<textarea class="code__preview input input--code" id="js-output" readonly="readonly">
 							<!-- code gets put here by customiser.js -->
-						</code>
+						</textarea>
 
 						<p class="info-box info-box--indented info-box--error o-hidden" id="js-output-notice"></p>
 					
@@ -221,7 +204,7 @@ permalink: /theme
 						You can store this string for later use or share it with others. Do not modify or remove any part of it lest you make it unusable.
 					</p>
 
-					<textarea id="js-export-code" class="input input--textarea" readonly="readonly"></textarea>
+					<textarea id="js-export-code" class="input input--code" readonly="readonly"></textarea>
 					<button class="button button--highlighted js-swappable-text" onclick="navigator.clipboard.writeText(document.getElementById('js-export-code').textContent);">
 						<div class="swappable-text">
 							<div class="swappable-text__text">
