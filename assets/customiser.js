@@ -247,7 +247,7 @@ function updateMod(id) {
 
 				if(val) {
 					toggle.classList.add('is-disabled', 'has-info');
-					toggleInfo.textContent = 'You cannot use this with your current configuration due to conflicts with other options.';
+					toggleInfo.textContent = `This mod is incompatible with one of your choices. To use, disable "${mod['name']}".`;
 				} else {
 					toggle.classList.remove('is-disabled', 'has-info');
 				}
