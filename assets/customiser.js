@@ -2,6 +2,60 @@
 // COMMON FUNCTIONS
 // ================
 
+function confirm(msg, options = {'Yes': {'value': true, 'type': 'suggested'}, 'No': {'value': false}}) {
+	return new Promise((resolve, reject) => {
+		let modal = document.createElement('div'),
+			modalInner = document.createElement('div'),
+			modalExit = document.createElement('div'),
+			modalContent = document.createElement('div'),
+			header = document.createElement('h4'),
+			blurb = document.createElement('p');
+
+		modal.className = 'popup';
+		modal.id = 'js-confirmation';
+		modalInner.className = 'popup__inner';
+		modalContent.className = 'popup__content popup__content--narrow';
+		modalExit.className = 'popup__invisibutton';
+		modalExit.onclick = 'togglEle("#js-confirmation")';
+		modal.appendChild(modalInner);
+		modalInner.appendChild(modalExit);
+		modalInner.appendChild(modalContent);
+
+		header.className = 'popup__header';
+		header.textContent = 'Confirm action.';
+		blurb.className = 'popup__paragraph';
+		blurb.textContent = msg;
+		modalContent.appendChild(header);
+		modalContent.appendChild(blurb);
+
+		// Add buttons
+
+		function complete(returnValue) {
+			resolve(returnValue);
+			modal.remove();
+		}
+
+		for(let [label, details] of Object.entries(options)) {
+			let btn = document.createElement('button');
+			btn.className = 'button';
+			if('type' in details) {
+				if(details['type'] === 'suggested') {
+					btn.classList.add('button--highlighted');
+				} else if(details['type'] === 'danger') {
+					btn.classList.add('button--danger');
+				}
+			}
+			btn.textContent = label;
+			btn.addEventListener('click', ()=>{complete(details['value'])});
+			modalContent.appendChild(btn);
+		}
+
+		modalExit.addEventListener('click', ()=>{complete(false)});
+
+		document.body.appendChild(modal);
+	});
+}
+
 function createBB(text) {
 	let parent = document.createElement('p');
 	parent.classList.add('bb');
@@ -223,8 +277,10 @@ function updateCss() {
 
 	// Encode options & sanitise any CSS character
 	let optsStr = JSON.stringify(userOpts).replaceAll('*/','*\\/').replaceAll('/*','\\/*');
+	// Place options into export area
+	document.getElementById('js-export-code').textContent = optsStr;
 	// Place options at top
-	newCss = '/* Theme Customiser Preset\nhttps://github.com/ValerioLyndon/Theme-Customiser\n^TC' + optsStr + 'TC$*/\n\n' + baseCss;
+	newCss = '/* Theme Customiser Settings\nhttps://github.com/ValerioLyndon/Theme-Customiser\n^TC' + optsStr + 'TC$*/\n\n' + baseCss;
 
 	function applyOptionToCss(css, optData, insert) {
 		let qualifier = optData['type'].split('/')[1],
@@ -1023,23 +1079,31 @@ function importPreviousOpts(opts = undefined) {
 	if(opts === undefined) {
 		let previous = document.getElementById('js-import-code').value;
 
-		// previous input should be any amount of text that also includes the ^TC{}TC$ text format with stringifed json useropts inside the curly braces. 
-		// process previous CSS/input, removing everything except the json.
-		previous = previous.match(/\^TC{.*?}}TC\$/);
-
-		if(previous === null) {
-			messenger.error('Import failed, could not interpret your options. Are you sure you input the correct text?', ' regex.match');
-			return false;
-		}
-
-		previous = previous[0].substr(3, previous[0].length - 6);
-
+		// previous input should be either:
+		// * a raw JSON object
+		// * random text that includes the ^TC{}TC$ text format with stringifed json useropts inside the curly braces. 
+		
+		// Try to parse as JSON, if it fails then process as normal string.
 		try {
-			var previousOpts = JSON.parse(previous);
-		} catch(e) {
-			console.log(`[importPreviousOpts] Error during JSON.parse: ${e}`);
-			messenger.error('Import failed, could not interpret your options. Are you sure you copied and pasted all the settings?', 'json.parse');
-			return false;
+			var previousOpts = JSON.parse(previous.trim());
+		}
+		catch {
+			previous = previous.match(/\^TC{.*?}}TC\$/);
+
+			if(previous === null) {
+				messenger.error('Import failed, could not interpret your options. Are you sure you input the correct text?', ' regex.match');
+				return false;
+			}
+
+			previous = previous[0].substr(3, previous[0].length - 6);
+
+			try {
+				var previousOpts = JSON.parse(previous);
+			} catch(e) {
+				console.log(`[importPreviousOpts] Error during JSON.parse: ${e}`);
+				messenger.error('Import failed, could not interpret your options. Are you sure you copied and pasted all the settings?', 'json.parse');
+				return false;
+			}
 		}
 	} else {
 		var previousOpts = opts;
@@ -1047,18 +1111,53 @@ function importPreviousOpts(opts = undefined) {
 
 	// Redirect user if they are on the wrong theme.
 
-	if(userOpts['theme'] !== previousOpts['theme'] | userOpts['data'] !== previousOpts['data']) {
-		// todo: OFFER to redirect instead of auto-redirecting. Can't be bothered to do this yet as I have not made modal creation easy.
+	localStorage.setItem('tcUserOptsImported', JSON.stringify(previousOpts));
+	
+	// If theme is wrong, offer to redirect.
+	if(userOpts['theme'] !== previousOpts['theme']) {
+		confirm('You are on the wrong theme page for the imported settings. Redirect to the correct theme page?')
+		.then((choice) => {
+			if(choice) {
+				localStorage.setItem('tcImport', true);
+				window.location = `./theme?q=${previousOpts['theme']}&data=${previousOpts['data']}`;
+			} else {
+				localStorage.removeItem('tcImport');
+				messenger.send('Action aborted.');
+			}
+		});
 
-		// do not use alert it's horrible
-		alert('You are on the wrong theme page for the imported settings. Redirecting to the correct theme page.');
-
-		localStorage.setItem('tcUserOptsImported', JSON.stringify(previousOpts));
-		localStorage.setItem('tcImport', true);
-		window.location = `./theme?q=${previousOpts['theme']}&data=${previousOpts['data']}`;
 		return false;
 	}
+	// If theme is correct but data isn't, offer to redirect or try importing anyway.
+	else if(userOpts['data'] !== previousOpts['data']) {
+		let msg = 'Source data from imported settings mismatches the source data on the current page. Redirect and use the imported source data?',
+			choices = {
+				'Yes': {'value': 'redirect', 'type': 'suggested'},
+				'No, apply settings here.': {'value': 'ignore'},
+				'No, do nothing.': {'value': 'dismiss'}
+			};
+		
+		confirm(msg, choices)
+		.then((choice) => {
+			if(choice === 'redirect') {
+				localStorage.setItem('tcImport', true);
+				window.location = `./theme?q=${previousOpts['theme']}&data=${previousOpts['data']}`;
+			} else if(choice === 'ignore') {
+				applyPreviousOpts(previousOpts);
+				return true;
+			} else {
+				localStorage.removeItem('tcImport');
+				messenger.send('Action aborted.');
+			}
+		});
 
+		return false;
+	}
+	applyPreviousOpts(previousOpts);
+	return true;
+}
+	
+function applyPreviousOpts(previousOpts) {
 	// set current options to match
 	userOpts = previousOpts;
 	
@@ -1094,7 +1193,7 @@ function importPreviousOpts(opts = undefined) {
 	}
 
 	updateCss();
-	return true;
+	messenger.send('Settings import complete.');
 }
 
 // Updates preview CSS & removes loader

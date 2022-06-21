@@ -34,7 +34,7 @@ permalink: /theme
 		</script>
 	</head>
 	<body>
-		<div class="content content__customiser" id="js-content">
+		<main class="content content__customiser" id="js-content">
 			<div class="sidebar">
 				<nav class="sidebar__nav">
 					<a href="./" class="sidebar__nav-link o-hidden" id="js-back">
@@ -45,13 +45,13 @@ permalink: /theme
 						<i class="sidebar__nav-link-icon fa-solid fa-question"></i>
 						<span class="sidebar__nav-link-text">Theme Help</span>
 					</a>
-					<a href="#" class="sidebar__nav-link" onclick="toggleEle('#js-import')">
-						<i class="sidebar__nav-link-icon fa-solid fa-upload"></i>
-						<span class="sidebar__nav-link-text">Import</span>
+					<a class="sidebar__nav-link" onclick="toggleEle('#js-import')">
+						<i class="sidebar__nav-link-icon fa-solid fa-file-import"></i>
+						<span class="sidebar__nav-link-text">Import Settings</span>
 					</a>
-					<a href="#" class="sidebar__nav-link o-hidden" id="js-share">
-						<i class="sidebar__nav-link-icon fa fa-share-alt"></i>
-						<span class="sidebar__nav-link-text">Share</span>
+					<a class="sidebar__nav-link" onclick="toggleEle('#js-export')">
+						<i class="sidebar__nav-link-icon fa-solid fa-file-arrow-down"></i>
+						<span class="sidebar__nav-link-text sidebar__nav-link-text--right">Export Settings</span>
 					</a>
 				</nav>
 
@@ -127,6 +127,10 @@ permalink: /theme
 						</button>
 
 						<a class="hyperlink" onclick="toggleEle('#js-installation')">How do I install this?</a>
+
+						<br />
+
+						<button class="button" onclick="toggleEle('#js-export')">Export settings</button>
 					</div>
 				</div>
 
@@ -151,7 +155,7 @@ permalink: /theme
 			<div class="preview">
 				<iframe src="preview.html" class="preview__window" id="js-frame"></iframe>
 			</div>
-		</div>
+		</main>
 
 		<div class="popup is-hidden" id="js-installation">
 			<div class="popup__inner">
@@ -197,15 +201,33 @@ permalink: /theme
 				<div class="popup__content">
 					<h4 class="popup__header">Import previous settings.</h4>
 					
-					<p class="popup-paragraph">Paste into this textbox your theme CSS or the "Theme Customiser Preset" section. You may be redirected if there is a mis-match between your currently selected theme and the imported theme.</p>
+					<p class="popup-paragraph">
+						Place a customiser settings object or your full theme CSS into this textbox and then click "Import Settings".
+					</p>
 
 					<textarea id="js-import-code" class="input input--textarea"></textarea>
-					<button class="button button--highlighted js-swappable-text" id="js-import-button">
+					<button class="button button--highlighted" id="js-import-button">Import Settings</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="popup is-hidden" id="js-export">
+			<div class="popup__inner">
+				<div class="popup__invisibutton" onclick="toggleEle('#js-export')"></div>
+				<div class="popup__content">
+					<h4 class="popup__header">Export current settings.</h4>
+					
+					<p class="popup-paragraph">
+						You can store this string for later use or share it with others. Do not modify or remove any part of it lest you make it unusable.
+					</p>
+
+					<textarea id="js-export-code" class="input input--textarea" readonly="readonly"></textarea>
+					<button class="button button--highlighted js-swappable-text" onclick="navigator.clipboard.writeText(document.getElementById('js-export-code').textContent);">
 						<div class="swappable-text">
 							<div class="swappable-text__text">
-								Import Settings
+								Copy settings
 								<br />
-								Imported!
+								Copied!
 							</div>
 						</div>
 					</button>
