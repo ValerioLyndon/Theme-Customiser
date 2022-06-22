@@ -1,6 +1,5 @@
 // Customiser-related code
 function setColumns(columns) {
-	console.log(columns);
 	let selectors = [];
 
 	for(let [column, enabled] of Object.entries(columns)) {

@@ -425,10 +425,7 @@ function updateCss() {
 		}
 
 		// Update iframe
-		var iframe = document.getElementById('js-frame');
-		if (iframe && iframe.contentWindow) {
-			iframe.contentWindow.postMessage(['css', css]);
-		}
+		postToIframe(['css', css]);
 	}
 }
 
@@ -1023,10 +1020,7 @@ function renderHtml() {
 	}
 
 	// Update iframe
-	var iframe = document.getElementById('js-frame');
-	if (iframe && iframe.contentWindow) {
-		iframe.contentWindow.postMessage(['columns', columns]);
-	}
+	postToIframe(['columns', columns]);
 
 	// Add expando functions
 
@@ -1267,14 +1261,55 @@ function finalSetup() {
 			updateCss(css);
 		}
 
-		// Remove Loader
-		loader.loaded();
+		pageLoaded = true;
+
+		// Remove Loader if iframe has loaded, else wait until iframe calls function.
+		if(iframeLoaded) {
+			loader.loaded();
+		}
+		else {
+			console.log('[finalSetup] Awaiting iframe before completing page load.');
+		}
 	}
 }
 
 
 
 // BEGIN PROGRAM & INITIALISE PAGE
+
+// Preview Window
+
+var preview = document.getElementById('js-preview'),
+	iframe = document.createElement('iframe'),
+	iframeLoaded = false,
+	toPost = [],
+	pageLoaded = false;
+
+iframe.addEventListener('load', () => {
+	iframeLoaded = true;
+	if(toPost.length > 0) {
+		console.log(`[iframe] Posting ${toPost.length} backlogged messages.`);
+		for(msg of toPost) {
+			postToIframe(msg);
+		}
+	}
+	if(pageLoaded === true) {
+		loader.loaded();
+	}
+});
+iframe.src = 'preview.html';
+iframe.className = 'preview__window';
+preview.appendChild(iframe);
+
+function postToIframe(msg) {
+	if(iframeLoaded) {
+		iframe.contentWindow.postMessage(msg);
+		return true;
+	}
+	toPost.push(msg);
+	console.log('[postToIframe] Tried to post a message before the iframe finished loading.');
+	return false;
+}
 
 // Variables
 
