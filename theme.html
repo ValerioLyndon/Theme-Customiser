@@ -18,7 +18,7 @@ permalink: /theme
 	</head>
 	<body>
 		<main class="content content__customiser" id="js-content">
-			<div class="sidebar">
+			<div class="sidebar" id="js-sidebar">
 				<nav class="sidebar__nav">
 					<a href="./" class="sidebar__nav-link o-hidden" id="js-back">
 						<i class="sidebar__nav-link-icon fa fa-arrow-left"></i>
@@ -131,13 +131,22 @@ permalink: /theme
 							<a href="https://github.com/ValerioLyndon/Theme-Customiser/wiki" class="hyperlink">Use this with your design</a>
 						</div> 
 					</div>
-					<a href="https://github.com/ValerioLyndon/Theme-Customiser/issues/new/choose" class="beta">BETA</a>
 				</footer>
 			</div>
 
 			<div class="preview">
+				<a class="slider" id="js-toggle-drawer" onclick="splitSlide()">
+					<i class="slider__icon fa-solid fa-chevron-left"></i>
+					
+					<span class="slider__text">
+						Expand/Contract Sidebar
+					</span>
+				</a>
+
 				<iframe src="preview.html" class="preview__window" id="js-frame"></iframe>
 			</div>
+
+			<a href="https://github.com/ValerioLyndon/Theme-Customiser/issues/new/choose" class="beta">BETA</a>
 		</main>
 
 		<div class="popup is-hidden" id="js-installation">

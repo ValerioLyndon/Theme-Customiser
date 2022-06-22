@@ -72,6 +72,14 @@ function toggleEle(selector, btn = false, set = undefined) {
 	}
 }
 
+function splitSlide() {
+	let slider = document.getElementById('js-toggle-drawer'),
+		sidebar = document.getElementById('js-sidebar');
+
+	slider.classList.toggle('is-active');
+	sidebar.classList.toggle('is-aside');
+}
+
 function createBB(text) {
 	let parent = document.createElement('p');
 	parent.classList.add('bb');
