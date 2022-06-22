@@ -290,14 +290,7 @@ function updateMod(id) {
 
 function updateCss() {
 	let newCss = baseCss;
-
-	// Encode options & sanitise any CSS character
-	let optsStr = JSON.stringify(userOpts).replaceAll('*/','*\\/').replaceAll('/*','\\/*');
-	// Place options into export area
-	document.getElementById('js-export-code').textContent = optsStr;
-	// Place options at top
-	newCss = '/* Theme Customiser Settings\nhttps://github.com/ValerioLyndon/Theme-Customiser\n^TC' + optsStr + 'TC$*/\n\n' + baseCss;
-
+	
 	function applyOptionToCss(css, optData, insert) {
 		let qualifier = optData['type'].split('/')[1],
 			subQualifier = optData['type'].split('/')[2];
@@ -403,7 +396,14 @@ function updateCss() {
 	}
 
 	function pushCss(css) {
-		// Update output
+		// Encode options & sanitise any CSS character
+		let optsStr = JSON.stringify(userOpts).replaceAll('*/','*\\/').replaceAll('/*','\\/*');
+		// Update export textareas
+		document.getElementById('js-export-code').textContent = optsStr;
+		// Place options at top
+		newCss = '/* Theme Customiser Settings\nhttps://github.com/ValerioLyndon/Theme-Customiser\n^TC' + optsStr + 'TC$*/\n\n' + baseCss;
+
+		// Update code textarea
 		document.getElementById('js-output').textContent = css;
 
 		// Add notice if necessary
