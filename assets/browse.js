@@ -51,7 +51,7 @@ function renderCards(cardData, orderedDataUrls) {
 		display.className = 'card__display';
 		card.appendChild(display);
 
-		let tagArea = document.createElement('span');
+		let tagArea = document.createElement('div');
 		tagArea.className = 'card__tag-list';
 		display.appendChild(tagArea);
 
