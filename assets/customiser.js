@@ -849,7 +849,8 @@ function renderHtml() {
 	}
 
 	// Back link
-	if(Object.keys(data).length > 1) {
+	// Todo: Check more accurately if there is more than one theme. Currently it just checks if there is more than one theme OR more than one json
+	if(Object.keys(data).length > 1 || dataUrls.length > 1) {
 		let back = document.getElementById('js-back');
 		back.classList.remove('o-hidden');
 		back.href = `./?data=${dataUrls.join('&data=')}`;
