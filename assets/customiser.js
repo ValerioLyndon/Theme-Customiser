@@ -409,7 +409,7 @@ function updateCss() {
 		// Update export textareas
 		document.getElementById('js-export-code').textContent = optsStr;
 		// Place options at top
-		newCss = '/* Theme Customiser Settings\nhttps://github.com/ValerioLyndon/Theme-Customiser\n^TC' + optsStr + 'TC$*/\n\n' + baseCss;
+		css = '/* Theme Customiser Settings\nhttps://github.com/ValerioLyndon/Theme-Customiser\n^TC' + optsStr + 'TC$*/\n\n' + css;
 
 		// Update code textarea
 		document.getElementById('js-output').textContent = css;

@@ -21,7 +21,8 @@ function setColumns(columns) {
 window.addEventListener(
 	"message",
 	function (event) {
-		if (event.origin === window.location.origin) {
+		if(event.origin === window.location.origin) {
+			console.log('[receiver.js] Message received.');
 			var push = event.data || event.message,
 				type = push[0],
 				content = push[1];
