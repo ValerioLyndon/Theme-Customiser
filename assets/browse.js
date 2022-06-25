@@ -22,12 +22,12 @@ function capitalise(str, divider = ' ') {
 // ONE-TIME FUNCTIONS
 // ==================
 
-function renderCards(cardData, orderedDataUrls) {
+function renderCards(cardData) {
 	// Render theme list
-	for(let [themeId, theme] of Object.entries(cardData)) {
+	for(let theme of cardData) {
 		let cardParent = document.createElement('a');
 		cardParent.className = 'browser__card';
-		cardParent.href = `./theme?q=${themeId}&data=${orderedDataUrls.join('&data=')}`;
+		cardParent.href = `./theme?t=${theme['url']}&c=${collectionUrls.join('&c=')}`;
 
 		let card = document.createElement('div');
 		card.className = 'card';
@@ -86,21 +86,26 @@ function renderCards(cardData, orderedDataUrls) {
 
 // Variables
 
+// Redirect from old URL format to new one
 let theme = query.get('q') || query.get('theme');
 if(theme) {
 	window.location = `./theme?q=${theme}&data=${dataUrls.join('&data=')}`;
 	throw new Error();
 }
 
-// Get data for all themes and call other functions
+// Get data for all collections and call other functions
 
-const dataFiles = [];
+const collectionFiles = [];
 
-for(let i = 0; i < dataUrls.length; i++) {
-	dataFiles.push(fetchFile(dataUrls[i], false));
+if(collectionUrls.length === 0) {
+	collectionUrls.push(['./assets/collection.json']);
 }
 
-Promise.allSettled(dataFiles)
+for(let i = 0; i < collectionUrls.length; i++) {
+	collectionFiles.push(fetchFile(collectionUrls[i], false));
+}
+
+Promise.allSettled(collectionFiles)
 	.then((files) => {
 		let failures = 0;
 
@@ -115,15 +120,7 @@ Promise.allSettled(dataFiles)
 				continue;
 			}
 
-			// Put the relevant dataUrl at the beginning so the theme will read the correct one
-			let orderedDataUrls = dataUrls;
-			if(i > 0) {
-				let temp = orderedDataUrls[i];
-				orderedDataUrls.splice(i, 1);
-				orderedDataUrls.unshift(temp);
-			}
-
-			renderCards(tempData, orderedDataUrls);
+			renderCards(tempData['themes']);
 		}
 
 		if(failures >= files.length) {

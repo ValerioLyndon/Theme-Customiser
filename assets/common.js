@@ -138,10 +138,16 @@ function fetchFile(path, cacheResult = true) {
 
 const
 	query = (new URL(document.location)).searchParams,
-	dataUrls = query.getAll('data'),
+	collectionUrls = query.getAll('c'),
+	themeUrls = query.getAll('t'),
 	loader = new loadingScreen(),
 	messenger = new messageHandler();
 
-if(dataUrls.length === 0) {
-	dataUrls.push(['./assets/data.json']);
+// Detect and Manage legacy JSON versions
+
+// json v0.1 > v0.2
+
+const dataUrls = query.getAll('data');
+if(dataUrls.length > 0) {
+	messenger.warn('The loaded JSON has been processed as JSON v0.1 due to out-of-date formatting. If you are the JSON author, please see the GitHub page for assistance updating.');
 }

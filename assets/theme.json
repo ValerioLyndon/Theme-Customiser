@@ -1,5 +1,6 @@
 {
-	"example": {
+	"json_version": 0.2,
+	"data": {
 		"name": "Example",
 		"author": "Your Name Here",
 		"css": "Your code here. I recommend placing a URL here as opposed to raw code, as placing code into JSON requires a lot of escape characters and pain.\n\n.textarea::before { content: \"\"; }",

@@ -846,11 +846,10 @@ function renderHtml() {
 	}
 
 	// Back link
-	// Todo: Check more accurately if there is more than one theme. Currently it just checks if there is more than one theme OR more than one json
-	if(Object.keys(data).length > 1 || dataUrls.length > 1) {
+	if(collectionUrls.length > 0) {
 		let back = document.getElementById('js-back');
 		back.classList.remove('o-hidden');
-		back.href = `./?data=${dataUrls.join('&data=')}`;
+		back.href = `./?c=${collectionUrls.join('&c=')}`;
 	}
 
 	// Help links
@@ -1313,31 +1312,29 @@ function postToIframe(msg) {
 
 // Variables
 
-var selectedTheme = query.get('q'),
-	theme = '',
-	data = null,
+var theme = '',
+	json = null,
 	baseCss = '';
 
 var userOpts = {
-	'theme': selectedTheme,
-	'data': dataUrls[0],
+	'data': themeUrls[0],
 	'options': {},
 	'mods': {}
 };
 
-if(selectedTheme === null) {
+if(themeUrls.length === 0) {
 	loader.failed(['No theme was specified in the URL. Did you follow a broken link?', 'select']);
 	throw new Error('select');
 }
 
 // Get data for all themes and call other functions
 
-let fetchData = fetchFile(dataUrls[0], false);
+let fetchData = fetchFile(themeUrls[0], false);
 
 fetchData.then((json) => {
 	// Attempt to parse provided data.
 	try {
-		data = JSON.parse(json);
+		json = JSON.parse(json);
 	} catch(e) {
 		console.log(`[fetchData] Error during JSON.parse: ${e}`);
 		loader.failed(['Encountered a problem while parsing theme information.', 'json.parse']);
@@ -1345,13 +1342,11 @@ fetchData.then((json) => {
 	}
 
 	// Get theme info from URL & take action if problematic
-	if(theme === null || !(selectedTheme.toLowerCase() in data)) {
-		// redirect in future using: window.location = '?';
-		// for now, simply fails
+	if(theme === null) {
 		loader.failed(['Encountered a problem while parsing theme information.', 'invalid theme']);
 		throw new Error('invalid theme');
 	} else {
-		theme = data[selectedTheme.toLowerCase()];
+		theme = json['data'];
 	}
 
 	document.getElementsByTagName('title')[0].textContent = `Theme Customiser - ${theme['name']}`;
