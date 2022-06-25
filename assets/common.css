@@ -194,6 +194,10 @@ body {
 	font-style: italic;
 }
 
+.loading-screen__hyperlink {
+	margin-top: 8px;
+}
+
 
 
 /* MESSENGER */
