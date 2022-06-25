@@ -1341,8 +1341,12 @@ fetchData.then((json) => {
 		throw new Error('json.parse');
 	}
 
+	// Check for legacy json
+	let selectedTheme = query.get('q') || query.get('theme');
+	json = processJson(json, themeUrls[0], selectedTheme);
+
 	// Get theme info from URL & take action if problematic
-	if(theme === null) {
+	if(json === false) {
 		loader.failed(['Encountered a problem while parsing theme information.', 'invalid theme']);
 		throw new Error('invalid theme');
 	} else {

@@ -86,13 +86,6 @@ function renderCards(cardData) {
 
 // Variables
 
-// Redirect from old URL format to new one
-let theme = query.get('q') || query.get('theme');
-if(theme) {
-	window.location = `./theme?q=${theme}&data=${dataUrls.join('&data=')}`;
-	throw new Error();
-}
-
 // Get data for all collections and call other functions
 
 const collectionFiles = [];
@@ -119,6 +112,8 @@ Promise.allSettled(collectionFiles)
 				failures++;
 				continue;
 			}
+
+			tempData = processJson(tempData, collectionUrls[i], 'collection');
 
 			renderCards(tempData['themes']);
 		}

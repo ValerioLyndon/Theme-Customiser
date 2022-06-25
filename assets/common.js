@@ -134,6 +134,8 @@ function fetchFile(path, cacheResult = true) {
 	});
 }
 
+
+
 // VARIABLES
 
 const
@@ -141,13 +143,89 @@ const
 	collectionUrls = query.getAll('c'),
 	themeUrls = query.getAll('t'),
 	loader = new loadingScreen(),
-	messenger = new messageHandler();
+	messenger = new messageHandler(),
+	jsonVersion = 0.2;
 
-// Detect and Manage legacy JSON versions
+
+
+// LEGACY JSON MANAGEMENT
+// Detect and Manage legacy JSON versions and URL parameters.
+
+let path = window.location.pathname;
+	themeQuery = query.get('t') || query.get('q') || query.get('theme'),
+	dataUrls = query.getAll('data');
+
+// Check for legacy JSON and process as needed
+function processJson(json, url, toReturn) {
+	var ver = 0;
+	if(!('json_version' in json)) {
+		ver = 0.1;
+	} else {
+		ver = json['json_version'];
+	}
+
+	// Process as normal if version is good
+	if(ver === jsonVersion) {
+		return json;
+	}
+
+	// Else, continue to process.
+	if(ver > jsonVersion) {
+		messenger.warn('Detected JSON version ahead of current release. Processing as normal.');
+		return json;
+	}
+
+	messenger.warn('The loaded JSON has been processed as legacy JSON. This can cause slowdowns or errors. If you are the JSON author, please see the GitHub page for assistance updating.');
+	if(ver === 0.1) {
+		return updateToBeta2(json, url, toReturn);
+	}
+}
+
+
+// json v0.0 > v0.1
+
+// Redirect from browse page to theme page if a theme is specified
+if(path !== '/theme' && themeQuery && dataUrls.length > 0) {
+	window.location = `./theme?q=${themeQuery}&data=${dataUrls.join('&data=')}`;
+	throw new Error();
+}
+
 
 // json v0.1 > v0.2
 
-const dataUrls = query.getAll('data');
 if(dataUrls.length > 0) {
-	messenger.warn('The loaded JSON has been processed as JSON v0.1 due to out-of-date formatting. If you are the JSON author, please see the GitHub page for assistance updating.');
+	let modifiedQuery = new URLSearchParams();
+	// Transform data into collections
+	for(let [key, val] of query.entries()) {
+		if(key === 'data') {
+			key = 'c';
+		}
+		modifiedQuery.append(key, val);
+	}
+	// Add first data as theme
+	modifiedQuery.append('t', query.get('data'));
+	// Redirect
+	window.location = `${window.location.href.split('?')[0]}?${modifiedQuery.toString()}`;
+	throw new Error();
+}
+
+function updateToBeta2(json, url, toReturn) {
+	if(toReturn === 'collection') {
+		let newJson = {
+			'themes': []
+		};
+		for(let [themeId, theme] of Object.entries(json)) {
+			theme['url'] = url + '&q=' + themeId;
+			newJson['themes'].push(theme);
+		}
+		return newJson;
+	}
+	else {
+		if(toReturn in json) {
+			return { 'data': json[toReturn] };
+		} else {
+			return false;
+		}
+	}
+
 }
