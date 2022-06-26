@@ -1131,24 +1131,9 @@ function importPreviousOpts(opts = undefined) {
 
 	localStorage.setItem('tcUserOptsImported', JSON.stringify(previousOpts));
 	
-	// If theme is wrong, offer to redirect.
-	if(userOpts['theme'] !== previousOpts['theme']) {
-		confirm('You are on the wrong theme page for the imported settings. Redirect to the correct theme page?')
-		.then((choice) => {
-			if(choice) {
-				localStorage.setItem('tcImport', true);
-				window.location = `./theme?q=${previousOpts['theme']}&data=${previousOpts['data']}`;
-			} else {
-				localStorage.removeItem('tcImport');
-				messenger.send('Action aborted.');
-			}
-		});
-
-		return false;
-	}
-	// If theme is correct but data isn't, offer to redirect or try importing anyway.
-	else if(userOpts['data'] !== previousOpts['data']) {
-		let msg = 'Source data from imported settings mismatches the source data on the current page. Redirect and use the imported source data?',
+	// If theme or data is wrong, offer to redirect or to try importing anyway.
+	if(userOpts['theme'] !== previousOpts['theme'] || userOpts['data'] !== previousOpts['data']) {
+		let msg = 'There is a mismatch between your imported settings and the current page. Redirect to the page indicated in your import?',
 			choices = {
 				'Yes': {'value': 'redirect', 'type': 'suggested'},
 				'No, apply settings here.': {'value': 'ignore'},
@@ -1159,7 +1144,7 @@ function importPreviousOpts(opts = undefined) {
 		.then((choice) => {
 			if(choice === 'redirect') {
 				localStorage.setItem('tcImport', true);
-				window.location = `./theme?q=${previousOpts['theme']}&data=${previousOpts['data']}`;
+				window.location = `./theme?q=${previousOpts['theme']}&t=${previousOpts['data']}`;
 			} else if(choice === 'ignore') {
 				applyPreviousOpts(previousOpts);
 				return true;
@@ -1351,6 +1336,7 @@ fetchData.then((json) => {
 		throw new Error('invalid theme');
 	} else {
 		theme = json['data'];
+		userOpts['theme'] = selectedTheme || theme['name'];
 	}
 
 	document.getElementsByTagName('title')[0].textContent = `Theme Customiser - ${theme['name']}`;
