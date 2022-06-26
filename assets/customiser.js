@@ -1304,8 +1304,7 @@ var theme = '',
 var userOpts = {
 	'data': themeUrls[0],
 	'options': {},
-	'mods': {},
-	'json_version': jsonVersion
+	'mods': {}
 };
 
 if(themeUrls.length === 0) {
