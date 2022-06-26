@@ -1332,8 +1332,11 @@ fetchData.then((json) => {
 
 	// Get theme info from URL & take action if problematic
 	if(json === false) {
-		loader.failed(['Encountered a problem while parsing theme information.', 'invalid theme']);
-		throw new Error('invalid theme');
+		loader.failed(['Encountered a problem while parsing theme information.', 'invalid.name']);
+		throw new Error('invalid theme name');
+	} else if(!('data' in json)) {
+		loader.failed(['Encountered a problem while parsing theme information.', 'invalid.json']);
+		throw new Error('invalid json format');
 	} else {
 		theme = json['data'];
 		userOpts['theme'] = selectedTheme || theme['name'];
