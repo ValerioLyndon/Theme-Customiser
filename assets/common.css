@@ -75,6 +75,7 @@ body {
 .title {
 	margin: 0;
 	font-size: 2em;
+	clear: both;
 }
 
 .sub-title {

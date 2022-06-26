@@ -409,20 +409,28 @@ function updateCss() {
 		// Update export textareas
 		document.getElementById('js-export-code').textContent = optsStr;
 		// Place options at top
-		css = '/* Theme Customiser Settings\nhttps://github.com/ValerioLyndon/Theme-Customiser\n^TC' + optsStr + 'TC$*/\n\n' + css;
+		let cssWithSettings = '/* Theme Customiser Settings\nhttps://github.com/ValerioLyndon/Theme-Customiser\n^TC' + optsStr + 'TC$*/\n\n' + css;
+
+		// Add settings if there is room and add over-length notice if necessary
+		let notice = document.getElementById('js-output-notice');
+		if(css.length < 65535 && cssWithSettings.length > 65535) {
+			let spare = 65535 - css.length;
+			notice.innerHTML = `This configuration is close to exceeding MyAnimeList's maximum CSS length. The customiser settings area has been removed to make space and you now have ${spare} characters remaining. If you need help bypassing the limit, see <a class="hyperlink" href="https://myanimelist.net/forum/?topicid=1911384" target="_blank">this guide</a>.`;
+			notice.classList.add('info-box--warn');
+			notice.classList.remove('o-hidden', 'info-box--error');
+		}
+		else if(css.length > 65535) {
+			let excess = css.length - 65535;
+			notice.innerHTML = `This configuration exceeds MyAnimeList's maximum CSS length by ${excess} characters. You will need to <a class="hyperlink" href="https://www.toptal.com/developers/cssminifier" target="_blank">shorten this code</a> or <a class="hyperlink" href="https://myanimelist.net/forum/?topicid=1911384" target="_blank">host it on an external site to bypass the limit</a>.`;
+			notice.classList.add('info-box--error');
+			notice.classList.remove('o-hidden', 'info-box--warn');
+		} else {
+			notice.classList.add('o-hidden');
+			css = cssWithSettings;
+		}
 
 		// Update code textarea
 		document.getElementById('js-output').textContent = css;
-
-		// Add notice if necessary
-		let notice = document.getElementById('js-output-notice');
-		if(css.length > 65535) {
-			let excess = css.length - 65535;
-			notice.innerHTML = `This configuration exceeds MyAnimeList's maximum CSS length by ${excess} characters. You will need to shorten this code or host it on an external site to bypass the limit. For help hosting the CSS, see <a class="hyperlink" href="https://myanimelist.net/forum/?topicid=1911384" target="_blank">this guide</a>.`;
-			notice.classList.remove('o-hidden');
-		} else {
-			notice.classList.add('o-hidden');
-		}
 
 		// Update iframe
 		postToIframe(['css', css]);
