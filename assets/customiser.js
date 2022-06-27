@@ -1105,6 +1105,17 @@ function importPreviousOpts(opts = undefined) {
 	if(opts === undefined) {
 		let previous = document.getElementById('js-import-code').value;
 
+		// Skip if empty string or does not contain formatting.
+		if(previous.trim().length === 0) {
+			messenger.timeout('Please enter your settings into the text field and try again.');
+			return false;
+		}
+
+		if(previous.indexOf('{') === -1) {
+			messenger.error('Import failed, your text does not appear to contain any settings. Please input a valid settings object.');
+			return false;
+		}
+
 		// previous input should be either:
 		// * a raw JSON object
 		// * random text that includes the ^TC{}TC$ text format with stringifed json useropts inside the curly braces. 
@@ -1162,7 +1173,7 @@ function importPreviousOpts(opts = undefined) {
 				return true;
 			} else {
 				localStorage.removeItem('tcImport');
-				messenger.send('Action aborted.');
+				messenger.timeout('Action aborted.');
 			}
 		});
 
@@ -1181,13 +1192,13 @@ function applyPreviousOpts(previousOpts) {
 	userOpts['data'] = tempData;
 	
 	// update HTML to match new options
+	let errors = [];
 	for(let [optId, val] of Object.entries(userOpts['options'])) {
 		try {
 			document.getElementById(`opt:${optId}`).value = val;
 		} catch {
 			delete userOpts['options'][optId];
-			console.log(`Could not read value of option "${optId}". Did the JSON change since this theme was customised?`);
-			messenger.error(`Could not import settings for option "${optId}".`);
+			errors.push(`opt:<b>${optId}</b>`);
 		}
 	}
 	for(let [modId, modOpts] of Object.entries(userOpts['mods'])) {
@@ -1196,8 +1207,7 @@ function applyPreviousOpts(previousOpts) {
 			document.getElementById(`mod-parent:${modId}`).classList.add('is-enabled');
 		} catch {
 			delete userOpts['mods'][modId];
-			console.log(`Could not read value of mod "${modId}". Did the JSON change since this theme was customised?`);
-			messenger.error(`Could not import settings for mod "${modId}".`);
+			errors.push(`mod:<b>${optId}</b>`);
 			continue;
 		}
 		
@@ -1206,14 +1216,19 @@ function applyPreviousOpts(previousOpts) {
 				document.getElementById(`mod:${modId}:${optId}`).value = optVal;
 			} catch {
 				delete userOpts['mods'][modId][optId];
-				console.log(`Could not read value of option "${optId}" of mod "${modId}". Did the JSON change since this theme was customised?`);
-				messenger.error(`Could not import settings for option "${optId}" of mod "${modId}".`);
+				errors.push(`opt:<b>${optId}</b><i> of mod:${modId}</i>`);
 			}
 		}
 	}
 
+	// Report errors
+	if(errors.length > 0) {
+		console.log(`Could not import settings for some mods or options: ${errors.join(', ').replaceAll(/<.*?>/g,'')}. Did the JSON change since this theme was customised?`);
+		messenger.error(`Could not import settings for some mods or options. The skipped items were:<br />• ${errors.join('<br />• ')}.`);
+	}
+
 	updateCss();
-	messenger.send('Settings import complete.');
+	messenger.timeout('Settings import complete.');
 }
 
 // Updates preview CSS & removes loader

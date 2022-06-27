@@ -39,7 +39,7 @@ class messageHandler {
 		this.parent = document.getElementById('js-messenger');
 	}
 
-	send(text, type = 'notice', subtext = null) {
+	send(text, type = 'notice', subtext = null, destruct = -1) {
 		this.parent.classList.remove('is-hidden');
 
 		let msg = document.createElement('div'),
@@ -66,6 +66,13 @@ class messageHandler {
 		}
 
 		this.parent.appendChild(msg);
+
+		if(destruct > -1) {
+			setTimeout(() => {
+				msg.remove();
+				this.hideIfEmpty();
+			}, 10000 + destruct);
+		}
 	}
 
 	warn(msg, code = null) {
@@ -82,6 +89,10 @@ class messageHandler {
 		this.send(msg, 'error', code);
 	}
 
+	timeout(msg, destruct = 0) {
+		this.send(msg, 'notice', null, destruct);
+	}
+
 	clear(amount = 0) {
 		let msgs = this.parent.getElementsByClassName('js-message');
 		if(amount > 0) {
@@ -93,7 +104,11 @@ class messageHandler {
 				msg.remove();
 			}
 		}
-		msgs = this.parent.getElementsByClassName('js-message');
+		this.hideIfEmpty();
+	}
+
+	hideIfEmpty() {
+		let msgs = this.parent.getElementsByClassName('js-message');
 		if(msgs.length === 0) {
 			this.parent.classList.add('is-hidden');
 		}

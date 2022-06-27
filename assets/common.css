@@ -250,7 +250,9 @@ body {
 	margin-top: 8px;
 	opacity: 0;
 	transition: opacity 0.3s ease;
-	animation: pop-in 10s ease;
+	animation:
+		pop-in 400ms ease 0ms backwards,
+		pop-out 1400ms ease 8600ms backwards;
 }
 .messenger:hover .messenger__message {
 	opacity: 1;
@@ -266,15 +268,20 @@ body {
 	--message-accent: var(--accent--warn);
 }
 @keyframes pop-in {
-	0% {
+	from {
 		transform: translateY(30px);
 	}
-	0%, 100% {
-		opacity: 0;
-	}
-	7%, 86% {
+	to {
 		transform: translateY(0);
 		opacity: 1;
+	}
+}
+@keyframes pop-out {
+	from {
+		opacity: 1;
+	}
+	to {
+		opacity: 0;
 	}
 }
 
