@@ -19,32 +19,33 @@ permalink: /theme
 	<body>
 		<main class="content content__customiser" id="js-content">
 			<div class="sidebar" id="js-sidebar">
-				<nav class="sidebar__nav nav nav--right">
-					<a href="./" class="nav__link o-hidden" id="js-back">
-						<i class="nav__link-icon fa fa-arrow-left"></i>
-						<span class="nav__link-text">Browse Other Themes</span>
-					</a>
-					<a class="nav__link o-hidden" id="js-sponsor" target="_blank">
-						<i class="nav__link-icon fa-solid fa-heart"></i>
-						<span class="nav__link-text">Support the Author</span>
-					</a>
-					<a class="nav__link o-hidden js-help js-help-href" target="_blank">
-						<i class="nav__link-icon fa-solid fa-question"></i>
-						<span class="nav__link-text">Theme Help</span>
-					</a>
-					<a class="nav__link" onclick="toggleEle('#js-import')">
-						<i class="nav__link-icon fa-solid fa-file-import"></i>
-						<span class="nav__link-text">Import Settings</span>
-					</a>
-					<a class="nav__link" onclick="toggleEle('#js-export')">
-						<i class="nav__link-icon fa-solid fa-file-arrow-down"></i>
-						<span class="nav__link-text nav__link-text--right">Export Settings</span>
-					</a>
-				</nav>
-
 				<div class="sidebar__section sidebar__section--no-border sidebar__section--title">
+					<nav class="sidebar__nav nav">
+						<a href="./" class="nav__link o-hidden" id="js-back">
+							<i class="nav__link-icon fa fa-arrow-left"></i>
+							<span class="nav__link-text">Browse Other Themes</span>
+						</a>
+						<a class="nav__link o-hidden" id="js-sponsor" target="_blank">
+							<i class="nav__link-icon fa-solid fa-heart"></i>
+							<span class="nav__link-text">Support the Author</span>
+						</a>
+						<a class="nav__link o-hidden js-help js-help-href" target="_blank">
+							<i class="nav__link-icon fa-solid fa-question"></i>
+							<span class="nav__link-text">Theme Help</span>
+						</a>
+						<a class="nav__link" onclick="toggleEle('#js-import')">
+							<i class="nav__link-icon fa-solid fa-file-import"></i>
+							<span class="nav__link-text">Import Settings</span>
+						</a>
+						<a class="nav__link" onclick="toggleEle('#js-export')">
+							<i class="nav__link-icon fa-solid fa-file-arrow-down"></i>
+							<span class="nav__link-text nav__link-text--right">Export Settings</span>
+						</a>
+					</nav>
+					
 					<h1 class="sub-title">Customise your theme</h1>
 					<h2 class="title o-clear" id="js-title">Loading theme...</h2>
+					<h3 class="sub-sub-title">By <span id="js-author">unknown author</span></h3>
 				</div>
 
 				<div class="sidebar__section">

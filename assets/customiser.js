@@ -503,6 +503,7 @@ function validateInput(fullid, type) {
 function renderHtml() {
 	// options & mods
 	document.getElementById('js-title').textContent = theme['name'];
+	document.getElementById('js-author').textContent = theme['author'];
 	let credit = document.getElementById('js-theme-credit');
 	if('author' in theme && theme['author']) {
 		credit.textContent = `Customising "${theme['name']}" by ${theme['author']}`;

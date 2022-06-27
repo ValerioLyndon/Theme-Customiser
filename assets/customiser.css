@@ -214,10 +214,8 @@ input:checked + .toggle.is-forced::after {
 }
 
 .sidebar__nav {
-	position: relative;
-	z-index: 1;
-	padding: 16px 16px 0;
 	float: right;
+	height: 24px;
 	--text: var(--accent-text);
 }
 
