@@ -1337,7 +1337,7 @@ fetchData.then((json) => {
 	}
 
 	// Check for legacy json
-	if(!(themeUrls.length > 0 && collectionUrls.includes(themeUrls[0]))) {
+	if(themeUrls.length > 0 && collectionUrls.includes(themeUrls[0])) {
 		selectedTheme = 'theme';
 	}
 	processJson(json, themeUrls[0], selectedTheme ? selectedTheme : 'theme')

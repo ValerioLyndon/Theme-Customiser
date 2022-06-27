@@ -219,8 +219,8 @@ async function processJson(json, url, toReturn) {
 // json v0.0 > v0.1
 
 // Redirect from browse page to theme page if a theme is specified
+let themeQuery = query.get('q') || query.get('theme')
 if(path !== '/theme' && themeQuery && dataUrls.length > 0) {
-	let themeQuery = query.get('q') || query.get('theme')
 	window.location = `./theme?q=${themeQuery}&c=${dataUrls.join('&c=')}`;
 	throw new Error();
 }
