@@ -151,6 +151,158 @@ function fetchFile(path, cacheResult = true) {
 	});
 }
 
+function importPreviousOpts(opts = undefined) {
+	if(opts === undefined) {
+		let previous = document.getElementById('js-import-code').value;
+
+		// Skip if empty string or does not contain formatting.
+		if(previous.trim().length === 0) {
+			messenger.timeout('Please enter your settings into the text field and try again.');
+			return false;
+		}
+
+		if(previous.indexOf('{') === -1) {
+			messenger.error('Import failed, your text does not appear to contain any settings. Please input a valid settings object.');
+			return false;
+		}
+
+		// previous input should be either:
+		// * a raw JSON object
+		// * random text that includes the ^TC{}TC$ text format with stringifed json useropts inside the curly braces. 
+		
+		// Try to parse as JSON, if it fails then process as normal string.
+		try {
+			var previousOpts = JSON.parse(previous.trim());
+		}
+		catch {
+			previous = previous.match(/\^TC{.*?}}TC\$/);
+
+			if(previous === null) {
+				messenger.error('Import failed, could not interpret your options. Are you sure you input the correct text?', ' regex.match');
+				return false;
+			}
+
+			previous = previous[0].substr(3, previous[0].length - 6);
+
+			try {
+				var previousOpts = JSON.parse(previous);
+			} catch(e) {
+				console.log(`[importPreviousOpts] Error during JSON.parse: ${e}`);
+				messenger.error('Import failed, could not interpret your options. Are you sure you copied and pasted all the settings?', 'json.parse');
+				return false;
+			}
+		}
+	} else {
+		var previousOpts = opts;
+	}
+
+	localStorage.setItem('tcUserOptsImported', JSON.stringify(previousOpts));
+	
+	// Redirect without asking if on the browse page.
+	if(!window.location.pathname.startsWith('/theme')) {
+		localStorage.setItem('tcImport', true);
+		window.location = `./theme?q=${previousOpts['theme']}&t=${previousOpts['data']}`;
+	}
+
+	// Do nothing if useropts are the same.
+	if(userOpts === previousOpts) {
+		messenger.warn('Nothing imported. Settings exactly match the current page.');
+		return null;
+	}
+    
+	// If theme or data is wrong, offer to redirect or to try importing anyway.
+	else if(userOpts['theme'] !== previousOpts['theme'] || userOpts['data'] !== previousOpts['data']) {
+		let msg = 'There is a mismatch between your imported settings and the current page. Redirect to the page indicated in your import?',
+			choices = {
+				'Yes': {'value': 'redirect', 'type': 'suggested'},
+				'No, apply settings here.': {'value': 'ignore'},
+				'No, do nothing.': {'value': 'dismiss'}
+			};
+		
+		confirm(msg, choices)
+		.then((choice) => {
+			if(choice === 'redirect') {
+				localStorage.setItem('tcImport', true);
+				window.location = `./theme?q=${previousOpts['theme']}&t=${previousOpts['data']}`;
+			} else if(choice === 'ignore') {
+				applyPreviousOpts(previousOpts);
+				return true;
+			} else {
+				localStorage.removeItem('tcImport');
+				messenger.timeout('Action aborted.');
+			}
+		});
+
+		return false;
+	}
+	applyPreviousOpts(previousOpts);
+	return true;
+}
+
+function applyPreviousOpts(previousOpts) {
+	// set current options to match
+	let tempTheme = userOpts['theme'],
+		tempData = userOpts['data'];
+	userOpts['mods'] = previousOpts['mods'];
+	userOpts['theme'] = tempTheme;
+	userOpts['data'] = tempData;
+	
+	// update HTML to match new options
+	let errors = [];
+	for(let [optId, val] of Object.entries(userOpts['options'])) {
+		try {
+			document.getElementById(`opt:${optId}`).value = val;
+		} catch {
+			delete userOpts['options'][optId];
+			errors.push(`opt:<b>${optId}</b>`);
+		}
+	}
+	for(let [modId, modOpts] of Object.entries(userOpts['mods'])) {
+		try {
+			document.getElementById(`mod:${modId}`).checked = true;
+			document.getElementById(`mod-parent:${modId}`).classList.add('is-enabled');
+		} catch {
+			delete userOpts['mods'][modId];
+			errors.push(`mod:<b>${optId}</b>`);
+			continue;
+		}
+		
+		for(let [optId, optVal] of Object.entries(modOpts)) {
+			try {
+				document.getElementById(`mod:${modId}:${optId}`).value = optVal;
+			} catch {
+				delete userOpts['mods'][modId][optId];
+				errors.push(`opt:<b>${optId}</b><i> of mod:${modId}</i>`);
+			}
+		}
+	}
+
+	// Report errors
+	if(errors.length > 0) {
+		console.log(`Could not import settings for some mods or options: ${errors.join(', ').replaceAll(/<.*?>/g,'')}. Did the JSON change since this theme was customised?`);
+		messenger.error(`Could not import settings for some mods or options. The skipped items were:<br />• ${errors.join('<br />• ')}.`);
+	}
+
+	updateCss();
+	messenger.timeout('Settings import complete.');
+}
+
+function toggleEle(selector, btn = false, set = undefined) {
+	let ele = document.querySelector(selector),
+		cls = 'is-hidden',
+		btnCls = 'is-active';
+	if(set === true) {
+		ele.classList.add(cls);
+		if(btn) { btn.classList.add(btnCls); }
+	} else if(set === false) {
+		ele.classList.remove(cls);
+		if(btn) { btn.classList.remove(btnCls); }
+	} else {
+		ele.classList.toggle(cls);
+		if(btn) { btn.classList.toggle(btnCls); }
+	}
+}
+
 
 
 // VARIABLES

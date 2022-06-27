@@ -15,9 +15,24 @@
 	</head>
 	<body>
 		<main class="content content__browse" id="js-content">
-			<div class="header">
-				<h1 class="title">Browse Themes</h1>
-			</div>
+			<nav class="nav nav--header">
+				<div class="nav__split nav__split--left">
+					<a class="nav__link" href="https://github.com/ValerioLyndon/Theme-Customiser">
+						<i class="nav__link-icon fa-solid fa-home"></i>
+						<span class="nav__link-text nav__link-text--left">Go Home</span>
+					</a>
+				</div>
+				<div class="nav__split nav__split--right">
+					<a class="nav__link" onclick="toggleEle('#js-import')">
+						<i class="nav__link-icon fa-solid fa-file-import"></i>
+						<span class="nav__link-text nav__link-text--right">Import Settings</span>
+					</a>
+				</div>
+				<div class="nav__split nav__split--center">
+					<h1 class="title">Browse Themes</h1>
+				</div>
+			</nav>
+
 			<div class="browser" id="js-theme-list">
 				
 			</div>
@@ -49,6 +64,22 @@
 
 		<div class="messenger is-hidden" id="js-messenger">
 			<div class="messenger__show-button"></div>
+		</div>
+
+		<div class="popup is-hidden" id="js-import">
+			<div class="popup__inner">
+				<div class="popup__invisibutton" onclick="toggleEle('#js-import')"></div>
+				<div class="popup__content">
+					<h4 class="popup__header">Import previous settings.</h4>
+					
+					<p class="popup-paragraph">
+						Place a customiser settings object or your full theme CSS into this textbox and then click "Import Settings".
+					</p>
+
+					<textarea id="js-import-code" class="input input--textarea"></textarea>
+					<button class="button button--highlighted" onclick="importPreviousOpts()">Import Settings</button>
+				</div>
+			</div>
 		</div>
 	</body>
 
