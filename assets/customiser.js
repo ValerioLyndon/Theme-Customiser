@@ -844,6 +844,13 @@ function renderHtml() {
 		back.href = `./?c=${collectionUrls.join('&c=')}`;
 	}
 
+	// Sponsor Link
+	if('sponsor' in theme) {
+		let sponsor = document.getElementById('js-sponsor');
+		sponsor.classList.remove('o-hidden');
+		sponsor.href = theme['sponsor'];
+	}
+
 	// Help links
 	if('help' in theme) {
 		if(theme['help'].startsWith('http') || theme['help'].startsWith('mailto:')) {
