@@ -136,14 +136,131 @@ function fetchFile(path, cacheResult = true) {
 	});
 }
 
+
+
 // VARIABLES
 
 const
 	query = (new URL(document.location)).searchParams,
-	dataUrls = query.getAll('data'),
+	collectionUrls = query.getAll('c'),
+	themeUrls = query.getAll('t'),
 	loader = new loadingScreen(),
-	messenger = new messageHandler();
+	messenger = new messageHandler(),
+	jsonVersion = 0.2;
 
-if(dataUrls.length === 0) {
-	dataUrls.push(['./assets/data.json']);
+
+
+// LEGACY JSON MANAGEMENT
+// Detect and Manage legacy JSON versions and URL parameters.
+
+let path = window.location.pathname,
+	dataUrls = query.getAll('data');
+
+// Check for legacy JSON and process as needed
+async function processJson(json, url, toReturn) {
+	var ver = 0;
+	if(!('json_version' in json)) {
+		ver = 0.1;
+	} else {
+		ver = json['json_version'];
+	}
+
+	// Process as normal if version is good
+	if(ver === jsonVersion) {
+		// Process as collection or fetch correct theme from collection
+		if(toReturn === 'collection' && 'themes' in json
+		|| toReturn === 'theme' && 'data' in json) {
+			// Convert legacy dictionary to array
+			if('themes' in json && !Array.isArray(json['themes'])) {
+				let arrayThemes = [];
+				for(let t of Object.values(json['themes'])) {
+					arrayThemes.push(t);
+				}
+				json['themes'] = arrayThemes;
+			}
+			return json;
+		}
+		else if('themes' in json && toReturn in json['themes']) {
+			let themeUrl = json['themes'][toReturn]['url'];
+			if(themeUrl) {
+				return fetchFile(themeUrl)
+				.then((result) => {
+					let themeJson = '';
+					try {
+						themeJson = JSON.parse(result);
+					} catch {
+						themeJson = false;
+					}
+					return themeJson;
+				})
+				.catch(() => {
+					return false;
+				});
+			}
+		}
+		else {
+			return false;
+		}
+	}
+
+	// Else, continue to process.
+	else if(ver > jsonVersion) {
+		messenger.warn('Detected JSON version ahead of current release. Processing as normal.');
+		return json;
+	}
+
+	else {
+		messenger.warn('The loaded JSON has been processed as legacy JSON. This can cause slowdowns or errors. If you are the JSON author, please see the GitHub page for assistance updating.');
+		if(ver === 0.1) {
+			return updateToBeta2(json, url, toReturn);
+		}
+	}
+}
+
+
+// json v0.0 > v0.1
+
+// Redirect from browse page to theme page if a theme is specified
+let themeQuery = query.get('q') || query.get('theme')
+if(path !== '/theme' && themeQuery && dataUrls.length > 0) {
+	window.location = `./theme?q=${themeQuery}&c=${dataUrls.join('&c=')}`;
+	throw new Error();
+}
+
+
+// json v0.1 > v0.2
+
+if(dataUrls.length > 0) {
+	let modifiedQuery = new URLSearchParams();
+	// Transform data into collections
+	for(let [key, val] of query.entries()) {
+		if(key === 'data') {
+			key = 'c';
+		}
+		modifiedQuery.append(key, val);
+	}
+	// Redirect
+	window.location = `${window.location.href.split('?')[0]}?${modifiedQuery.toString()}`;
+	throw new Error();
+}
+
+function updateToBeta2(json, url, toReturn) {
+	if(toReturn === 'collection') {
+		let newJson = {
+			'themes': []
+		};
+		for(let [themeId, theme] of Object.entries(json)) {
+			theme['url'] = url + '&q=' + themeId;
+			newJson['themes'].push(theme);
+		}
+		return newJson;
+	}
+	else {
+		if(toReturn in json) {
+			return { 'data': json[toReturn] };
+		} else {
+			return false;
+		}
+	}
+
 }

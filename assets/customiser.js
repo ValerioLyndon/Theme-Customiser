@@ -854,11 +854,10 @@ function renderHtml() {
 	}
 
 	// Back link
-	// Todo: Check more accurately if there is more than one theme. Currently it just checks if there is more than one theme OR more than one json
-	if(Object.keys(data).length > 1 || dataUrls.length > 1) {
+	if(collectionUrls.length > 0) {
 		let back = document.getElementById('js-back');
 		back.classList.remove('o-hidden');
-		back.href = `./?data=${dataUrls.join('&data=')}`;
+		back.href = `./?c=${collectionUrls.join('&c=')}`;
 	}
 
 	// Help links
@@ -1143,25 +1142,10 @@ function importPreviousOpts(opts = undefined) {
 		messenger.warn('Nothing imported. Settings exactly match the current page.');
 		return null;
 	}
-	
-	// If theme is wrong, offer to redirect.
-	if(userOpts['theme'] !== previousOpts['theme']) {
-		confirm('You are on the wrong theme page for the imported settings. Redirect to the correct theme page?')
-		.then((choice) => {
-			if(choice) {
-				localStorage.setItem('tcImport', true);
-				window.location = `./theme?q=${previousOpts['theme']}&data=${previousOpts['data']}`;
-			} else {
-				localStorage.removeItem('tcImport');
-				messenger.send('Action aborted.');
-			}
-		});
-
-		return false;
-	}
-	// If theme is correct but data isn't, offer to redirect or try importing anyway.
-	else if(userOpts['data'] !== previousOpts['data']) {
-		let msg = 'Source data from imported settings mismatches the source data on the current page. Redirect and use the imported source data?',
+    
+	// If theme or data is wrong, offer to redirect or to try importing anyway.
+	else if(userOpts['theme'] !== previousOpts['theme'] || userOpts['data'] !== previousOpts['data']) {
+		let msg = 'There is a mismatch between your imported settings and the current page. Redirect to the page indicated in your import?',
 			choices = {
 				'Yes': {'value': 'redirect', 'type': 'suggested'},
 				'No, apply settings here.': {'value': 'ignore'},
@@ -1172,7 +1156,7 @@ function importPreviousOpts(opts = undefined) {
 		.then((choice) => {
 			if(choice === 'redirect') {
 				localStorage.setItem('tcImport', true);
-				window.location = `./theme?q=${previousOpts['theme']}&data=${previousOpts['data']}`;
+				window.location = `./theme?q=${previousOpts['theme']}&t=${previousOpts['data']}`;
 			} else if(choice === 'ignore') {
 				applyPreviousOpts(previousOpts);
 				return true;
@@ -1330,51 +1314,68 @@ function postToIframe(msg) {
 
 // Variables
 
-var selectedTheme = query.get('q'),
-	theme = '',
-	data = null,
+var theme = '',
+	json = null,
 	baseCss = '';
 
 var userOpts = {
-	'theme': selectedTheme,
-	'data': dataUrls[0],
+	'data': themeUrls[0],
 	'options': {},
 	'mods': {}
 };
 
-if(selectedTheme === null) {
+
+// Get data for all themes and call other functions
+
+let fetchUrl = themeUrls[0],
+	selectedTheme = query.get('q') || query.get('theme');
+
+// Legacy processing for json 0.1 > 0.2
+if(themeUrls.length === 0 && collectionUrls.length > 0) {
+	fetchUrl = collectionUrls[0];
+	console.log('2')
+}
+// Generic failure
+else if(themeUrls.length === 0) {
 	loader.failed(['No theme was specified in the URL. Did you follow a broken link?', 'select']);
 	throw new Error('select');
 }
 
-// Get data for all themes and call other functions
-
-let fetchData = fetchFile(dataUrls[0], false);
+let fetchData = fetchFile(fetchUrl, false);
 
 fetchData.then((json) => {
 	// Attempt to parse provided data.
 	try {
-		data = JSON.parse(json);
+		json = JSON.parse(json);
 	} catch(e) {
 		console.log(`[fetchData] Error during JSON.parse: ${e}`);
 		loader.failed(['Encountered a problem while parsing theme information.', 'json.parse']);
 		throw new Error('json.parse');
 	}
 
-	// Get theme info from URL & take action if problematic
-	if(theme === null || !(selectedTheme.toLowerCase() in data)) {
-		// redirect in future using: window.location = '?';
-		// for now, simply fails
-		loader.failed(['Encountered a problem while parsing theme information.', 'invalid theme']);
-		throw new Error('invalid theme');
-	} else {
-		theme = data[selectedTheme.toLowerCase()];
+	// Check for legacy json
+	if(themeUrls.length > 0 && collectionUrls.includes(themeUrls[0]) && !selectedTheme) {
+		selectedTheme = 'theme';
 	}
+	processJson(json, themeUrls[0], selectedTheme ? selectedTheme : 'theme')
+	.then((processedJson) => {
+		// Get theme info from URL & take action if problematic
+		if(processedJson === false) {
+			loader.failed(['Encountered a problem while parsing theme information.', 'invalid.name']);
+			throw new Error('invalid theme name');
+		} else if(!('data' in processedJson)) {
+			loader.failed(['Encountered a problem while parsing theme information.', 'invalid.json']);
+			throw new Error('invalid json format');
+		} else {
+			theme = processedJson['data'];
+			userOpts['theme'] = selectedTheme ? selectedTheme : theme['name'];
+		}
 
-	document.getElementsByTagName('title')[0].textContent = `Theme Customiser - ${theme['name']}`;
+		document.getElementsByTagName('title')[0].textContent = `Theme Customiser - ${theme['name']}`;
 
-	renderHtml();
-	finalSetup();
+		renderHtml();
+		finalSetup();
+	})
 });
 
 fetchData.catch((reason) => {

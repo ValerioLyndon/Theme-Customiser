@@ -1,0 +1,11 @@
+{
+	"json_version": 0.2,
+	"themes": [
+		{
+			"name": "Example",
+			"author": "Your Name Here",
+			"type": "modern",
+			"url": "./assets/theme.json"
+		}
+	]
+}
