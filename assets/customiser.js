@@ -1307,14 +1307,24 @@ var userOpts = {
 	'mods': {}
 };
 
-if(themeUrls.length === 0) {
+
+// Get data for all themes and call other functions
+
+let fetchUrl = themeUrls[0],
+	selectedTheme = query.get('q') || query.get('theme');
+
+// Legacy processing for json 0.1 > 0.2
+if(themeUrls.length === 0 && collectionUrls.length > 0) {
+	fetchUrl = collectionUrls[0];
+	console.log('2')
+}
+// Generic failure
+else if(themeUrls.length === 0) {
 	loader.failed(['No theme was specified in the URL. Did you follow a broken link?', 'select']);
 	throw new Error('select');
 }
 
-// Get data for all themes and call other functions
-
-let fetchData = fetchFile(themeUrls[0], false);
+let fetchData = fetchFile(fetchUrl, false);
 
 fetchData.then((json) => {
 	// Attempt to parse provided data.
@@ -1327,25 +1337,28 @@ fetchData.then((json) => {
 	}
 
 	// Check for legacy json
-	let selectedTheme = query.get('q') || query.get('theme');
-	json = processJson(json, themeUrls[0], selectedTheme);
-
-	// Get theme info from URL & take action if problematic
-	if(json === false) {
-		loader.failed(['Encountered a problem while parsing theme information.', 'invalid.name']);
-		throw new Error('invalid theme name');
-	} else if(!('data' in json)) {
-		loader.failed(['Encountered a problem while parsing theme information.', 'invalid.json']);
-		throw new Error('invalid json format');
-	} else {
-		theme = json['data'];
-		userOpts['theme'] = selectedTheme || theme['name'];
+	if(!(themeUrls.length > 0 && collectionUrls.includes(themeUrls[0]))) {
+		selectedTheme = 'theme';
 	}
+	processJson(json, themeUrls[0], selectedTheme ? selectedTheme : 'theme')
+	.then((processedJson) => {
+		// Get theme info from URL & take action if problematic
+		if(processedJson === false) {
+			loader.failed(['Encountered a problem while parsing theme information.', 'invalid.name']);
+			throw new Error('invalid theme name');
+		} else if(!('data' in processedJson)) {
+			loader.failed(['Encountered a problem while parsing theme information.', 'invalid.json']);
+			throw new Error('invalid json format');
+		} else {
+			theme = processedJson['data'];
+			userOpts['theme'] = selectedTheme ? selectedTheme : theme['name'];
+		}
 
-	document.getElementsByTagName('title')[0].textContent = `Theme Customiser - ${theme['name']}`;
+		document.getElementsByTagName('title')[0].textContent = `Theme Customiser - ${theme['name']}`;
 
-	renderHtml();
-	finalSetup();
+		renderHtml();
+		finalSetup();
+	})
 });
 
 fetchData.catch((reason) => {

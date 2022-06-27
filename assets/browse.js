@@ -113,9 +113,10 @@ Promise.allSettled(collectionFiles)
 				continue;
 			}
 
-			tempData = processJson(tempData, collectionUrls[i], 'collection');
-
-			renderCards(tempData['themes']);
+			processJson(tempData, collectionUrls[i], 'collection')
+			.then((processedJson) => {
+				renderCards(processedJson['themes']);
+			})
 		}
 
 		if(failures >= files.length) {
