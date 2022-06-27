@@ -1136,9 +1136,13 @@ function importPreviousOpts(opts = undefined) {
 		var previousOpts = opts;
 	}
 
-	// Redirect user if they are on the wrong theme.
-
 	localStorage.setItem('tcUserOptsImported', JSON.stringify(previousOpts));
+	
+	// Do nothing if useropts are the same.
+	if(userOpts === previousOpts) {
+		messenger.warn('Nothing imported. Settings exactly match the current page.');
+		return null;
+	}
 	
 	// If theme is wrong, offer to redirect.
 	if(userOpts['theme'] !== previousOpts['theme']) {
@@ -1186,7 +1190,11 @@ function importPreviousOpts(opts = undefined) {
 	
 function applyPreviousOpts(previousOpts) {
 	// set current options to match
-	userOpts = previousOpts;
+	let tempTheme = userOpts['theme'],
+		tempData = userOpts['data'];
+	userOpts['mods'] = previousOpts['mods'];
+	userOpts['theme'] = tempTheme;
+	userOpts['data'] = tempData;
 	
 	// update HTML to match new options
 	for(let [optId, val] of Object.entries(userOpts['options'])) {
@@ -1206,6 +1214,7 @@ function applyPreviousOpts(previousOpts) {
 			delete userOpts['mods'][modId];
 			console.log(`Could not read value of mod "${modId}". Did the JSON change since this theme was customised?`);
 			messenger.error(`Could not import settings for mod "${modId}".`);
+			continue;
 		}
 		
 		for(let [optId, optVal] of Object.entries(modOpts)) {
