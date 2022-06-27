@@ -6,6 +6,7 @@ class loadingScreen {
 		this.text = document.getElementById('js-loader-text');
 		this.subText = document.getElementById('js-loader-subtext');
 		this.subText2 = document.getElementById('js-loader-subsubtext');
+		this.home = document.getElementById('js-loader-home');
 		this.stop = false;
 	}
 
@@ -26,6 +27,7 @@ class loadingScreen {
 			this.subText.textContent = reason_array[0];
 			this.subText2.classList.remove('o-hidden');
 			this.subText2.textContent = `Code: ${reason_array[1]}`;
+			this.home.classList.remove('o-hidden');
 			this.stop = true;
 			return new Error(reason_array[1]);
 		}

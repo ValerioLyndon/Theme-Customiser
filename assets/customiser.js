@@ -409,20 +409,28 @@ function updateCss() {
 		// Update export textareas
 		document.getElementById('js-export-code').textContent = optsStr;
 		// Place options at top
-		css = '/* Theme Customiser Settings\nhttps://github.com/ValerioLyndon/Theme-Customiser\n^TC' + optsStr + 'TC$*/\n\n' + css;
+		let cssWithSettings = '/* Theme Customiser Settings\nhttps://github.com/ValerioLyndon/Theme-Customiser\n^TC' + optsStr + 'TC$*/\n\n' + css;
+
+		// Add settings if there is room and add over-length notice if necessary
+		let notice = document.getElementById('js-output-notice');
+		if(css.length < 65535 && cssWithSettings.length > 65535) {
+			let spare = 65535 - css.length;
+			notice.innerHTML = `This configuration is close to exceeding MyAnimeList's maximum CSS length. The customiser settings area has been removed to make space and you now have ${spare} characters remaining. If you need help bypassing the limit, see <a class="hyperlink" href="https://myanimelist.net/forum/?topicid=1911384" target="_blank">this guide</a>.`;
+			notice.classList.add('info-box--warn');
+			notice.classList.remove('o-hidden', 'info-box--error');
+		}
+		else if(css.length > 65535) {
+			let excess = css.length - 65535;
+			notice.innerHTML = `This configuration exceeds MyAnimeList's maximum CSS length by ${excess} characters. You will need to <a class="hyperlink" href="https://www.toptal.com/developers/cssminifier" target="_blank">shorten this code</a> or <a class="hyperlink" href="https://myanimelist.net/forum/?topicid=1911384" target="_blank">host it on an external site to bypass the limit</a>.`;
+			notice.classList.add('info-box--error');
+			notice.classList.remove('o-hidden', 'info-box--warn');
+		} else {
+			notice.classList.add('o-hidden');
+			css = cssWithSettings;
+		}
 
 		// Update code textarea
 		document.getElementById('js-output').textContent = css;
-
-		// Add notice if necessary
-		let notice = document.getElementById('js-output-notice');
-		if(css.length > 65535) {
-			let excess = css.length - 65535;
-			notice.innerHTML = `This configuration exceeds MyAnimeList's maximum CSS length by ${excess} characters. You will need to shorten this code or host it on an external site to bypass the limit. For help hosting the CSS, see <a class="hyperlink" href="https://myanimelist.net/forum/?topicid=1911384" target="_blank">this guide</a>.`;
-			notice.classList.remove('o-hidden');
-		} else {
-			notice.classList.add('o-hidden');
-		}
 
 		// Update iframe
 		postToIframe(['css', css]);
@@ -1127,12 +1135,16 @@ function importPreviousOpts(opts = undefined) {
 		var previousOpts = opts;
 	}
 
-	// Redirect user if they are on the wrong theme.
-
 	localStorage.setItem('tcUserOptsImported', JSON.stringify(previousOpts));
 	
+	// Do nothing if useropts are the same.
+	if(userOpts === previousOpts) {
+		messenger.warn('Nothing imported. Settings exactly match the current page.');
+		return null;
+	}
+    
 	// If theme or data is wrong, offer to redirect or to try importing anyway.
-	if(userOpts['theme'] !== previousOpts['theme'] || userOpts['data'] !== previousOpts['data']) {
+	else if(userOpts['theme'] !== previousOpts['theme'] || userOpts['data'] !== previousOpts['data']) {
 		let msg = 'There is a mismatch between your imported settings and the current page. Redirect to the page indicated in your import?',
 			choices = {
 				'Yes': {'value': 'redirect', 'type': 'suggested'},
@@ -1162,7 +1174,11 @@ function importPreviousOpts(opts = undefined) {
 	
 function applyPreviousOpts(previousOpts) {
 	// set current options to match
-	userOpts = previousOpts;
+	let tempTheme = userOpts['theme'],
+		tempData = userOpts['data'];
+	userOpts['mods'] = previousOpts['mods'];
+	userOpts['theme'] = tempTheme;
+	userOpts['data'] = tempData;
 	
 	// update HTML to match new options
 	for(let [optId, val] of Object.entries(userOpts['options'])) {
@@ -1182,6 +1198,7 @@ function applyPreviousOpts(previousOpts) {
 			delete userOpts['mods'][modId];
 			console.log(`Could not read value of mod "${modId}". Did the JSON change since this theme was customised?`);
 			messenger.error(`Could not import settings for mod "${modId}".`);
+			continue;
 		}
 		
 		for(let [optId, optVal] of Object.entries(modOpts)) {

@@ -75,6 +75,7 @@ body {
 .title {
 	margin: 0;
 	font-size: 2em;
+	clear: both;
 }
 
 .sub-title {
@@ -192,6 +193,10 @@ body {
 	opacity: 0.65;
 	font-size: 14px;
 	font-style: italic;
+}
+
+.loading-screen__hyperlink {
+	margin-top: 8px;
 }
 
 
