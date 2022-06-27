@@ -4,7 +4,7 @@
 
 A tool to felicitate easier customisation and installation of list designs for MyAnimeList.
 
-View it in action on Github Pages: [Link](https://valeriolyndon.github.io/Theme-Customiser/?data=./assets/data.json&data=https://valeriolyndon.github.io/MAL-Public-List-Designs/customiser.json&data=https://dl.dropboxusercontent.com/s/bqgl5qfbqsodgr8/shared.json)
+View it in action on Github Pages: [Link](https://valeriolyndon.github.io/Theme-Customiser/?data=./assets/collection.json&data=https://valeriolyndon.github.io/MAL-Public-List-Designs/customiser.json&data=https://dl.dropboxusercontent.com/s/bqgl5qfbqsodgr8/shared.json)
 
 > Currently in a beta state. It works, but it has a lot of improvements to be made!
 
