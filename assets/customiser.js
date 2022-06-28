@@ -155,132 +155,216 @@ function createBB(text) {
 	return parent;
 }
 
-function updateOption(optId, defaultValue = '', parentModId = false, skipCss = false) {
-	// set values and default value
-	let fullId = `opt:${optId}`;
-	if(parentModId) {
-		fullId = `mod:${parentModId}:${optId}`;
-	}
-	let input = document.getElementById(fullId),
-		val = undefined;
+// If funcConfig['forceValue'] is set then the mod will be updated to match this value. If not, the value will be read from the HTML
+// Accepted values for funcConfig:
+// 'defaultValue' // Default none
+// 'parentModId' // Default none
+// 'skipUpdateCss' // Default off/false
+// 'forceValue' // Default none
+function updateOption(optId, funcConfig = {}) {
+	try {
+		// set values and default value
+		let fullId = funcConfig['parentModId'] ? `mod:${funcConfig['parentModId']}:${optId}` : `opt:${optId}`,
+			input = document.getElementById(fullId),
+			val = funcConfig['forceValue'];
 
-	if(input.type === 'checkbox') {
-		val = input.checked;
-	} else {
-		val = input.value;
-	}
-
-	// Add to userOpts unless matches default value
-	if(val === defaultValue) {
-		if(parentModId) {
-			delete userOpts['mods'][parentModId][optId];
-		} else {
-			delete userOpts['options'][optId];
+		if(val === undefined) {
+			if(input.type === 'checkbox') {
+				val = input.checked;
+			} else {
+				val = input.value;
+			}
 		}
-	}
-	else {
-		if(parentModId) {
-			userOpts['mods'][parentModId][optId] = val;
-		} else {
-			userOpts['options'][optId] = val;
-		}
-	}
 
-	if(!skipCss) {
-		updateCss();
+		// Add to userSettings unless matches default value
+		if(val === funcConfig['defaultValue']) {
+			if(funcConfig['parentModId']) {
+				delete userSettings['mods'][funcConfig['parentModId']][optId];
+			} else {
+				delete userSettings['options'][optId];
+			}
+		}
+		else {
+			// Update HTML if necessary
+			if(funcConfig['forceValue'] !== undefined) {
+				input.value = val;
+			}
+
+			if(funcConfig['parentModId']) {
+				userSettings['mods'][funcConfig['parentModId']][optId] = val;
+			} else {
+				userSettings['options'][optId] = val;
+			}
+		}
+
+		if(funcConfig['skipUpdateCss'] !== true) {
+			updateCss();
+		}
+		return true;
+	}
+	catch(e) {
+		console.log(`[updateMod] Unexpected error: ${e}`);
+		return false;
 	}
 }
 
-function updateMod(id) {
-	let val = document.getElementById(`mod:${id}`).checked,
-		mod = theme['mods'][id];
+// If funcConfig['forceValue'] is set then the mod will be updated to match this value. If not, the value will be read from the HTML
+// Accepted values for funcConfig:
+// 'skipUpdateCss' // Default off/false
+// 'forceValue' // Default none
+function updateMod(id, funcConfig = {}) {
+	try {
+		let toggle = document.getElementById(`mod:${id}`),
+			val = toggle.checked,
+			mod = theme['mods'][id];
 
-	// Enable required mods
-	if('requires' in mod) {
-		for(let requirement of mod['requires']) {
-			if(requirement in theme['mods']) {
-				if(val) {
-					userOpts['mods'][requirement] = val;
-				} else {
-					delete userOpts['mods'][requirement];
+		if(funcConfig['forceValue'] !== undefined) {
+			val = funcConfig['forceValue'];
+		}
+
+		// Enable required mods
+		if('requires' in mod) {
+			for(let requirement of mod['requires']) {
+				if(requirement in theme['mods']) {
+					if(val) {
+						userSettings['mods'][requirement] = val;
+					} else {
+						delete userSettings['mods'][requirement];
+					}
+
+					// todo: do this using js classes or something that won't fall apart the moment you change the DOM
+					let check = document.getElementById(`mod:${requirement}`),
+						requiredToggle = check.nextElementSibling,
+						requiredToggleInfo = requiredToggle.firstElementChild;
+					
+					check.disabled = val;
+					check.checked = val;
+
+					if(val) {
+						requiredToggle.classList.add('is-forced', 'has-info');
+						requiredToggleInfo.textContent = 'This must be enabled for other options to work.';
+					} else {
+						requiredToggle.classList.remove('is-forced', 'has-info');
+					}
 				}
-
-				// todo: do this using js classes or something that won't fall apart the moment you change the DOM
-				let check = document.getElementById(`mod:${requirement}`),
-					toggle = check.nextElementSibling,
-					toggleInfo = toggle.firstElementChild;
-				
-				check.disabled = val;
-				check.checked = val;
-
-				if(val) {
-					toggle.classList.add('is-forced', 'has-info');
-					toggleInfo.textContent = 'This must be enabled for other options to work.';
-				} else {
-					toggle.classList.remove('is-forced', 'has-info');
+				else {
+					messenger.warn(`Failed to set "${requirement}" requirement of mod "${id}". This usually indicates a problem with the theme JSON. Does the mod "${requirement}" exist?`);
 				}
-			}
-			else {
-				messenger.warn(`Failed to set "${requirement}" requirement of mod "${id}". This usually indicates a problem with the theme JSON. Does the mod "${requirement}" exist?`);
 			}
 		}
+		
+		// Disable incompatible mods
+		if('conflicts' in mod) {
+			for(let conflict of mod['conflicts']) {
+				if(conflict in theme['mods']) {
+					// todo: do this using js classes or something that won't fall apart the moment you change the DOM
+					let check = document.getElementById(`mod:${conflict}`),
+						conflictToggle = check.nextElementSibling,
+						conflictToggleInfo = conflictToggle.firstElementChild;
+
+					check.disabled = val;
+
+					if(val) {
+						conflictToggle.classList.add('is-disabled', 'has-info');
+						conflictToggleInfo.textContent = `This mod is incompatible with one of your choices. To use, disable "${mod['name']}".`;
+					} else {
+						conflictToggle.classList.remove('is-disabled', 'has-info');
+					}
+				}
+				else {
+					messenger.warn(`Failed to set the "${conflict}" conflict of mod "${id}". This usually indicates a problem with the theme JSON. Does the mod "${conflict}" exist?`);
+				}
+			}
+		}
+
+		// Add some CSS style rules
+		if(val === true) {
+			document.getElementById(`mod-parent:${id}`).classList.add('is-enabled');
+		} else {
+			document.getElementById(`mod-parent:${id}`).classList.remove('is-enabled');
+		}
+
+		// Add to userSettings unless matches default value (i.e disabled)
+		if(val === false) {
+			delete userSettings['mods'][id];
+		}
+		else {
+			// Update HTML if necessary
+			if(funcConfig['forceValue'] !== undefined) {
+				toggle.checked = val;
+			}
+
+			userSettings['mods'][id] = {};
+
+			// Update options if it has any before calling CSS
+			if('options' in mod) {
+				for(let [optId, opt] of Object.entries(mod['options'])) {
+					if(opt['default'] === undefined && opt['type'] === 'toggle') {
+						opt['default'] = false;
+					} else if(opt['default'] === undefined) {
+						opt['default'] = '';
+					}
+					updateOption(optId, {'defaultValue': opt['default'], 'parentModId': id, 'skipUpdateCss': true});
+				}
+			}
+		}
+
+		if(funcConfig['skipUpdateCss'] !== true) {
+			updateCss();
+		}
+		return true;
+	}
+	catch(e) {
+		console.log(`[updateMod] Unexpected error: ${e}`);
+		return false;
+	}
+}
+
+function applySettings(settings = false) {
+	if(settings) {
+		let tempTheme = userSettings['theme'],
+			tempData = userSettings['data'];
+		userSettings['mods'] = settings['mods'];
+		userSettings['theme'] = tempTheme;
+		userSettings['data'] = tempData;
 	}
 	
-	// Disable incompatible mods
-	if('conflicts' in mod) {
-		for(let conflict of mod['conflicts']) {
-			if(conflict in theme['mods']) {
-				// todo: do this using js classes or something that won't fall apart the moment you change the DOM
-				let check = document.getElementById(`mod:${conflict}`),
-					toggle = check.nextElementSibling,
-					toggleInfo = toggle.firstElementChild;
-
-				check.disabled = val;
-
-				if(val) {
-					toggle.classList.add('is-disabled', 'has-info');
-					toggleInfo.textContent = `This mod is incompatible with one of your choices. To use, disable "${mod['name']}".`;
-				} else {
-					toggle.classList.remove('is-disabled', 'has-info');
-				}
-			}
-			else {
-				messenger.warn(`Failed to set the "${conflict}" conflict of mod "${id}". This usually indicates a problem with the theme JSON. Does the mod "${conflict}" exist?`);
+	// update HTML to match new options
+	let errors = [];
+	for(let [optId, val] of Object.entries(userSettings['options'])) {
+		if(!updateOption(optId, {'skipUpdateCss': true, 'forceValue': val})) {
+			delete userSettings['options'][optId];
+			errors.push(`opt:<b>${optId}</b>`);
+		}
+	}
+	for(let [modId, modOpts] of Object.entries(userSettings['mods'])) {
+		if(!updateMod(modId, {'skipUpdateCss': true, 'forceValue': true})) {
+			delete userSettings['mods'][modId];
+			errors.push(`mod:<b>${modId}</b>`);
+			continue;
+		}
+		
+		for(let [optId, optVal] of Object.entries(modOpts)) {
+			if(!updateOption(optId, {'parentModId': modId, 'skipUpdateCss': true, 'forceValue': optVal})) {
+				delete userSettings['mods'][modId][optId];
+				errors.push(`opt:<b>${optId}</b><i> of mod:${modId}</i>`);
 			}
 		}
 	}
 
-	// Add some CSS style rules
-	if(val === true) {
-		document.getElementById(`mod-parent:${id}`).classList.add('is-enabled');
-	} else {
-		document.getElementById(`mod-parent:${id}`).classList.remove('is-enabled');
-	}
-
-	// Add to userOpts unless matches default value (i.e disabled)
-	if(val === false) {
-		delete userOpts['mods'][id];
-	}
-	else {
-		userOpts['mods'][id] = {};
-
-		// Update options if it has any before calling CSS
-		if('options' in mod) {
-			for(let [optId, opt] of Object.entries(mod['options'])) {
-				if(opt['default'] === undefined && opt['type'] === 'toggle') {
-					opt['default'] = false;
-				} else if(opt['default'] === undefined) {
-					opt['default'] = '';
-				}
-				updateOption(optId, opt['default'], id, true);
-			}
-		}
+	// Report errors
+	if(errors.length > 0) {
+		console.log(`Could not import settings for some mods or options: ${errors.join(', ').replaceAll(/<.*?>/g,'')}. Did the JSON change since this theme was customised?`);
+		messenger.error(`Could not import settings for some mods or options. The skipped items were:<br />• ${errors.join('<br />• ')}.`);
 	}
 
 	updateCss();
 }
 
 function updateCss() {
+	let storageString = {'date': Date.now(), 'settings': userSettings};
+	localStorage.setItem(`theme:${userSettings['data']}`, JSON.stringify(storageString));
+
 	let newCss = baseCss;
 	
 	function applyOptionToCss(css, optData, insert) {
@@ -338,7 +422,7 @@ function updateCss() {
 	}
 
 	// Options
-	for(let [id, val] of Object.entries(userOpts['options'])) {
+	for(let [id, val] of Object.entries(userSettings['options'])) {
 		newCss = applyOptionToCss(newCss, theme['options'][id], val);
 	}
 
@@ -357,9 +441,9 @@ function updateCss() {
 		}
 	}
 	
-	if('mods' in theme && Object.keys(userOpts['mods']).length > 0) {
+	if('mods' in theme && Object.keys(userSettings['mods']).length > 0) {
 		(async () => {
-			for(let id of Object.keys(userOpts['mods'])) {
+			for(let id of Object.keys(userSettings['mods'])) {
 				let modData = theme['mods'][id];
 				for(let [location, resource] of Object.entries(modData['css'])) {
 					if(resource.startsWith('http')) {
@@ -373,7 +457,7 @@ function updateCss() {
 						var modCss = resource;
 					}
 
-					for(let [optId, val] of Object.entries(userOpts['mods'][id])) {
+					for(let [optId, val] of Object.entries(userSettings['mods'][id])) {
 						modCss = applyOptionToCss(modCss, modData['options'][optId], val);
 					}
 
@@ -389,11 +473,11 @@ function updateCss() {
 
 	function pushCss(css) {
 		// Encode options & sanitise any CSS character
-		let optsStr = JSON.stringify(userOpts).replaceAll('*/','*\\/').replaceAll('/*','\\/*');
+		let settingsStr = JSON.stringify(userSettings).replaceAll('*/','*\\/').replaceAll('/*','\\/*');
 		// Update export textareas
-		document.getElementById('js-export-code').textContent = optsStr;
+		document.getElementById('js-export-code').textContent = settingsStr;
 		// Place options at top
-		let cssWithSettings = '/* Theme Customiser Settings\nhttps://github.com/ValerioLyndon/Theme-Customiser\n^TC' + optsStr + 'TC$*/\n\n' + css;
+		let cssWithSettings = '/* Theme Customiser Settings\nhttps://github.com/ValerioLyndon/Theme-Customiser\n^TC' + settingsStr + 'TC$*/\n\n' + css;
 
 		// Add settings if there is room and add over-length notice if necessary
 		let notice = document.getElementById('js-output-notice');
@@ -495,6 +579,18 @@ function validateInput(fullid, type) {
 	}
 }
 
+function resetSettings() {
+	confirm('Wipe your currently selected settings and start from scratch?', {'Yes': {'value': true, 'type': 'danger'}, 'No': {'value': false}})
+	.then((choice) => {
+		if(choice) {
+			userSettings['options'] = {};
+			userSettings['mods'] = {};
+			applySettings(userSettings);
+			messenger.timeout('Settings reset to default.');
+		}
+	});
+}
+
 
 
 // ONE-TIME FUNCTIONS
@@ -514,12 +610,12 @@ function renderHtml() {
 	var optionsEle = document.getElementById('js-options');
 
 	function generateOptionHtml(dictionary, parentModId) {
-		let id = dictionary[0],
+		let optId = dictionary[0],
 			opt = dictionary[1],
-			fullId = `opt:${id}`;
+			fullId = `opt:${optId}`;
 		
 		if(parentModId) {
-			fullId = `mod:${parentModId}:${id}`;
+			fullId = `mod:${parentModId}:${optId}`;
 		}
 
 		let div = document.createElement('div'),
@@ -616,7 +712,7 @@ function renderHtml() {
 			}
 
 			input.addEventListener('input', () => {
-				updateOption(id, opt['default'], parentModId);
+				updateOption(optId, {'defaultValue': opt['default'], 'parentModId': parentModId});
 			});
 		}
 
@@ -629,7 +725,7 @@ function renderHtml() {
 			input.placeholder = 'Your text here.';
 			div.appendChild(input);
 
-			input.addEventListener('input', () => { updateOption(id, opt['default'], parentModId); });
+			input.addEventListener('input', () => { updateOption(optId, {'defaultValue': opt['default'], 'parentModId': parentModId}); });
 		}
 
 		else if(baseType === 'toggle') {
@@ -649,7 +745,7 @@ function renderHtml() {
 
 
 
-			toggle.addEventListener('input', () => { updateOption(id, opt['default'], parentModId); });
+			toggle.addEventListener('input', () => { updateOption(optId, {'defaultValue': opt['default'], 'parentModId': parentModId}); });
 		}
 
 		else if(baseType === 'select') {
@@ -669,7 +765,7 @@ function renderHtml() {
 			}
 			div.append(select);
 
-			select.addEventListener('input', () => { updateOption(id, opt['default'], parentModId); });
+			select.addEventListener('input', () => { updateOption(optId, {'defaultValue': opt['default'], 'parentModId': parentModId}); });
 		}
 
 		notice.id = `${fullId}-notice`;
@@ -1111,28 +1207,47 @@ function finalSetup() {
 		// Update Preview
 		baseCss = css;
 	
-		// Import settings if requested by URL
+		// Import settings if requested by storage
 		if(localStorage.getItem('tcImport')) {
-			let opts = localStorage.getItem('tcUserOptsImported');
-			if(opts === null) {
+			let tempSettings = localStorage.getItem('tcUserSettingsImported');
+			if(tempSettings === null) {
 				messenger.error('Failed to import options. If you initiated this operation, please report this issue.', 'localstorage.getitem');
 			} else {
 				try {
-					opts = JSON.parse(opts);
+					tempSettings = JSON.parse(tempSettings);
 				} catch(e) {
 					console.log(`[finalise] Error during JSON.parse: ${e}`);
 					messenger.error('Failed to import options. Could not parse settings.', 'json.stringify');
 				}
-				// importpreviousopts will call updateCss and pushCss
-				if(importPreviousOpts(opts)) {
+				// importPreviousSettings will call updateCss and pushCss
+				if(importPreviousSettings(tempSettings)) {
 					localStorage.removeItem('tcImport');
+				}
+			} 
+		}
+
+		// Clear any previous theme settings that are older than 12 hours (43,200,000ms).
+		for(i = 0; i < localStorage.length; i++) {
+			let key = localStorage.key(i);
+
+			if(key.startsWith('theme:')) {
+				let data = JSON.parse(localStorage.getItem(key));
+				if(Date.now() - data['date'] > 432000000) {
+					localStorage.removeItem(key);
 				}
 			}
 		}
 
-		// Push to iframe
+		// Apply previous settings if they exist.
+		let settingsStorage = localStorage.getItem(`theme:${userSettings['data']}`);
+		if(settingsStorage) {
+			let storage = JSON.parse(settingsStorage);
+			applySettings(storage['settings']);
+		}
+
+		// Push to iframe as normal if no import present
 		else {
-			updateCss(css);
+			updateCss();
 		}
 
 		pageLoaded = true;
@@ -1191,7 +1306,7 @@ var theme = '',
 	json = null,
 	baseCss = '';
 
-var userOpts = {
+var userSettings = {
 	'data': themeUrls[0],
 	'options': {},
 	'mods': {}
@@ -1241,7 +1356,7 @@ fetchData.then((json) => {
 			throw new Error('invalid json format');
 		} else {
 			theme = processedJson['data'];
-			userOpts['theme'] = selectedTheme ? selectedTheme : theme['name'];
+			userSettings['theme'] = selectedTheme ? selectedTheme : theme['name'];
 		}
 
 		document.getElementsByTagName('title')[0].textContent = `Theme Customiser - ${theme['name']}`;

@@ -151,7 +151,7 @@ function fetchFile(path, cacheResult = true) {
 	});
 }
 
-function importPreviousOpts(opts = undefined) {
+function importPreviousSettings(opts = undefined) {
 	if(opts === undefined) {
 		let previous = document.getElementById('js-import-code').value;
 
@@ -168,11 +168,11 @@ function importPreviousOpts(opts = undefined) {
 
 		// previous input should be either:
 		// * a raw JSON object
-		// * random text that includes the ^TC{}TC$ text format with stringifed json useropts inside the curly braces. 
+		// * random text that includes the ^TC{}TC$ text format with stringifed json userSettings inside the curly braces. 
 		
 		// Try to parse as JSON, if it fails then process as normal string.
 		try {
-			var previousOpts = JSON.parse(previous.trim());
+			var previousSettings = JSON.parse(previous.trim());
 		}
 		catch {
 			previous = previous.match(/\^TC{.*?}}TC\$/);
@@ -185,33 +185,33 @@ function importPreviousOpts(opts = undefined) {
 			previous = previous[0].substr(3, previous[0].length - 6);
 
 			try {
-				var previousOpts = JSON.parse(previous);
+				var previousSettings = JSON.parse(previous);
 			} catch(e) {
-				console.log(`[importPreviousOpts] Error during JSON.parse: ${e}`);
+				console.log(`[importPreviousSettings] Error during JSON.parse: ${e}`);
 				messenger.error('Import failed, could not interpret your options. Are you sure you copied and pasted all the settings?', 'json.parse');
 				return false;
 			}
 		}
 	} else {
-		var previousOpts = opts;
+		var previousSettings = opts;
 	}
 
-	localStorage.setItem('tcUserOptsImported', JSON.stringify(previousOpts));
+	localStorage.setItem('tcUserSettingsImported', JSON.stringify(previousSettings));
 	
 	// Redirect without asking if on the browse page.
 	if(!window.location.pathname.startsWith('/theme')) {
 		localStorage.setItem('tcImport', true);
-		window.location = `./theme?q=${previousOpts['theme']}&t=${previousOpts['data']}`;
+		window.location = `./theme?q=${previousSettings['theme']}&t=${previousSettings['data']}`;
 	}
 
-	// Do nothing if useropts are the same.
-	if(userOpts === previousOpts) {
+	// Do nothing if userSettings are the same.
+	if(userSettings === previousSettings) {
 		messenger.warn('Nothing imported. Settings exactly match the current page.');
 		return null;
 	}
     
 	// If theme or data is wrong, offer to redirect or to try importing anyway.
-	else if(userOpts['theme'] !== previousOpts['theme'] || userOpts['data'] !== previousOpts['data']) {
+	else if(userSettings['theme'] !== previousSettings['theme'] || userSettings['data'] !== previousSettings['data']) {
 		let msg = 'There is a mismatch between your imported settings and the current page. Redirect to the page indicated in your import?',
 			choices = {
 				'Yes': {'value': 'redirect', 'type': 'suggested'},
@@ -223,9 +223,9 @@ function importPreviousOpts(opts = undefined) {
 		.then((choice) => {
 			if(choice === 'redirect') {
 				localStorage.setItem('tcImport', true);
-				window.location = `./theme?q=${previousOpts['theme']}&t=${previousOpts['data']}`;
+				window.location = `./theme?q=${previousSettings['theme']}&t=${previousSettings['data']}`;
 			} else if(choice === 'ignore') {
-				applyPreviousOpts(previousOpts);
+				applySettings(previousSettings);
 				return true;
 			} else {
 				localStorage.removeItem('tcImport');
@@ -235,56 +235,9 @@ function importPreviousOpts(opts = undefined) {
 
 		return false;
 	}
-	applyPreviousOpts(previousOpts);
-	return true;
-}
-
-function applyPreviousOpts(previousOpts) {
-	// set current options to match
-	let tempTheme = userOpts['theme'],
-		tempData = userOpts['data'];
-	userOpts['mods'] = previousOpts['mods'];
-	userOpts['theme'] = tempTheme;
-	userOpts['data'] = tempData;
-	
-	// update HTML to match new options
-	let errors = [];
-	for(let [optId, val] of Object.entries(userOpts['options'])) {
-		try {
-			document.getElementById(`opt:${optId}`).value = val;
-		} catch {
-			delete userOpts['options'][optId];
-			errors.push(`opt:<b>${optId}</b>`);
-		}
-	}
-	for(let [modId, modOpts] of Object.entries(userOpts['mods'])) {
-		try {
-			document.getElementById(`mod:${modId}`).checked = true;
-			document.getElementById(`mod-parent:${modId}`).classList.add('is-enabled');
-		} catch {
-			delete userOpts['mods'][modId];
-			errors.push(`mod:<b>${optId}</b>`);
-			continue;
-		}
-		
-		for(let [optId, optVal] of Object.entries(modOpts)) {
-			try {
-				document.getElementById(`mod:${modId}:${optId}`).value = optVal;
-			} catch {
-				delete userOpts['mods'][modId][optId];
-				errors.push(`opt:<b>${optId}</b><i> of mod:${modId}</i>`);
-			}
-		}
-	}
-
-	// Report errors
-	if(errors.length > 0) {
-		console.log(`Could not import settings for some mods or options: ${errors.join(', ').replaceAll(/<.*?>/g,'')}. Did the JSON change since this theme was customised?`);
-		messenger.error(`Could not import settings for some mods or options. The skipped items were:<br />• ${errors.join('<br />• ')}.`);
-	}
-
-	updateCss();
+	applySettings(previousSettings);
 	messenger.timeout('Settings import complete.');
+	return true;
 }
 
 function toggleEle(selector, btn = false, set = undefined) {
