@@ -3,6 +3,7 @@
 /* Checkbox toggles */
 
 .toggle {
+	--hover-offset: 2px;
 	display: block;
 	width: 32px;
 	height: 16px;
@@ -21,6 +22,9 @@
 	margin: -2px 0 0 -2px;
 	transition: transform 0.1s ease;
 }
+.toggle:hover::after {
+	transform: translateX(var(--hover-offset));
+}
 
 input:checked + .toggle {
 	background: #2e51a2af;
@@ -28,12 +32,17 @@ input:checked + .toggle {
 input:checked + .toggle::after {
 	transform: translateX(16px);
 }
+input:checked + .toggle:hover::after {
+	transform: translateX(calc(16px - var(--hover-offset)));
+}
 
 .toggle.is-disabled::after {
+	--hover-offset: 0;
 	background: #a2512e;
 }
 
 input:checked + .toggle.is-forced {
+	--hover-offset: 0;
 	background: #2ea251af;
 }
 input:checked + .toggle.is-forced::after {
