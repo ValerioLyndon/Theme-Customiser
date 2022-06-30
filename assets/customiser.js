@@ -1361,7 +1361,7 @@ fetchData.then((json) => {
 
 		// Set preview to correct type and add iframe to page
 		let framePath = './preview/';
-		if(theme['type'] === ['classic']) {
+		if(theme['type'] === 'classic') {
 			framePath += 'classic/';
 		} else {
 			framePath += 'modern/';
