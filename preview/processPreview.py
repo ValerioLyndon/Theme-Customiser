@@ -62,16 +62,18 @@ for filePath in previewFiles:
 			#class lists only
 			[r'(style="border-left-width: 1px;" width="30" align="center")', r'\1 tc-column="Numbers"'],
 			[r'(width="45" align="center")', r'\1 tc-column="Score"'],
-			[r'(width="70" align="center")', r'\1 tc-column="Episodes"'],
-			[r'(width="50" align="center")((?:[\s\S](?!td))*?(?:TV|Special|OVA|ONA))', r'\1 tc-column="Type"\2'],
-			[r'(width="70" align="center")', r'\1 tc-column="Episodes"'],
+			[r'(width="70" align="center"|width="70" nowrap="" align="center")', r'\1 tc-column="Episodes"'],
+			[r'(width="50" nowrap="" align="center")((?:[\s\S](?!td))*?Type)', r'\1 tc-column="Type"\2'],
+			[r'(width="50" align="center")((?:[\s\S](?!td))*?(?:TV|Special|OVA|ONA|Movie))', r'\1 tc-column="Type"\2'],
+			[r'(width="125" nowrap="" align="center")((?:[\s\S](?!td))*?Tags)', r'\1 tc-column="Tags"\2'],
 			[r'(width="125" align="left")((?:[\s\S](?!td))*?tagChangeRow)', r'\1 tc-column="Tags"'],
 			[r'(width="50" align="center")((?:[\s\S](?!td))*?(?:G|PG|PG-13|R|R\+|X))', r'\1 tc-column="Rating"\2'],
 			[r'(width="90" align="center")', r'\1 tc-column="Start/End Dates"'],
 			[r'(width="45" nowrap="" align="center")', r'\1 tc-column="Days"'],
 			[r'(width="75" nowrap="" align="center")', r'\1 tc-column="Storage"'],
+			[r'(width="125" nowrap="" align="center")((?:[\s\S](?!td))*?Genres)', r'\1 tc-column="Genre"\2'],
 			[r'(width="125" align="left")((?:[\s\S](?!td))*?genre=)', r'\1 tc-column="Genre"\2'],
-			[r'(width="90" align="left")', r'\1 tc-column="Demographic"'],
+			[r'(width="90" align="left"|width="90" nowrap="" align="center")', r'\1 tc-column="Demographics"'],
 			#both lists
 			[r'(tc-column="[^"]*?") tc-column="[^"]*?"', r'\1']
 		]
