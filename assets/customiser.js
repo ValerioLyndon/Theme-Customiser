@@ -1286,9 +1286,8 @@ iframe.addEventListener('load', () => {
 		loader.loaded();
 	}
 });
-iframe.src = 'preview.html';
+
 iframe.className = 'preview__window';
-preview.appendChild(iframe);
 
 function postToIframe(msg) {
 	if(iframeLoaded) {
@@ -1347,6 +1346,7 @@ fetchData.then((json) => {
 	}
 	processJson(json, themeUrls[0], selectedTheme ? selectedTheme : 'theme')
 	.then((processedJson) => {
+
 		// Get theme info from URL & take action if problematic
 		if(processedJson === false) {
 			loader.failed(['Encountered a problem while parsing theme information.', 'invalid.name']);
@@ -1359,6 +1359,24 @@ fetchData.then((json) => {
 			userSettings['theme'] = selectedTheme ? selectedTheme : theme['name'];
 		}
 
+		// Set preview to correct type and add iframe to page
+		let framePath = './preview/';
+		if(theme['type'] === ['classic']) {
+			framePath += 'classic/';
+		} else {
+			framePath += 'modern/';
+		}
+		if(theme['supports'] === ['mangalist']) {
+			//framePath += 'mangalist.html';
+			console.log('Detected mangalist only, but this feature is not yet supported.');
+			framePath += 'animelist.html';
+		} else {
+			framePath += 'animelist.html';
+		}
+		iframe.src = framePath;
+		preview.appendChild(iframe);
+
+		// Page title
 		document.getElementsByTagName('title')[0].textContent = `Theme Customiser - ${theme['name']}`;
 
 		renderHtml();
