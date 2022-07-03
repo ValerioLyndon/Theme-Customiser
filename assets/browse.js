@@ -55,10 +55,28 @@ function renderCards(cardData) {
 		tagArea.className = 'card__tag-list';
 		display.appendChild(tagArea);
 
-		let tagType = document.createElement('span');
-		tagType.className = 'card__tag';
-		tagType.textContent =capitalise(theme['type']);
-		tagArea.appendChild(tagType);
+		function addTag(name, colour) {
+			let tag = document.createElement('span');
+			tag.className = 'card__tag';
+			tag.textContent = name;
+			if(colour) {
+				tag.style.cssText = `--tag-accent: ${colour};`;
+			}
+			tagArea.appendChild(tag);
+		}
+
+		let typeName = capitalise(theme['type']);
+		if(theme['type'] === 'classic') {
+			addTag(typeName, '#5ad590');
+		} else {
+			addTag(typeName, '#5bb8ce');
+		}
+
+		if('flags' in theme) {
+			if(theme['flags'].includes('beta')) {
+				addTag('Beta', '#eea579');
+			}
+		}
 
 		if('supports' in theme && theme['supports'].length === 1) {
 			let tagSupport = document.createElement('span');
