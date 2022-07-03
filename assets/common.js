@@ -153,7 +153,7 @@ function fetchFile(path, cacheResult = true) {
 
 function importPreviousSettings(opts = undefined) {
 	if(opts === undefined) {
-		let previous = document.getElementById('js-import-code').value;
+		let previous = document.getElementById('js-pp-import-code').value;
 
 		// Skip if empty string or does not contain formatting.
 		if(previous.trim().length === 0) {

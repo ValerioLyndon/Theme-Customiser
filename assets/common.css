@@ -114,11 +114,11 @@ body {
 	resize: vertical;
 }
 .input--code {
-	width: calc(100% - 14px);
+	width: calc(100% - 16px);
 	padding: 6px;
-	border-color: #111;
-	background: #2a2a2f;
-	color: #ebebab;
+	border-color: #212127;
+	background: #404051;
+	color: #eeeeae;
 	font: 11px/1.3 monospace;
 }
 
@@ -505,6 +505,13 @@ body {
 	border-bottom: 2px dotted var(--border-heavy);
 	margin: 0 0 8px;
 	font-size: 1.2em;
+	font-weight: 700;
+}
+
+.popup__sub-header {
+	display: block;
+	margin: 8px 0;
+	font-size: 1.1em;
 	font-weight: 700;
 }
 

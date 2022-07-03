@@ -23,7 +23,7 @@
 					</a>
 				</div>
 				<div class="nav__split nav__split--right">
-					<a class="nav__link" onclick="toggleEle('#js-import')">
+					<a class="nav__link" onclick="toggleEle('#js-pp-import')">
 						<i class="nav__link-icon fa-solid fa-file-import"></i>
 						<span class="nav__link-text nav__link-text--right">Import Settings</span>
 					</a>
@@ -66,9 +66,9 @@
 			<div class="messenger__show-button"></div>
 		</div>
 
-		<div class="popup is-hidden" id="js-import">
+		<div class="popup is-hidden" id="js-pp-import">
 			<div class="popup__inner">
-				<div class="popup__invisibutton" onclick="toggleEle('#js-import')"></div>
+				<div class="popup__invisibutton" onclick="toggleEle('#js-pp-import')"></div>
 				<div class="popup__content">
 					<h4 class="popup__header">Import previous settings.</h4>
 					
@@ -76,7 +76,7 @@
 						Place a customiser settings object or your full theme CSS into this textbox and then click "Import Settings".
 					</p>
 
-					<textarea id="js-import-code" class="input input--textarea"></textarea>
+					<textarea id="js-pp-import-code" class="input input--textarea"></textarea>
 					<button class="button button--highlighted" onclick="importPreviousSettings()">Import Settings</button>
 				</div>
 			</div>

@@ -969,12 +969,14 @@ function renderHtml() {
 
 	// Add support
 	if('supports' in theme && theme['supports'].length === 1) {
-		if(['animelist','mangalist'].includes(theme['supports'][0])) {
+		let type = theme['supports'][0];
+		if(['animelist','mangalist'].includes(type)) {
 			intendedConfig.classList.remove('o-hidden');
 			
-			let parent = document.getElementById('js-list-type');
+			let parent = document.getElementById('js-list-type'),
+				child = document.getElementById('js-list-type__text');
+			child.innerHTML = `This theme was designed only for <b>${type}s</b>. Use on ${type === 'animelist' ? 'mangalist' : 'animelist'}s may have unexpected results.`;
 			parent.classList.remove('o-hidden');
-			parent.innerHTML = `Use only with your <b>${theme['supports'][0]}</b>.`;
 		}
 		else {
 			messenger.warn('The supported list was ignored due to being invalid. The only accepted values are "animelist" and "mangalist".');
