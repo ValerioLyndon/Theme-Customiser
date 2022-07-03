@@ -598,8 +598,8 @@ function resetSettings() {
 // Setup basic options structure and add event listeners
 function renderHtml() {
 	// options & mods
-	document.getElementById('js-title').textContent = theme['name'];
-	document.getElementById('js-author').textContent = theme['author'];
+	document.getElementById('js-title').textContent = theme['name'] ? theme['name'] : 'Untitled';
+	document.getElementById('js-author').textContent = theme['author'] ? theme['author'] : 'Unknown Author';
 	let credit = document.getElementById('js-theme-credit');
 	if('author' in theme && theme['author']) {
 		credit.textContent = `Customising "${theme['name']}" by ${theme['author']}`;
@@ -821,7 +821,7 @@ function renderHtml() {
 			div.className = 'entry';
 			div.id = `mod-parent:${modId}`;
 			head.className = 'entry__head';
-			headLeft.textContent = mod['name'];
+			headLeft.textContent = mod['name'] ? mod['name'] : 'Untitled';
 			headLeft.className = 'entry__name entry__name--emphasised';
 			headRight.className = 'entry__action-box';
 			head.appendChild(headLeft);
@@ -1347,18 +1347,28 @@ fetchData.then((json) => {
 	}
 	processJson(json, themeUrls[0], selectedTheme ? selectedTheme : 'theme')
 	.then((processedJson) => {
+		function jsonfail(msg) {
+			loader.failed([msg, 'invalid.json']);
+			throw new Error('invalid json format');
+		}
+
 		// Get theme info from URL & take action if problematic
 		if(processedJson === false) {
 			loader.failed(['Encountered a problem while parsing theme information.', 'invalid.name']);
 			throw new Error('invalid theme name');
-		} else if(!('data' in processedJson)) {
-			loader.failed(['Encountered a problem while parsing theme information.', 'invalid.json']);
-			throw new Error('invalid json format');
+		} else if(typeof processedJson === 'string') {
+			jsonfail(processedJson);
 		} else {
 			theme = processedJson['data'];
 			userSettings['theme'] = selectedTheme ? selectedTheme : theme['name'];
 		}
 
+		// Test for basic JSON values to assist list designers debug.
+		if(!('css' in theme)) {
+			theme['css'] = '';
+		}
+
+		// Set page title
 		document.getElementsByTagName('title')[0].textContent = `Theme Customiser - ${theme['name']}`;
 
 		renderHtml();

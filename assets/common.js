@@ -319,7 +319,7 @@ async function processJson(json, url, toReturn) {
 			}
 		}
 		else {
-			return false;
+			return 'The linked theme lacks a "data" or a "themes" entry.';
 		}
 	}
 
