@@ -1320,7 +1320,6 @@ let fetchUrl = themeUrls[0],
 // Legacy processing for json 0.1 > 0.2
 if(themeUrls.length === 0 && collectionUrls.length > 0) {
 	fetchUrl = collectionUrls[0];
-	console.log('2')
 }
 // Generic failure
 else if(themeUrls.length === 0) {
