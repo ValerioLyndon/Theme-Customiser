@@ -2,6 +2,8 @@
 // COMMON FUNCTIONS
 // ================
 
+loader.text('Defining functions...');
+
 function confirm(msg, options = {'Yes': {'value': true, 'type': 'suggested'}, 'No': {'value': false}}) {
 	return new Promise((resolve, reject) => {
 		let modal = document.createElement('div'),
@@ -597,6 +599,8 @@ function resetSettings() {
 
 // Setup basic options structure and add event listeners
 function renderHtml() {
+	loader.text('Rendering page...');
+
 	// options & mods
 	document.getElementById('js-title').textContent = theme['name'];
 	document.getElementById('js-author').textContent = theme['author'];
@@ -1187,6 +1191,8 @@ function renderHtml() {
 
 // Updates preview CSS & removes loader
 function finalSetup() {
+	loader.text('Fetching CSS...');
+
 	// Get theme CSS
 	if(theme['css'].startsWith('http')) {
 		let fetchThemeCss = fetchFile(theme['css']);
@@ -1257,6 +1263,7 @@ function finalSetup() {
 			loader.loaded();
 		}
 		else {
+			loader.text('Loading preview...');
 			console.log('[finalSetup] Awaiting iframe before completing page load.');
 		}
 	}
@@ -1284,6 +1291,8 @@ iframe.addEventListener('load', () => {
 	}
 	if(pageLoaded === true) {
 		loader.loaded();
+	} else {
+		loader.text('Awaiting cleanup...');
 	}
 });
 
@@ -1326,6 +1335,8 @@ else if(themeUrls.length === 0) {
 	loader.failed(['No theme was specified in the URL. Did you follow a broken link?', 'select']);
 	throw new Error('select');
 }
+
+loader.text('Fetching theme...');
 
 let fetchData = fetchFile(fetchUrl, false);
 
