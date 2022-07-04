@@ -445,6 +445,9 @@ function updateCss() {
 		(async () => {
 			for(let id of Object.keys(userSettings['mods'])) {
 				let modData = theme['mods'][id];
+				if(!('css' in modData) || typeof modData['css'] === 'string') {
+					modData['css'] = {'bottom': ''}
+				}
 				for(let [location, resource] of Object.entries(modData['css'])) {
 					if(resource.startsWith('http')) {
 						try {
@@ -610,12 +613,17 @@ function renderHtml() {
 	var optionsEle = document.getElementById('js-options');
 
 	function generateOptionHtml(dictionary, parentModId) {
+
 		let optId = dictionary[0],
 			opt = dictionary[1],
 			fullId = `opt:${optId}`;
 		
 		if(parentModId) {
 			fullId = `mod:${parentModId}:${optId}`;
+		}
+			
+		if(!('type' in opt)) {
+			return `Option must have a "type" key.`;
 		}
 
 		let div = document.createElement('div'),
@@ -635,7 +643,7 @@ function renderHtml() {
 
 		div.className = 'entry has-help';
 		head.className = 'entry__head';
-		headLeft.textContent = opt['name'];
+		headLeft.textContent = opt['name'] ? opt['name'] : 'Untitled';
 		headLeft.className = 'entry__name';
 		headRight.className = 'entry__action-box';
 		head.appendChild(headLeft);
@@ -666,6 +674,10 @@ function renderHtml() {
 		}
 
 		if(baseType === 'text' || opt['type'] === 'color') {
+			if(!('replacements' in opt)) {
+				return 'Option must contain a "replacements" key.';
+			}
+
 			let input = document.createElement('input');
 			input.id = fullId;
 			input.type = 'text';
@@ -718,6 +730,10 @@ function renderHtml() {
 
 
 		else if(baseType === 'textarea') {
+			if(!('replacements' in opt)) {
+				return 'Option must contain a "replacements" key.';
+			}
+
 			let input = document.createElement('textarea');
 			input.id = fullId;
 			input.value = opt['default'];
@@ -729,6 +745,10 @@ function renderHtml() {
 		}
 
 		else if(baseType === 'toggle') {
+			if(!('replacements' in opt)) {
+				return 'Option must contain a "replacements" key.';
+			}
+
 			let toggle = document.createElement('input');
 			toggle.type = 'checkbox';
 			toggle.id = fullId;
@@ -743,12 +763,14 @@ function renderHtml() {
 			`;
 			headRight.prepend(toggle);
 
-
-
 			toggle.addEventListener('input', () => { updateOption(optId, {'defaultValue': opt['default'], 'parentModId': parentModId}); });
 		}
 
 		else if(baseType === 'select') {
+			if(!('selections' in opt)) {
+				return 'Option must contain a "replacements" key.';
+			}
+
 			let select = document.createElement('select');
 
 			// would be nice to have a simpler/nicer to look at switch for small lists but would require using radio buttons.
@@ -777,7 +799,12 @@ function renderHtml() {
 
 	if('options' in theme) {
 		for(let opt of Object.entries(theme['options'])) {
-			optionsEle.appendChild(generateOptionHtml(opt));
+			let ele = generateOptionHtml(opt);
+			if(typeof ele === 'string') {
+				console.log(`[generateOptionHtml] Skipped option "${opt[0]}": ${ele}`);
+			} else {
+				optionsEle.appendChild(ele);
+			}
 		}
 	} else {
 		optionsEle.parentNode.remove();
@@ -843,7 +870,12 @@ function renderHtml() {
 				optDiv.className = 'entry__options';
 
 				for(let opt of Object.entries(mod['options'])) {
-					optDiv.appendChild(generateOptionHtml(opt, modId));
+					let ele = generateOptionHtml(opt, modId);
+					if(typeof ele === 'string') {
+						console.log(`[generateOptionHtml] Skipped option "${opt[0]}" of mod "${modId}": ${ele}`);
+					} else {
+						optDiv.appendChild(ele);
+					}
 				}
 
 				div.appendChild(optDiv);
@@ -1331,6 +1363,11 @@ else if(themeUrls.length === 0) {
 	throw new Error('select');
 }
 
+function jsonfail(msg) {
+	loader.failed([msg, 'invalid.json']);
+	throw new Error('invalid json format');
+}
+
 let fetchData = fetchFile(fetchUrl, false);
 
 fetchData.then((json) => {
@@ -1349,11 +1386,6 @@ fetchData.then((json) => {
 	}
 	processJson(json, themeUrls[0], selectedTheme ? selectedTheme : 'theme')
 	.then((processedJson) => {
-		function jsonfail(msg) {
-			loader.failed([msg, 'invalid.json']);
-			throw new Error('invalid json format');
-		}
-
 		// Get theme info from URL & take action if problematic
 		if(processedJson === false) {
 			loader.failed(['Encountered a problem while parsing theme information.', 'invalid.name']);
@@ -1367,7 +1399,12 @@ fetchData.then((json) => {
 
 		// Test for basic JSON values to assist list designers debug.
 		if(!('css' in theme)) {
+			console.log('[processJson] Theme did not define any CSS.');
 			theme['css'] = '';
+		}
+		if(!('type' in theme)) {
+			console.log('[processJson] Theme did not define a list type, assuming "modern".');
+			theme['type'] = 'modern';
 		}
 
 		// Set page title
