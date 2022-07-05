@@ -987,6 +987,16 @@ function renderHtml() {
 		theme['supports'] = ['animelist','mangalist'];
 	}
 
+	// Add classic list functions
+
+	let installBtn = document.getElementById('js-installation-btn');
+	if(theme['type'] === 'classic') {
+		installBtn.addEventListener('click', () => { toggleEle('#js-pp-installation-classic') });
+		installBtn.textContent = 'How do I install classic lists?';
+	} else {
+		installBtn.addEventListener('click', () => { toggleEle('#js-pp-installation-modern') });
+	}
+
 	// Set theme columns and push to iframe
 
 	let baseColumns = {
@@ -1139,7 +1149,7 @@ function renderHtml() {
 		if(expanded) {
 			let animFrames = [
 				{ height: `${expandedHeight}px` },
-				{ height: `${collapsedHeight}px`}
+				{ height: `${collapsedHeight}px` }
 			];
 			parent.style.height = `${collapsedHeight}px`;
 			parent.style.paddingBottom = `0px`;
