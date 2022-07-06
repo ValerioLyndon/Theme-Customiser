@@ -2,6 +2,8 @@
 // COMMON FUNCTIONS
 // ================
 
+loader.text('Defining functions...');
+
 function confirm(msg, options = {'Yes': {'value': true, 'type': 'suggested'}, 'No': {'value': false}}) {
 	return new Promise((resolve, reject) => {
 		let modal = document.createElement('div'),
@@ -600,6 +602,8 @@ function resetSettings() {
 
 // Setup basic options structure and add event listeners
 function renderHtml() {
+	loader.text('Rendering page...');
+
 	// options & mods
 	document.getElementById('js-title').textContent = theme['name'] ? theme['name'] : 'Untitled';
 	document.getElementById('js-author').textContent = theme['author'] ? theme['author'] : 'Unknown Author';
@@ -1017,6 +1021,16 @@ function renderHtml() {
 		theme['supports'] = ['animelist','mangalist'];
 	}
 
+	// Add classic list functions
+
+	let installBtn = document.getElementById('js-installation-btn');
+	if(theme['type'] === 'classic') {
+		installBtn.addEventListener('click', () => { toggleEle('#js-pp-installation-classic') });
+		installBtn.textContent = 'How do I install classic lists?';
+	} else {
+		installBtn.addEventListener('click', () => { toggleEle('#js-pp-installation-modern') });
+	}
+
 	// Set theme columns and push to iframe
 
 	let baseColumns = {
@@ -1169,7 +1183,7 @@ function renderHtml() {
 		if(expanded) {
 			let animFrames = [
 				{ height: `${expandedHeight}px` },
-				{ height: `${collapsedHeight}px`}
+				{ height: `${collapsedHeight}px` }
 			];
 			parent.style.height = `${collapsedHeight}px`;
 			parent.style.paddingBottom = `0px`;
@@ -1221,6 +1235,8 @@ function renderHtml() {
 
 // Updates preview CSS & removes loader
 function finalSetup() {
+	loader.text('Fetching CSS...');
+
 	// Get theme CSS
 	if(theme['css'].startsWith('http')) {
 		let fetchThemeCss = fetchFile(theme['css']);
@@ -1291,6 +1307,7 @@ function finalSetup() {
 			loader.loaded();
 		}
 		else {
+			loader.text('Loading preview...');
 			console.log('[finalSetup] Awaiting iframe before completing page load.');
 		}
 	}
@@ -1318,11 +1335,12 @@ iframe.addEventListener('load', () => {
 	}
 	if(pageLoaded === true) {
 		loader.loaded();
+	} else {
+		loader.text('Awaiting cleanup...');
 	}
 });
-iframe.src = 'preview.html';
+
 iframe.className = 'preview__window';
-preview.appendChild(iframe);
 
 function postToIframe(msg) {
 	if(iframeLoaded) {
@@ -1355,13 +1373,14 @@ let fetchUrl = themeUrls[0],
 // Legacy processing for json 0.1 > 0.2
 if(themeUrls.length === 0 && collectionUrls.length > 0) {
 	fetchUrl = collectionUrls[0];
-	console.log('2')
 }
 // Generic failure
 else if(themeUrls.length === 0) {
 	loader.failed(['No theme was specified in the URL. Did you follow a broken link?', 'select']);
 	throw new Error('select');
 }
+
+loader.text('Fetching theme...');
 
 function jsonfail(msg) {
 	loader.failed([msg, 'invalid.json']);
@@ -1386,6 +1405,7 @@ fetchData.then((json) => {
 	}
 	processJson(json, themeUrls[0], selectedTheme ? selectedTheme : 'theme')
 	.then((processedJson) => {
+
 		// Get theme info from URL & take action if problematic
 		if(processedJson === false) {
 			loader.failed(['Encountered a problem while parsing theme information.', 'invalid.name']);
@@ -1396,6 +1416,23 @@ fetchData.then((json) => {
 			theme = processedJson['data'];
 			userSettings['theme'] = selectedTheme ? selectedTheme : theme['name'];
 		}
+
+		// Set preview to correct type and add iframe to page
+		let framePath = './preview/';
+		if(theme['type'] === 'classic') {
+			framePath += 'classic/';
+		} else {
+			framePath += 'modern/';
+		}
+		if(theme['supports'] === ['mangalist']) {
+			//framePath += 'mangalist.html';
+			console.log('Detected mangalist only, but this feature is not yet supported.');
+			framePath += 'animelist.html';
+		} else {
+			framePath += 'animelist.html';
+		}
+		iframe.src = framePath;
+		preview.appendChild(iframe);
 
 		// Test for basic JSON values to assist list designers debug.
 		if(!('css' in theme)) {

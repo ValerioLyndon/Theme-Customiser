@@ -94,9 +94,8 @@ permalink: /theme
 
 					<div class="code">
 						<b class="code__title">CSS to Install</b>
-						<textarea class="code__preview input input--code" id="js-output" readonly="readonly">
-							<!-- code gets put here by customiser.js -->
-						</textarea>
+						<!-- code gets put here by customiser.js -->
+						<textarea class="code__preview input input--code" id="js-output" readonly="readonly"></textarea>
 
 						<p class="info-box info-box--indented info-box--error o-hidden" id="js-output-notice"></p>
 					
@@ -110,7 +109,7 @@ permalink: /theme
 							</div>
 						</button>
 
-						<a class="hyperlink" onclick="toggleEle('#js-pp-installation')">How do I install this?</a>
+						<a class="hyperlink" onclick="toggleEle('#js-pp-installation')" id="js-installation-btn">How do I install this?</a>
 
 						<br />
 
@@ -169,15 +168,15 @@ permalink: /theme
 			</div>
 		</div>
 
-		<div class="popup is-hidden" id="js-pp-installation">
+		<div class="popup is-hidden" id="js-pp-installation-modern">
 			<div class="popup__inner">
-				<div class="popup__invisibutton" onclick="toggleEle('#js-pp-installation')"></div>
+				<div class="popup__invisibutton" onclick="toggleEle('#js-pp-installation-modern')"></div>
 				<div class="popup__content popup__content--wide">
 					<h4 class="popup__header">How to install list CSS.</h4>
 
 					<ol class="steps">
 						<li class="steps__step">
-							<p class="popup__paragraph">Navigate to your <a class="hyperlink" href="https://myanimelist.net/ownlist/style">style settings</a> on MyAnimeList.</p>
+							<p class="popup__paragraph">Navigate to your <a class="hyperlink" href="https://myanimelist.net/ownlist/style" target="_blank">style settings</a> on MyAnimeList.</p>
 							<img src="./images/style-page.jpg" class="popup__image popup__image--thumb  popup__image--expand" />
 							<p class="info-box">If your page does not look like this, double check you have the "Modern" option selected. This option is found near the top, where it says "Switch Template".</p>
 						</li>
@@ -197,6 +196,45 @@ permalink: /theme
 							<p class="popup__paragraph">Click "Save" and your theme should be applied!</p>
 							<img src="./images/save.jpg" class="popup__image" />
 							<p class="info-box">If you encounter any issues with the theme colours or images, try toggling the cover and/or background images. Some themes do not play nicely with these while others may require them.</p>
+							<p class="info-box o-hidden js-help">
+								If this guide did not work for you or you have further questions, please check the theme-specific help page provided by the theme author.
+								<a class="hyperlink js-help-href">Get help</a>.
+							</p>
+						</li>
+					</ol>
+				</div>
+			</div>
+		</div>
+
+		<div class="popup is-hidden" id="js-pp-installation-classic">
+			<div class="popup__inner">
+				<div class="popup__invisibutton" onclick="toggleEle('#js-pp-installation-classic')"></div>
+				<div class="popup__content popup__content--wide">
+					<h4 class="popup__header">How to install classic list CSS.</h4>
+
+					<ol class="steps">
+						<li class="steps__step">
+							<p class="popup__paragraph">Navigate to your <a class="hyperlink" href="https://myanimelist.net/ownlist/style">style settings</a> on MyAnimeList.</p>
+							<img src="./images/style-page-classic.jpg" class="popup__image" />
+							<p class="info-box">If your page does not look like this, double check you have the "Classic" option selected. This option is found near the top, where it says "Switch Template".</p>
+						</li>
+						<li class="steps__step">
+							<p class="popup__paragraph">Open the <a href="https://myanimelist.net/editprofile.php?go=stylepref&do=cssadv" target="_blank" class="hyperlink">"Advanced CSS List Design"</a> link. On this page, open either style.</p>
+							<img src="./images/advanced-css.jpg" class="popup__image" />
+						</li>
+						<li class="steps__step">
+							<p class="popup__paragraph">Copy the CSS from the theme customiser and paste it into the text box on MyAnimeList.</p>
+							<img src="./images/copy-css-classic.jpg" class="popup__image" />
+						</li>
+						<li class="steps__step">
+							<p class="popup__paragraph">Click "Update CSS" to apply your changes.</p>
+							<img src="./images/save-classic.jpg" class="popup__image" />
+						</li>
+						<li class="steps__step">
+							<p class="popup__paragraph">Go back to your <a class="hyperlink" href="https://myanimelist.net/ownlist/style">style settings</a>, then to <a href="https://myanimelist.net/editprofile.php?go=stylepref&do=changestyle" target="_blank" class="hyperlink">"Change My List Style"</a>.</p>
+							<p class="popup__paragraph">On this page, double check you have the same style number selected as the one you copied the CSS to. If they mistmatch, change it to the correct number and click "Submit".</p>
+							<img src="./images/selected-style-classic.jpg" class="popup__image" />
+							<p class="popup__paragraph">And with that, you should be done! Check the changes on your anime or manga list.</p>
 							<p class="info-box o-hidden js-help">
 								If this guide did not work for you or you have further questions, please check the theme-specific help page provided by the theme author.
 								<a class="hyperlink js-help-href">Get help</a>.
