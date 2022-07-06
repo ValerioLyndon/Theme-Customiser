@@ -1125,9 +1125,11 @@ function renderHtml() {
 		columnsContainer.className = 'columns';
 
 		for(let listtype of theme['supports']) {
-			let tempcolumns = processColumns(baseColumns[listtype], mode, theme['columns'][listtype]);
-			
-			renderColumns(tempcolumns, listtype);
+			if(listtype in theme['columns']) {
+				let tempcolumns = processColumns(baseColumns[listtype], mode, theme['columns'][listtype]);
+				
+				renderColumns(tempcolumns, listtype);
+			}
 		}
 
 		columns = processColumns(baseColumns[theme['supports'][0]], mode, theme['columns'][theme['supports'][0]])
@@ -1335,8 +1337,6 @@ iframe.addEventListener('load', () => {
 	}
 	if(pageLoaded === true) {
 		loader.loaded();
-	} else {
-		loader.text('Awaiting cleanup...');
 	}
 });
 

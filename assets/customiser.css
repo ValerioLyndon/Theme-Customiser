@@ -511,6 +511,7 @@ input:checked + .toggle.is-forced::after {
 	display: flex;
 	flex-flow: column nowrap;
 	width: 142px;
+	max-width: 190px;
 	flex: 1 0 auto;
 }
 
