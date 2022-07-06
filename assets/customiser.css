@@ -565,7 +565,14 @@ input:checked + .toggle.is-forced::after {
 .preview {
 	position: relative;
 	width: 80%;
+	height: 100%;
 	flex: 1 1 auto;
+	overflow: hidden;
+}
+
+.preview__wrapper {
+	width: 100%;
+	height: 100%;
 	overflow-x: auto;
 	overflow-y: hidden;
 }
@@ -573,7 +580,7 @@ input:checked + .toggle.is-forced::after {
 .preview__window {
 	min-width: 1160px;
 	width: 100%;
-	height: 100%;
+	min-height: 100%;
 	border: none;
 }
 
