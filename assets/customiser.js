@@ -447,6 +447,9 @@ function updateCss() {
 		(async () => {
 			for(let id of Object.keys(userSettings['mods'])) {
 				let modData = theme['mods'][id];
+				if(!('css' in modData) || typeof modData['css'] === 'string') {
+					modData['css'] = {'bottom': ''}
+				}
 				for(let [location, resource] of Object.entries(modData['css'])) {
 					if(resource.startsWith('http')) {
 						try {
@@ -602,8 +605,8 @@ function renderHtml() {
 	loader.text('Rendering page...');
 
 	// options & mods
-	document.getElementById('js-title').textContent = theme['name'];
-	document.getElementById('js-author').textContent = theme['author'];
+	document.getElementById('js-title').textContent = theme['name'] ? theme['name'] : 'Untitled';
+	document.getElementById('js-author').textContent = theme['author'] ? theme['author'] : 'Unknown Author';
 	let credit = document.getElementById('js-theme-credit');
 	if('author' in theme && theme['author']) {
 		credit.textContent = `Customising "${theme['name']}" by ${theme['author']}`;
@@ -614,12 +617,17 @@ function renderHtml() {
 	var optionsEle = document.getElementById('js-options');
 
 	function generateOptionHtml(dictionary, parentModId) {
+
 		let optId = dictionary[0],
 			opt = dictionary[1],
 			fullId = `opt:${optId}`;
 		
 		if(parentModId) {
 			fullId = `mod:${parentModId}:${optId}`;
+		}
+			
+		if(!('type' in opt)) {
+			return `Option must have a "type" key.`;
 		}
 
 		let div = document.createElement('div'),
@@ -639,7 +647,7 @@ function renderHtml() {
 
 		div.className = 'entry has-help';
 		head.className = 'entry__head';
-		headLeft.textContent = opt['name'];
+		headLeft.textContent = opt['name'] ? opt['name'] : 'Untitled';
 		headLeft.className = 'entry__name';
 		headRight.className = 'entry__action-box';
 		head.appendChild(headLeft);
@@ -670,6 +678,10 @@ function renderHtml() {
 		}
 
 		if(baseType === 'text' || opt['type'] === 'color') {
+			if(!('replacements' in opt)) {
+				return 'Option must contain a "replacements" key.';
+			}
+
 			let input = document.createElement('input');
 			input.id = fullId;
 			input.type = 'text';
@@ -722,6 +734,10 @@ function renderHtml() {
 
 
 		else if(baseType === 'textarea') {
+			if(!('replacements' in opt)) {
+				return 'Option must contain a "replacements" key.';
+			}
+
 			let input = document.createElement('textarea');
 			input.id = fullId;
 			input.value = opt['default'];
@@ -733,6 +749,10 @@ function renderHtml() {
 		}
 
 		else if(baseType === 'toggle') {
+			if(!('replacements' in opt)) {
+				return 'Option must contain a "replacements" key.';
+			}
+
 			let toggle = document.createElement('input');
 			toggle.type = 'checkbox';
 			toggle.id = fullId;
@@ -747,12 +767,14 @@ function renderHtml() {
 			`;
 			headRight.prepend(toggle);
 
-
-
 			toggle.addEventListener('input', () => { updateOption(optId, {'defaultValue': opt['default'], 'parentModId': parentModId}); });
 		}
 
 		else if(baseType === 'select') {
+			if(!('selections' in opt)) {
+				return 'Option must contain a "replacements" key.';
+			}
+
 			let select = document.createElement('select');
 
 			// would be nice to have a simpler/nicer to look at switch for small lists but would require using radio buttons.
@@ -781,7 +803,12 @@ function renderHtml() {
 
 	if('options' in theme) {
 		for(let opt of Object.entries(theme['options'])) {
-			optionsEle.appendChild(generateOptionHtml(opt));
+			let ele = generateOptionHtml(opt);
+			if(typeof ele === 'string') {
+				console.log(`[generateOptionHtml] Skipped option "${opt[0]}": ${ele}`);
+			} else {
+				optionsEle.appendChild(ele);
+			}
 		}
 	} else {
 		optionsEle.parentNode.remove();
@@ -825,7 +852,7 @@ function renderHtml() {
 			div.className = 'entry';
 			div.id = `mod-parent:${modId}`;
 			head.className = 'entry__head';
-			headLeft.textContent = mod['name'];
+			headLeft.textContent = mod['name'] ? mod['name'] : 'Untitled';
 			headLeft.className = 'entry__name entry__name--emphasised';
 			headRight.className = 'entry__action-box';
 			head.appendChild(headLeft);
@@ -847,7 +874,12 @@ function renderHtml() {
 				optDiv.className = 'entry__options';
 
 				for(let opt of Object.entries(mod['options'])) {
-					optDiv.appendChild(generateOptionHtml(opt, modId));
+					let ele = generateOptionHtml(opt, modId);
+					if(typeof ele === 'string') {
+						console.log(`[generateOptionHtml] Skipped option "${opt[0]}" of mod "${modId}": ${ele}`);
+					} else {
+						optDiv.appendChild(ele);
+					}
 				}
 
 				div.appendChild(optDiv);
@@ -973,12 +1005,14 @@ function renderHtml() {
 
 	// Add support
 	if('supports' in theme && theme['supports'].length === 1) {
-		if(['animelist','mangalist'].includes(theme['supports'][0])) {
+		let type = theme['supports'][0];
+		if(['animelist','mangalist'].includes(type)) {
 			intendedConfig.classList.remove('o-hidden');
 			
-			let parent = document.getElementById('js-list-type');
+			let parent = document.getElementById('js-list-type'),
+				child = document.getElementById('js-list-type__text');
+			child.innerHTML = `This theme was designed only for <b>${type}s</b>. Use on ${type === 'animelist' ? 'mangalist' : 'animelist'}s may have unexpected results.`;
 			parent.classList.remove('o-hidden');
-			parent.innerHTML = `Use only with your <b>${theme['supports'][0]}</b>.`;
 		}
 		else {
 			messenger.warn('The supported list was ignored due to being invalid. The only accepted values are "animelist" and "mangalist".');
@@ -1348,6 +1382,11 @@ else if(themeUrls.length === 0) {
 
 loader.text('Fetching theme...');
 
+function jsonfail(msg) {
+	loader.failed([msg, 'invalid.json']);
+	throw new Error('invalid json format');
+}
+
 let fetchData = fetchFile(fetchUrl, false);
 
 fetchData.then((json) => {
@@ -1371,9 +1410,8 @@ fetchData.then((json) => {
 		if(processedJson === false) {
 			loader.failed(['Encountered a problem while parsing theme information.', 'invalid.name']);
 			throw new Error('invalid theme name');
-		} else if(!('data' in processedJson)) {
-			loader.failed(['Encountered a problem while parsing theme information.', 'invalid.json']);
-			throw new Error('invalid json format');
+		} else if(typeof processedJson === 'string') {
+			jsonfail(processedJson);
 		} else {
 			theme = processedJson['data'];
 			userSettings['theme'] = selectedTheme ? selectedTheme : theme['name'];
@@ -1396,7 +1434,17 @@ fetchData.then((json) => {
 		iframe.src = framePath;
 		preview.appendChild(iframe);
 
-		// Page title
+		// Test for basic JSON values to assist list designers debug.
+		if(!('css' in theme)) {
+			console.log('[processJson] Theme did not define any CSS.');
+			theme['css'] = '';
+		}
+		if(!('type' in theme)) {
+			console.log('[processJson] Theme did not define a list type, assuming "modern".');
+			theme['type'] = 'modern';
+		}
+
+		// Set page title
 		document.getElementsByTagName('title')[0].textContent = `Theme Customiser - ${theme['name']}`;
 
 		renderHtml();

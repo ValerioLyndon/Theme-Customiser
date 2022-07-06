@@ -14,7 +14,7 @@ If you have any feedback, bug reports, or suggestions, I welcome you to [open an
 
 **As a user,** you can utilise the customiser by visiting the link above or by finding designers linking to it in the wild.
 
-**As a list designer,** please check ["Creating your own data.json"](https://github.com/ValerioLyndon/Theme-Customiser/wiki/Creating-your-own-data.json) on the wiki.
+**As a list designer,** please check [the wiki](https://github.com/ValerioLyndon/Theme-Customiser/wiki) for tutorials on using it with your themes.
 
 ## Contributing
 

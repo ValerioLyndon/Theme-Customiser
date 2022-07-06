@@ -25,6 +25,13 @@ function capitalise(str, divider = ' ') {
 function renderCards(cardData) {
 	// Render theme list
 	for(let theme of cardData) {
+		let themeName = theme['name'] ? theme['name'] : 'Untitled',
+			themeAuthor = theme['author'] ? theme['author'] : 'Untitled';
+		if(!('url' in theme)) {
+			console.log(`[renderCards] Skipping theme ${themeName} due to missing "url" key.`);
+			continue;
+		}
+
 		let cardParent = document.createElement('a');
 		cardParent.className = 'browser__card';
 		cardParent.href = `./theme?t=${theme['url']}&c=${collectionUrls.join('&c=')}`;
@@ -39,12 +46,12 @@ function renderCards(cardData) {
 		
 		let title = document.createElement('h3');
 		title.className = 'card__title';
-		title.textContent = theme['name'];
+		title.textContent = themeName;
 		info.appendChild(title);
 		
 		let author = document.createElement('span');
 		author.className = 'card__author';
-		author.textContent = `by ${theme['author']}`;
+		author.textContent = `by ${themeAuthor}`;
 		info.appendChild(author);
 
 		let display = document.createElement('div');
@@ -55,10 +62,12 @@ function renderCards(cardData) {
 		tagArea.className = 'card__tag-list';
 		display.appendChild(tagArea);
 
-		let tagType = document.createElement('span');
-		tagType.className = 'card__tag';
-		tagType.textContent =capitalise(theme['type']);
-		tagArea.appendChild(tagType);
+		if('type' in theme) {
+			let tagType = document.createElement('span');
+			tagType.className = 'card__tag';
+			tagType.textContent =capitalise(theme['type']);
+			tagArea.appendChild(tagType);
+		}
 
 		if('supports' in theme && theme['supports'].length === 1) {
 			let tagSupport = document.createElement('span');
