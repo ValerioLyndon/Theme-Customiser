@@ -2,8 +2,6 @@
 // COMMON FUNCTIONS
 // ================
 
-loader.text('Defining functions...');
-
 function confirm(msg, options = {'Yes': {'value': true, 'type': 'suggested'}, 'No': {'value': false}}) {
 	return new Promise((resolve, reject) => {
 		let modal = document.createElement('div'),

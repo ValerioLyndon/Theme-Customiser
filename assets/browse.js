@@ -43,21 +43,47 @@ function filterByTag() {
 			itemsToKeep[i] = parseInt(itemsToKeep[i]);
 		}
 		
-		for(let itemId of [...Array(items).keys()]) {
+		for(let itemId of [...Array(itemCount).keys()]) {
 			itemId = parseInt(itemId);
 			
 			if(itemsToKeep.includes(itemId)) {
 				continue;
 			} else {
-				document.getElementById(`id:${itemId}`).classList.add('is-hidden-by-tag');
+				document.querySelector(`[data-id="${itemId}"]`).classList.add('is-hidden-by-tag');
 			}
 		}
 		this.classList.add('is-selected');
 	}
 }
 
-function sort(items, attribute) {
-	
+// "items" var should be a DOM node list
+function sortItems(items, attribute, order = 'ascending') {
+	let attributeReference = {},
+		attributeValues = [];
+
+	for(let it of items) {
+		let value = it.getAttribute(attribute);
+		attributeReference[value] = it.getAttribute('data-id');
+		attributeValues.push(value);
+	}
+
+	attributeValues.sort((a,b) => {
+		a = a.toLowerCase();
+		b = b.toLowerCase();
+		if(a < b) { return -1; }
+		if(a > b) { return 1; }
+		return 0;
+	});
+
+	// Apply sort order
+	for(i = 0; i < attributeValues.length; i++) {
+		let val = attributeValues[i],
+			id = attributeReference[val];
+		document.querySelector(`[data-id="${id}"]`).style.order = i;
+	}
+
+	console.log(attributeReference);
+	console.log(attributeValues);
 }
 
 
@@ -70,17 +96,18 @@ function renderCards(cardData) {
 	// Render theme list
 	for(let theme of cardData) {
 		let themeName = theme['name'] ? theme['name'] : 'Untitled',
-			themeAuthor = theme['author'] ? theme['author'] : 'Untitled';
+			themeAuthor = theme['author'] ? theme['author'] : 'Untitled',
+			thisId = itemCount;
 		if(!('url' in theme)) {
 			console.log(`[renderCards] Skipping theme ${themeName} due to missing "url" key.`);
 			continue;
 		}
 
 		let cardParent = document.createElement('a');
-		cardParent.className = 'browser__card';
+		cardParent.className = 'browser__card js-card';
 		cardParent.href = `./theme?t=${theme['url']}&c=${collectionUrls.join('&c=')}`;
 		cardParent.setAttribute('data-title', themeName);
-		cardParent.id = `id:${items}`;
+		cardParent.setAttribute('data-id', thisId);
 
 		let themeTags = theme['tags'] ? theme['tags'] : [];
 		themeTags.push(theme['type']);
@@ -139,12 +166,12 @@ function renderCards(cardData) {
 
 		for(let tag of themeTags) {
 			if(tags[tag]) {
-				tags[tag].push(items);
+				tags[tag].push(thisId);
 			} else {
-				tags[tag] = [items];
+				tags[tag] = [thisId];
 			}
 		}
-		items++;
+		itemCount++;
 	}
 }
 
@@ -180,9 +207,11 @@ function renderFilters() {
 // Variables
 
 var tags = {},
-	items = 0;
+	itemCount = 0;
 
 // Get data for all collections and call other functions
+
+loader.text('Fetching data files...');
 
 const collectionFiles = [];
 
@@ -209,6 +238,8 @@ Promise.allSettled(collectionFiles)
 			continue;
 		}
 
+		loader.text('Rendering page...');
+
 		processJson(tempData, collectionUrls[i], 'collection')
 		.then((processedJson) => {
 			renderCards(processedJson['themes']);
@@ -219,9 +250,14 @@ Promise.allSettled(collectionFiles)
 	}
 
 	function afterRenderingCards() {
-		if(Object.keys(tags).length > 0 && items > 5) {
+		loader.text('Sorting items...');
+
+		if(Object.keys(tags).length > 0 && itemCount > 5) {
 			renderFilters();
 		}
+
+		var cards = document.getElementsByClassName('js-card');
+		sortItems(cards, 'data-title', 'ascending');
 
 		if(failures >= files.length) {
 			loader.failed(['Encountered a problem while parsing theme information.', 'json.parse']);
