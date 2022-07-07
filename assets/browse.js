@@ -58,32 +58,29 @@ function filterByTag() {
 
 // "items" var should be a DOM node list
 function sortItems(items, attribute, order = 'ascending') {
-	let attributeReference = {},
-		attributeValues = [];
+	let attributes = [];
 
 	for(let it of items) {
-		let value = it.getAttribute(attribute);
-		attributeReference[value] = it.getAttribute('data-id');
-		attributeValues.push(value);
+		let value = it.getAttribute(attribute),
+			id = it.getAttribute('data-id');
+		attributes.push([value, id]);
 	}
 
-	attributeValues.sort((a,b) => {
-		a = a.toLowerCase();
-		b = b.toLowerCase();
-		if(a < b) { return -1; }
-		if(a > b) { return 1; }
+	attributes.sort((attrOne,attrTwo) => {
+		a = attrOne[0].toLowerCase();
+		b = attrTwo[0].toLowerCase();
+		if(a < b && order === 'ascending' || a > b && order === 'descending') { return -1; }
+		if(a > b && order === 'ascending' || a < b && order === 'descending') { return 1; }
 		return 0;
 	});
+	console.log(attributes)
 
 	// Apply sort order
-	for(i = 0; i < attributeValues.length; i++) {
-		let val = attributeValues[i],
-			id = attributeReference[val];
+	for(i = 0; i < attributes.length; i++) {
+		let val = attributes[i][0],
+			id = attributes[i][1];
 		document.querySelector(`[data-id="${id}"]`).style.order = i;
 	}
-
-	console.log(attributeReference);
-	console.log(attributeValues);
 }
 
 
@@ -108,6 +105,15 @@ function renderCards(cardData) {
 		cardParent.href = `./theme?t=${theme['url']}&c=${collectionUrls.join('&c=')}`;
 		cardParent.setAttribute('data-title', themeName);
 		cardParent.setAttribute('data-id', thisId);
+		if('date' in theme) {
+			if(!sorts.includes('data-date')) {
+				sorts.push('data-date');
+			}
+
+			cardParent.setAttribute('data-date', theme['date']);
+		} else {
+			cardParent.setAttribute('data-date', '0000-00-00');
+		}
 
 		let themeTags = theme['tags'] ? theme['tags'] : [];
 		themeTags.push(theme['type']);
@@ -207,7 +213,8 @@ function renderFilters() {
 // Variables
 
 var tags = {},
-	itemCount = 0;
+	itemCount = 0,
+	sorts = ['data-title'];
 
 // Get data for all collections and call other functions
 
@@ -257,7 +264,14 @@ Promise.allSettled(collectionFiles)
 		}
 
 		var cards = document.getElementsByClassName('js-card');
-		sortItems(cards, 'data-title', 'ascending');
+		console.log(sorts);
+		if(sorts.includes('data-date')) {
+			console.log('sorting by data');
+			sortItems(cards, 'data-date', 'descending');
+		} else {
+			console.log('sorting by title');
+			sortItems(cards, 'data-title');
+		}
 
 		if(failures >= files.length) {
 			loader.failed(['Encountered a problem while parsing theme information.', 'json.parse']);
