@@ -16,6 +16,50 @@ function capitalise(str, divider = ' ') {
 	return str;
 }
 
+// Filter & Sort functions
+
+function filterByTag() {
+	// Clear previous selection
+	let hidden = document.querySelectorAll('.is-hidden-by-tag'),
+		isSelected = this.className.includes('is-selected');
+	for(let ele of hidden) {
+		ele.classList.remove('is-hidden-by-tag');
+	}
+
+	// Remove other tags' styling & set our own
+	tagsEle.classList.remove('has-selected');
+	let selectedTags = document.querySelectorAll('.js-tag.is-selected');
+
+	for(let tag of selectedTags) {
+		tag.classList.remove('is-selected');
+	}
+
+	// Select new tags
+	if(!isSelected) {
+		tagsEle.classList.add('has-selected');
+		let itemsToKeep = this.getAttribute('data-items').split(',');
+		// convert string to int
+		for(let i = 0; i < itemsToKeep.length; i++) {
+			itemsToKeep[i] = parseInt(itemsToKeep[i]);
+		}
+		
+		for(let itemId of [...Array(items).keys()]) {
+			itemId = parseInt(itemId);
+			
+			if(itemsToKeep.includes(itemId)) {
+				continue;
+			} else {
+				document.getElementById(`id:${itemId}`).classList.add('is-hidden-by-tag');
+			}
+		}
+		this.classList.add('is-selected');
+	}
+}
+
+function sort(items, attribute) {
+	
+}
+
 
 
 // ==================
@@ -35,6 +79,12 @@ function renderCards(cardData) {
 		let cardParent = document.createElement('a');
 		cardParent.className = 'browser__card';
 		cardParent.href = `./theme?t=${theme['url']}&c=${collectionUrls.join('&c=')}`;
+		cardParent.setAttribute('data-title', themeName);
+		cardParent.id = `id:${items}`;
+
+		let themeTags = theme['tags'] ? theme['tags'] : [];
+		themeTags.push(theme['type']);
+		cardParent.setAttribute('data-tags', themeTags);
 
 		let card = document.createElement('div');
 		card.className = 'card';
@@ -86,6 +136,40 @@ function renderCards(cardData) {
 		}
 
 		document.getElementById('js-theme-list').appendChild(cardParent);
+
+		for(let tag of themeTags) {
+			if(tags[tag]) {
+				tags[tag].push(items);
+			} else {
+				tags[tag] = [items];
+			}
+		}
+		items++;
+	}
+}
+
+var tagsEle = document.getElementById('js-tags'),
+	hidden;
+function renderFilters() {
+	tagsEle.classList.remove('o-hidden');
+
+	let cloudEle = document.getElementById('js-tags__cloud');
+
+	for(let [tag, itemIds] of Object.entries(tags)) {
+		let tagEle = document.createElement('button'),
+			countEle = document.createElement('span'),
+			count = itemIds.length;
+
+		tagEle.textContent = tag;
+		tagEle.className = 'tags__tag js-tag';
+		tagEle.setAttribute('data-items', itemIds);
+
+		countEle.textContent = count;
+		countEle.className = 'tags__count';
+
+		tagEle.addEventListener('click', filterByTag.bind(tagEle));
+		tagEle.appendChild(countEle);
+		cloudEle.appendChild(tagEle);
 	}
 }
 
@@ -94,6 +178,9 @@ function renderCards(cardData) {
 // BEGIN PROGRAM & INITIALISE PAGE
 
 // Variables
+
+var tags = {},
+	items = 0;
 
 // Get data for all collections and call other functions
 
@@ -108,24 +195,32 @@ for(let i = 0; i < collectionUrls.length; i++) {
 }
 
 Promise.allSettled(collectionFiles)
-	.then((files) => {
-		let failures = 0;
+.then((files) => {
+	let failures = 0;
 
-		for(let i = 0; i < files.length; i++) {
-			let tempData = {};
-			// Attempt to parse provided data.
-			try {
-				tempData = JSON.parse(files[i]['value']);
-			} catch(e) {
-				console.log(`[fetchData] Error during JSON.parse: ${e}`);
-				failures++;
-				continue;
+	for(let i = 0; i < files.length; i++) {
+		let tempData = {};
+		// Attempt to parse provided data.
+		try {
+			tempData = JSON.parse(files[i]['value']);
+		} catch(e) {
+			console.log(`[fetchData] Error during JSON.parse: ${e}`);
+			failures++;
+			continue;
+		}
+
+		processJson(tempData, collectionUrls[i], 'collection')
+		.then((processedJson) => {
+			renderCards(processedJson['themes']);
+			if(i === files.length - 1) {
+				afterRenderingCards();
 			}
+		})
+	}
 
-			processJson(tempData, collectionUrls[i], 'collection')
-			.then((processedJson) => {
-				renderCards(processedJson['themes']);
-			})
+	function afterRenderingCards() {
+		if(Object.keys(tags).length > 0 && items > 5) {
+			renderFilters();
 		}
 
 		if(failures >= files.length) {
@@ -136,4 +231,5 @@ Promise.allSettled(collectionFiles)
 		}
 
 		loader.loaded();
-	});
+	}
+});

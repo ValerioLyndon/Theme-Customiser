@@ -11,6 +11,9 @@
 	margin: 15px;
 	text-decoration: none;
 }
+.browser__card.is-hidden-by-tag {
+	display: none;
+}
 
 .card {
 	display: flex;

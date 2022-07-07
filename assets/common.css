@@ -261,6 +261,83 @@ body {
 }
 
 
+/* Tags */
+
+.tags {
+	margin-bottom: 4px;
+}
+
+.tags__button {
+	margin-bottom: 4px;
+	font-weight: 700;
+}
+.tags__button:hover {
+	color: var(--accent);
+}
+.tags.has-selected .tags__button {
+	color: var(--accent);
+	border-color: var(--accent);
+
+}
+
+.tags__blurb {
+	font-size: 11px;
+	display: block;
+	width: 100%;
+	flex: 0 0 auto;
+	margin-bottom: 4px;
+}
+
+.tags__cloud {
+	display: flex;
+	flex-flow: row wrap;
+}
+.tags__cloud.is-hidden {
+	display: none;
+}
+
+.tags__tag {
+	height: 24px;
+	padding: 2px 8px;
+	background: none;
+	border: 2px solid var(--border-light);
+	border-radius: 50px;
+	margin-right: 4px;
+	margin-bottom: 4px;
+	flex: 0 0 auto;
+	font: inherit;
+	line-height: 16px;
+	white-space: pre-wrap;
+	cursor: pointer;
+	transition-property: background-color, color, border-color;
+	transition-duration: 0.1s;
+	transition-timing-function: ease;
+}
+.tags__tag:hover {
+	background: var(--box);
+}
+.tags__tag.is-selected {
+	border-color: var(--accent);
+	background: var(--accent);
+	color: var(--accent-text);
+}
+
+.tags__count {
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	background: var(--box);
+	border-radius: 50%;
+	margin: 0 -4px 0 4px;
+	text-align: center;
+	font-weight: 700;
+	transition: inherit;
+}
+.tags__tag.is-selected .tags__count {
+	background: var(--accent);
+}
+
+
 
 /* LOADER */
 
