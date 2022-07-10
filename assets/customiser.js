@@ -385,8 +385,8 @@ function updateCss() {
 			}
 		}
 		
-		function findAndReplace(str, toFind, toInsert) {
-			if(toFind.startsWith('RegExp')) {
+		function findAndReplace(str, toFind, toInsert, settings) {
+			if(settings && settings['RegExp']) {
 				toFind = new RegExp(toFind.substr(7), 'g');
 			}
 
@@ -396,27 +396,22 @@ function updateCss() {
 		if(optData['type'] === 'toggle') {
 			for(let set of optData['replacements']) {
 				// Choose the correct replacement set based on whether the toggle is on or off
-				let toFind = set[0],
-					toInsert = (insert === true) ? set[2] : set[1];
-
-				css = findAndReplace(css, toFind, toInsert);
+				let toInsert = (insert === true) ? set['fill'] : set['off_fill'],
+					settings = set['settings'] ? set['settings'] : false;
+				css = findAndReplace(css, set['find'], toInsert, settings);
 			}
 		}
 		else if(optData['type'] === 'select') {
-			let replacements = optData['selections'][insert]['replacements'];
-			for(let set of replacements) {
-				let toFind = set[0],
-					toInsert = set[1];
-
-				css = findAndReplace(css, toFind, toInsert);
+			for(let set of optData['selections'][insert]['replacements']) {
+				let settings = set['settings'] ? set['settings'] : false;
+				css = findAndReplace(css, set['find'], set['fill'], settings);
 			}
 		}
 		else {
 			for(let set of optData['replacements']) {
-				let toFind = set[0],
-					toInsert = set[1].replaceAll('{{{insert}}}', insert);
-
-				css = findAndReplace(css, toFind, toInsert);
+				let toInsert = set['fill'].replaceAll('{{{insert}}}', insert),
+					settings = set['settings'] ? set['settings'] : false;
+				css = findAndReplace(css, set['find'], toInsert, settings);
 			}
 		}
 

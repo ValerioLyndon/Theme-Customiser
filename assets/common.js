@@ -270,7 +270,7 @@ const
 	themeUrls = query.getAll('t'),
 	loader = new loadingScreen(),
 	messenger = new messageHandler(),
-	jsonVersion = 0.2;
+	jsonVersion = 0.3;
 
 
 
@@ -282,6 +282,8 @@ let path = window.location.pathname,
 
 // Check for legacy JSON and process as needed
 async function processJson(json, url, toReturn) {
+	loader.text('Updating JSON...');
+
 	var ver = 0;
 	if(!('json_version' in json)) {
 		ver = 0.1;
@@ -289,7 +291,24 @@ async function processJson(json, url, toReturn) {
 		ver = json['json_version'];
 	}
 
-	// Process as normal if version is good
+	// Else, continue to process.
+	if(ver > jsonVersion) {
+		messenger.warn('Detected JSON version ahead of current release. Processing as normal.');
+	}
+
+	else {
+		messenger.warn('The loaded JSON has been processed as legacy JSON. This can cause slowdowns or errors. If you are the JSON author, please see the GitHub page for assistance updating.');
+		if(ver === 0.1) {
+			json = updateToBeta2(json, url, toReturn);
+			ver = 0.2;
+		}
+		if(ver === 0.2) {
+			json = updateToBeta3(json);
+			ver = 0.3;
+		}
+	}
+
+	// Process as normal once format has been updated
 	if(ver === jsonVersion) {
 		// Process as collection or fetch correct theme from collection
 		if(toReturn === 'collection' && 'themes' in json
@@ -324,19 +343,6 @@ async function processJson(json, url, toReturn) {
 		}
 		else {
 			return 'The linked theme lacks a "data" or a "themes" entry.';
-		}
-	}
-
-	// Else, continue to process.
-	else if(ver > jsonVersion) {
-		messenger.warn('Detected JSON version ahead of current release. Processing as normal.');
-		return json;
-	}
-
-	else {
-		messenger.warn('The loaded JSON has been processed as legacy JSON. This can cause slowdowns or errors. If you are the JSON author, please see the GitHub page for assistance updating.');
-		if(ver === 0.1) {
-			return updateToBeta2(json, url, toReturn);
 		}
 	}
 }
@@ -386,5 +392,69 @@ function updateToBeta2(json, url, toReturn) {
 			return false;
 		}
 	}
+}
 
+
+// json v0.2 > v0.3
+
+function updateToBeta3(json) {
+	json['json_version'] = 0.3;
+
+	// No updates to collections in this version.
+	if(!('data' in json)) {
+		return json;
+	}
+
+	// Update replacement formatting
+	function convertReplacements(replacements) {
+		let newReplacements = [];
+
+		for(i = 0; i < replacements.length; i++) {
+			let rArray = replacements[i],
+				rDict = {};
+
+			rDict['find'] = rArray[0];
+			if(rArray[0].startsWith('RegExp/')) {
+				rDict['settings'] = {};
+				rDict['settings']['RegExp'] = true;
+			}
+
+			if(rArray.length === 3) {
+				rDict['off_fill'] = rArray[1];
+				rDict['fill'] = rArray[2];
+			} else {
+				rDict['fill'] = rArray[1];
+			}
+
+			newReplacements.push(rDict);
+		}
+
+		return newReplacements;
+	}
+
+	if('options' in json['data']) {
+		for(let [optId, optData] of Object.entries(json['data']['options'])) {
+			if('replacements' in optData) {
+				json['data']['options'][optId]['replacements'] = convertReplacements(optData['replacements']);
+			}
+		}
+	}
+
+	if('mods' in json['data']) {
+		for(let [modId, modData] of Object.entries(json['data']['mods'])) {
+			if('options' in modData) {
+				for(let [optId, optData] of Object.entries(modData['options'])) {
+					if('replacements' in optData) {
+						json['data']['mods'][modId]['options'][optId]['replacements'] = convertReplacements(optData['replacements']);
+					} else if('selections' in optData) {
+						for(let [selectId, selectData] of Object.entries(optData['selections'])) {
+							json['data']['mods'][modId]['options'][optId]['selections'][selectId]['replacements'] = convertReplacements(selectData['replacements']);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return json;
 }
