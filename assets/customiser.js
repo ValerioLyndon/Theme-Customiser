@@ -189,7 +189,11 @@ function updateOption(optId, funcConfig = {}) {
 		else {
 			// Update HTML if necessary
 			if(funcConfig['forceValue'] !== undefined) {
-				input.value = val;
+				if(input.type === 'checkbox') {
+					input.checked = val;
+				} else {
+					input.value = val;
+				}
 			}
 
 			if(funcConfig['parentModId']) {
@@ -213,6 +217,7 @@ function updateOption(optId, funcConfig = {}) {
 // If funcConfig['forceValue'] is set then the mod will be updated to match this value. If not, the value will be read from the HTML
 // Accepted values for funcConfig:
 // 'skipUpdateCss' // Default off/false
+// 'skipOptions' // Default off/false
 // 'forceValue' // Default none
 function updateMod(id, funcConfig = {}) {
 	try {
@@ -299,7 +304,7 @@ function updateMod(id, funcConfig = {}) {
 			userSettings['mods'][id] = {};
 
 			// Update options if it has any before calling CSS
-			if('options' in mod) {
+			if('options' in mod && !funcConfig['skipOptions']) {
 				for(let [optId, opt] of Object.entries(mod['options'])) {
 					if(opt['default'] === undefined && opt['type'] === 'toggle') {
 						opt['default'] = false;
@@ -340,7 +345,7 @@ function applySettings(settings = false) {
 		}
 	}
 	for(let [modId, modOpts] of Object.entries(userSettings['mods'])) {
-		if(!updateMod(modId, {'skipUpdateCss': true, 'forceValue': true})) {
+		if(!updateMod(modId, {'skipUpdateCss': true, 'forceValue': true, 'skipOptions': true})) {
 			delete userSettings['mods'][modId];
 			errors.push(`mod:<b>${modId}</b>`);
 			continue;
