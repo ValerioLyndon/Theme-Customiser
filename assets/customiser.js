@@ -462,11 +462,21 @@ function updateCss() {
 						var modCss = resource;
 					}
 
+					let globalOpts = [];
 					for(let [optId, val] of Object.entries(userSettings['mods'][id])) {
-						modCss = applyOptionToCss(modCss, modData['options'][optId], val);
+						let optData = modData['options'][optId];
+						if('flags' in optData && optData['flags'].includes('global')) {
+							globalOpts.push([optData, val]);
+						} else {
+							modCss = applyOptionToCss(modCss, optData, val);
+						}
 					}
 
 					extendCss(modCss, location);
+
+					for(opt of globalOpts) {
+						newCss = applyOptionToCss(newCss, ...opt);
+					}
 				}
 			}
 			pushCss(newCss);
