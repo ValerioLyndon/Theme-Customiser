@@ -611,6 +611,23 @@ function resetSettings() {
 	});
 }
 
+function clearCache() {
+	confirm('Clear all cached data? This can be useful if the customiser is pulling out-of-date CSS or something seems broken, but normally this should never be needed.', {'Yes': {'value': true, 'type': 'danger'}, 'No': {'value': false}})
+	.then((choice) => {
+		if(choice) {
+			sessionStorage.clear();
+			localStorage.removeItem('tcImport');
+			messenger.timeout('Cache cleared.');
+			confirm('Cache cleared! Reload the current page? This will load the customiser with a fresh slate.')
+			.then((choice) => {
+				if(choice) {
+					location.reload();
+				}
+			});
+		}
+	});
+}
+
 
 
 // ONE-TIME FUNCTIONS
