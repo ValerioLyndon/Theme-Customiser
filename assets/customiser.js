@@ -332,6 +332,7 @@ function applySettings(settings = false) {
 		let tempTheme = userSettings['theme'],
 			tempData = userSettings['data'];
 		userSettings['mods'] = settings['mods'];
+		userSettings['options'] = settings['options'];
 		userSettings['theme'] = tempTheme;
 		userSettings['data'] = tempData;
 	}
