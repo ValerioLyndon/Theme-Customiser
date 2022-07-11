@@ -384,7 +384,7 @@ function updateCss() {
 			insert = '"' + insert.replaceAll('\\','\\\\').replaceAll('"', '\\"').replaceAll('\n', '\\a ') + '"';
 		}
 		else if(qualifier === 'image_url') {
-			if(insert === '') {
+			if(insert === '' || insert === 'none') {
 				insert = 'none';
 			} else {
 				insert = `url(${insert})`;
@@ -547,20 +547,23 @@ function validateInput(fullid, type) {
 			problems += 1;
 			noticeHTML += `<li class="info-box__list-item">${text}</li>`;
 		}
-		
-		if(!val.startsWith('http')) {
-			if(val.startsWith('file:///')) {
-				problem('URL references a file local to your computer. You must upload the image to an appropriate image hosting service.');
-			} else {
-				problem('URL string does not contain the HTTP protocol.');
+
+		if(val !== 'none' && val.length > 0) {
+			if(!val.startsWith('http')) {
+				if(val.startsWith('file:///')) {
+					problem('URL references a file local to your computer. You must upload the image to an appropriate image hosting service.');
+				} else {
+					problem('URL string does not contain the HTTP protocol.');
+				}
+			}
+			if(!/(png|jpe?g|gif|webp|svg)(\?.*)?$/.test(val)) {
+				problem('Your URL does not appear to link to an image. Make sure that you copied the direct link and not a link to a regular webpage.');
+			}
+			else if(/svg(\?.*)?$/.test(val)) {
+				problem('SVG images will not display on your list while logged out or for other users. Host your CSS on an external website to bypass this.');
 			}
 		}
-		if(!/(png|jpe?g|gif|webp|svg)(\?.*)?$/.test(val)) {
-			problem('Your URL does not appear to link to an image. Make sure that you copied the direct link and not a link to a regular webpage.');
-		}
-		else if(/svg(\?.*)?$/.test(val)) {
-			problem('SVG images will not display on your list while logged out or for other users. Host your CSS on an external website to bypass this.');
-		}
+		
 	}
 
 	else if(type === 'color') {
