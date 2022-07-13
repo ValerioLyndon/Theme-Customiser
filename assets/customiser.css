@@ -395,15 +395,16 @@ input:checked + .toggle.is-forced::after {
 /* Info Box */
 
 .info-box {
+	--box-accent: var(--accent);
 	position: relative;
 	display: block;
 	padding: 6px 6px 6px 13px;
 	background: var(--box);
-	border-left: 2px solid var(--accent);
+	border-left: 2px solid var(--box-accent);
 	margin: 0 0 8px;
 }
 .info-box--error {
-	--accent: var(--accent--error);
+	--box-accent: var(--accent--error);
 }
 .info-box--indented {
 	margin-left: 8px;
@@ -417,7 +418,7 @@ input:checked + .toggle.is-forced::after {
 	width: 16px;
 	height: 16px;
 	border-radius: 50%;
-	background: var(--accent);
+	background: var(--box-accent);
 	color: var(--accent-text);
 	text-align: center;
 }
@@ -432,8 +433,12 @@ input:checked + .toggle.is-forced::after {
 
 
 .code__title {
-	display: inline-block;
-	margin-bottom: 4px;
+	display: block;
+	border-radius: 4px 4px 0 0;
+	padding: 6px;
+	background: #212127;
+	margin-bottom: -4px;
+	color: #fff;
 	font-weight: 700;
 }
 
@@ -441,19 +446,46 @@ input:checked + .toggle.is-forced::after {
 	height: 10em;
 }
 
-.intended-config__section {
-	padding-bottom: 8px;
-	border-bottom: 2px dotted var(--border-light);
-	margin-bottom: 8px;
+
+.alert-button {
+	display: flex;
+	padding: 10px;
+	background: var(--background);
+	box-shadow: 1px 2px 4px rgba(0,0,0,0.2);
+	border: 2px solid var(--border-light);
+	border-radius: 8px;
+	margin-bottom: 12px;
+	cursor: pointer;
+	color: var(--accent);
+	font: inherit;
+	text-align: left;
+	transition: transform 0.18s cubic-bezier(.3,.85,.63,1.2);
+}
+.alert-button:hover {
+	transform: scale(1.02);
 }
 
-.intended-config__header {
-	margin: 0 0 8px;
+.alert-button__icon {
+	display: flex;
+	width: 20px;
+	place-content: center;
+	align-self: center;
+	margin-right: 8px;
+	font-size: 20px;
 }
 
-.intended-config__blurb {
+.alert-button__title {
+	font-size: 14px;
+	font-weight: 700;
+}
+
+.alert-button__subtext {
 	margin: 0;
+	font-size: 12px;
 }
+
+
+/* Columns */
 
 .columns {
 	display: flex;
@@ -478,7 +510,8 @@ input:checked + .toggle.is-forced::after {
 .columns__split {
 	display: flex;
 	flex-flow: column nowrap;
-	width: 150px;
+	width: 142px;
+	max-width: 190px;
 	flex: 1 0 auto;
 }
 
@@ -488,6 +521,9 @@ input:checked + .toggle.is-forced::after {
 	margin-bottom: 5px;
 }
 
+.columns__item {
+	white-space: nowrap;
+}
 
 .columns__check {
 	display: inline-block;
@@ -529,7 +565,14 @@ input:checked + .toggle.is-forced::after {
 .preview {
 	position: relative;
 	width: 80%;
+	height: 100%;
 	flex: 1 1 auto;
+	overflow: hidden;
+}
+
+.preview__wrapper {
+	width: 100%;
+	height: 100%;
 	overflow-x: auto;
 	overflow-y: hidden;
 }
@@ -537,7 +580,7 @@ input:checked + .toggle.is-forced::after {
 .preview__window {
 	min-width: 1160px;
 	width: 100%;
-	height: 100%;
+	min-height: 100%;
 	border: none;
 }
 

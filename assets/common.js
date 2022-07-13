@@ -3,11 +3,15 @@ class loadingScreen {
 		this.pageContent = document.getElementById('js-content');
 		this.parent = document.getElementById('js-loader');
 		this.icon = document.getElementById('js-loader-icon');
-		this.text = document.getElementById('js-loader-text');
+		this.titleText = document.getElementById('js-loader-text');
 		this.subText = document.getElementById('js-loader-subtext');
 		this.subText2 = document.getElementById('js-loader-subsubtext');
 		this.home = document.getElementById('js-loader-home');
 		this.stop = false;
+	}
+
+	text(txt) {
+		this.titleText.textContent = txt;
 	}
 
 	loaded() {
@@ -23,7 +27,7 @@ class loadingScreen {
 		// only runs once
 		if(!this.stop) {
 			this.icon.className = 'loading-screen__cross';
-			this.text.textContent = 'Page Failure.';
+			this.titleText.textContent = 'Page Failure.';
 			this.subText.textContent = reason_array[0];
 			this.subText2.classList.remove('o-hidden');
 			this.subText2.textContent = `Code: ${reason_array[1]}`;
@@ -153,7 +157,7 @@ function fetchFile(path, cacheResult = true) {
 
 function importPreviousSettings(opts = undefined) {
 	if(opts === undefined) {
-		let previous = document.getElementById('js-import-code').value;
+		let previous = document.getElementById('js-pp-import-code').value;
 
 		// Skip if empty string or does not contain formatting.
 		if(previous.trim().length === 0) {

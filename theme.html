@@ -33,11 +33,11 @@ permalink: /theme
 							<i class="nav__link-icon fa-solid fa-question"></i>
 							<span class="nav__link-text">Theme Help</span>
 						</a>
-						<a class="nav__link" onclick="toggleEle('#js-import')">
+						<a class="nav__link" onclick="toggleEle('#js-pp-import')">
 							<i class="nav__link-icon fa-solid fa-file-import"></i>
 							<span class="nav__link-text">Import Settings</span>
 						</a>
-						<a class="nav__link" onclick="toggleEle('#js-export')">
+						<a class="nav__link" onclick="toggleEle('#js-pp-export')">
 							<i class="nav__link-icon fa-solid fa-file-arrow-down"></i>
 							<span class="nav__link-text nav__link-text--right">Export Settings</span>
 						</a>
@@ -80,27 +80,22 @@ permalink: /theme
 				<div class="sidebar__section">
 					<h3 class="sidebar__header">Use your customised theme</h3>
 					
-					<div class="intended-config o-hidden" id="js-intended-config">
-						<div class="intended-config__section">
-							<b class="intended-config__header">This theme has a recommended configuration.</b>
-
-							<p class="intended-config__blurb">Using other configurations may cause visual errors not intended by the designer.</p>
+					<button onclick="toggleEle('#js-pp-config')" class="alert-button o-hidden" id="js-intended-config">
+						<div class="alert-button__icon">
+							<i class="fa-solid fa-circle-exclamation"></i>
 						</div>
+						
+						<div class="alert-button__body">
+							<b class="alert-button__title">This theme has a recommended configuration.</b>
 
-						<div class="intended-config__section o-hidden" id="js-list-type"></div>
-
-						<div class="intended-config__section o-hidden" id="js-columns">
-							<p class="intended-config__blurb">The recommended list columns are seen below. You can set your list columns to match in your <a class="hyperlink" href="https://myanimelist.net/editprofile.php?go=listpreferences" target="_blank">list preferences</a>.</p>
+							<p class="alert-button__subtext">Using other configurations may cause issues.</p>
 						</div>
-					</div>
-
-					<p class="o-hidden sidebar__intended-use" id="js-intended-use"></p>
+					</button>
 
 					<div class="code">
 						<b class="code__title">CSS to Install</b>
-						<textarea class="code__preview input input--code" id="js-output" readonly="readonly">
-							<!-- code gets put here by customiser.js -->
-						</textarea>
+						<!-- code gets put here by customiser.js -->
+						<textarea class="code__preview input input--code" id="js-output" readonly="readonly"></textarea>
 
 						<p class="info-box info-box--indented info-box--error o-hidden" id="js-output-notice"></p>
 					
@@ -114,12 +109,14 @@ permalink: /theme
 							</div>
 						</button>
 
-						<a class="hyperlink" onclick="toggleEle('#js-installation')">How do I install this?</a>
-
-						<br />
-
-						<button class="button" onclick="toggleEle('#js-export')">Export settings</button> <button class="button" onclick="resetSettings()">Reset settings</button>
+						<a class="hyperlink" onclick="toggleEle('#js-pp-installation')" id="js-installation-btn">How do I install this?</a>
 					</div>
+				</div>
+
+				<div class="sidebar__section">
+					<button class="button" onclick="toggleEle('#js-pp-export')">Export settings</button>
+					<button class="button" onclick="resetSettings()">Reset settings</button>
+					<button class="button" onclick="clearCache()">Clear cache</button>
 				</div>
 
 				<footer class="sidebar__section sidebar__section--no-border">
@@ -139,7 +136,7 @@ permalink: /theme
 				</footer>
 			</div>
 
-			<div class="preview" id="js-preview">
+			<div class="preview">
 				<a class="slider" id="js-toggle-drawer" onclick="splitSlide()">
 					<i class="slider__icon fa-solid fa-chevron-left"></i>
 					
@@ -147,20 +144,43 @@ permalink: /theme
 						Expand/Contract Sidebar
 					</span>
 				</a>
+
+				<div class="preview__wrapper" id="js-preview"></div>
 			</div>
 
 			<a href="https://github.com/ValerioLyndon/Theme-Customiser/issues/new/choose" class="beta">BETA</a>
 		</main>
 
-		<div class="popup is-hidden" id="js-installation">
+		<div class="popup is-hidden" id="js-pp-config">
 			<div class="popup__inner">
-				<div class="popup__invisibutton" onclick="toggleEle('#js-installation')"></div>
+				<div class="popup__invisibutton" onclick="toggleEle('#js-pp-config')"></div>
+				<div class="popup__content">
+					<h4 class="popup__header">Recommended list configuration.</h4>
+
+					<p class="popup__paragraph">Using configurations not listed here may cause visual errors not intended by the designer. Sometimes extra configurations are supported through the use of mods.</p>
+
+					<div class="o-hidden" id="js-list-type">
+						<h5 class="popup__sub-header">List type.</h5>
+						<p class="popup__paragraph" id="js-list-type__text"></p>
+					</div>
+
+					<div class="o-hidden" id="js-columns">
+						<h5 class="popup__sub-header">List columns.</h5>
+						<p class="popup__paragraph">You can set your list columns to match in your <a class="hyperlink" href="https://myanimelist.net/editprofile.php?go=listpreferences" target="_blank">list preferences</a>.</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="popup is-hidden" id="js-pp-installation-modern">
+			<div class="popup__inner">
+				<div class="popup__invisibutton" onclick="toggleEle('#js-pp-installation-modern')"></div>
 				<div class="popup__content popup__content--wide">
 					<h4 class="popup__header">How to install list CSS.</h4>
 
 					<ol class="steps">
 						<li class="steps__step">
-							<p class="popup__paragraph">Navigate to your <a class="hyperlink" href="https://myanimelist.net/ownlist/style">style settings</a> on MyAnimeList.</p>
+							<p class="popup__paragraph">Navigate to your <a class="hyperlink" href="https://myanimelist.net/ownlist/style" target="_blank">style settings</a> on MyAnimeList.</p>
 							<img src="./images/style-page.jpg" class="popup__image popup__image--thumb  popup__image--expand" />
 							<p class="info-box">If your page does not look like this, double check you have the "Modern" option selected. This option is found near the top, where it says "Switch Template".</p>
 						</li>
@@ -190,9 +210,48 @@ permalink: /theme
 			</div>
 		</div>
 
-		<div class="popup is-hidden" id="js-import">
+		<div class="popup is-hidden" id="js-pp-installation-classic">
 			<div class="popup__inner">
-				<div class="popup__invisibutton" onclick="toggleEle('#js-import')"></div>
+				<div class="popup__invisibutton" onclick="toggleEle('#js-pp-installation-classic')"></div>
+				<div class="popup__content popup__content--wide">
+					<h4 class="popup__header">How to install classic list CSS.</h4>
+
+					<ol class="steps">
+						<li class="steps__step">
+							<p class="popup__paragraph">Navigate to your <a class="hyperlink" href="https://myanimelist.net/ownlist/style">style settings</a> on MyAnimeList.</p>
+							<img src="./images/style-page-classic.jpg" class="popup__image" />
+							<p class="info-box">If your page does not look like this, double check you have the "Classic" option selected. This option is found near the top, where it says "Switch Template".</p>
+						</li>
+						<li class="steps__step">
+							<p class="popup__paragraph">Open the <a href="https://myanimelist.net/editprofile.php?go=stylepref&do=cssadv" target="_blank" class="hyperlink">"Advanced CSS List Design"</a> link. On this page, open either style.</p>
+							<img src="./images/advanced-css.jpg" class="popup__image" />
+						</li>
+						<li class="steps__step">
+							<p class="popup__paragraph">Copy the CSS from the theme customiser and paste it into the text box on MyAnimeList.</p>
+							<img src="./images/copy-css-classic.jpg" class="popup__image" />
+						</li>
+						<li class="steps__step">
+							<p class="popup__paragraph">Click "Update CSS" to apply your changes.</p>
+							<img src="./images/save-classic.jpg" class="popup__image" />
+						</li>
+						<li class="steps__step">
+							<p class="popup__paragraph">Go back to your <a class="hyperlink" href="https://myanimelist.net/ownlist/style">style settings</a>, then to <a href="https://myanimelist.net/editprofile.php?go=stylepref&do=changestyle" target="_blank" class="hyperlink">"Change My List Style"</a>.</p>
+							<p class="popup__paragraph">On this page, double check you have the same style number selected as the one you copied the CSS to. If they mistmatch, change it to the correct number and click "Submit".</p>
+							<img src="./images/selected-style-classic.jpg" class="popup__image" />
+							<p class="popup__paragraph">And with that, you should be done! Check the changes on your anime or manga list.</p>
+							<p class="info-box o-hidden js-help">
+								If this guide did not work for you or you have further questions, please check the theme-specific help page provided by the theme author.
+								<a class="hyperlink js-help-href">Get help</a>.
+							</p>
+						</li>
+					</ol>
+				</div>
+			</div>
+		</div>
+
+		<div class="popup is-hidden" id="js-pp-import">
+			<div class="popup__inner">
+				<div class="popup__invisibutton" onclick="toggleEle('#js-pp-import')"></div>
 				<div class="popup__content">
 					<h4 class="popup__header">Import previous settings.</h4>
 					
@@ -200,15 +259,15 @@ permalink: /theme
 						Place a customiser settings object or your full theme CSS into this textbox and then click "Import Settings".
 					</p>
 
-					<textarea id="js-import-code" class="input input--textarea"></textarea>
+					<textarea id="js-pp-import-code" class="input input--textarea"></textarea>
 					<button class="button button--highlighted" onclick="importPreviousSettings()">Import Settings</button>
 				</div>
 			</div>
 		</div>
 
-		<div class="popup is-hidden" id="js-export">
+		<div class="popup is-hidden" id="js-pp-export">
 			<div class="popup__inner">
-				<div class="popup__invisibutton" onclick="toggleEle('#js-export')"></div>
+				<div class="popup__invisibutton" onclick="toggleEle('#js-pp-export')"></div>
 				<div class="popup__content">
 					<h4 class="popup__header">Export current settings.</h4>
 					

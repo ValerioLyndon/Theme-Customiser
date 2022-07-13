@@ -13,6 +13,7 @@
 				"Score": true,
 				"Episodes": true,
 				"Genre": null,
+				"Tags": null,
 				"Image": true
 			}
 		},

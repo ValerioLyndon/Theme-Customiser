@@ -2,6 +2,8 @@
 // COMMON FUNCTIONS
 // ================
 
+loader.text('Defining functions...');
+
 function confirm(msg, options = {'Yes': {'value': true, 'type': 'suggested'}, 'No': {'value': false}}) {
 	return new Promise((resolve, reject) => {
 		let modal = document.createElement('div'),
@@ -187,7 +189,11 @@ function updateOption(optId, funcConfig = {}) {
 		else {
 			// Update HTML if necessary
 			if(funcConfig['forceValue'] !== undefined) {
-				input.value = val;
+				if(input.type === 'checkbox') {
+					input.checked = val;
+				} else {
+					input.value = val;
+				}
 			}
 
 			if(funcConfig['parentModId']) {
@@ -211,6 +217,7 @@ function updateOption(optId, funcConfig = {}) {
 // If funcConfig['forceValue'] is set then the mod will be updated to match this value. If not, the value will be read from the HTML
 // Accepted values for funcConfig:
 // 'skipUpdateCss' // Default off/false
+// 'skipOptions' // Default off/false
 // 'forceValue' // Default none
 function updateMod(id, funcConfig = {}) {
 	try {
@@ -297,7 +304,7 @@ function updateMod(id, funcConfig = {}) {
 			userSettings['mods'][id] = {};
 
 			// Update options if it has any before calling CSS
-			if('options' in mod) {
+			if('options' in mod && !funcConfig['skipOptions']) {
 				for(let [optId, opt] of Object.entries(mod['options'])) {
 					if(opt['default'] === undefined && opt['type'] === 'toggle') {
 						opt['default'] = false;
@@ -325,6 +332,7 @@ function applySettings(settings = false) {
 		let tempTheme = userSettings['theme'],
 			tempData = userSettings['data'];
 		userSettings['mods'] = settings['mods'];
+		userSettings['options'] = settings['options'];
 		userSettings['theme'] = tempTheme;
 		userSettings['data'] = tempData;
 	}
@@ -338,7 +346,7 @@ function applySettings(settings = false) {
 		}
 	}
 	for(let [modId, modOpts] of Object.entries(userSettings['mods'])) {
-		if(!updateMod(modId, {'skipUpdateCss': true, 'forceValue': true})) {
+		if(!updateMod(modId, {'skipUpdateCss': true, 'forceValue': true, 'skipOptions': true})) {
 			delete userSettings['mods'][modId];
 			errors.push(`mod:<b>${modId}</b>`);
 			continue;
@@ -376,7 +384,7 @@ function updateCss() {
 			insert = '"' + insert.replaceAll('\\','\\\\').replaceAll('"', '\\"').replaceAll('\n', '\\a ') + '"';
 		}
 		else if(qualifier === 'image_url') {
-			if(insert === '') {
+			if(insert === '' || insert === 'none') {
 				insert = 'none';
 			} else {
 				insert = `url(${insert})`;
@@ -445,6 +453,9 @@ function updateCss() {
 		(async () => {
 			for(let id of Object.keys(userSettings['mods'])) {
 				let modData = theme['mods'][id];
+				if(!('css' in modData) || typeof modData['css'] === 'string') {
+					modData['css'] = {'bottom': ''}
+				}
 				for(let [location, resource] of Object.entries(modData['css'])) {
 					if(resource.startsWith('http')) {
 						try {
@@ -457,11 +468,21 @@ function updateCss() {
 						var modCss = resource;
 					}
 
+					let globalOpts = [];
 					for(let [optId, val] of Object.entries(userSettings['mods'][id])) {
-						modCss = applyOptionToCss(modCss, modData['options'][optId], val);
+						let optData = modData['options'][optId];
+						if('flags' in optData && optData['flags'].includes('global')) {
+							globalOpts.push([optData, val]);
+						} else {
+							modCss = applyOptionToCss(modCss, optData, val);
+						}
 					}
 
 					extendCss(modCss, location);
+
+					for(opt of globalOpts) {
+						newCss = applyOptionToCss(newCss, ...opt);
+					}
 				}
 			}
 			pushCss(newCss);
@@ -526,20 +547,23 @@ function validateInput(fullid, type) {
 			problems += 1;
 			noticeHTML += `<li class="info-box__list-item">${text}</li>`;
 		}
-		
-		if(!val.startsWith('http')) {
-			if(val.startsWith('file:///')) {
-				problem('URL references a file local to your computer. You must upload the image to an appropriate image hosting service.');
-			} else {
-				problem('URL string does not contain the HTTP protocol.');
+
+		if(val !== 'none' && val.length > 0) {
+			if(!val.startsWith('http')) {
+				if(val.startsWith('file:///')) {
+					problem('URL references a file local to your computer. You must upload the image to an appropriate image hosting service.');
+				} else {
+					problem('URL string does not contain the HTTP protocol.');
+				}
+			}
+			if(!/(png|jpe?g|gif|webp|svg)(\?.*)?$/.test(val)) {
+				problem('Your URL does not appear to link to an image. Make sure that you copied the direct link and not a link to a regular webpage.');
+			}
+			else if(/svg(\?.*)?$/.test(val)) {
+				problem('SVG images will not display on your list while logged out or for other users. Host your CSS on an external website to bypass this.');
 			}
 		}
-		if(!/(png|jpe?g|gif|webp|svg)(\?.*)?$/.test(val)) {
-			problem('Your URL does not appear to link to an image. Make sure that you copied the direct link and not a link to a regular webpage.');
-		}
-		else if(/svg(\?.*)?$/.test(val)) {
-			problem('SVG images will not display on your list while logged out or for other users. Host your CSS on an external website to bypass this.');
-		}
+		
 	}
 
 	else if(type === 'color') {
@@ -591,12 +615,31 @@ function resetSettings() {
 	});
 }
 
+function clearCache() {
+	confirm('Clear all cached data? This can be useful if the customiser is pulling out-of-date CSS or something seems broken, but normally this should never be needed.', {'Yes': {'value': true, 'type': 'danger'}, 'No': {'value': false}})
+	.then((choice) => {
+		if(choice) {
+			sessionStorage.clear();
+			localStorage.removeItem('tcImport');
+			messenger.timeout('Cache cleared.');
+			confirm('Cache cleared! Reload the current page? This will load the customiser with a fresh slate.')
+			.then((choice) => {
+				if(choice) {
+					location.reload();
+				}
+			});
+		}
+	});
+}
+
 
 
 // ONE-TIME FUNCTIONS
 
 // Setup basic options structure and add event listeners
 function renderHtml() {
+	loader.text('Rendering page...');
+
 	// options & mods
 	document.getElementById('js-title').textContent = theme['name'] ? theme['name'] : 'Untitled';
 	document.getElementById('js-author').textContent = theme['author'] ? theme['author'] : 'Unknown Author';
@@ -610,12 +653,17 @@ function renderHtml() {
 	var optionsEle = document.getElementById('js-options');
 
 	function generateOptionHtml(dictionary, parentModId) {
+
 		let optId = dictionary[0],
 			opt = dictionary[1],
 			fullId = `opt:${optId}`;
 		
 		if(parentModId) {
 			fullId = `mod:${parentModId}:${optId}`;
+		}
+			
+		if(!('type' in opt)) {
+			return `Option must have a "type" key.`;
 		}
 
 		let div = document.createElement('div'),
@@ -635,7 +683,7 @@ function renderHtml() {
 
 		div.className = 'entry has-help';
 		head.className = 'entry__head';
-		headLeft.textContent = opt['name'];
+		headLeft.textContent = opt['name'] ? opt['name'] : 'Untitled';
 		headLeft.className = 'entry__name';
 		headRight.className = 'entry__action-box';
 		head.appendChild(headLeft);
@@ -666,6 +714,10 @@ function renderHtml() {
 		}
 
 		if(baseType === 'text' || opt['type'] === 'color') {
+			if(!('replacements' in opt)) {
+				return 'Option must contain a "replacements" key.';
+			}
+
 			let input = document.createElement('input');
 			input.id = fullId;
 			input.type = 'text';
@@ -718,6 +770,10 @@ function renderHtml() {
 
 
 		else if(baseType === 'textarea') {
+			if(!('replacements' in opt)) {
+				return 'Option must contain a "replacements" key.';
+			}
+
 			let input = document.createElement('textarea');
 			input.id = fullId;
 			input.value = opt['default'];
@@ -729,6 +785,10 @@ function renderHtml() {
 		}
 
 		else if(baseType === 'toggle') {
+			if(!('replacements' in opt)) {
+				return 'Option must contain a "replacements" key.';
+			}
+
 			let toggle = document.createElement('input');
 			toggle.type = 'checkbox';
 			toggle.id = fullId;
@@ -743,12 +803,14 @@ function renderHtml() {
 			`;
 			headRight.prepend(toggle);
 
-
-
 			toggle.addEventListener('input', () => { updateOption(optId, {'defaultValue': opt['default'], 'parentModId': parentModId}); });
 		}
 
 		else if(baseType === 'select') {
+			if(!('selections' in opt)) {
+				return 'Option must contain a "replacements" key.';
+			}
+
 			let select = document.createElement('select');
 
 			// would be nice to have a simpler/nicer to look at switch for small lists but would require using radio buttons.
@@ -777,7 +839,12 @@ function renderHtml() {
 
 	if('options' in theme) {
 		for(let opt of Object.entries(theme['options'])) {
-			optionsEle.appendChild(generateOptionHtml(opt));
+			let ele = generateOptionHtml(opt);
+			if(typeof ele === 'string') {
+				console.log(`[generateOptionHtml] Skipped option "${opt[0]}": ${ele}`);
+			} else {
+				optionsEle.appendChild(ele);
+			}
 		}
 	} else {
 		optionsEle.parentNode.remove();
@@ -843,7 +910,12 @@ function renderHtml() {
 				optDiv.className = 'entry__options';
 
 				for(let opt of Object.entries(mod['options'])) {
-					optDiv.appendChild(generateOptionHtml(opt, modId));
+					let ele = generateOptionHtml(opt, modId);
+					if(typeof ele === 'string') {
+						console.log(`[generateOptionHtml] Skipped option "${opt[0]}" of mod "${modId}": ${ele}`);
+					} else {
+						optDiv.appendChild(ele);
+					}
 				}
 
 				div.appendChild(optDiv);
@@ -969,18 +1041,30 @@ function renderHtml() {
 
 	// Add support
 	if('supports' in theme && theme['supports'].length === 1) {
-		if(['animelist','mangalist'].includes(theme['supports'][0])) {
+		let type = theme['supports'][0];
+		if(['animelist','mangalist'].includes(type)) {
 			intendedConfig.classList.remove('o-hidden');
 			
-			let parent = document.getElementById('js-list-type');
+			let parent = document.getElementById('js-list-type'),
+				child = document.getElementById('js-list-type__text');
+			child.innerHTML = `This theme was designed only for <b>${type}s</b>. Use on ${type === 'animelist' ? 'mangalist' : 'animelist'}s may have unexpected results.`;
 			parent.classList.remove('o-hidden');
-			parent.innerHTML = `Use only with your <b>${theme['supports'][0]}</b>.`;
 		}
 		else {
 			messenger.warn('The supported list was ignored due to being invalid. The only accepted values are "animelist" and "mangalist".');
 		}
 	} else {
 		theme['supports'] = ['animelist','mangalist'];
+	}
+
+	// Add classic list functions
+
+	let installBtn = document.getElementById('js-installation-btn');
+	if(theme['type'] === 'classic') {
+		installBtn.addEventListener('click', () => { toggleEle('#js-pp-installation-classic') });
+		installBtn.textContent = 'How do I install classic lists?';
+	} else {
+		installBtn.addEventListener('click', () => { toggleEle('#js-pp-installation-modern') });
 	}
 
 	// Set theme columns and push to iframe
@@ -1077,9 +1161,11 @@ function renderHtml() {
 		columnsContainer.className = 'columns';
 
 		for(let listtype of theme['supports']) {
-			let tempcolumns = processColumns(baseColumns[listtype], mode, theme['columns'][listtype]);
-			
-			renderColumns(tempcolumns, listtype);
+			if(listtype in theme['columns']) {
+				let tempcolumns = processColumns(baseColumns[listtype], mode, theme['columns'][listtype]);
+				
+				renderColumns(tempcolumns, listtype);
+			}
 		}
 
 		columns = processColumns(baseColumns[theme['supports'][0]], mode, theme['columns'][theme['supports'][0]])
@@ -1135,7 +1221,7 @@ function renderHtml() {
 		if(expanded) {
 			let animFrames = [
 				{ height: `${expandedHeight}px` },
-				{ height: `${collapsedHeight}px`}
+				{ height: `${collapsedHeight}px` }
 			];
 			parent.style.height = `${collapsedHeight}px`;
 			parent.style.paddingBottom = `0px`;
@@ -1187,6 +1273,8 @@ function renderHtml() {
 
 // Updates preview CSS & removes loader
 function finalSetup() {
+	loader.text('Fetching CSS...');
+
 	// Get theme CSS
 	if(theme['css'].startsWith('http')) {
 		let fetchThemeCss = fetchFile(theme['css']);
@@ -1257,6 +1345,7 @@ function finalSetup() {
 			loader.loaded();
 		}
 		else {
+			loader.text('Loading preview...');
 			console.log('[finalSetup] Awaiting iframe before completing page load.');
 		}
 	}
@@ -1286,9 +1375,8 @@ iframe.addEventListener('load', () => {
 		loader.loaded();
 	}
 });
-iframe.src = 'preview.html';
+
 iframe.className = 'preview__window';
-preview.appendChild(iframe);
 
 function postToIframe(msg) {
 	if(iframeLoaded) {
@@ -1321,12 +1409,18 @@ let fetchUrl = themeUrls[0],
 // Legacy processing for json 0.1 > 0.2
 if(themeUrls.length === 0 && collectionUrls.length > 0) {
 	fetchUrl = collectionUrls[0];
-	console.log('2')
 }
 // Generic failure
 else if(themeUrls.length === 0) {
 	loader.failed(['No theme was specified in the URL. Did you follow a broken link?', 'select']);
 	throw new Error('select');
+}
+
+loader.text('Fetching theme...');
+
+function jsonfail(msg) {
+	loader.failed([msg, 'invalid.json']);
+	throw new Error('invalid json format');
 }
 
 let fetchData = fetchFile(fetchUrl, false);
@@ -1347,10 +1441,6 @@ fetchData.then((json) => {
 	}
 	processJson(json, themeUrls[0], selectedTheme ? selectedTheme : 'theme')
 	.then((processedJson) => {
-		function jsonfail(msg) {
-			loader.failed([msg, 'invalid.json']);
-			throw new Error('invalid json format');
-		}
 
 		// Get theme info from URL & take action if problematic
 		if(processedJson === false) {
@@ -1363,9 +1453,31 @@ fetchData.then((json) => {
 			userSettings['theme'] = selectedTheme ? selectedTheme : theme['name'];
 		}
 
+		// Set preview to correct type and add iframe to page
+		let framePath = './preview/';
+		if(theme['type'] === 'classic') {
+			framePath += 'classic/';
+		} else {
+			framePath += 'modern/';
+		}
+		if(theme['supports'] === ['mangalist']) {
+			//framePath += 'mangalist.html';
+			console.log('Detected mangalist only, but this feature is not yet supported.');
+			framePath += 'animelist.html';
+		} else {
+			framePath += 'animelist.html';
+		}
+		iframe.src = framePath;
+		preview.appendChild(iframe);
+
 		// Test for basic JSON values to assist list designers debug.
 		if(!('css' in theme)) {
+			console.log('[processJson] Theme did not define any CSS.');
 			theme['css'] = '';
+		}
+		if(!('type' in theme)) {
+			console.log('[processJson] Theme did not define a list type, assuming "modern".');
+			theme['type'] = 'modern';
 		}
 
 		// Set page title
