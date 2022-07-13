@@ -650,6 +650,18 @@ function renderHtml() {
 		credit.textContent = `Customising "${theme['name']}"`;
 	}
 
+	if('flags' in theme) {
+		let themeTag = document.getElementById('js-theme-tag');
+		if(theme['flags'].includes('beta')) {
+			themeTag.textContent = 'BETA';
+			themeTag.classList.remove('o-hidden');
+		}
+		else if(theme['flags'].includes('alpha')) {
+			themeTag.textContent = 'ALPHA';
+			themeTag.classList.remove('o-hidden');
+		}
+	}
+
 	var optionsEle = document.getElementById('js-options');
 
 	function generateOptionHtml(dictionary, parentModId) {

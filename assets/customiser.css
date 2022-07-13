@@ -222,6 +222,16 @@ input:checked + .toggle.is-forced::after {
 	border-radius: 0 100% 0 0;
 }
 
+.theme-tag {
+	height: 24px;
+	padding: 3px 6px;
+	border: 2px solid var(--accent-text);
+	border-radius: 4px;
+	font-size: 12px;
+	font-weight: 900;
+	vertical-align: middle;
+}
+
 .sidebar__nav {
 	float: right;
 	height: 24px;
