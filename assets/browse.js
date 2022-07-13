@@ -62,18 +62,34 @@ function renderCards(cardData) {
 		tagArea.className = 'card__tag-list';
 		display.appendChild(tagArea);
 
-		if('type' in theme) {
-			let tagType = document.createElement('span');
-			tagType.className = 'card__tag';
-			tagType.textContent =capitalise(theme['type']);
-			tagArea.appendChild(tagType);
+		function addTag(name, colour) {
+			let tag = document.createElement('span');
+			tag.className = 'card__tag';
+			tag.textContent = name;
+			if(colour) {
+				tag.style.cssText = `--tag-accent: ${colour};`;
+			}
+			tagArea.appendChild(tag);
+		}
+
+		let typeName = capitalise(theme['type']);
+		if(theme['type'] === 'classic') {
+			addTag(typeName, '#5ad590');
+		} else {
+			addTag(typeName, '#72d3ea');
+		}
+
+		if('flags' in theme) {
+			if(theme['flags'].includes('beta')) {
+				addTag('Beta', '#e37837');
+			}
+			else if(theme['flags'].includes('alpha')) {
+				addTag('Alpha', '#cecc47');
+			}
 		}
 
 		if('supports' in theme && theme['supports'].length === 1) {
-			let tagSupport = document.createElement('span');
-			tagSupport.className = 'card__tag';
-			tagSupport.textContent = capitalise(`${theme['supports'][0]} only`);
-			tagArea.appendChild(tagSupport);
+			addTag(`${capitalise(theme['supports'][0])} Only`, '#d26666');
 		}
 		
 		if('image' in theme) {
