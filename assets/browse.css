@@ -68,18 +68,19 @@
 
 .card__tag-list {
 	position: absolute;
-	bottom: -4px;
+	bottom: 8px;
 	right: 8px;
 	display: flex;
 	flex-direction: row-reverse;
+	flex-wrap: wrap-reverse;
+	
 }
 
 .card__tag {
 	--tag-accent: var(--box);
 	padding: 2px 4px;
-	background: linear-gradient(135deg,var(--background),var(--tag-accent));
-	box-shadow: .75px 1.5px 3px rgba(0,0,0,0.35);
-	border-radius: 6px;
-	margin-left: 6px;
+	background: var(--tag-accent);
+	border-radius: 4px;
+	margin: 4px 0 0 4px;
 	font-size: 12px;
 }

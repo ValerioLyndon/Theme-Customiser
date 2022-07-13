@@ -76,20 +76,20 @@ function renderCards(cardData) {
 		if(theme['type'] === 'classic') {
 			addTag(typeName, '#5ad590');
 		} else {
-			addTag(typeName, '#5bb8ce');
+			addTag(typeName, '#72d3ea');
 		}
 
 		if('flags' in theme) {
 			if(theme['flags'].includes('beta')) {
-				addTag('Beta', '#eea579');
+				addTag('Beta', '#e37837');
+			}
+			else if(theme['flags'].includes('alpha')) {
+				addTag('Alpha', '#cecc47');
 			}
 		}
 
 		if('supports' in theme && theme['supports'].length === 1) {
-			let tagSupport = document.createElement('span');
-			tagSupport.className = 'card__tag';
-			tagSupport.textContent = capitalise(`${theme['supports'][0]} only`);
-			tagArea.appendChild(tagSupport);
+			addTag(`${capitalise(theme['supports'][0])} Only`, '#d26666');
 		}
 		
 		if('image' in theme) {
