@@ -1326,13 +1326,13 @@ function finalSetup() {
 			} 
 		}
 
-		// Clear any previous theme settings that are older than 12 hours (43,200,000ms).
+		// Clear any previous theme settings that are older than 4 hours (14,400,000ms).
 		for(i = 0; i < localStorage.length; i++) {
 			let key = localStorage.key(i);
 
 			if(key.startsWith('theme:')) {
 				let data = JSON.parse(localStorage.getItem(key));
-				if(Date.now() - data['date'] > 432000000) {
+				if(Date.now() - data['date'] > 14400000) {
 					localStorage.removeItem(key);
 				}
 			}
