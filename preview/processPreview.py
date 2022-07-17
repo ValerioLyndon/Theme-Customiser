@@ -77,6 +77,7 @@ for filePath in previewFiles:
 			[r'(width="125" align="left")((?:[\s\S](?!td))*?genre=)', r'\1 tc-column="Genre"\2'],
 			[r'(width="90" align="left"|width="90" nowrap="" align="center"|width="90" align="center" nowrap="")', r'\1 tc-column="Demographics"'],
 			#both lists
+			[r'(url\(|href=)"\/', r'\1"https://myanimelist.net/'],
 			[r'(tc-column="[^"]*?") tc-column="[^"]*?"', r'\1']
 		]
 
