@@ -179,7 +179,7 @@ function importPreviousSettings(opts = undefined) {
 			var previousSettings = JSON.parse(previous.trim());
 		}
 		catch {
-			previous = previous.match(/\^TC{.*?}}TC\$/);
+			previous = previous.match(/\^TC{.*?}TC\$/);
 
 			if(previous === null) {
 				messenger.error('Import failed, could not interpret your options. Are you sure you input the correct text?', ' regex.match');
@@ -321,6 +321,9 @@ async function processJson(json, url, toReturn) {
 					return false;
 				});
 			}
+		}
+		else if('data' in json && toReturn !== 'collection') {
+			return json;
 		}
 		else {
 			return 'The linked theme lacks a "data" or a "themes" entry.';
