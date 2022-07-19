@@ -187,7 +187,11 @@ function updateOption(optId, funcConfig = {}) {
 		else {
 			// Update HTML if necessary
 			if(funcConfig['forceValue'] !== undefined) {
-				input.value = val;
+				if(input.type === 'checkbox') {
+					input.checked = val;
+				} else {
+					input.value = val;
+				}
 			}
 
 			if(funcConfig['parentModId']) {
@@ -211,6 +215,7 @@ function updateOption(optId, funcConfig = {}) {
 // If funcConfig['forceValue'] is set then the mod will be updated to match this value. If not, the value will be read from the HTML
 // Accepted values for funcConfig:
 // 'skipUpdateCss' // Default off/false
+// 'skipOptions' // Default off/false
 // 'forceValue' // Default none
 function updateMod(id, funcConfig = {}) {
 	try {
@@ -297,7 +302,7 @@ function updateMod(id, funcConfig = {}) {
 			userSettings['mods'][id] = {};
 
 			// Update options if it has any before calling CSS
-			if('options' in mod) {
+			if('options' in mod && !funcConfig['skipOptions']) {
 				for(let [optId, opt] of Object.entries(mod['options'])) {
 					if(opt['default'] === undefined && opt['type'] === 'toggle') {
 						opt['default'] = false;
@@ -325,6 +330,7 @@ function applySettings(settings = false) {
 		let tempTheme = userSettings['theme'],
 			tempData = userSettings['data'];
 		userSettings['mods'] = settings['mods'];
+		userSettings['options'] = settings['options'];
 		userSettings['theme'] = tempTheme;
 		userSettings['data'] = tempData;
 	}
@@ -338,7 +344,7 @@ function applySettings(settings = false) {
 		}
 	}
 	for(let [modId, modOpts] of Object.entries(userSettings['mods'])) {
-		if(!updateMod(modId, {'skipUpdateCss': true, 'forceValue': true})) {
+		if(!updateMod(modId, {'skipUpdateCss': true, 'forceValue': true, 'skipOptions': true})) {
 			delete userSettings['mods'][modId];
 			errors.push(`mod:<b>${modId}</b>`);
 			continue;
@@ -376,7 +382,7 @@ function updateCss() {
 			insert = '"' + insert.replaceAll('\\','\\\\').replaceAll('"', '\\"').replaceAll('\n', '\\a ') + '"';
 		}
 		else if(qualifier === 'image_url') {
-			if(insert === '') {
+			if(insert === '' || insert === 'none') {
 				insert = 'none';
 			} else {
 				insert = `url(${insert})`;
@@ -460,11 +466,21 @@ function updateCss() {
 						var modCss = resource;
 					}
 
+					let globalOpts = [];
 					for(let [optId, val] of Object.entries(userSettings['mods'][id])) {
-						modCss = applyOptionToCss(modCss, modData['options'][optId], val);
+						let optData = modData['options'][optId];
+						if('flags' in optData && optData['flags'].includes('global')) {
+							globalOpts.push([optData, val]);
+						} else {
+							modCss = applyOptionToCss(modCss, optData, val);
+						}
 					}
 
 					extendCss(modCss, location);
+
+					for(opt of globalOpts) {
+						newCss = applyOptionToCss(newCss, ...opt);
+					}
 				}
 			}
 			pushCss(newCss);
@@ -529,20 +545,23 @@ function validateInput(fullid, type) {
 			problems += 1;
 			noticeHTML += `<li class="info-box__list-item">${text}</li>`;
 		}
-		
-		if(!val.startsWith('http')) {
-			if(val.startsWith('file:///')) {
-				problem('URL references a file local to your computer. You must upload the image to an appropriate image hosting service.');
-			} else {
-				problem('URL string does not contain the HTTP protocol.');
+
+		if(val !== 'none' && val.length > 0) {
+			if(!val.startsWith('http')) {
+				if(val.startsWith('file:///')) {
+					problem('URL references a file local to your computer. You must upload the image to an appropriate image hosting service.');
+				} else {
+					problem('URL string does not contain the HTTP protocol.');
+				}
+			}
+			if(!/(png|jpe?g|gif|webp|svg)(\?.*)?$/.test(val)) {
+				problem('Your URL does not appear to link to an image. Make sure that you copied the direct link and not a link to a regular webpage.');
+			}
+			else if(/svg(\?.*)?$/.test(val)) {
+				problem('SVG images will not display on your list while logged out or for other users. Host your CSS on an external website to bypass this.');
 			}
 		}
-		if(!/(png|jpe?g|gif|webp|svg)(\?.*)?$/.test(val)) {
-			problem('Your URL does not appear to link to an image. Make sure that you copied the direct link and not a link to a regular webpage.');
-		}
-		else if(/svg(\?.*)?$/.test(val)) {
-			problem('SVG images will not display on your list while logged out or for other users. Host your CSS on an external website to bypass this.');
-		}
+		
 	}
 
 	else if(type === 'color') {
@@ -594,6 +613,23 @@ function resetSettings() {
 	});
 }
 
+function clearCache() {
+	confirm('Clear all cached data? This can be useful if the customiser is pulling out-of-date CSS or something seems broken, but normally this should never be needed.', {'Yes': {'value': true, 'type': 'danger'}, 'No': {'value': false}})
+	.then((choice) => {
+		if(choice) {
+			sessionStorage.clear();
+			localStorage.removeItem('tcImport');
+			messenger.timeout('Cache cleared.');
+			confirm('Cache cleared! Reload the current page? This will load the customiser with a fresh slate.')
+			.then((choice) => {
+				if(choice) {
+					location.reload();
+				}
+			});
+		}
+	});
+}
+
 
 
 // ONE-TIME FUNCTIONS
@@ -610,6 +646,18 @@ function renderHtml() {
 		credit.textContent = `Customising "${theme['name']}" by ${theme['author']}`;
 	} else {
 		credit.textContent = `Customising "${theme['name']}"`;
+	}
+
+	if('flags' in theme) {
+		let themeTag = document.getElementById('js-theme-tag');
+		if(theme['flags'].includes('beta')) {
+			themeTag.textContent = 'BETA';
+			themeTag.classList.remove('o-hidden');
+		}
+		else if(theme['flags'].includes('alpha')) {
+			themeTag.textContent = 'ALPHA';
+			themeTag.classList.remove('o-hidden');
+		}
 	}
 
 	var optionsEle = document.getElementById('js-options');
@@ -1276,13 +1324,13 @@ function finalSetup() {
 			} 
 		}
 
-		// Clear any previous theme settings that are older than 12 hours (43,200,000ms).
+		// Clear any previous theme settings that are older than 4 hours (14,400,000ms).
 		for(i = 0; i < localStorage.length; i++) {
 			let key = localStorage.key(i);
 
 			if(key.startsWith('theme:')) {
 				let data = JSON.parse(localStorage.getItem(key));
-				if(Date.now() - data['date'] > 432000000) {
+				if(Date.now() - data['date'] > 14400000) {
 					localStorage.removeItem(key);
 				}
 			}

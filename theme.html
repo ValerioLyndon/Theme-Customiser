@@ -44,7 +44,7 @@ permalink: /theme
 					</nav>
 					
 					<h1 class="sub-title">Customise your theme</h1>
-					<h2 class="title o-clear" id="js-title">Loading theme...</h2>
+					<h2 class="title o-clear"><span id="js-title">Loading theme...</span> <span class="theme-tag o-hidden" id="js-theme-tag"></span></h2>
 					<h3 class="sub-sub-title">By <span id="js-author">unknown author</span></h3>
 				</div>
 
@@ -110,11 +110,13 @@ permalink: /theme
 						</button>
 
 						<a class="hyperlink" onclick="toggleEle('#js-pp-installation')" id="js-installation-btn">How do I install this?</a>
-
-						<br />
-
-						<button class="button" onclick="toggleEle('#js-pp-export')">Export settings</button> <button class="button" onclick="resetSettings()">Reset settings</button>
 					</div>
+				</div>
+
+				<div class="sidebar__section">
+					<button class="button" onclick="toggleEle('#js-pp-export')">Export settings</button>
+					<button class="button" onclick="resetSettings()">Reset settings</button>
+					<button class="button" onclick="clearCache()">Clear cache</button>
 				</div>
 
 				<footer class="sidebar__section sidebar__section--no-border">
