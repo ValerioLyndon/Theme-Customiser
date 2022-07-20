@@ -79,6 +79,10 @@ body {
 	border-color: #a22e2e;
 	color: var(--accent-text);
 }
+.button--unusuable {
+	cursor: default;
+	opacity: 1 !important;
+}
 
 .swappable-text {
 	height: 1.3em;
@@ -263,10 +267,6 @@ body {
 
 /* Tags */
 
-.tags {
-	margin-bottom: 4px;
-}
-
 .tags__button {
 	margin-bottom: 4px;
 	font-weight: 700;
@@ -274,7 +274,7 @@ body {
 .tags__button:hover {
 	color: var(--accent);
 }
-.tags.has-selected .tags__button {
+.tags__button.has-selected {
 	color: var(--accent);
 	border-color: var(--accent);
 
@@ -291,9 +291,14 @@ body {
 .tags__cloud {
 	display: flex;
 	flex-flow: row wrap;
+	margin-bottom: 4px;
 }
 .tags__cloud.is-hidden {
 	display: none;
+}
+.tags__cloud--center {
+	justify-content: center;
+	text-align: center;
 }
 
 .tags__tag {
@@ -324,10 +329,11 @@ body {
 
 .tags__count {
 	display: inline-block;
-	width: 16px;
+	min-width: 16px;
+	padding: 0 4px;
 	height: 16px;
 	background: var(--box);
-	border-radius: 50%;
+	border-radius: 8px;
 	margin: 0 -4px 0 4px;
 	text-align: center;
 	font-weight: 700;

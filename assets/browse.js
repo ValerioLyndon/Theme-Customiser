@@ -27,7 +27,7 @@ function filterByTag() {
 	}
 
 	// Remove other tags' styling & set our own
-	tagsEle.classList.remove('has-selected');
+	tagsBtn.classList.remove('has-selected');
 	let selectedTags = document.querySelectorAll('.js-tag.is-selected');
 
 	for(let tag of selectedTags) {
@@ -36,7 +36,7 @@ function filterByTag() {
 
 	// Select new tags
 	if(!isSelected) {
-		tagsEle.classList.add('has-selected');
+		tagsBtn.classList.add('has-selected');
 		let itemsToKeep = this.getAttribute('data-items').split(',');
 		// convert string to int
 		for(let i = 0; i < itemsToKeep.length; i++) {
@@ -113,6 +113,13 @@ function renderCards(cardData) {
 			cardParent.setAttribute('data-date', theme['date']);
 		} else {
 			cardParent.setAttribute('data-date', '0000-00-00');
+		}
+		if('author' in theme) {
+			if(!sorts.includes('data-author')) {
+				sorts.push('data-author');
+			}
+
+			cardParent.setAttribute('data-author', theme['author']);
 		}
 
 		let themeTags = theme['tags'] ? theme['tags'] : [];
@@ -197,10 +204,9 @@ function renderCards(cardData) {
 	}
 }
 
-var tagsEle = document.getElementById('js-tags'),
-	hidden;
+var tagsBtn = document.getElementById('js-tags__button');
 function renderFilters() {
-	tagsEle.classList.remove('o-hidden');
+	tagsBtn.classList.remove('o-hidden');
 
 	let cloudEle = document.getElementById('js-tags__cloud');
 
@@ -279,14 +285,23 @@ Promise.allSettled(collectionFiles)
 			renderFilters();
 		}
 
+		// Add sort dropdown items and apply default sort
 		var cards = document.getElementsByClassName('js-card');
-		console.log(sorts);
+		
+		document.getElementById('js-sort-title').addEventListener('click', () => { sortItems(cards, 'data-title') });
+		
 		if(sorts.includes('data-date')) {
-			console.log('sorting by data');
+			document.getElementById('js-sort-date').addEventListener('click', () => { sortItems(cards, 'data-date', 'descending') });
 			sortItems(cards, 'data-date', 'descending');
 		} else {
-			console.log('sorting by title');
+			document.getElementById('js-sort-date').parentNode.remove();
 			sortItems(cards, 'data-title');
+		}
+		
+		if(sorts.includes('data-author')) {
+			document.getElementById('js-sort-author').addEventListener('click', () => { sortItems(cards, 'data-author') });
+		} else {
+			document.getElementById('js-sort-author').parentNode.remove();
 		}
 
 		if(failures >= files.length) {

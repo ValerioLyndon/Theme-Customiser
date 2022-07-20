@@ -861,7 +861,7 @@ function renderHtml() {
 	}
 
 	var modsEle = document.getElementById('js-mods'),
-		tagsEle = document.getElementById('js-mod-tags'),
+		tagsBtn = document.getElementById('js-tags__button'),
 		modTags = {};
 
 	if('mods' in theme) {
@@ -962,7 +962,7 @@ function renderHtml() {
 
 	// Add mod tag to list of tags
 	if(Object.entries(modTags).length > 0 && Object.entries(theme['mods']).length > 3) {
-		tagsEle.classList.remove('o-hidden');
+		tagsBtn.classList.remove('o-hidden');
 
 		function selectTag() {
 			// Clear previous selection
@@ -973,7 +973,7 @@ function renderHtml() {
 			}
 
 			// Remove other tags' styling & set our own
-			tagsEle.classList.remove('has-selected');
+			tagsBtn.classList.remove('has-selected');
 			let selectedTags = document.querySelectorAll('.js-tag.is-selected');
 
 			for(let tag of selectedTags) {
@@ -982,7 +982,7 @@ function renderHtml() {
 
 			// Select new tags
 			if(!isSelected) {
-				tagsEle.classList.add('has-selected');
+				tagsBtn.classList.add('has-selected');
 				let modsToKeep = this.getAttribute('data-mods').split(',');
 				for(let modId of Object.keys(theme['mods'])) {
 					if(modsToKeep.includes(modId)) {
@@ -996,7 +996,7 @@ function renderHtml() {
 		}
 		
 
-		let cloudEle = document.getElementById('js-mod-tags-cloud');
+		let cloudEle = document.getElementById('js-tags__cloud');
 		
 		for(let [tag, mods] of Object.entries(modTags)) {
 			let tagEle = document.createElement('button'),
