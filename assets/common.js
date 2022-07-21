@@ -260,6 +260,84 @@ function toggleEle(selector, btn = false, set = undefined) {
 	}
 }
 
+// Tag Functionality & Renderer
+
+let tagsBtn = document.getElementById('js-tags__button');
+
+/* Adds functional tags to the HTML. Accepts three values:
+ * tags
+   - A dictionary containing tag keys and their id arrays
+   e.x { "my tag": ["item id", 0, "three"] }
+ * allIds
+   - an array of all ID values to show/hide when selecting tags.
+   e.x ["my mod", "mod 2", "image mod"]
+ * selector
+   - a CSS ID to target the correct items using IDs from allIds.
+   - will replace the "ID" text during runtime.
+   e.x "card:ID"
+ */
+function renderTags(tags, allIds, selector) {
+	tagsBtn.classList.remove('o-hidden');
+
+	let cloudEle = document.getElementById('js-tags__cloud');
+
+	for(let [tag, itemIds] of Object.entries(tags)) {
+		let tagEle = document.createElement('button'),
+			countEle = document.createElement('span'),
+			count = itemIds.length;
+
+		tagEle.textContent = tag;
+		tagEle.className = 'tag-cloud__tag js-tag';
+		tagEle.setAttribute('data-items', itemIds);
+
+		countEle.textContent = count;
+		countEle.className = 'tag-cloud__count';
+		tagEle.appendChild(countEle);
+		cloudEle.appendChild(tagEle);
+
+		// Add tag button functions
+		tagEle.addEventListener('click', () => { selectTag(tagEle, allIds, selector); });
+	}
+}
+
+function selectTag(tagEle, allIds, selector) {
+	// Clear previous selection
+	let hidden = document.querySelectorAll('.is-hidden-by-tag'),
+		isSelected = tagEle.className.includes('is-selected');
+	for(let ele of hidden) {
+		ele.classList.remove('is-hidden-by-tag');
+	}
+
+	// Remove other tags' styling & set our own
+	tagsBtn.classList.remove('has-selected');
+	let selectedTags = document.querySelectorAll('.js-tag.is-selected');
+
+	for(let tag of selectedTags) {
+		tag.classList.remove('is-selected');
+	}
+
+	// Select new tags
+	if(!isSelected) {
+		tagsBtn.classList.add('has-selected');
+		let itemsToKeep = tagEle.getAttribute('data-items').split(',');
+
+		for(let i = 0; i < itemsToKeep.length; i++) {
+			itemsToKeep[i] = String(itemsToKeep[i]);
+		}
+		
+		for(let id of allIds) {
+			id = String(id);
+			
+			if(itemsToKeep.includes(id)) {
+				continue;
+			} else {
+				document.getElementById(selector.replace('ID', id)).classList.add('is-hidden-by-tag');
+			}
+		}
+		tagEle.classList.add('is-selected');
+	}
+}
+
 
 
 // VARIABLES

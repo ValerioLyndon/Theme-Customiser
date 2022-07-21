@@ -243,6 +243,13 @@ input:checked + .toggle.is-forced::after {
 	margin: 0 0 8px;
 }
 
+.sidebar__header-aside {
+	float: right;
+	height: 0px;
+	font-size: 14px;
+	font-weight: normal;
+}
+
 
 /* Options/Mods/Sidebar sub-content */
 

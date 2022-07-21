@@ -65,9 +65,10 @@ body {
 	vertical-align: middle;
 	text-decoration: none;
 	cursor: pointer;
+	transition: transform 0.1s ease-out;
 }
 .button:active {
-	opacity: 0.7;
+	transform: scale(0.93);
 }
 .button--highlighted {
 	background: var(--accent);
@@ -79,9 +80,13 @@ body {
 	border-color: #a22e2e;
 	color: var(--accent-text);
 }
-.button--unusuable {
+.button--unusable {
 	cursor: default;
-	opacity: 1 !important;
+	transform: none !important;
+}
+.button.has-selected {
+	color: var(--accent);
+	border-color: var(--accent);
 }
 
 .swappable-text {
@@ -216,6 +221,9 @@ body {
 	display: flex;
 	height: 100vh;
 }
+.content__browse {
+	padding-bottom: 32px;
+}
 
 
 /* Header */
@@ -267,20 +275,20 @@ body {
 
 /* Tags */
 
-.tags__button {
+.tag-cloud {
+	display: flex;
+	flex-flow: row wrap;
 	margin-bottom: 4px;
-	font-weight: 700;
 }
-.tags__button:hover {
-	color: var(--accent);
+.tag-cloud--center {
+	justify-content: center;
+	text-align: center;
 }
-.tags__button.has-selected {
-	color: var(--accent);
-	border-color: var(--accent);
-
+.tag-cloud.is-hidden {
+	display: none;
 }
 
-.tags__blurb {
+.tag-cloud__blurb {
 	font-size: 11px;
 	display: block;
 	width: 100%;
@@ -288,20 +296,7 @@ body {
 	margin-bottom: 4px;
 }
 
-.tags__cloud {
-	display: flex;
-	flex-flow: row wrap;
-	margin-bottom: 4px;
-}
-.tags__cloud.is-hidden {
-	display: none;
-}
-.tags__cloud--center {
-	justify-content: center;
-	text-align: center;
-}
-
-.tags__tag {
+.tag-cloud__tag {
 	height: 24px;
 	padding: 2px 8px;
 	background: none;
@@ -318,16 +313,16 @@ body {
 	transition-duration: 0.1s;
 	transition-timing-function: ease;
 }
-.tags__tag:hover {
+.tag-cloud__tag:hover {
 	background: var(--box);
 }
-.tags__tag.is-selected {
+.tag-cloud__tag.is-selected {
 	border-color: var(--accent);
 	background: var(--accent);
 	color: var(--accent-text);
 }
 
-.tags__count {
+.tag-cloud__count {
 	display: inline-block;
 	min-width: 16px;
 	padding: 0 4px;
@@ -339,7 +334,7 @@ body {
 	font-weight: 700;
 	transition: inherit;
 }
-.tags__tag.is-selected .tags__count {
+.tag-cloud__tag.is-selected .tag-cloud__count {
 	background: var(--accent);
 }
 

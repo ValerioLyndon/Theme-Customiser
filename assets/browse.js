@@ -16,45 +16,7 @@ function capitalise(str, divider = ' ') {
 	return str;
 }
 
-// Filter & Sort functions
-
-function filterByTag() {
-	// Clear previous selection
-	let hidden = document.querySelectorAll('.is-hidden-by-tag'),
-		isSelected = this.className.includes('is-selected');
-	for(let ele of hidden) {
-		ele.classList.remove('is-hidden-by-tag');
-	}
-
-	// Remove other tags' styling & set our own
-	tagsBtn.classList.remove('has-selected');
-	let selectedTags = document.querySelectorAll('.js-tag.is-selected');
-
-	for(let tag of selectedTags) {
-		tag.classList.remove('is-selected');
-	}
-
-	// Select new tags
-	if(!isSelected) {
-		tagsBtn.classList.add('has-selected');
-		let itemsToKeep = this.getAttribute('data-items').split(',');
-		// convert string to int
-		for(let i = 0; i < itemsToKeep.length; i++) {
-			itemsToKeep[i] = parseInt(itemsToKeep[i]);
-		}
-		
-		for(let itemId of [...Array(itemCount).keys()]) {
-			itemId = parseInt(itemId);
-			
-			if(itemsToKeep.includes(itemId)) {
-				continue;
-			} else {
-				document.querySelector(`[data-id="${itemId}"]`).classList.add('is-hidden-by-tag');
-			}
-		}
-		this.classList.add('is-selected');
-	}
-}
+// Sort function
 
 // "items" var should be a DOM node list
 function sortItems(items, attribute, order = 'ascending') {
@@ -62,7 +24,7 @@ function sortItems(items, attribute, order = 'ascending') {
 
 	for(let it of items) {
 		let value = it.getAttribute(attribute),
-			id = it.getAttribute('data-id');
+			id = it.id.split(':')[1];
 		attributes.push([value, id]);
 	}
 
@@ -73,13 +35,12 @@ function sortItems(items, attribute, order = 'ascending') {
 		if(a > b && order === 'ascending' || a < b && order === 'descending') { return 1; }
 		return 0;
 	});
-	console.log(attributes)
 
 	// Apply sort order
 	for(i = 0; i < attributes.length; i++) {
 		let val = attributes[i][0],
 			id = attributes[i][1];
-		document.querySelector(`[data-id="${id}"]`).style.order = i;
+		document.getElementById(`card:${id}`).style.order = i;
 	}
 }
 
@@ -104,7 +65,7 @@ function renderCards(cardData) {
 		cardParent.className = 'browser__card js-card';
 		cardParent.href = `./theme?t=${theme['url']}&c=${collectionUrls.join('&c=')}`;
 		cardParent.setAttribute('data-title', themeName);
-		cardParent.setAttribute('data-id', thisId);
+		cardParent.id = `card:${thisId}`;
 		if('date' in theme) {
 			if(!sorts.includes('data-date')) {
 				sorts.push('data-date');
@@ -204,30 +165,6 @@ function renderCards(cardData) {
 	}
 }
 
-var tagsBtn = document.getElementById('js-tags__button');
-function renderFilters() {
-	tagsBtn.classList.remove('o-hidden');
-
-	let cloudEle = document.getElementById('js-tags__cloud');
-
-	for(let [tag, itemIds] of Object.entries(tags)) {
-		let tagEle = document.createElement('button'),
-			countEle = document.createElement('span'),
-			count = itemIds.length;
-
-		tagEle.textContent = tag;
-		tagEle.className = 'tags__tag js-tag';
-		tagEle.setAttribute('data-items', itemIds);
-
-		countEle.textContent = count;
-		countEle.className = 'tags__count';
-
-		tagEle.addEventListener('click', filterByTag.bind(tagEle));
-		tagEle.appendChild(countEle);
-		cloudEle.appendChild(tagEle);
-	}
-}
-
 
 
 // BEGIN PROGRAM & INITIALISE PAGE
@@ -282,7 +219,7 @@ Promise.allSettled(collectionFiles)
 		loader.text('Sorting items...');
 
 		if(Object.keys(tags).length > 0 && itemCount > 5) {
-			renderFilters();
+			renderTags(tags, [...Array(itemCount).keys()], 'card:ID');
 		}
 
 		// Add sort dropdown items and apply default sort

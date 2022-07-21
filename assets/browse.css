@@ -60,7 +60,7 @@
 	flex-flow: row wrap;
 	align-content: flex-start;
 	padding: 0 15px;
-	min-height: calc(100vh - 200px);
+	min-height: calc(100vh - 300px);
 }
 
 .browser__card {
