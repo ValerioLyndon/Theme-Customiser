@@ -2,8 +2,6 @@
 // COMMON FUNCTIONS
 // ================
 
-loader.text('Defining functions...');
-
 function confirm(msg, options = {'Yes': {'value': true, 'type': 'suggested'}, 'No': {'value': false}}) {
 	return new Promise((resolve, reject) => {
 		let modal = document.createElement('div'),
@@ -863,7 +861,6 @@ function renderHtml() {
 	}
 
 	var modsEle = document.getElementById('js-mods'),
-		tagsEle = document.getElementById('js-mod-tags'),
 		modTags = {};
 
 	if('mods' in theme) {
@@ -964,58 +961,7 @@ function renderHtml() {
 
 	// Add mod tag to list of tags
 	if(Object.entries(modTags).length > 0 && Object.entries(theme['mods']).length > 3) {
-		tagsEle.classList.remove('o-hidden');
-
-		function selectTag() {
-			// Clear previous selection
-			let hidden = document.querySelectorAll('.is-hidden-by-tag'),
-				isSelected = this.className.includes('is-selected');
-			for(let ele of hidden) {
-				ele.classList.remove('is-hidden-by-tag');
-			}
-
-			// Remove other tags' styling & set our own
-			tagsEle.classList.remove('has-selected');
-			let selectedTags = document.querySelectorAll('.js-tag.is-selected');
-
-			for(let tag of selectedTags) {
-				tag.classList.remove('is-selected');
-			}
-
-			// Select new tags
-			if(!isSelected) {
-				tagsEle.classList.add('has-selected');
-				let modsToKeep = this.getAttribute('data-mods').split(',');
-				for(let modId of Object.keys(theme['mods'])) {
-					if(modsToKeep.includes(modId)) {
-						continue;
-					} else {
-						document.getElementById(`mod-parent:${modId}`).classList.add('is-hidden-by-tag');
-					}
-				}
-				this.classList.add('is-selected');
-			}
-		}
-		
-
-		let cloudEle = document.getElementById('js-mod-tags-cloud');
-		
-		for(let [tag, mods] of Object.entries(modTags)) {
-			let tagEle = document.createElement('button'),
-				countEle = document.createElement('span'),
-				count = mods.length;
-
-			tagEle.textContent = tag;
-			tagEle.className = 'tags__tag js-tag';
-			tagEle.setAttribute('data-mods', mods);
-
-			countEle.textContent = count;
-			countEle.className = 'tags__count';
-
-			tagEle.addEventListener('click', selectTag.bind(tagEle));
-			tagEle.appendChild(countEle);
-			cloudEle.appendChild(tagEle);
-		}
+		renderTags(modTags, Object.keys(theme['mods']), 'mod-parent:ID');
 	}
 
 	// Back link

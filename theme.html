@@ -64,13 +64,15 @@ permalink: /theme
 						
 						<h3 class="sidebar__header">
 							Choose theme modifications
-						</h3>
-						<div class="tags o-hidden" id="js-mod-tags">
-							<button class="tags__button button" onclick="toggleEle('#js-mod-tags-cloud', this)"><i class="fa-solid fa-tags"></i> Tags</button>
-							<div class="tags__cloud is-hidden" id="js-mod-tags-cloud">
-								<small class="tags__blurb">Select a tag that interests you to narrow results.</small>
-
+							<div class="sidebar__header-aside">
+								<button class="button o-hidden" id="js-tags__button" onclick="toggleEle('#js-tags__cloud', this)">
+									<i class="fa-solid fa-tags"></i> Tags
+								</button>
 							</div>
+						</h3>
+
+						<div class="tag-cloud is-hidden" id="js-tags__cloud">
+							<small class="tag-cloud__blurb">Select a tag that interests you to narrow results.</small>
 						</div>
 						
 						<!-- mods gets put here by customiser.js -->

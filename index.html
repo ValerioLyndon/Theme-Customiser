@@ -33,6 +33,49 @@
 				</div>
 			</nav>
 
+			<div class="filter">
+				<div class="filter__row filter__row--center">
+					<div class="dropdown">
+						<button class="button button--unusable">
+							<i class="fa-solid fa-sort"></i> Sort
+						</button>
+						<div class="dropdown__box">
+							<div class="dropdown__item">
+								<a class="hyper-button js-sort" id="js-sort-title">
+									Title
+									<i class="hyper-button__icon fa-solid fa-sort-asc o-hidden js-ascending js-sort-icon"></i>
+									<i class="hyper-button__icon fa-solid fa-sort-desc o-hidden js-descending js-sort-icon"></i>
+								</a>
+							</div>
+							<div class="dropdown__item">
+								<a class="hyper-button js-sort" id="js-sort-author">
+									Author
+									<i class="hyper-button__icon fa-solid fa-sort-asc o-hidden js-ascending js-sort-icon"></i>
+									<i class="hyper-button__icon fa-solid fa-sort-desc o-hidden js-descending js-sort-icon"></i>
+								</a>
+							</div>
+							<div class="dropdown__item">
+								<a class="hyper-button js-sort" id="js-sort-date">
+									Release Date
+									<i class="hyper-button__icon fa-solid fa-sort-asc o-hidden js-ascending js-sort-icon"></i>
+									<i class="hyper-button__icon fa-solid fa-sort-desc o-hidden js-descending js-sort-icon"></i>
+								</a>
+							</div>
+						</div>
+					</div>
+
+					<button class="button o-hidden" id="js-tags__button" onclick="toggleEle('#js-tags__cloud', this)">
+						<i class="fa-solid fa-tags"></i> Tags
+					</button>
+				</div>
+
+				<div class="filter__row">
+					<div class="tag-cloud tag-cloud--center is-hidden" id="js-tags__cloud">
+						<small class="tag-cloud__blurb">Select a tag that interests you to narrow results.</small>
+					</div>
+				</div>
+			</div>
+
 			<div class="browser" id="js-theme-list">
 				
 			</div>
