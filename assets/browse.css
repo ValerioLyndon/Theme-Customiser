@@ -7,6 +7,13 @@
 	color: var(--accent);
 	text-decoration: underline;
 }
+.hyper-button.is-active {
+	font-weight: bold;
+}
+
+.hyper-button__icon {
+	font-size: 0.8em;
+}
 
 
 
