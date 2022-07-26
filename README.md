@@ -18,7 +18,7 @@ If you have any feedback, bug reports, or suggestions, I welcome you to [open an
 
 ## Created your own collection?
 
-If you've created a collection JSON for your own themes, I'd love to know! You are of course free to use the collection with the customiser as you please, but if you would like it included in official colleciton links so more users can see and install your themes then please contact me about it or open an issue requesting the change. I will not guarantee it will be added, but it doesn't hurt to ask.
+If you've created a collection JSON for your own themes, I'd love to know! You are free to use the collection with the customiser as you please, of course. But, if you want it included in official collection links so that more users can see and install your themes then please contact me about it or open an issue requesting the change. I do not guarantee it will be added, but I would love to say yes.
 
 ## Contributing
 

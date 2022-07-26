@@ -3,3 +3,4 @@
 .jekyll-cache
 _site
 *Gemfile*
+*.psd
