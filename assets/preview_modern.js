@@ -264,3 +264,47 @@ function toggleCover(set = undefined) {
 		cover.classList.toggle('hide');
 	}
 }
+
+let stats = document.getElementsByClassName('list-stats')[0];
+function toggleStats() {
+	stats.style.overflow = 'hidden';
+	stats.style.marginTop = '0';
+	stats.style.marginBottom = '0';
+	stats.style.paddingTop = '0';
+	stats.style.paddingBottom = '0';
+	
+	let visible = { height: '30px' },
+		invisible = { height: '0px' },
+		timing = {
+			duration: 100,
+			easing: 'cubic-bezier(.02, .01, .47, 1)'
+		},
+		display = stats.style.display;
+
+	if(!display || display === 'none') {
+		stats.style.display = 'block';
+
+		stats.animate([
+			invisible,
+			visible
+		], timing);
+
+		setTimeout(() => {
+			stats.style = 'display: block;';
+		}, 100);
+	}
+	else {
+		stats.animate([
+			visible,
+			invisible
+		], timing);
+
+		setTimeout(() => {
+			stats.style = 'display: none;';
+			console.log('done')
+		}, 100);
+	}
+}
+document.getElementById('show-stats-button').addEventListener('click', () => {
+	toggleStats();
+});
