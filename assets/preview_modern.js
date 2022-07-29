@@ -176,6 +176,8 @@ function setView(view) {
 	// Apply changes as required
 
 	if(view === 'owner') {
+		document.body.setAttribute('data-owner', 1);
+		
 		headerMenu.innerHTML = `<div class="btn-menu">
           Viewing <span class="username">Your</span> Anime List
         </div>`;
@@ -198,6 +200,8 @@ function setView(view) {
 	}
 
 	else if(view.startsWith('visitor')) {
+		document.body.setAttribute('data-owner', 0);
+
 		headerMenu.innerHTML = `<div class="btn-menu">Viewing <a class="username" href="/profile/Example" data-hydrus="DONE">Example</a>'s
           <a href="javascript: void(0);" id="header-menu-button" data-hydrus="DONE">
             Anime List
