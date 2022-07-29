@@ -147,7 +147,32 @@ permalink: /theme
 					</span>
 				</a>
 
-				<div class="preview__wrapper" id="js-preview"></div>
+				<div class="preview__window-wrapper" id="js-preview"></div>
+
+				<div class="options">
+					<button class="options__button" onclick="toggleEle('#js-preview-options')">
+						<i class="fa-solid fa-gear options__button-icon"></i>
+					</button>
+
+					<div id="js-preview-options" class="options__container is-hidden">
+						<div class="options__item">
+							<b class="options__title">Cover Image</b>
+							<input id="js-preview__cover" type="checkbox" class="o-hidden">
+							<label class="toggle info-popup" for="js-cover-image">
+								<div class="info-popup__box">This option is being controlled by the recommended theme settings.</div>
+							</label>
+						</div>
+
+						<div class="options__item">
+							<b class="options__title">Select View</b>
+							<select id="js-preview__view">
+								<option>List Owner</option>
+								<option>List Visitor (Logged-in)</option>
+								<option>List Visitor (Logged-out)</option>
+							</select>
+						</div>
+					</div>
+				</div>
 			</div>
 
 			<a href="https://github.com/ValerioLyndon/Theme-Customiser/issues/new/choose" class="beta">BETA</a>
