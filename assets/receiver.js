@@ -30,8 +30,17 @@ window.addEventListener(
 			if(type === 'css') {
 				document.getElementById('custom-css').textContent = content;
 			}
-			else if(type ==='columns') {
+			else if(type === 'columns') {
 				setColumns(content);
+			}
+			else if(type === 'view') {
+				setView(content);
+			}
+			else if(type === 'cover') {
+				toggleCover(content);
+			}
+			else {
+				console.log('[receiver.js] Malformed request received. No action taken.')
 			}
 		}
 	},
