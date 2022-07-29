@@ -74,6 +74,10 @@ input:checked + .toggle.is-forced::after {
 	transition: opacity 0.1s ease;
 	pointer-events: none;
 }
+.info-popup__box--bottom {
+	top: calc(100% + 10px);
+	bottom: initial;
+}
 .info-popup:hover .info-popup__box {
 	opacity: 1;
 }
@@ -90,17 +94,29 @@ input:checked + .toggle.is-forced::after {
 	border-style: solid;
 	border-color: transparent;
 }
-.info-popup__box::before {
+.info-popup__box:not(.info-popup__box--bottom)::before {
 	top: 100%;
 	right: 12px;
 	border-width: 10px;
 	border-top-color: var(--border-light);
 }
-.info-popup__box::after {
+.info-popup__box--bottom::before {
+	bottom: 100%;
+	right: 12px;
+	border-width: 10px;
+	border-bottom-color: var(--border-light);
+}
+.info-popup__box:not(.info-popup__box--bottom)::after {
 	bottom: -12px;
 	right: 16px;
 	border-width: 6px;
 	border-top-color: var(--background);
+}
+.info-popup__box--bottom::after {
+	top: -12px;
+	right: 16px;
+	border-width: 6px;
+	border-bottom-color: var(--background);
 }
 
 
@@ -555,7 +571,6 @@ input:checked + .toggle.is-forced::after {
 	background: var(--background);
 	border: 2px solid var(--border);
 	border-radius: 8px;
-	white-space: nowrap;
 	transition-property: transform, opacity;
 	transition-timing-function: ease;
 	transition-duration: 0.1s;
@@ -572,6 +587,7 @@ input:checked + .toggle.is-forced::after {
 
 .options__title {
 	display: block;
+	white-space: nowrap;
 }
 
 

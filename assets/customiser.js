@@ -1025,6 +1025,25 @@ function renderHtml() {
 		installBtn.addEventListener('click', () => { toggleEle('#js-pp-installation-modern') });
 	}
 
+	// Set preview options
+
+	if('preview' in theme && 'cover' in theme['preview']) {
+		let check = document.getElementById('js-preview__cover'),
+			toggle = check.nextElementSibling,
+			val = true;
+
+		if(!theme['preview']['cover']) {
+			val = false;
+			toggle.classList.add('is-disabled', 'has-info');
+		} else {
+			toggle.classList.add('is-forced', 'has-info');
+		}
+		check.checked = val;
+		check.disabled = true;
+		toggle.removeAttribute('onclick');
+		postToIframe(['cover', val]);
+	}
+
 	// Set theme columns and push to iframe
 
 	let baseColumns = {
