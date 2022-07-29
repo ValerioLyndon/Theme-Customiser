@@ -191,6 +191,7 @@ function renderCards(cardData) {
 			let image = document.createElement('img');
 			image.className = 'card__image';
 			image.src = theme['image'];
+			image.loading = 'lazy';
 			display.appendChild(image);
 		} else {
 			display.classList.add('card__display--no-image');
