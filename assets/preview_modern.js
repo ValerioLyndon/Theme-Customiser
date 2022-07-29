@@ -63,3 +63,37 @@ for(var item of items) {
 	let more = item.getElementsByClassName('more-info')[0];
 	item.querySelector('.more a').addEventListener('click', toggle.bind(more, 'table-row'));
 }
+
+// Filter overlay
+
+let filterMenu = document.getElementById('advanced-options');
+document.getElementById('advanced-options-button').addEventListener('click', () => {
+	toggleMenu(filterMenu);
+});
+document.querySelector('#advanced-options #fancybox-close').addEventListener('click', () => {
+	toggleMenu(filterMenu);
+});
+
+function toggleMenu(dom) {
+	let display = dom.style.display;
+	if(!display || display === 'none') {
+		dom.style.display = 'block';
+		toggleOverlay(true);
+	} else {
+		dom.style.display = 'none';
+		toggleOverlay(false);
+	}
+}
+
+let overlay = document.getElementById('fancybox-overlay');
+function toggleOverlay(set = undefined) {
+	let display = overlay.style.display;
+	if(set === true || !display || display === 'none') {
+		overlay.style.display = 'block';
+		overlay.style.opacity = '0.3';
+		overlay.style.backgroundColor = 'rgb(102, 102, 102)';
+	}
+	else {
+		overlay.style.display = 'none';
+	}
+}

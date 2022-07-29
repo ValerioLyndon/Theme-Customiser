@@ -17,7 +17,7 @@ for filePath in previewFiles:
 			[r'YuiAfterDark|Valerio_Lyndon', r'Example'],
 			[r'(<div style="padding-top: 8px">)[\s\S]*?<div[\s\S]*?</div>', r'\1'],
 			[r'<div style="padding-top: 8px">[\s\S]*?</div>', ''],
-			[r'</footer>[\s\S]*</div>[\s\S]*?</body>', '</footer>\n</body>'],
+			[r'</footer>[\s\S]*</div>[\s\S]*?</body>', '</footer>\n<div id="fancybox-overlay"></div>\n</body>'],
 			[r'<a(.*?)>', r'<a\1 onclick="return false;">'],
 			[r'onclick="return false;" onclick="return false;"', r'onclick="return false;"'],
 			[r'id="footer-block" style="[^"]*"', 'id="footer-block"'],
