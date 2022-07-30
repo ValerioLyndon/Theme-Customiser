@@ -1027,7 +1027,10 @@ function renderHtml() {
 
 	// Set preview options
 
-	if('preview' in theme && 'cover' in theme['preview']) {
+	if(theme['type'] === 'classic') {
+		document.getElementById('js-preview-options').remove();
+	}
+	else if('preview' in theme && 'cover' in theme['preview']) {
 		let check = document.getElementById('js-preview__cover'),
 			toggle = check.nextElementSibling,
 			val = true;
@@ -1050,7 +1053,7 @@ function renderHtml() {
 		localStorage.setItem('tcPreviewMsg', '0');
 		document.getElementById('js-preview-msg').classList.add('o-hidden');
 	});
-
+	
 	if(localStorage.getItem('tcPreviewMsg') === '0') {
 		document.getElementById('js-preview-msg').classList.add('o-hidden');
 	}

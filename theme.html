@@ -161,12 +161,12 @@ permalink: /theme
 					</div>
 				</div>
 
-				<div class="options">
-					<button class="options__button" onclick="toggleEle('#js-preview-options')">
+				<div class="options" id="js-preview-options">
+					<button class="options__button" onclick="toggleEle('#js-preview-options-container')">
 						<i class="fa-solid fa-gear options__button-icon"></i>
 					</button>
 
-					<div id="js-preview-options" class="options__container is-hidden">
+					<div id="js-preview-options-container" class="options__container is-hidden">
 						<div class="options__item">
 							<b class="options__title">Cover Image</b>
 							<input id="js-preview__cover" type="checkbox" class="o-hidden" checked="checked">
