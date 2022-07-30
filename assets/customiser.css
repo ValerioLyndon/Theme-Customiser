@@ -559,6 +559,25 @@ input:checked + .toggle.is-forced::after {
 	height: 150px;
 }
 
+.preview__message-button {
+	position: absolute;
+	top: 2px;
+	left: 2px;
+	width: calc(100% - 4px);
+	height: 22px;
+	background: var(--background);
+	color: var(--accent);
+	line-height: 22px;
+	font-weight: bold;
+	text-align: center;
+	opacity: 0;
+	transition: opacity 0.1s ease-out;
+	cursor: pointer;
+}
+.preview__message:hover .preview__message-button {
+	opacity: 1;
+}
+
 .preview__message-title {
 	line-height: 26px;
 	white-space: nowrap;
