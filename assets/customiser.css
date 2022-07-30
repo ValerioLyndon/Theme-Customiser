@@ -540,17 +540,41 @@ input:checked + .toggle.is-forced::after {
 	border: none;
 }
 
+.preview__message {
+	position: absolute;
+	top: 20px;
+	right: 60px;
+	z-index: 1;
+	width: 355px;
+	height: 30px;
+	padding: 0 15px;
+	border: 2px solid var(--border-light);
+	overflow: hidden;
+	background: var(--background);
+	border-radius: 4px;
+	transition: height 0.15s ease-out;
+	cursor: help;
+}
+.preview__message:hover {
+	height: 150px;
+}
+
+.preview__message-title {
+	line-height: 26px;
+	white-space: nowrap;
+}
+
 .options {
 	position: absolute;
-	top: 10px;
-	right: 10px;
+	top: 20px;
+	right: 20px;
 }
 
 .options__button {
 	width: 30px;
 	height: 30px;
 	background: var(--background);
-	border: 2px solid var(--border);
+	border: 2px solid var(--border-light);
 	border-radius: 4px;
 	transition: transform 0.1s ease-out;
 }
@@ -564,12 +588,12 @@ input:checked + .toggle.is-forced::after {
 
 .options__container {
 	position: absolute;
-	top: 0;
-	right: calc(100% + 10px);
+	top: calc(100% + 10px);
+	right: 0;
 	display: flex;
 	padding: 15px;
 	background: var(--background);
-	border: 2px solid var(--border);
+	border: 2px solid var(--accent);
 	border-radius: 8px;
 	transition-property: transform, opacity;
 	transition-timing-function: ease;
