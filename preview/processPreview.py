@@ -20,6 +20,7 @@ for filePath in previewFiles:
 			[r'</footer>[\s\S]*</div>[\s\S]*?</body>', '</footer>\n<div id="fancybox-overlay"></div>\n</body>'],
 			[r'<a(.*?)>', r'<a\1 onclick="return false;">'],
 			[r'onclick="return false;" onclick="return false;"', r'onclick="return false;"'],
+			[r'<table.*?data-items=.*?>', '<table class="list-table" data-items="[{&quot;example&quot;:0}]">'],
 			[r'id="footer-block" style="[^"]*"', 'id="footer-block"'],
 			[r'class="header-title number"', r'class="header-title number" tc-column="Numbers"'],
 			[r'class="data number"', r'class="data number" tc-column="Numbers"'],
