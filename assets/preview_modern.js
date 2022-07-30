@@ -11,7 +11,7 @@ function toggle(defaultDisplay = 'block') {
 // Category buttons
 
 var categoryButtons = document.getElementsByClassName('status-button');
-var categories = {
+var categoryNames = {
 	7: 'All Anime',
 	1: 'Currently Watching',
 	2: 'Completed',
@@ -19,17 +19,36 @@ var categories = {
 	4: 'Dropped',
 	6: 'Plan To Watch'
 }
+var categoryCodes = {
+	7: 'all',
+	1: 'current',
+	2: 'completed',
+	3: 'paused',
+	4: 'dropped',
+	6: 'planned'
+}
 
 function changeCategory() {
-	var catId = this.href.substring(button.href.length - 1),
+	let catId = this.href.substring(button.href.length - 1),
 		catClass = this.className.substring(14),
-		catName = categories[catId];
+		catName = categoryNames[catId],
+		listItems = document.getElementsByClassName('list-item');
 	
+	// Change basic attributes
 	document.body.setAttribute('data-query',`{"status":${catId}}`);
 	document.querySelector('.status-button.on').classList.remove('on');
 	this.classList.add('on');
 	document.getElementsByClassName('list-unit')[0].className = `list-unit ${catClass}`;
 	document.querySelector('.list-status-title .text').textContent = catName.toUpperCase();
+
+	// Hide relevant list items
+	for(item of listItems) {
+		if(catId === '7' || item.getAttribute('tc-category') === categoryCodes[catId]) {
+			item.style = '';
+		} else {
+			item.style = 'display: none !important';
+		}
+	}
 }
 for(var button of categoryButtons) {
 	button.addEventListener('click', changeCategory.bind(button));
