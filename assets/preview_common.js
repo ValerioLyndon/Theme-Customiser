@@ -28,7 +28,7 @@ window.addEventListener(
 				content = push[1];
 
 			if(type === 'css') {
-				document.getElementById('custom-css').textContent = content;
+				document.getElementById('custom-css').textContent = previewCss(content);
 			}
 			else if(type === 'columns') {
 				setColumns(content);
@@ -46,3 +46,10 @@ window.addEventListener(
 	},
 	false
 );
+
+function previewCss(css) {
+	// Replace relative URLs with absolute
+	css = css.replaceAll('url(/', 'url(https://myanimelist.net/');
+
+	return css;
+}
