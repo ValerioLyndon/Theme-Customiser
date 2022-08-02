@@ -48,8 +48,19 @@ window.addEventListener(
 );
 
 function previewCss(css) {
-	// Replace relative URLs with absolute
-	css = css.replaceAll('url(/', 'url(https://myanimelist.net/');
+	let replacements = [
+		// relative paths to absolute
+		['url(/', 'url(https://myanimelist.net/'],
+		// fontawesome tweaks
+		[/"?fontawesome(?:\s?6\s?)?(?:free|pro)?"?/gi, '"FontAwesome","FontAwesome 4.7.0"'],
+		['\\e29e', '\\f017'],
+		['\\e3d6', '\\f149'],
+		['\\e211', '\\f044']
+	]
+	for(let [match, replace] of replacements) {
+		css = css.replaceAll(match, replace);
+	}
+	css += `\n[class^="fa"]::before { font-family: "FontAwesome","FontAwesome 4.7.0"; }`;
 
 	return css;
 }
