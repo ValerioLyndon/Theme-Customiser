@@ -1,2 +1,355 @@
 /* Fancyboxes */
-#fancybox-loading{background:transparent;cursor:pointer;display:none;height:40px;left:50%;margin-left:-20px;margin-top:-20px;overflow:hidden;position:fixed;top:50%;width:40px;z-index:1104}* html #fancybox-loading{margin-top:0;position:absolute}#fancybox-loading div{background:transparent url(https://myanimelist.net/images/fancybox/fancy_loading.png) no-repeat;height:480px;left:0;position:absolute;top:0;width:40px}#fancybox-overlay{background:#000;bottom:0;display:none;left:0;position:fixed;right:0;top:0;z-index:1100}* html #fancybox-overlay{position:absolute;width:100%}#fancybox-tmp{border:0;display:none;margin:0;overflow:auto;padding:0}#fancybox-wrap{display:none;left:0;margin:0;padding:20px;position:absolute;top:0;z-index:1101}#fancybox-outer{background:#FFF;height:100%;position:relative;width:100%}#fancybox-inner{color:#000;height:1px;left:0;margin:0;outline:none;overflow:hidden;padding:0;position:absolute;top:0;width:1px}#fancybox-hide-sel-frame{background:transparent;height:100%;left:0;position:absolute;top:0;width:100%}#fancybox-close{background:url(https://myanimelist.net/images/fancybox/fancy_close.png) top left no-repeat;cursor:pointer;display:none;height:32px;position:absolute;right:-15px;top:-15px;width:32px;z-index:1103}#fancybox_error{color:#444;font:normal 12px/20px Arial}#fancybox-content{height:auto;margin:0;padding:0;width:auto}#fancybox-img{border:none;height:100%;-ms-interpolation-mode:bicubic;line-height:0;margin:0;outline:none;padding:0;vertical-align:top;width:100%}#fancybox-frame{border:none;display:block;height:100%;position:relative;width:100%}#fancybox-title{bottom:0;font-family:Arial;font-size:12px;left:0;position:absolute;z-index:1102}.fancybox-title-inside{color:#333;padding:10px 0;text-align:center}.fancybox-title-outside{color:#FFF;font-weight:700;padding-top:5px;text-align:center}.fancybox-title-over{color:#FFF;text-align:left}#fancybox-title-over{background:url(https://myanimelist.net/images/fancybox/fancy_title_over.png);display:block;padding:10px}#fancybox-title-wrap{display:inline-block}#fancybox-title-wrap span{float:left;height:32px}#fancybox-title-left{background:transparent url(https://myanimelist.net/images/fancybox/fancy_title_left.png) repeat-x;padding-left:15px}#fancybox-title-main{background:transparent url(https://myanimelist.net/images/fancybox/fancy_title_main.png) repeat-x;color:#FFF;font-weight:700;line-height:29px}#fancybox-title-right{background:transparent url(https://myanimelist.net/images/fancybox/fancy_title_right.png) repeat-x;padding-left:15px}#fancybox-left,#fancybox-right{background-image:url(https://myanimelist.net/images/fancybox/blank.gif);bottom:0;cursor:pointer;display:none;height:100%;outline:none;position:absolute;width:35%;z-index:1102}#fancybox-left{left:0}#fancybox-right{right:0}#fancybox-left-ico,#fancybox-right-ico{cursor:pointer;display:block;height:30px;left:-9999px;margin-top:-15px;position:absolute;top:50%;width:30px;z-index:1102}#fancybox-left-ico{background:transparent url(https://myanimelist.net/images/fancybox/fancy_nav_left.png) no-repeat}#fancybox-right-ico{background:transparent url(https://myanimelist.net/images/fancybox/fancy_nav_right.png) no-repeat}#fancybox-left:hover,#fancybox-right:hover{visibility:visible}#fancybox-left:hover span{left:20px}#fancybox-right:hover span{left:auto;right:20px}div.fancy-bg{border:0;margin:0;padding:0;position:absolute;z-index:1001}div#fancy-bg-n{background:transparent url(https://myanimelist.net/images/fancybox/fancy_shadow_n.png) repeat-x;height:20px;left:0;top:-20px;width:100%}div#fancy-bg-ne{background:transparent url(https://myanimelist.net/images/fancybox/fancy_shadow_ne.png) no-repeat;height:20px;right:-20px;top:-20px;width:20px}div#fancy-bg-e{background:transparent url(https://myanimelist.net/images/fancybox/fancy_shadow_e.png) repeat-y;height:100%;right:-20px;top:0;width:20px}div#fancy-bg-se{background:transparent url(https://myanimelist.net/images/fancybox/fancy_shadow_se.png) no-repeat;bottom:-20px;height:20px;right:-20px;width:20px}div#fancy-bg-s{background:transparent url(https://myanimelist.net/images/fancybox/fancy_shadow_s.png) repeat-x;bottom:-20px;height:20px;left:0;width:100%}div#fancy-bg-sw{background:transparent url(https://myanimelist.net/images/fancybox/fancy_shadow_sw.png) no-repeat;bottom:-20px;height:20px;left:-20px;width:20px}div#fancy-bg-w{background:transparent url(https://myanimelist.net/images/fancybox/fancy_shadow_w.png) repeat-y;height:100%;left:-20px;top:0;width:20px}div#fancy-bg-nw{background:transparent url(https://myanimelist.net/images/fancybox/fancy_shadow_nw.png) no-repeat;height:20px;left:-20px;top:-20px;width:20px}
+
+#fancybox-loading {
+	background: transparent;
+	cursor: pointer;
+	display: none;
+	height: 40px;
+	left: 50%;
+	margin-left: -20px;
+	margin-top: -20px;
+	overflow: hidden;
+	position: fixed;
+	top: 50%;
+	width: 40px;
+	z-index: 1104
+}
+* html #fancybox-loading {
+	margin-top: 0;
+	position: absolute
+}
+#fancybox-loading div {
+	background: transparent url(https://myanimelist.net/images/fancybox/fancy_loading.png) no-repeat;
+	height: 480px;
+	left: 0;
+	position: absolute;
+	top: 0;
+	width: 40px
+}
+#fancybox-overlay {
+	background: #000;
+	bottom: 0;
+	display: none;
+	left: 0;
+	position: fixed;
+	right: 0;
+	top: 0;
+	z-index: 1100
+}
+* html #fancybox-overlay {
+	position: absolute;
+	width: 100%
+}
+#fancybox-tmp {
+	border: 0;
+	display: none;
+	margin: 0;
+	overflow: auto;
+	padding: 0
+}
+#fancybox-wrap {
+	display: none;
+	left: 0;
+	margin: 0;
+	padding: 20px;
+	position: absolute;
+	top: 0;
+	z-index: 1101
+}
+#fancybox-outer {
+	background: #FFF;
+	height: 100%;
+	position: relative;
+	width: 100%
+}
+#fancybox-inner {
+	color: #000;
+	height: 1px;
+	left: 0;
+	margin: 0;
+	outline: none;
+	overflow: hidden;
+	padding: 0;
+	position: absolute;
+	top: 0;
+	width: 1px
+}
+#fancybox-hide-sel-frame {
+	background: transparent;
+	height: 100%;
+	left: 0;
+	position: absolute;
+	top: 0;
+	width: 100%
+}
+#fancybox-close {
+	background: url(https://myanimelist.net/images/fancybox/fancy_close.png) top left no-repeat;
+	cursor: pointer;
+	display: none;
+	height: 32px;
+	position: absolute;
+	right: -15px;
+	top: -15px;
+	width: 32px;
+	z-index: 1103
+}
+#fancybox_error {
+	color: #444;
+	font: normal 12px/20px Arial
+}
+#fancybox-content {
+	height: auto;
+	margin: 0;
+	padding: 0;
+	width: auto
+}
+#fancybox-img {
+	border: none;
+	height: 100%;
+	-ms-interpolation-mode: bicubic;
+	line-height: 0;
+	margin: 0;
+	outline: none;
+	padding: 0;
+	vertical-align: top;
+	width: 100%
+}
+#fancybox-frame {
+	border: none;
+	display: block;
+	height: 100%;
+	position: relative;
+	width: 100%
+}
+#fancybox-title {
+	bottom: 0;
+	font-family: Arial;
+	font-size: 12px;
+	left: 0;
+	position: absolute;
+	z-index: 1102
+}
+.fancybox-title-inside {
+	color: #333;
+	padding: 10px 0;
+	text-align: center
+}
+.fancybox-title-outside {
+	color: #FFF;
+	font-weight: 700;
+	padding-top: 5px;
+	text-align: center
+}
+.fancybox-title-over {
+	color: #FFF;
+	text-align: left
+}
+#fancybox-title-over {
+	background: url(https://myanimelist.net/images/fancybox/fancy_title_over.png);
+	display: block;
+	padding: 10px
+}
+#fancybox-title-wrap {
+	display: inline-block
+}
+#fancybox-title-wrap span {
+	float: left;
+	height: 32px
+}
+#fancybox-title-left {
+	background: transparent url(https://myanimelist.net/images/fancybox/fancy_title_left.png) repeat-x;
+	padding-left: 15px
+}
+#fancybox-title-main {
+	background: transparent url(https://myanimelist.net/images/fancybox/fancy_title_main.png) repeat-x;
+	color: #FFF;
+	font-weight: 700;
+	line-height: 29px
+}
+#fancybox-title-right {
+	background: transparent url(https://myanimelist.net/images/fancybox/fancy_title_right.png) repeat-x;
+	padding-left: 15px
+}
+#fancybox-left,
+#fancybox-right {
+	background-image: url(https://myanimelist.net/images/fancybox/blank.gif);
+	bottom: 0;
+	cursor: pointer;
+	display: none;
+	height: 100%;
+	outline: none;
+	position: absolute;
+	width: 35%;
+	z-index: 1102
+}
+#fancybox-left {
+	left: 0
+}
+#fancybox-right {
+	right: 0
+}
+#fancybox-left-ico,
+#fancybox-right-ico {
+	cursor: pointer;
+	display: block;
+	height: 30px;
+	left: -9999px;
+	margin-top: -15px;
+	position: absolute;
+	top: 50%;
+	width: 30px;
+	z-index: 1102
+}
+#fancybox-left-ico {
+	background: transparent url(https://myanimelist.net/images/fancybox/fancy_nav_left.png) no-repeat
+}
+#fancybox-right-ico {
+	background: transparent url(https://myanimelist.net/images/fancybox/fancy_nav_right.png) no-repeat
+}
+#fancybox-left: hover,
+#fancybox-right: hover {
+	visibility: visible
+}
+#fancybox-left: hover span {
+	left: 20px
+}
+#fancybox-right: hover span {
+	left: auto;
+	right: 20px
+}
+div.fancy-bg {
+	border: 0;
+	margin: 0;
+	padding: 0;
+	position: absolute;
+	z-index: 1001
+}
+div#fancy-bg-n {
+	background: transparent url(https://myanimelist.net/images/fancybox/fancy_shadow_n.png) repeat-x;
+	height: 20px;
+	left: 0;
+	top: -20px;
+	width: 100%
+}
+div#fancy-bg-ne {
+	background: transparent url(https://myanimelist.net/images/fancybox/fancy_shadow_ne.png) no-repeat;
+	height: 20px;
+	right: -20px;
+	top: -20px;
+	width: 20px
+}
+div#fancy-bg-e {
+	background: transparent url(https://myanimelist.net/images/fancybox/fancy_shadow_e.png) repeat-y;
+	height: 100%;
+	right: -20px;
+	top: 0;
+	width: 20px
+}
+div#fancy-bg-se {
+	background: transparent url(https://myanimelist.net/images/fancybox/fancy_shadow_se.png) no-repeat;
+	bottom: -20px;
+	height: 20px;
+	right: -20px;
+	width: 20px
+}
+div#fancy-bg-s {
+	background: transparent url(https://myanimelist.net/images/fancybox/fancy_shadow_s.png) repeat-x;
+	bottom: -20px;
+	height: 20px;
+	left: 0;
+	width: 100%
+}
+div#fancy-bg-sw {
+	background: transparent url(https://myanimelist.net/images/fancybox/fancy_shadow_sw.png) no-repeat;
+	bottom: -20px;
+	height: 20px;
+	left: -20px;
+	width: 20px
+}
+div#fancy-bg-w {
+	background: transparent url(https://myanimelist.net/images/fancybox/fancy_shadow_w.png) repeat-y;
+	height: 100%;
+	left: -20px;
+	top: 0;
+	width: 20px
+}
+div#fancy-bg-nw {
+	background: transparent url(https://myanimelist.net/images/fancybox/fancy_shadow_nw.png) no-repeat;
+	height: 20px;
+	left: -20px;
+	top: -20px;
+	width: 20px
+}
+
+/* Mal Icons */
+@font-face {
+	font-family: malicons;
+	src: url(https://files.catbox.moe/u9n9o7.woff2) format("woff2");
+	/*src: url(https://myanimelist.net/fonts/malicons/malicons.eot?dfeb725dac4df65d44f8b162ba51ffaf?#iefix) format("embedded-opentype"),*/
+	/*	 url(https://myanimelist.net/fonts/malicons/malicons.woff2?dfeb725dac4df65d44f8b162ba51ffaf) format("woff2"),*/
+	/*	 url(https://myanimelist.net/fonts/malicons/malicons.woff?dfeb725dac4df65d44f8b162ba51ffaf) format("woff")*/
+}
+.malicon {
+	line-height: 1
+}
+.malicon:before {
+	font-family: malicons !important;
+	font-style: normal;
+	font-weight: 400 !important;
+	vertical-align: top
+}
+.malicon-ic_list_add:before {
+	content: "\f101"
+}
+.malicon-ic_list_edit:before {
+	content: "\f102"
+}
+.malicon-list-view:before {
+	content: "\f103"
+}
+.malicon-mal:before {
+	content: "\f104"
+}
+.malicon-movie-episode:before {
+	content: "\f105"
+}
+.malicon-movie-mv:before {
+	content: "\f106"
+}
+.malicon-movie-pv:before {
+	content: "\f107"
+}
+.malicon-seasonal-view:before {
+	content: "\f108"
+}
+.malicon-streaming-slash:before {
+	content: "\f109"
+}
+.malicon-streaming:before {
+	content: "\f10a"
+}
+.malicon-tile-view:before {
+	content: "\f10b"
+}
+.icon-watch2, .icon-watch-pv2 {
+	display: inline-block
+}
+.icon-watch2 a.mal-icon,
+.icon-watch-pv2 a.mal-icon {
+	cursor: pointer;
+	position: relative
+}
+.icon-watch2 a.mal-icon: hover,
+.icon-watch-pv2 a.mal-icon: hover {
+	opacity: .6;
+	text-decoration: none !important
+}
+.icon-watch2 .malicon.malicon-movie-episode,
+.icon-watch2 .malicon.malicon-movie-pv,
+.icon-watch2 .malicon.malicon-streaming,
+.icon-watch-pv2 .malicon.malicon-movie-episode,
+.icon-watch-pv2 .malicon.malicon-movie-pv,
+.icon-watch-pv2 .malicon.malicon-streaming {
+	color: #2e51a2;
+	font-size: 15px
+}
