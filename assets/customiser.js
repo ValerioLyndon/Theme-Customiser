@@ -155,6 +155,26 @@ function createBB(text) {
 	return parent;
 }
 
+// Takes CSS values from the JSON, checks to see if they are URLs or actual CSS, and proceeds accordingly.
+function returnCss(resource) {
+	return new Promise((resolve, reject) => {
+		if(resource.startsWith('http')) {
+			console.log('[returnCss] Recognised resource as HTTP.'); // temp debug log
+			fetchFile(resource)
+				.then((response) => {
+					resolve(response);
+				})
+				.catch((response) => {
+					reject(response);
+				})
+		}
+		else {
+			console.log('[returnCss] Recognised resource as CSS.'); // temp debug log
+			resolve(resource);
+		}
+	});
+}
+
 // If funcConfig['forceValue'] is set then the mod will be updated to match this value. If not, the value will be read from the HTML
 // Accepted values for funcConfig:
 // 'defaultValue' // Default none
@@ -455,15 +475,11 @@ function updateCss() {
 					modData['css'] = {'bottom': ''}
 				}
 				for(let [location, resource] of Object.entries(modData['css'])) {
-					if(resource.startsWith('http')) {
-						try {
-							var modCss = await fetchFile(resource);
-						} catch (failure) {
-							console.log(`[updateCss] Failed during mods fetchfile: ${failure}`);
-							messenger.error(`Failed to fetch CSS for mod "${id}". Try waiting 30s then disabling and re-enabling the mod. If this continues to happen, check if the listed resource still exists.`, failure[1] ? failure[1] : 'fetchfile');
-						}
-					} else {
-						var modCss = resource;
+					try {
+						var modCss = await returnCss(resource);
+					} catch (failure) {
+						console.log(`[updateCss] Failed during mod ${id} returnCss: ${failure}`);
+						messenger.error(`Failed to return CSS for mod "${id}". Try waiting 30s then disabling and re-enabling the mod. If this continues to happen, check with the author if the listed resource still exists.`, failure[1] ? failure[1] : 'returnCss');
 					}
 
 					let globalOpts = [];
@@ -1234,22 +1250,14 @@ function finalSetup() {
 	loader.text('Fetching CSS...');
 
 	// Get theme CSS
-	if(theme['css'].startsWith('http')) {
-		let fetchThemeCss = fetchFile(theme['css']);
+	let fetchThemeCss = returnCss(theme['css']);
 
-		fetchThemeCss.then((css) => {
-			finalise(css);
-		});
+	fetchThemeCss.catch((reason) => {
+		loader.failed(reason);
+		throw new Error(reason);
+	});
 
-		fetchThemeCss.catch((reason) => {
-			loader.failed(reason);
-			throw new Error(reason);
-		});
-	} else {
-		finalise(theme['css']);
-	}
-
-	function finalise(css) {
+	fetchThemeCss.then((css) => {
 		// Update Preview
 		baseCss = css;
 	
@@ -1306,7 +1314,7 @@ function finalSetup() {
 			loader.text('Loading preview...');
 			console.log('[finalSetup] Awaiting iframe before completing page load.');
 		}
-	}
+	});
 }
 
 
