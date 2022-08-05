@@ -65,38 +65,36 @@ function splitSlide() {
 }
 
 function createBB(text) {
-	let parent = document.createElement('p');
-	parent.classList.add('bb');
-
-	// sanitise
+	// Sanitise input from HTML characters
 
 	let dummy = document.createElement('div');
 	dummy.textContent = text;
 	text = dummy.innerHTML;
 
-	// Define BB patterns
+	// Functions to convert BB text to HTML
+	// Each function gets passed a fullmatch and respective capture group arguments from the regexes
 
-	function bold(fullmatch, captureGroup, offset, str) {
+	function bold(fullmatch, captureGroup) {
 		return '<b class="bb-bold">'+captureGroup+'</b>';
 	}
 
-	function italic(fullmatch, captureGroup, offset, str) {
+	function italic(fullmatch, captureGroup) {
 		return '<i class="bb-italic">'+captureGroup+'</i>';
 	}
 
-	function underline(fullmatch, captureGroup, offset, str) {
+	function underline(fullmatch, captureGroup) {
 		return '<span style="text-decoration:underline;" class="bb-underline">'+captureGroup+'</span>';
 	}
 
-	function strike(fullmatch, captureGroup, offset, str) {
+	function strike(fullmatch, captureGroup) {
 		return '<span style="text-decoration:line-through;" class="bb-strike">'+captureGroup+'</span>';
 	}
     
-	function link(fullmatch, captureGroup1, captureGroup2, offset, str) {
+	function link(fullmatch, captureGroup1, captureGroup2) {
 		return '<a href="'+captureGroup1.substr(1)+'" target="_blank" class="hyperlink">'+captureGroup2+'</a>';
 	}
 
-	function list(fullmatch, captureGroup1, captureGroup2, offset, str) {
+	function list(fullmatch, captureGroup1, captureGroup2) {
 		let contents = captureGroup2.replaceAll('[*]', '</li><li class="bb-list-item">');
 		contents = contents.replace(/l>.*?<\/li>/, 'l>');
 		
@@ -114,44 +112,28 @@ function createBB(text) {
 		return ul;
 	}
 
-	// The array of regex patterns to look for
-
-	let format_search = [
-		/\n/ig,
-		/\[b\]((?:(?!\[b\]).)*?)\[\/b\]/ig,
-		/\[i\]((?:(?!\[i\]).)*?)\[\/i\]/ig,
-		/\[u\]((?:(?!\[u\]).)*?)\[\/u\]/ig,
-		/\[s\]((?:(?!\[s\]).)*?)\[\/s\]/ig,
-		/\[url(=.*?)\]((?:(?!\[url\]).)*?)\[\/url\]/ig,
-		/\[list(=.*?){0,1}\]((?:(?!\[list\]).)*?)\[\/list\]/ig,
-		/\[yt\](.*?)\[\/yt\]/ig
-	];
-
-	// The array of strings to replace regex matches with
-
-	let format_replace = [
-		'<br>',
-		bold,
-		italic,
-		underline,
-		strike,
-		link,
-		list
+	// BB Tags Array Sets. Each array contains:
+	// - a regex to find matches
+	// - a string or function reference to handle the conversion of that match from text to HTML
+	let bbTags = [
+		/\n/ig, '<br>',
+		/\[b\]((?:(?!\[b\]).)*?)\[\/b\]/ig, bold,
+		/\[i\]((?:(?!\[i\]).)*?)\[\/i\]/ig, italic,
+		/\[u\]((?:(?!\[u\]).)*?)\[\/u\]/ig, underline,
+		/\[s\]((?:(?!\[s\]).)*?)\[\/s\]/ig, strike,
+		/\[url(=.*?)\]((?:(?!\[url\]).)*?)\[\/url\]/ig, link,
+		/\[list(=.*?){0,1}\]((?:(?!\[list\]).)*?)\[\/list\]/ig, list
 	];
 
 	// Convert BBCode using patterns defined above.
-	for ( var i = 0; i < format_search.length; i++ ) {
-		let oldText = null;
-		while(text !== oldText) {    
-			oldText = text;
-			text = text.replace( format_search[i], format_replace[i] );
-		}
+	for (let bb of bbTags) {
+		text = text.replaceAll(bb[0], bb[1]);
 	}
 
-	// Return
-
+	// Create HTML & return
+	let parent = document.createElement('p');
+	parent.classList.add('bb');
 	parent.innerHTML = text;
-
 	return parent;
 }
 
