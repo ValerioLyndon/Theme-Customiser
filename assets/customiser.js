@@ -387,13 +387,23 @@ function applySettings(settings = false) {
 	updateCss();
 }
 
-function updateCss() {
+async function updateCss() {
 	let storageString = {'date': Date.now(), 'settings': userSettings};
 	localStorage.setItem(`theme:${userSettings['data']}`, JSON.stringify(storageString));
 
 	let newCss = baseCss;
+		
+	async function findAndReplace(str, toFind, toInsert) {
+		if(toFind.startsWith('RegExp')) {
+			toFind = new RegExp(toFind.substr(7), 'g');
+		}
+
+		toInsert = await returnCss(toInsert)
+		
+		return str.replaceAll(toFind, toInsert);
+	}
 	
-	function applyOptionToCss(css, optData, insert) {
+	async function applyOptionToCss(css, optData, insert) {
 		let qualifier = optData['type'].split('/')[1];
 
 		if(qualifier === 'content') {
@@ -408,21 +418,13 @@ function updateCss() {
 			}
 		}
 		
-		function findAndReplace(str, toFind, toInsert) {
-			if(toFind.startsWith('RegExp')) {
-				toFind = new RegExp(toFind.substr(7), 'g');
-			}
-
-			return str.replaceAll(toFind, toInsert);
-		}
-		
 		if(optData['type'] === 'toggle') {
 			for(let set of optData['replacements']) {
 				// Choose the correct replacement set based on whether the toggle is on or off
 				let toFind = set[0],
 					toInsert = (insert === true) ? set[2] : set[1];
 
-				css = findAndReplace(css, toFind, toInsert);
+				css = await findAndReplace(css, toFind, toInsert);
 			}
 		}
 		else if(optData['type'] === 'select') {
@@ -431,7 +433,7 @@ function updateCss() {
 				let toFind = set[0],
 					toInsert = set[1];
 
-				css = findAndReplace(css, toFind, toInsert);
+				css = await findAndReplace(css, toFind, toInsert);
 			}
 		}
 		else {
@@ -439,7 +441,7 @@ function updateCss() {
 				let toFind = set[0],
 					toInsert = set[1].replaceAll('{{{insert}}}', insert);
 
-				css = findAndReplace(css, toFind, toInsert);
+				css = await findAndReplace(css, toFind, toInsert);
 			}
 		}
 
@@ -448,7 +450,7 @@ function updateCss() {
 
 	// Options
 	for(let [id, val] of Object.entries(userSettings['options'])) {
-		newCss = applyOptionToCss(newCss, theme['options'][id], val);
+		newCss = await applyOptionToCss(newCss, theme['options'][id], val);
 	}
 
 	// Mods
@@ -487,14 +489,14 @@ function updateCss() {
 						if('flags' in optData && optData['flags'].includes('global')) {
 							globalOpts.push([optData, val]);
 						} else {
-							modCss = applyOptionToCss(modCss, optData, val);
+							modCss = await applyOptionToCss(modCss, optData, val);
 						}
 					}
 
 					extendCss(modCss, location);
 
-					for(opt of globalOpts) {
-						newCss = applyOptionToCss(newCss, ...opt);
+					for(let opt of globalOpts) {
+						newCss = await applyOptionToCss(newCss, ...opt);
 					}
 				}
 			}
