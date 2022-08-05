@@ -116,13 +116,13 @@ function createBB(text) {
 	// - a regex to find matches
 	// - a string or function reference to handle the conversion of that match from text to HTML
 	let bbTags = [
-		/\n/ig, '<br>',
-		/\[b\]((?:(?!\[b\]).)*?)\[\/b\]/ig, bold,
-		/\[i\]((?:(?!\[i\]).)*?)\[\/i\]/ig, italic,
-		/\[u\]((?:(?!\[u\]).)*?)\[\/u\]/ig, underline,
-		/\[s\]((?:(?!\[s\]).)*?)\[\/s\]/ig, strike,
-		/\[url(=.*?)\]((?:(?!\[url\]).)*?)\[\/url\]/ig, link,
-		/\[list(=.*?){0,1}\]((?:(?!\[list\]).)*?)\[\/list\]/ig, list
+		[/\n/ig, '<br>'],
+		[/\[b\]((?:(?!\[b\]).)*?)\[\/b\]/ig, bold],
+		[/\[i\]((?:(?!\[i\]).)*?)\[\/i\]/ig, italic],
+		[/\[u\]((?:(?!\[u\]).)*?)\[\/u\]/ig, underline],
+		[/\[s\]((?:(?!\[s\]).)*?)\[\/s\]/ig, strike],
+		[/\[url(=.*?)\]((?:(?!\[url\]).)*?)\[\/url\]/ig, link],
+		[/\[list(=.*?){0,1}\]((?:(?!\[list\]).)*?)\[\/list\]/ig, list]
 	];
 
 	// Convert BBCode using patterns defined above.
