@@ -469,39 +469,37 @@ async function updateCss() {
 	}
 	
 	if('mods' in theme && Object.keys(userSettings['mods']).length > 0) {
-		(async () => {
-			for(let id of Object.keys(userSettings['mods'])) {
-				let modData = theme['mods'][id];
-				if(!('css' in modData) || typeof modData['css'] === 'string') {
-					modData['css'] = {'bottom': ''}
+		for(let id of Object.keys(userSettings['mods'])) {
+			let modData = theme['mods'][id];
+			if(!('css' in modData) || typeof modData['css'] === 'string') {
+				modData['css'] = {'bottom': ''}
+			}
+			for(let [location, resource] of Object.entries(modData['css'])) {
+				try {
+					var modCss = await returnCss(resource);
+				} catch (failure) {
+					console.log(`[updateCss] Failed during mod ${id} returnCss: ${failure}`);
+					messenger.error(`Failed to return CSS for mod "${id}". Try waiting 30s then disabling and re-enabling the mod. If this continues to happen, check with the author if the listed resource still exists.`, failure[1] ? failure[1] : 'returnCss');
 				}
-				for(let [location, resource] of Object.entries(modData['css'])) {
-					try {
-						var modCss = await returnCss(resource);
-					} catch (failure) {
-						console.log(`[updateCss] Failed during mod ${id} returnCss: ${failure}`);
-						messenger.error(`Failed to return CSS for mod "${id}". Try waiting 30s then disabling and re-enabling the mod. If this continues to happen, check with the author if the listed resource still exists.`, failure[1] ? failure[1] : 'returnCss');
-					}
 
-					let globalOpts = [];
-					for(let [optId, val] of Object.entries(userSettings['mods'][id])) {
-						let optData = modData['options'][optId];
-						if('flags' in optData && optData['flags'].includes('global')) {
-							globalOpts.push([optData, val]);
-						} else {
-							modCss = await applyOptionToCss(modCss, optData, val);
-						}
+				let globalOpts = [];
+				for(let [optId, val] of Object.entries(userSettings['mods'][id])) {
+					let optData = modData['options'][optId];
+					if('flags' in optData && optData['flags'].includes('global')) {
+						globalOpts.push([optData, val]);
+					} else {
+						modCss = await applyOptionToCss(modCss, optData, val);
 					}
+				}
 
-					extendCss(modCss, location);
+				extendCss(modCss, location);
 
-					for(let opt of globalOpts) {
-						newCss = await applyOptionToCss(newCss, ...opt);
-					}
+				for(let opt of globalOpts) {
+					newCss = await applyOptionToCss(newCss, ...opt);
 				}
 			}
-			pushCss(newCss);
-		})();
+		}
+		pushCss(newCss);
 	}
 	else {
 		pushCss(newCss);
