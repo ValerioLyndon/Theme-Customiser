@@ -155,6 +155,24 @@ function createBB(text) {
 	return parent;
 }
 
+// Takes CSS values from the JSON, checks to see if they are URLs or actual CSS, and proceeds accordingly.
+function returnCss(resource) {
+	return new Promise((resolve, reject) => {
+		if(resource.startsWith('http')) {
+			fetchFile(resource)
+				.then((response) => {
+					resolve(response);
+				})
+				.catch((response) => {
+					reject(response);
+				})
+		}
+		else {
+			resolve(resource);
+		}
+	});
+}
+
 // If funcConfig['forceValue'] is set then the mod will be updated to match this value. If not, the value will be read from the HTML
 // Accepted values for funcConfig:
 // 'defaultValue' // Default none
@@ -367,15 +385,23 @@ function applySettings(settings = false) {
 	updateCss();
 }
 
-function updateCss() {
+async function updateCss() {
 	let storageString = {'date': Date.now(), 'settings': userSettings};
 	localStorage.setItem(`theme:${userSettings['data']}`, JSON.stringify(storageString));
 
 	let newCss = baseCss;
+		
+	function findAndReplace(str, toFind, toInsert) {
+		if(toFind.startsWith('RegExp')) {
+			toFind = new RegExp(toFind.substr(7), 'g');
+		}
+		
+		return str.replaceAll(toFind, toInsert);
+	}
 	
-	function applyOptionToCss(css, optData, insert) {
-		let qualifier = optData['type'].split('/')[1],
-			subQualifier = optData['type'].split('/')[2];
+	async function applyOptionToCss(css, optData, insert) {
+		let type = optData['type'],
+			qualifier = optData['type'].split('/')[1];
 
 		if(qualifier === 'content') {
 			// formats text to be valid for CSS content statements
@@ -389,28 +415,24 @@ function updateCss() {
 			}
 		}
 		
-		function findAndReplace(str, toFind, toInsert) {
-			if(toFind.startsWith('RegExp')) {
-				toFind = new RegExp(toFind.substr(7), 'g');
-			}
-
-			return str.replaceAll(toFind, toInsert);
-		}
-		
-		if(optData['type'] === 'toggle') {
+		if(type === 'toggle') {
 			for(let set of optData['replacements']) {
 				// Choose the correct replacement set based on whether the toggle is on or off
 				let toFind = set[0],
 					toInsert = (insert === true) ? set[2] : set[1];
+				
+				toInsert = await returnCss(toInsert);
 
 				css = findAndReplace(css, toFind, toInsert);
 			}
 		}
-		else if(optData['type'] === 'select') {
+		else if(type === 'select') {
 			let replacements = optData['selections'][insert]['replacements'];
 			for(let set of replacements) {
 				let toFind = set[0],
 					toInsert = set[1];
+				
+				toInsert = await returnCss(toInsert);
 
 				css = findAndReplace(css, toFind, toInsert);
 			}
@@ -418,7 +440,10 @@ function updateCss() {
 		else {
 			for(let set of optData['replacements']) {
 				let toFind = set[0],
-					toInsert = set[1].replaceAll('{{{insert}}}', insert);
+					toInsert = set[1];
+
+				toInsert = await returnCss(toInsert);
+				toInsert = toInsert.replaceAll('{{{insert}}}', toInsert);
 
 				css = findAndReplace(css, toFind, toInsert);
 			}
@@ -429,7 +454,7 @@ function updateCss() {
 
 	// Options
 	for(let [id, val] of Object.entries(userSettings['options'])) {
-		newCss = applyOptionToCss(newCss, theme['options'][id], val);
+		newCss = await applyOptionToCss(newCss, theme['options'][id], val);
 	}
 
 	// Mods
@@ -448,43 +473,37 @@ function updateCss() {
 	}
 	
 	if('mods' in theme && Object.keys(userSettings['mods']).length > 0) {
-		(async () => {
-			for(let id of Object.keys(userSettings['mods'])) {
-				let modData = theme['mods'][id];
-				if(!('css' in modData) || typeof modData['css'] === 'string') {
-					modData['css'] = {'bottom': ''}
+		for(let id of Object.keys(userSettings['mods'])) {
+			let modData = theme['mods'][id];
+			if(!('css' in modData) || typeof modData['css'] === 'string') {
+				modData['css'] = {'bottom': ''}
+			}
+			for(let [location, resource] of Object.entries(modData['css'])) {
+				try {
+					var modCss = await returnCss(resource);
+				} catch (failure) {
+					console.log(`[updateCss] Failed during mod ${id} returnCss: ${failure}`);
+					messenger.error(`Failed to return CSS for mod "${id}". Try waiting 30s then disabling and re-enabling the mod. If this continues to happen, check with the author if the listed resource still exists.`, failure[1] ? failure[1] : 'returnCss');
 				}
-				for(let [location, resource] of Object.entries(modData['css'])) {
-					if(resource.startsWith('http')) {
-						try {
-							var modCss = await fetchFile(resource);
-						} catch (failure) {
-							console.log(`[updateCss] Failed during mods fetchfile: ${failure}`);
-							messenger.error(`Failed to fetch CSS for mod "${id}". Try waiting 30s then disabling and re-enabling the mod. If this continues to happen, check if the listed resource still exists.`, failure[1] ? failure[1] : 'fetchfile');
-						}
+
+				let globalOpts = [];
+				for(let [optId, val] of Object.entries(userSettings['mods'][id])) {
+					let optData = modData['options'][optId];
+					if('flags' in optData && optData['flags'].includes('global')) {
+						globalOpts.push([optData, val]);
 					} else {
-						var modCss = resource;
+						modCss = await applyOptionToCss(modCss, optData, val);
 					}
+				}
 
-					let globalOpts = [];
-					for(let [optId, val] of Object.entries(userSettings['mods'][id])) {
-						let optData = modData['options'][optId];
-						if('flags' in optData && optData['flags'].includes('global')) {
-							globalOpts.push([optData, val]);
-						} else {
-							modCss = applyOptionToCss(modCss, optData, val);
-						}
-					}
+				extendCss(modCss, location);
 
-					extendCss(modCss, location);
-
-					for(opt of globalOpts) {
-						newCss = applyOptionToCss(newCss, ...opt);
-					}
+				for(let opt of globalOpts) {
+					newCss = await applyOptionToCss(newCss, ...opt);
 				}
 			}
-			pushCss(newCss);
-		})();
+		}
+		pushCss(newCss);
 	}
 	else {
 		pushCss(newCss);
@@ -1234,22 +1253,14 @@ function finalSetup() {
 	loader.text('Fetching CSS...');
 
 	// Get theme CSS
-	if(theme['css'].startsWith('http')) {
-		let fetchThemeCss = fetchFile(theme['css']);
+	let fetchThemeCss = returnCss(theme['css']);
 
-		fetchThemeCss.then((css) => {
-			finalise(css);
-		});
+	fetchThemeCss.catch((reason) => {
+		loader.failed(reason);
+		throw new Error(reason);
+	});
 
-		fetchThemeCss.catch((reason) => {
-			loader.failed(reason);
-			throw new Error(reason);
-		});
-	} else {
-		finalise(theme['css']);
-	}
-
-	function finalise(css) {
+	fetchThemeCss.then((css) => {
 		// Update Preview
 		baseCss = css;
 	
@@ -1306,7 +1317,7 @@ function finalSetup() {
 			loader.text('Loading preview...');
 			console.log('[finalSetup] Awaiting iframe before completing page load.');
 		}
-	}
+	});
 }
 
 
