@@ -92,6 +92,10 @@ document.getElementById('advanced-options-button').addEventListener('click', () 
 document.querySelector('#advanced-options #fancybox-close').addEventListener('click', () => {
 	toggleMenu(filterMenu);
 });
+// This will have to be changed if edit/add button functionality is ever added since they share the fancybox-overlay
+document.getElementById('fancybox-overlay').addEventListener('click', () => {
+	toggleMenu(filterMenu);
+});
 
 function toggleMenu(dom) {
 	let display = dom.style.display;
