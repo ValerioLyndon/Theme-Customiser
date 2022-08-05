@@ -327,12 +327,19 @@ function updateMod(id, funcConfig = {}) {
 
 function applySettings(settings = false) {
 	if(settings) {
-		let tempTheme = userSettings['theme'],
-			tempData = userSettings['data'];
-		userSettings['mods'] = settings['mods'];
-		userSettings['options'] = settings['options'];
-		userSettings['theme'] = tempTheme;
-		userSettings['data'] = tempData;
+		if(settings['options']) {
+			userSettings['options'] = settings['options'];
+		} else {
+			console.log('no options detected');
+			userSettings['options'] = {};
+		}
+		if(settings['mods']) {
+			userSettings['mods'] = settings['mods'];
+		} else {
+			console.log('no mods detected');
+			userSettings['mods'] = {};
+		}
+		console.log(userSettings);
 	}
 	
 	// update HTML to match new options
@@ -493,7 +500,14 @@ async function updateCss() {
 
 	function pushCss(css) {
 		// Encode options & sanitise any CSS character
-		let settingsStr = JSON.stringify(userSettings).replaceAll('*/','*\\/').replaceAll('/*','\\/*');
+		let tempSettings = structuredClone(userSettings);
+		if(Object.keys(tempSettings['mods']).length === 0) {
+			delete tempSettings['mods'];
+		}
+		if(Object.keys(tempSettings['options']).length === 0) {
+			delete tempSettings['options'];
+		}
+		let settingsStr = JSON.stringify(tempSettings).replaceAll('*/','*\\/').replaceAll('/*','\\/*');
 		// Update export textareas
 		document.getElementById('js-export-code').textContent = settingsStr;
 		// Place options at top
