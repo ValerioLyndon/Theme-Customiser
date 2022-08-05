@@ -394,8 +394,7 @@ function updateCss() {
 	let newCss = baseCss;
 	
 	function applyOptionToCss(css, optData, insert) {
-		let qualifier = optData['type'].split('/')[1],
-			subQualifier = optData['type'].split('/')[2];
+		let qualifier = optData['type'].split('/')[1];
 
 		if(qualifier === 'content') {
 			// formats text to be valid for CSS content statements
