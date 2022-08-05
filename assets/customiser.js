@@ -159,7 +159,6 @@ function createBB(text) {
 function returnCss(resource) {
 	return new Promise((resolve, reject) => {
 		if(resource.startsWith('http')) {
-			console.log('[returnCss] Recognised resource as HTTP.'); // temp debug log
 			fetchFile(resource)
 				.then((response) => {
 					resolve(response);
@@ -169,7 +168,6 @@ function returnCss(resource) {
 				})
 		}
 		else {
-			console.log('[returnCss] Recognised resource as CSS.'); // temp debug log
 			resolve(resource);
 		}
 	});
@@ -393,18 +391,17 @@ async function updateCss() {
 
 	let newCss = baseCss;
 		
-	async function findAndReplace(str, toFind, toInsert) {
+	function findAndReplace(str, toFind, toInsert) {
 		if(toFind.startsWith('RegExp')) {
 			toFind = new RegExp(toFind.substr(7), 'g');
 		}
-
-		toInsert = await returnCss(toInsert)
 		
 		return str.replaceAll(toFind, toInsert);
 	}
 	
 	async function applyOptionToCss(css, optData, insert) {
-		let qualifier = optData['type'].split('/')[1];
+		let type = optData['type'],
+			qualifier = optData['type'].split('/')[1];
 
 		if(qualifier === 'content') {
 			// formats text to be valid for CSS content statements
@@ -418,30 +415,37 @@ async function updateCss() {
 			}
 		}
 		
-		if(optData['type'] === 'toggle') {
+		if(type === 'toggle') {
 			for(let set of optData['replacements']) {
 				// Choose the correct replacement set based on whether the toggle is on or off
 				let toFind = set[0],
 					toInsert = (insert === true) ? set[2] : set[1];
+				
+				toInsert = await returnCss(toInsert);
 
-				css = await findAndReplace(css, toFind, toInsert);
+				css = findAndReplace(css, toFind, toInsert);
 			}
 		}
-		else if(optData['type'] === 'select') {
+		else if(type === 'select') {
 			let replacements = optData['selections'][insert]['replacements'];
 			for(let set of replacements) {
 				let toFind = set[0],
 					toInsert = set[1];
+				
+				toInsert = await returnCss(toInsert);
 
-				css = await findAndReplace(css, toFind, toInsert);
+				css = findAndReplace(css, toFind, toInsert);
 			}
 		}
 		else {
 			for(let set of optData['replacements']) {
 				let toFind = set[0],
-					toInsert = set[1].replaceAll('{{{insert}}}', insert);
+					toInsert = set[1];
 
-				css = await findAndReplace(css, toFind, toInsert);
+				toInsert = await returnCss(toInsert);
+				toInsert = toInsert.replaceAll('{{{insert}}}', toInsert);
+
+				css = findAndReplace(css, toFind, toInsert);
 			}
 		}
 
