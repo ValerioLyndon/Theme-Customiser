@@ -1043,7 +1043,7 @@ function renderHtml() {
 	// Set preview options
 
 	if(theme['type'] === 'classic') {
-		document.getElementById('js-preview-options').remove();
+		document.getElementById('js-preview-options__cover').remove();
 	}
 	else if('preview' in theme && 'cover' in theme['preview']) {
 		let check = document.getElementById('js-preview__cover'),

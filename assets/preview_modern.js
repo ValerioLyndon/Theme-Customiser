@@ -223,7 +223,7 @@ function setView(view) {
 	}
 
 	else if(view.startsWith('visitor')) {
-		document.body.setAttribute('data-owner', 0);
+		document.body.setAttribute('data-owner', '');
 
 		headerMenu.innerHTML = `<div class="btn-menu">Viewing <a class="username" href="/profile/Example" onclick="return false;">Example</a>'s
           <a href="javascript: void(0);" id="header-menu-button" onclick="return false;">
