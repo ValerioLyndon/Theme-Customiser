@@ -330,16 +330,13 @@ function applySettings(settings = false) {
 		if(settings['options']) {
 			userSettings['options'] = settings['options'];
 		} else {
-			console.log('no options detected');
 			userSettings['options'] = {};
 		}
 		if(settings['mods']) {
 			userSettings['mods'] = settings['mods'];
 		} else {
-			console.log('no mods detected');
 			userSettings['mods'] = {};
 		}
-		console.log(userSettings);
 	}
 	
 	// update HTML to match new options
