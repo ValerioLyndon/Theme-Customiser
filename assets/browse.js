@@ -107,7 +107,14 @@ function renderCards(cardData) {
 
 		let cardParent = document.createElement('a');
 		cardParent.className = 'browser__card js-card';
-		cardParent.href = `./theme?t=${theme['url']}&c=${collectionUrls.join('&c=')}`;
+		let cardUrl = `./theme?t=${theme['url']}`;
+		if(collectionUrls.length > 0) {
+			cardUrl += `&c=${collectionUrls.join('&c=')}`;
+		}
+		if(megaUrls.length > 0) {
+			cardUrl += `&m=${megaUrls.join('&m=')}`;
+		}
+		cardParent.href = cardUrl;
 		cardParent.setAttribute('data-title', themeName);
 		cardParent.id = `card:${thisId}`;
 		if('date' in theme) {
@@ -224,19 +231,25 @@ var tags = {},
 
 loader.text('Fetching data files...');
 
-const collectionFiles = [];
-
-if(collectionUrls.length === 0) {
-	collectionUrls.push(['./assets/collection.json']);
+if(collectionUrls.length === 0 && megaUrls.length === 0) {
+	megaUrls.push('json/default.json');
 }
 
-for(let i = 0; i < collectionUrls.length; i++) {
-	collectionFiles.push(fetchFile(collectionUrls[i], false));
+// Accepts array of URLs to fetch then returns a promise once they have all loaded.
+function fetchAllFiles(arrayOfUrls) {
+	const files = [];
+	for(let i = 0; i < arrayOfUrls.length; i++) {
+		files.push(fetchFile(arrayOfUrls[i], false));
+	}
+	return Promise.allSettled(files);
 }
 
-Promise.allSettled(collectionFiles)
+// Fetch mega collections and add any collection URLs to the list.
+// Then, load each collection URL and render cards. 
+fetchAllFiles(megaUrls)
 .then((files) => {
-	let failures = 0;
+	let failures = 0,
+		allCollectionUrls = structuredClone(collectionUrls);
 
 	for(let i = 0; i < files.length; i++) {
 		let tempData = {};
@@ -249,53 +262,82 @@ Promise.allSettled(collectionFiles)
 			continue;
 		}
 
-		loader.text('Rendering page...');
+		if(!('collections' in tempData)) {
+			console.log('[fetchData] Mega collection does not use correct format.');
+			continue;
+		}
 
-		processJson(tempData, collectionUrls[i], 'collection')
-		.then((processedJson) => {
-			renderCards(processedJson['themes']);
-			if(i === files.length - 1) {
-				afterRenderingCards();
+		if(tempData['collections'].length === 0) {
+			console.log('[fetchData] Mega collection has no URLs!');
+			continue;
+		}
+
+		for(let url of tempData['collections']) {
+			allCollectionUrls.push(url);
+		}
+	}
+
+	fetchAllFiles(allCollectionUrls)
+	.then((files) => {
+		for(let i = 0; i < files.length; i++) {
+			let tempData = {};
+			// Attempt to parse provided data.
+			try {
+				tempData = JSON.parse(files[i]['value']);
+			} catch(e) {
+				console.log(`[fetchData] Error during JSON.parse: ${e}`);
+				failures++;
+				continue;
 			}
-		})
-	}
 
-	function afterRenderingCards() {
-		loader.text('Sorting items...');
+			loader.text('Rendering page...');
 
-		if(Object.keys(tags).length > 0 && itemCount > 5) {
-			renderTags(tags, [...Array(itemCount).keys()], 'card:ID');
+			processJson(tempData, allCollectionUrls[i], 'collection')
+			.then((processedJson) => {
+				renderCards(processedJson['themes']);
+				if(i === files.length - 1) {
+					afterRenderingCards();
+				}
+			})
 		}
 
-		// Add sort dropdown items and apply default sort
-		var cards = document.getElementsByClassName('js-card');
-		
-		let titleLink = document.getElementById('js-sort-title')
-		titleLink.addEventListener('click', () => { selectSort(titleLink, [cards, 'data-title']) });
-		
-		let dataLink = document.getElementById('js-sort-date')
-		if(sorts.includes('data-date')) {
-			dataLink.addEventListener('click', () => { selectSort(dataLink, [cards, 'data-date', 'descending']) });
-			sortItems(cards, 'data-date', 'descending');
-		} else {
-			dataLink.parentNode.remove();
-			sortItems(cards, 'data-title');
-		}
-		
-		let authorLink = document.getElementById('js-sort-author')
-		if(sorts.includes('data-author')) {
-			authorLink.addEventListener('click', () => { selectSort(authorLink, [cards, 'data-author']) });
-		} else {
-			authorLink.parentNode.remove();
-		}
+		function afterRenderingCards() {
+			loader.text('Sorting items...');
 
-		if(failures >= files.length) {
-			loader.failed(['Encountered a problem while parsing theme information.', 'json.parse']);
-			throw new Error('too many failures');
-		} else if(failures > 0) {
-			messenger.error('Encountered a problem while parsing theme information. Some themes may not have loaded.', 'json.parse');
-		}
+			if(Object.keys(tags).length > 0 && itemCount > 5) {
+				renderTags(tags, [...Array(itemCount).keys()], 'card:ID');
+			}
 
-		loader.loaded();
-	}
+			// Add sort dropdown items and apply default sort
+			var cards = document.getElementsByClassName('js-card');
+			
+			let titleLink = document.getElementById('js-sort-title')
+			titleLink.addEventListener('click', () => { selectSort(titleLink, [cards, 'data-title']) });
+			
+			let dataLink = document.getElementById('js-sort-date')
+			if(sorts.includes('data-date')) {
+				dataLink.addEventListener('click', () => { selectSort(dataLink, [cards, 'data-date', 'descending']) });
+				sortItems(cards, 'data-date', 'descending');
+			} else {
+				dataLink.parentNode.remove();
+				sortItems(cards, 'data-title');
+			}
+			
+			let authorLink = document.getElementById('js-sort-author')
+			if(sorts.includes('data-author')) {
+				authorLink.addEventListener('click', () => { selectSort(authorLink, [cards, 'data-author']) });
+			} else {
+				authorLink.parentNode.remove();
+			}
+
+			if(failures >= files.length) {
+				loader.failed(['Encountered a problem while parsing theme information.', 'json.parse']);
+				throw new Error('too many failures');
+			} else if(failures > 0) {
+				messenger.error('Encountered a problem while parsing theme information. Some themes may not have loaded.', 'json.parse');
+			}
+
+			loader.loaded();
+		}
+	});
 });

@@ -977,11 +977,15 @@ function renderHtml() {
 	}
 
 	// Back link
+	let back = document.getElementById('js-back'),
+		backUrl = `./?`;
 	if(collectionUrls.length > 0) {
-		let back = document.getElementById('js-back');
-		back.classList.remove('o-hidden');
-		back.href = `./?c=${collectionUrls.join('&c=')}`;
+		backUrl += `&c=${collectionUrls.join('&c=')}`;
 	}
+	if(megaUrls.length > 0) {
+		backUrl += `&m=${megaUrls.join('&m=')}`;
+	}
+	back.href = backUrl;
 
 	// Sponsor Link
 	if('sponsor' in theme) {

@@ -344,6 +344,7 @@ function selectTag(tagEle, allIds, selector) {
 
 const
 	query = (new URL(document.location)).searchParams,
+	megaUrls = query.getAll('m'),
 	collectionUrls = query.getAll('c'),
 	themeUrls = query.getAll('t'),
 	loader = new loadingScreen(),
