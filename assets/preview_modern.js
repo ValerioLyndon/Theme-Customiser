@@ -335,3 +335,19 @@ function toggleStats() {
 document.getElementById('show-stats-button').addEventListener('click', () => {
 	toggleStats();
 });
+
+// Search Box
+
+let searchBox = document.getElementById('search-box'),
+	searchInput = searchBox.getElementsByTagName('input')[0];
+
+// Activate
+document.getElementById('search-button').addEventListener('click', () => {
+  searchBox.classList.add('open');
+  searchInput.focus();
+});
+
+// Deactivate
+searchBox.addEventListener('focusout', () => {
+	searchBox.classList.remove('open');
+});
