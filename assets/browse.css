@@ -1,3 +1,77 @@
+/* NAV */
+
+.nav {
+	display: flex;
+}
+.nav--header {
+	padding: 30px;
+}
+
+.nav__split {
+	display: flex;
+	width: 20%;
+	flex: 1 1 auto;
+	align-items: center;
+}
+
+.nav__split--left {
+	order: 1;
+	justify-content: left;
+}
+
+.nav__split--center {
+	width: 60%;
+	order: 50;
+	justify-content: center;
+}
+
+.nav__split--right {
+	order: 100;
+	justify-content: right;
+}
+
+.nav__link {
+	position: relative;
+	display: inline-block;
+	margin-left: 8px;
+	cursor: pointer;
+}
+
+.nav__link-icon {
+	color: var(--text);
+	font-size: 24px;
+}
+
+.nav__link-text {
+	position: absolute;
+	left: 50%;
+	top: 120%;
+	padding: 3px 9px;
+	background: var(--invert-background);
+	border-radius: 20px;
+	color: var(--accent-text);
+	white-space: nowrap;
+	text-decoration: none;
+	opacity: 0;
+	transform: translateX(-50%);
+	transition: opacity 0.2s ease;
+	pointer-events: none;
+}
+.nav__link-text--left {
+	left: -12px;
+	transform: none;
+}
+.nav__link-text--right {
+	left: auto;
+	transform: none;
+	right: -12px;
+}
+.nav__link:hover .nav__link-text {
+	opacity: 1;
+}
+
+
+
 /* Hyperlink Buttons */
 
 .hyper-button {

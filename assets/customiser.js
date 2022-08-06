@@ -1063,17 +1063,6 @@ function renderHtml() {
 		postToIframe(['cover', val]);
 	}
 
-	// Hide preview message as necessary
-
-	document.getElementById('js-preview-msg__button').addEventListener('click', () => {
-		localStorage.setItem('tcPreviewMsg', '0');
-		document.getElementById('js-preview-msg').classList.add('o-hidden');
-	});
-	
-	if(localStorage.getItem('tcPreviewMsg') === '0') {
-		document.getElementById('js-preview-msg').classList.add('o-hidden');
-	}
-
 	// Set theme columns and push to iframe
 
 	let baseColumns = {

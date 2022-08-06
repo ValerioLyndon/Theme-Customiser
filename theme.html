@@ -18,124 +18,168 @@ permalink: /theme
 	</head>
 	<body>
 		<main class="content content__customiser" id="js-content">
-			<div class="sidebar" id="js-sidebar">
-				<div class="sidebar__section sidebar__section--no-border sidebar__section--title">
-					<nav class="sidebar__nav nav">
-						<a href="./" class="nav__link" id="js-back">
-							<i class="nav__link-icon fa fa-arrow-left"></i>
-							<span class="nav__link-text">Browse Other Themes</span>
+			<div class="topbar">
+				<div class="topbar__section topbar__section--left">
+					<nav class="top-nav">
+						<a href="./" class="top-nav__link" id="js-back">
+							<i class="top-nav__icon fa fa-arrow-left"></i>
+							<span class="top-nav__text">Browse</span>
 						</a>
-						<a class="nav__link o-hidden" id="js-sponsor" target="_blank">
-							<i class="nav__link-icon fa-solid fa-heart"></i>
-							<span class="nav__link-text">Support the Author</span>
+						<a class="top-nav__link o-hidden" id="js-sponsor" target="_blank">
+							<i class="top-nav__icon fa-solid fa-heart"></i>
+							<span class="top-nav__text">Support the Author</span>
 						</a>
-						<a class="nav__link o-hidden js-help js-help-href" target="_blank">
-							<i class="nav__link-icon fa-solid fa-question"></i>
-							<span class="nav__link-text">Theme Help</span>
+						<a class="top-nav__link" onclick="toggleEle('#js-pp-import')">
+							<i class="top-nav__icon fa-solid fa-file-import"></i>
+							<span class="top-nav__text">Import Settings</span>
 						</a>
-						<a class="nav__link" onclick="toggleEle('#js-pp-import')">
-							<i class="nav__link-icon fa-solid fa-file-import"></i>
-							<span class="nav__link-text">Import Settings</span>
+						<a class="top-nav__link" onclick="toggleEle('#js-pp-export')">
+							<i class="top-nav__icon fa-solid fa-file-arrow-down"></i>
+							<span class="top-nav__text">Export Settings</span>
 						</a>
-						<a class="nav__link" onclick="toggleEle('#js-pp-export')">
-							<i class="nav__link-icon fa-solid fa-file-arrow-down"></i>
-							<span class="nav__link-text nav__link-text--right">Export Settings</span>
+						<a class="top-nav__link o-hidden js-help js-help-href" target="_blank">
+							<i class="top-nav__icon fa-solid fa-question"></i>
+							<span class="top-nav__text">Theme Help</span>
 						</a>
 					</nav>
-					
-					<h1 class="sub-title">Customise your theme</h1>
-					<h2 class="title o-clear"><span id="js-title">Loading theme...</span> <span class="theme-tag o-hidden" id="js-theme-tag"></span></h2>
-					<h3 class="sub-sub-title">By <span id="js-author">unknown author</span></h3>
 				</div>
-
-				<div class="sidebar__section">
-					<div class="expando js-expando" data-expando-limit="400" style="--margin: 16px" id="js-options">
-						<button class="expando__button js-expando-button">Expand</button>
-						
-						<h3 class="sidebar__header">Change theme options</h3>
-
-						<!-- options gets put here by customiser.js -->
+				<div class="topbar__section topbar__section--right">
+					<div class="discrepancy-notice">
+						<div class="discrepancy-notice__title">
+							Preview will differ from the final outcome.
+						</div>
+						<div class="discrepancy-notice__body">
+							While this preview provides a very close approximation of how list designs will appear, there can be differences once you apply the CSS to your list. Certain elements may display differently, especially icons. Please install and test the layout even if there are errors in the preview.
+						</div>
 					</div>
-				</div>
 
-				<div class="sidebar__section">
-					<div class="expando js-expando" data-expando-limit="400" style="--margin: 16px" id="js-mods">
-						<button class="expando__button js-expando-button">Expand</button>
-						
-						<h3 class="sidebar__header">
-							Choose theme modifications
-							<div class="sidebar__header-aside">
-								<button class="button o-hidden" id="js-tags__button" onclick="toggleEle('#js-tags__cloud', this)">
-									<i class="fa-solid fa-tags"></i> Tags
-								</button>
+					<div class="options" id="js-preview-options">
+						<a class="top-nav__link" onclick="toggleEle('#js-preview-options-container')">
+							<i class="top-nav__icon fa-solid fa-gear"></i>
+							<span class="top-nav__text">Preview Options</span>
+						</a>
+
+						<div id="js-preview-options-container" class="options__container is-hidden">
+							<div class="options__item" id="js-preview-options__cover">
+								<b class="options__title">Cover Image</b>
+								<input id="js-preview__cover" type="checkbox" class="o-hidden" checked="checked">
+								<label class="toggle info-popup" for="js-preview__cover" onclick="postToIframe(['cover', !document.getElementById('js-preview__cover').checked])">
+									<div class="info-popup__box info-popup__box--bottom">This option is not editable due to the recommended theme settings.</div>
+								</label>
 							</div>
-						</h3>
 
-						<div class="tag-cloud is-hidden" id="js-tags__cloud">
-							<small class="tag-cloud__blurb">Select a tag that interests you to narrow results.</small>
+							<div class="options__item">
+								<b class="options__title">Select View</b>
+								<select id="js-preview__view" onchange="postToIframe(['view', this.value])">
+									<option value="owner">List Owner</option>
+									<option value="visitor:user">List Visitor (Logged-in)</option>
+									<option value="visitor:guest">List Visitor (Logged-out)</option>
+								</select>
+							</div>
 						</div>
-						
-						<!-- mods gets put here by customiser.js -->
 					</div>
 				</div>
+			</div>
 
-				<div class="sidebar__section">
-					<h3 class="sidebar__header">Use your customised theme</h3>
-					
-					<button onclick="toggleEle('#js-pp-config')" class="alert-button o-hidden" id="js-intended-config">
-						<div class="alert-button__icon">
-							<i class="fa-solid fa-circle-exclamation"></i>
+			<div class="sidebar" id="js-sidebar">
+				<div class="sidebar__inner">
+					<div class="sidebar__decorative"></div>
+
+					<div class="sidebar__section">
+						<h1 class="sub-title">Customise your theme</h1>
+						<h2 class="title o-clear"><span id="js-title">Loading theme...</span> <span class="theme-tag o-hidden" id="js-theme-tag"></span></h2>
+						<h3 class="sub-sub-title">By <span id="js-author">unknown author</span></h3>
+					</div>
+
+					<div class="sidebar__section">
+						<div class="expando js-expando" data-expando-limit="400" style="--margin: 16px" id="js-options">
+							<button class="expando__button js-expando-button">Expand</button>
+							
+							<h3 class="sidebar__header">Change theme options</h3>
+
+							<!-- options gets put here by customiser.js -->
 						</div>
-						
-						<div class="alert-button__body">
-							<b class="alert-button__title">This theme has a recommended configuration.</b>
+					</div>
 
-							<p class="alert-button__subtext">Using other configurations may cause issues.</p>
-						</div>
-					</button>
-
-					<div class="code">
-						<b class="code__title">CSS to Install</b>
-						<!-- code gets put here by customiser.js -->
-						<textarea class="code__preview input input--code" id="js-output" readonly="readonly"></textarea>
-
-						<p class="info-box info-box--indented info-box--error o-hidden" id="js-output-notice"></p>
-					
-						<button class="button button--highlighted js-swappable-text" id="js-copy-output" onclick="navigator.clipboard.writeText(document.getElementById('js-output').textContent);">
-							<div class="swappable-text">
-								<div class="swappable-text__text">
-									Copy CSS
-									<br />
-									Copied!
+					<div class="sidebar__section">
+						<div class="expando js-expando" data-expando-limit="400" style="--margin: 16px" id="js-mods">
+							<button class="expando__button js-expando-button">Expand</button>
+							
+							<h3 class="sidebar__header">
+								Choose theme modifications
+								<div class="sidebar__header-aside">
+									<button class="button o-hidden" id="js-tags__button" onclick="toggleEle('#js-tags__cloud', this)">
+										<i class="fa-solid fa-tags"></i> Tags
+									</button>
 								</div>
+							</h3>
+
+							<div class="tag-cloud is-hidden" id="js-tags__cloud">
+								<small class="tag-cloud__blurb">Select a tag that interests you to narrow results.</small>
+							</div>
+							
+							<!-- mods gets put here by customiser.js -->
+						</div>
+					</div>
+
+					<div class="sidebar__section">
+						<h3 class="sidebar__header">Use your customised theme</h3>
+						
+						<button onclick="toggleEle('#js-pp-config')" class="alert-button o-hidden" id="js-intended-config">
+							<div class="alert-button__icon">
+								<i class="fa-solid fa-circle-exclamation"></i>
+							</div>
+							
+							<div class="alert-button__body">
+								<b class="alert-button__title">This theme has a recommended configuration.</b>
+
+								<p class="alert-button__subtext">Using other configurations may cause issues.</p>
 							</div>
 						</button>
 
-						<a class="hyperlink" onclick="toggleEle('#js-pp-installation')" id="js-installation-btn">How do I install this?</a>
-					</div>
-				</div>
+						<div class="code">
+							<b class="code__title">CSS to Install</b>
+							<!-- code gets put here by customiser.js -->
+							<textarea class="code__preview input input--code" id="js-output" readonly="readonly"></textarea>
 
-				<div class="sidebar__section">
-					<button class="button" onclick="toggleEle('#js-pp-export')">Export settings</button>
-					<button class="button" onclick="resetSettings()">Reset settings</button>
-					<button class="button" onclick="clearCache()">Clear cache</button>
-				</div>
+							<p class="info-box info-box--indented info-box--error o-hidden" id="js-output-notice"></p>
+						
+							<button class="button button--highlighted js-swappable-text" id="js-copy-output" onclick="navigator.clipboard.writeText(document.getElementById('js-output').textContent);">
+								<div class="swappable-text">
+									<div class="swappable-text__text">
+										Copy CSS
+										<br />
+										Copied!
+									</div>
+								</div>
+							</button>
 
-				<footer class="sidebar__section sidebar__section--no-border">
-					<div class="footer">
-						<div class="footer__row">
-							<small class="footer__subtle-text">Theme Customiser</small><br />
-							<small class="footer__subtle-text" id="js-theme-credit"></small>
-						</div> 
-						<div class="footer__row">
-							<a href="https://github.com/ValerioLyndon/Theme-Customiser/issues" class="hyperlink">Feedback/Help</a>
-							<span class="footer__separator">•</span>
-							<a href="https://github.com/ValerioLyndon/Theme-Customiser" class="hyperlink">Source Code</a>
-							<span class="footer__separator">•</span>
-							<a href="https://github.com/ValerioLyndon/Theme-Customiser/wiki" class="hyperlink">Use this with your design</a>
-						</div> 
+							<a class="hyperlink" onclick="toggleEle('#js-pp-installation')" id="js-installation-btn">How do I install this?</a>
+						</div>
 					</div>
-				</footer>
+
+					<div class="sidebar__section">
+						<button class="button" onclick="toggleEle('#js-pp-export')">Export settings</button>
+						<button class="button" onclick="resetSettings()">Reset settings</button>
+						<button class="button" onclick="clearCache()">Clear cache</button>
+					</div>
+
+					<footer class="sidebar__section sidebar__section--no-border">
+						<div class="footer">
+							<div class="footer__row">
+								<small class="footer__subtle-text">Theme Customiser</small><br />
+								<small class="footer__subtle-text" id="js-theme-credit"></small>
+							</div> 
+							<div class="footer__row">
+								<a href="https://github.com/ValerioLyndon/Theme-Customiser/issues" class="hyperlink">Feedback/Help</a>
+								<span class="footer__separator">•</span>
+								<a href="https://github.com/ValerioLyndon/Theme-Customiser" class="hyperlink">Source Code</a>
+								<span class="footer__separator">•</span>
+								<a href="https://github.com/ValerioLyndon/Theme-Customiser/wiki" class="hyperlink">Use this with your design</a>
+							</div> 
+						</div>
+					</footer>
+				</div>
 			</div>
 
 			<div class="preview">
@@ -148,43 +192,6 @@ permalink: /theme
 				</a>
 
 				<div class="preview__window-wrapper" id="js-preview"></div>
-
-				<div class="preview__message" id="js-preview-msg">
-					<div class="preview__message-title">
-						Preview may not accurately represent the final result.
-					</div>
-					<a class="preview__message-button" id="js-preview-msg__button">
-						Dismiss
-					</a>
-					<div class="preview__message-body">
-						While this preview provides a very close approximation of how list designs will appear, there can be differences once you apply the CSS to your list. Certain elements may display differently, especially icons. Please install and test the layout even if there are errors in the preview.
-					</div>
-				</div>
-
-				<div class="options" id="js-preview-options">
-					<button class="options__button" onclick="toggleEle('#js-preview-options-container')">
-						<i class="fa-solid fa-gear options__button-icon"></i>
-					</button>
-
-					<div id="js-preview-options-container" class="options__container is-hidden">
-						<div class="options__item" id="js-preview-options__cover">
-							<b class="options__title">Cover Image</b>
-							<input id="js-preview__cover" type="checkbox" class="o-hidden" checked="checked">
-							<label class="toggle info-popup" for="js-preview__cover" onclick="postToIframe(['cover', !document.getElementById('js-preview__cover').checked])">
-								<div class="info-popup__box info-popup__box--bottom">This option is not editable due to the recommended theme settings.</div>
-							</label>
-						</div>
-
-						<div class="options__item">
-							<b class="options__title">Select View</b>
-							<select id="js-preview__view" onchange="postToIframe(['view', this.value])">
-								<option value="owner">List Owner</option>
-								<option value="visitor:user">List Visitor (Logged-in)</option>
-								<option value="visitor:guest">List Visitor (Logged-out)</option>
-							</select>
-						</div>
-					</div>
-				</div>
 			</div>
 
 			<a href="https://github.com/ValerioLyndon/Theme-Customiser/issues/new/choose" class="beta">BETA</a>
