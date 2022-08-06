@@ -330,16 +330,13 @@ function applySettings(settings = false) {
 		if(settings['options']) {
 			userSettings['options'] = settings['options'];
 		} else {
-			console.log('no options detected');
 			userSettings['options'] = {};
 		}
 		if(settings['mods']) {
 			userSettings['mods'] = settings['mods'];
 		} else {
-			console.log('no mods detected');
 			userSettings['mods'] = {};
 		}
-		console.log(userSettings);
 	}
 	
 	// update HTML to match new options
@@ -1038,6 +1035,39 @@ function renderHtml() {
 		installBtn.textContent = 'How do I install classic lists?';
 	} else {
 		installBtn.addEventListener('click', () => { toggleEle('#js-pp-installation-modern') });
+	}
+
+	// Set preview options
+
+	if(theme['type'] === 'classic') {
+		document.getElementById('js-preview-options__cover').remove();
+	}
+	else if('preview' in theme && 'cover' in theme['preview']) {
+		let check = document.getElementById('js-preview__cover'),
+			toggle = check.nextElementSibling,
+			val = true;
+
+		if(!theme['preview']['cover']) {
+			val = false;
+			toggle.classList.add('is-disabled', 'has-info');
+		} else {
+			toggle.classList.add('is-forced', 'has-info');
+		}
+		check.checked = val;
+		check.disabled = true;
+		toggle.removeAttribute('onclick');
+		postToIframe(['cover', val]);
+	}
+
+	// Hide preview message as necessary
+
+	document.getElementById('js-preview-msg__button').addEventListener('click', () => {
+		localStorage.setItem('tcPreviewMsg', '0');
+		document.getElementById('js-preview-msg').classList.add('o-hidden');
+	});
+	
+	if(localStorage.getItem('tcPreviewMsg') === '0') {
+		document.getElementById('js-preview-msg').classList.add('o-hidden');
 	}
 
 	// Set theme columns and push to iframe

@@ -24,25 +24,25 @@
     }
   </style>
 
-    <script src="../../assets/receiver.js" type="text/javascript"></script>
+  <script src="../../assets/preview_common.js" type="text/javascript"></script>
 	<script src="https://kit.fontawesome.com/6dbb1e5ab5.js" crossorigin="anonymous"></script>
 </head>
 
 <body class="ownlist" data-owner="1" data-country-code="CA">
 
 
-    <table id="mal_control_strip" border="0" cellpadding="0" cellspacing="0">
+    <table id="mal_control_strip" cellspacing="0" cellpadding="0" border="0">
     <tbody><tr>
                       <td id="mal_cs_listinfo">
           <div>
             <strong>
-              <a href="https://myanimelist.net/profile/Example" onclick="return false;">
+              <a href="/profile/Example" onclick="return false;">
                 <strong>Example</strong>
               </a>
             </strong>
           </div>
           <div>
-            <form action="https://myanimelist.net/logout.php" method="post">
+            <form action="/logout.php" method="post">
   <a href="javascript:void(0);" onclick="$(this).parent().submit();" class="logout" onclick="return false;">
     <i class="fa-solid fa-fw fa-right-from-bracket"></i>
     Logout
@@ -52,12 +52,12 @@
         </td>
         <td id="mal_cs_links">
           <div>
-            <a href="https://myanimelist.net/addtolist.php?hidenav=1" class="List_LightBox" onclick="return false;">Add to List</a>
-            <a href="https://myanimelist.net/" onclick="return false;">Home</a>
+            <a href="/addtolist.php?hidenav=1" class="List_LightBox" onclick="return false;">Add to List</a>
+            <a href="/" onclick="return false;">Home</a>
           </div>
           <div>
-            <a href="https://myanimelist.net/animelist/Example" onclick="return false;">Anime List</a>
-            <a href="https://myanimelist.net/mangalist/Example" onclick="return false;">Manga List</a>
+            <a href="/animelist/Example" onclick="return false;">Anime List</a>
+            <a href="/mangalist/Example" onclick="return false;">Manga List</a>
           </div>
         </td>
         <td id="mal_cs_otherlinks">
@@ -67,13 +67,13 @@
               </strong>
             </div>
             <div>
-              <a href="https://myanimelist.net/history/Example" onclick="return false;">History</a>
-              <a href="https://myanimelist.net/forum/" onclick="return false;">Forum</a>
-              <a href="https://myanimelist.net/panel.php?go=export" onclick="return false;">Export</a>
+              <a href="/history/Example" onclick="return false;">History</a>
+              <a href="/forum/" onclick="return false;">Forum</a>
+              <a href="/panel.php?go=export" onclick="return false;">Export</a>
             </div>
                   </td>
             <td id="mal_cs_powered" valign="top" align="right">
-        <a href="https://myanimelist.net/" onclick="return false;"><img class=" lazyloaded" data-src="https://cdn.myanimelist.net/images/list-top-powered.gif" src="https://cdn.myanimelist.net/images/list-top-powered.gif"></a>
+        <a href="/" onclick="return false;"><img class=" lazyloaded" data-src="https://cdn.myanimelist.net/images/list-top-powered.gif" src="https://cdn.myanimelist.net/images/list-top-powered.gif"></a>
         <div id="search">
           <input id="searchBox" value="Search" type="textbox">
           <img class=" lazyloaded" data-src="https://cdn.myanimelist.net/images/magnify.gif" id="searchListButton" src="https://cdn.myanimelist.net/images/magnify.gif">
@@ -92,32 +92,32 @@
 <table border="0" cellpadding="0" cellspacing="0" width="100%" align="center">
   <tbody><tr>
     <td width="165" class="status_not_selected" style="border-width: 1px 1px 1px 1px;" nowrap="" align="center">
-      <a href="https://myanimelist.net/animelist/Example?status=1&amp;tag=" title="1 Entries" onclick="return false;">
+      <a href="/animelist/Example?status=1&amp;tag=" title="1 Entries" onclick="return false;">
         Currently Watching
       </a>
     </td>
     <td width="75" class="status_not_selected" style="border-width: 1px 1px 1px 0;" align="center">
-      <a href="https://myanimelist.net/animelist/Example?status=2&amp;tag=" title="2 Entries" onclick="return false;">
+      <a href="/animelist/Example?status=2&amp;tag=" title="2 Entries" onclick="return false;">
         Completed
       </a>
     </td>
     <td width="75" class="status_not_selected" style="border-width: 1px 1px 1px 0;" align="center">
-      <a href="https://myanimelist.net/animelist/Example?status=3&amp;tag=" title="1 Entries" onclick="return false;">
+      <a href="/animelist/Example?status=3&amp;tag=" title="1 Entries" onclick="return false;">
         On Hold
       </a>
     </td>
     <td width="75" class="status_not_selected" style="border-width: 1px 1px 1px 0;" align="center">
-      <a href="https://myanimelist.net/animelist/Example?status=4&amp;tag=" title="2 Entries" onclick="return false;">
+      <a href="/animelist/Example?status=4&amp;tag=" title="2 Entries" onclick="return false;">
         Dropped
       </a>
     </td>
     <td width="115" class="status_not_selected" style="border-width: 1px 1px 1px 0;" align="center">
-      <a href="https://myanimelist.net/animelist/Example?status=6&amp;tag=" title="1 Entries" onclick="return false;">
+      <a href="/animelist/Example?status=6&amp;tag=" title="1 Entries" onclick="return false;">
         Plan to Watch
       </a>
     </td>
     <td width="115" class="status_selected" style="border-width: 1px 1px 1px 0;" align="center">
-      <a href="https://myanimelist.net/animelist/Example?status=7&amp;tag=" title="Show All Entries" onclick="return false;">
+      <a href="/animelist/Example?status=7&amp;tag=" title="Show All Entries" onclick="return false;">
         All Anime
       </a>
     </td>
@@ -131,7 +131,7 @@
 
 
 
-          <table border="0" cellpadding="0" cellspacing="0" width="100%" align="center" class="header_cw">
+          <table tc-category="current" border="0" cellpadding="0" cellspacing="0" width="100%" align="center" class="header_cw">
       <tbody><tr>
         <td>
           <div class="header_title">
@@ -141,21 +141,21 @@
       </tr>
     </tbody></table>
 
-    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+    <table tc-category="current" border="0" cellpadding="0" cellspacing="0" width="100%">
       <tbody><tr>
                           <td class="table_header" width="30" align="center" style="border-width: 1px 1px 1px 1px;">
             <b><span class="table_headerLink">#</span></b>
           </td>
         
                         <td class="table_header">
-                <a href="https://myanimelist.net/animelist/Example?status=7&amp;order=1&amp;tag=" class="table_headerLink" onclick="return false;">
+                <a href="/animelist/Example?status=7&amp;order=1&amp;tag=" class="table_headerLink" onclick="return false;">
             <strong>Anime Title</strong>
           </a>
         </td>
 
                           <td class="table_header" width="45" tc-column="Score" align="center">
             <strong>
-              <a href="https://myanimelist.net/animelist/Example?status=7&amp;order=4&amp;tag=" class="table_headerLink" rel="#infoscore" onclick="return false;">Score</a>
+              <a href="/animelist/Example?status=7&amp;order=4&amp;tag=" class="table_headerLink" rel="#infoscore" onclick="return false;">Score</a>
             </strong>
             <div id="infoscore" style="display: none;">
               10 - Masterpiece<br>
@@ -173,7 +173,7 @@
         
                           <td class="table_header" width="50" align="center" tc-column="Type" nowrap="">
             <strong>
-              <a href="https://myanimelist.net/animelist/Example?status=7&amp;order=6&amp;tag=" class="table_headerLink" rel="#infotype" onclick="return false;">Type</a>
+              <a href="/animelist/Example?status=7&amp;order=6&amp;tag=" class="table_headerLink" rel="#infotype" onclick="return false;">Type</a>
             </strong>
             <div id="infotype" style="display: none;">
               TV (Television Series)<br>
@@ -184,7 +184,7 @@
         
                           <td class="table_header" width="70" align="center" tc-column="Episodes" nowrap="">
             <strong>
-              <a href="https://myanimelist.net/animelist/Example?status=7&amp;order=12&amp;tag=" class="table_headerLink" onclick="return false;">Progress</a>
+              <a href="/animelist/Example?status=7&amp;order=12&amp;tag=" class="table_headerLink" onclick="return false;">Progress</a>
             </strong>
           </td>
         
@@ -196,7 +196,7 @@
         
                           <td class="table_header" width="50" align="center" tc-column="Rating">
             <strong>
-              <a href="https://myanimelist.net/animelist/Example?status=7&amp;order=8&amp;tag=" class="table_headerLink" rel="#inforating" onclick="return false;">Rated</a>
+              <a href="/animelist/Example?status=7&amp;order=8&amp;tag=" class="table_headerLink" rel="#inforating" onclick="return false;">Rated</a>
             </strong>
             <div style="display: none;" id="inforating">
               <strong>MPAA Rating</strong><br>
@@ -211,12 +211,12 @@
         
                                                 <td class="table_header" width="90" align="center" tc-column="Start/End Dates">
               <strong>
-                <a href="https://myanimelist.net/animelist/Example?status=7&amp;order=3&amp;tag=" class="table_headerLink" title="Date this user started watching the anime" onclick="return false;">Started Date</a>
+                <a href="/animelist/Example?status=7&amp;order=3&amp;tag=" class="table_headerLink" title="Date this user started watching the anime" onclick="return false;">Started Date</a>
               </strong>
             </td>
             <td class="table_header" width="90" align="center" tc-column="Start/End Dates">
               <strong>
-                <a href="https://myanimelist.net/animelist/Example?status=7&amp;order=2&amp;tag=" class="table_headerLink" title="Date this user finished watching the anime" onclick="return false;">Finished Date</a>
+                <a href="/animelist/Example?status=7&amp;order=2&amp;tag=" class="table_headerLink" title="Date this user finished watching the anime" onclick="return false;">Finished Date</a>
               </strong>
             </td>
                   
@@ -226,7 +226,7 @@
         
                           <td class="table_header" width="75" tc-column="Storage" align="center" nowrap="">
             <strong>
-              <a href="https://myanimelist.net/animelist/Example?status=7&amp;order=13&amp;tag=" class="table_headerLink" onclick="return false;">Storage</a>
+              <a href="/animelist/Example?status=7&amp;order=13&amp;tag=" class="table_headerLink" onclick="return false;">Storage</a>
             </strong>
           </td>
         
@@ -248,7 +248,7 @@
 
                 
                   
-      <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <table tc-category="current" border="0" cellpadding="0" cellspacing="0" width="100%">
         <tbody><tr>
                                 <td align="center" width="30" class="td1" style="border-left-width: 1px;">
               1
@@ -257,12 +257,12 @@
                               <td class="td1" style="border-left-width: 0">
                       <div style="float: right;">
               <small>
-                                                  <a href="https://myanimelist.net/ownlist/anime/5114/edit?hideLayout" class="List_LightBox" onclick="return false;">Edit</a>
+                                                  <a href="/ownlist/anime/5114/edit?hideLayout" class="List_LightBox" onclick="return false;">Edit</a>
                                 -
                 <a href="javascript:void(0);" id="xmenu5114" onclick="getExpand(5114, 1);" title="View More Information" onclick="return false;">More</a>
               </small>
             </div>
-            <a href="https://myanimelist.net/anime/5114/Fullmetal_Alchemist__Brotherhood" target="_blank" class="animetitle" title="Anime Information" onclick="return false;">
+            <a href="/anime/5114/Fullmetal_Alchemist__Brotherhood" target="_blank" class="animetitle" title="Anime Information" onclick="return false;">
               <span>Fullmetal Alchemist: Brotherhood</span>
             </a>
                           <small>Rewatching</small>
@@ -312,7 +312,7 @@
                   </a>
                 </div>
                 <div id="tagRowEdit5114"></div>
-                            <span id="tagLinks5114">                  <a href="https://myanimelist.net/animelist/Example?status=7&amp;tag=A+top-rated+classic" onclick="return false;">A top-rated classic</a>,                   <a href="https://myanimelist.net/animelist/Example?status=7&amp;tag=and+for+a+good+reason%21+Fullmetal+Alchemist+doesn%27t+pull+any+punches" onclick="return false;">and for a good reason! Fullmetal Alchemist doesn't pull any punches</a>,                   <a href="https://myanimelist.net/animelist/Example?status=7&amp;tag=with+great+animation" onclick="return false;">with great animation</a>,                   <a href="https://myanimelist.net/animelist/Example?status=7&amp;tag=characters" onclick="return false;">characters</a>,                   <a href="https://myanimelist.net/animelist/Example?status=7&amp;tag=and+probably+some+other+stuff.+Look" onclick="return false;">and probably some other stuff. Look</a>,                   <a href="https://myanimelist.net/animelist/Example?status=7&amp;tag=I+haven%27t+watched+it+yet.+Is+this+enough+filler%3F" onclick="return false;">I haven't watched it yet. Is this enough filler?</a></span>
+                            <span id="tagLinks5114">                  <a href="/animelist/Example?status=7&amp;tag=A+top-rated+classic" onclick="return false;">A top-rated classic</a>,                   <a href="/animelist/Example?status=7&amp;tag=and+for+a+good+reason%21+Fullmetal+Alchemist+doesn%27t+pull+any+punches" onclick="return false;">and for a good reason! Fullmetal Alchemist doesn't pull any punches</a>,                   <a href="/animelist/Example?status=7&amp;tag=with+great+animation" onclick="return false;">with great animation</a>,                   <a href="/animelist/Example?status=7&amp;tag=characters" onclick="return false;">characters</a>,                   <a href="/animelist/Example?status=7&amp;tag=and+probably+some+other+stuff.+Look" onclick="return false;">and probably some other stuff. Look</a>,                   <a href="/animelist/Example?status=7&amp;tag=I+haven%27t+watched+it+yet.+Is+this+enough+filler%3F" onclick="return false;">I haven't watched it yet. Is this enough filler?</a></span>
               <span id="tagRow5114" style="display: none;">A top-rated classic
 ,
 and for a good reason! Fullmetal Alchemist doesn't pull any punches
@@ -350,16 +350,16 @@ I haven't watched it yet. Is this enough filler?</span>
             </td>
           
                                                       
-                                <td class="td1" width="125" align="left" tc-column="Genre">                <a href="https://myanimelist.net/animelist/Example?status=7&amp;genre=1" onclick="return false;">Action</a>,                 <a href="https://myanimelist.net/animelist/Example?status=7&amp;genre=2" onclick="return false;">Adventure</a>,                 <a href="https://myanimelist.net/animelist/Example?status=7&amp;genre=8" onclick="return false;">Drama</a>,                 <a href="https://myanimelist.net/animelist/Example?status=7&amp;genre=10" onclick="return false;">Fantasy</a>            </td>
+                                <td class="td1" width="125" align="left" tc-column="Genre">                <a href="/animelist/Example?status=7&amp;genre=1" onclick="return false;">Action</a>,                 <a href="/animelist/Example?status=7&amp;genre=2" onclick="return false;">Adventure</a>,                 <a href="/animelist/Example?status=7&amp;genre=8" onclick="return false;">Drama</a>,                 <a href="/animelist/Example?status=7&amp;genre=10" onclick="return false;">Fantasy</a>            </td>
           
-                                <td class="td1" width="90" align="left" tc-column="Demographics">                <a href="https://myanimelist.net/animelist/Example?status=7&amp;demographic=27" onclick="return false;">Shounen</a>            </td>
+                                <td class="td1" width="90" align="left" tc-column="Demographics">                <a href="/animelist/Example?status=7&amp;demographic=27" onclick="return false;">Shounen</a>            </td>
           
         </tr>
       </tbody></table>
       <!-- START HIDDEN -->
       <div id="more5114" class="hide" style="display: none;">
                 <table border="0" cellpadding="0" cellspacing="0" width="100%">
-                <tbody><tr><td class="td1 borderRBL"><div style="margin-bottom: 3px;"><a href="https://myanimelist.net/forum/?animeid=5114" target="_blank" onclick="return false;">Discuss Anime</a></div>
+                <tbody><tr><td class="td1 borderRBL"><div style="margin-bottom: 3px;"><a href="/forum/?animeid=5114" target="_blank" onclick="return false;">Discuss Anime</a></div>
                         <span title="Anime Database Rating">Rating: R - 17+ (violence &amp; profanity)</span> (<a href="javascript:void(0);" onclick="window.open('/info.php?go=mpaa','bbcode','menubar=no,scrollbars=yes,status=no,width=350,height=250');return false;" onclick="return false;">Why?</a>)<br>Storage:  None<br>Rewatch Value: &nbsp;<br>Retail Disks: <br>Start Date: May  10, 2016
                 <br>
                 End Date: <br>
@@ -377,7 +377,7 @@ I haven't watched it yet. Is this enough filler?</span>
 
                       
                   
-      <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <table tc-category="current" border="0" cellpadding="0" cellspacing="0" width="100%">
         <tbody><tr>
                                 <td align="center" width="30" class="td2" style="border-left-width: 1px;">
               2
@@ -386,12 +386,12 @@ I haven't watched it yet. Is this enough filler?</span>
                               <td class="td2" style="border-left-width: 0">
                       <div style="float: right;">
               <small>
-                                                  <a href="https://myanimelist.net/ownlist/anime/918/edit?hideLayout" class="List_LightBox" onclick="return false;">Edit</a>
+                                                  <a href="/ownlist/anime/918/edit?hideLayout" class="List_LightBox" onclick="return false;">Edit</a>
                                 -
                 <a href="javascript:void(0);" id="xmenu918" onclick="getExpand(918, 2);" title="View More Information" onclick="return false;">More</a>
               </small>
             </div>
-            <a href="https://myanimelist.net/anime/918/Gintama" target="_blank" class="animetitle" title="Anime Information" onclick="return false;">
+            <a href="/anime/918/Gintama" target="_blank" class="animetitle" title="Anime Information" onclick="return false;">
               <span>Gintama</span>
             </a>
                                   </td>
@@ -440,7 +440,7 @@ I haven't watched it yet. Is this enough filler?</span>
                   </a>
                 </div>
                 <div id="tagRowEdit918"></div>
-                            <span id="tagLinks918">                  <a href="https://myanimelist.net/animelist/Example?status=7&amp;tag=Comedy" onclick="return false;">Comedy</a></span>
+                            <span id="tagLinks918">                  <a href="/animelist/Example?status=7&amp;tag=Comedy" onclick="return false;">Comedy</a></span>
               <span id="tagRow918" style="display: none;">Comedy</span>
             </td>
           
@@ -467,16 +467,16 @@ I haven't watched it yet. Is this enough filler?</span>
             </td>
           
                                                       
-                                <td class="td2" width="125" align="left" tc-column="Genre">                <a href="https://myanimelist.net/animelist/Example?status=7&amp;genre=1" onclick="return false;">Action</a>,                 <a href="https://myanimelist.net/animelist/Example?status=7&amp;genre=4" onclick="return false;">Comedy</a>,                 <a href="https://myanimelist.net/animelist/Example?status=7&amp;genre=24" onclick="return false;">Sci-Fi</a>            </td>
+                                <td class="td2" width="125" align="left" tc-column="Genre">                <a href="/animelist/Example?status=7&amp;genre=1" onclick="return false;">Action</a>,                 <a href="/animelist/Example?status=7&amp;genre=4" onclick="return false;">Comedy</a>,                 <a href="/animelist/Example?status=7&amp;genre=24" onclick="return false;">Sci-Fi</a>            </td>
           
-                                <td class="td2" width="90" align="left" tc-column="Demographics">                <a href="https://myanimelist.net/animelist/Example?status=7&amp;demographic=27" onclick="return false;">Shounen</a>            </td>
+                                <td class="td2" width="90" align="left" tc-column="Demographics">                <a href="/animelist/Example?status=7&amp;demographic=27" onclick="return false;">Shounen</a>            </td>
           
         </tr>
       </tbody></table>
       <!-- START HIDDEN -->
       <div id="more918" class="hide" style="display: none;">
                 <table border="0" cellpadding="0" cellspacing="0" width="100%">
-                <tbody><tr><td class="td2 borderRBL"><div style="margin-bottom: 3px;"><a href="https://myanimelist.net/forum/?animeid=918" target="_blank" onclick="return false;">Discuss Anime</a></div>
+                <tbody><tr><td class="td2 borderRBL"><div style="margin-bottom: 3px;"><a href="/forum/?animeid=918" target="_blank" onclick="return false;">Discuss Anime</a></div>
                         <span title="Anime Database Rating">Rating: PG-13 - Teens 13 or older</span> (<a href="javascript:void(0);" onclick="window.open('/info.php?go=mpaa','bbcode','menubar=no,scrollbars=yes,status=no,width=350,height=250');return false;" onclick="return false;">Why?</a>)<br>Storage:  None<br>Rewatch Value: Medium<br>
                             Deviation Score: -2.0<br>Retail Disks: <br>Start Date: Feb  3, 2021
                 <br>
@@ -494,7 +494,7 @@ I haven't watched it yet. Is this enough filler?</span>
       <!-- // END HIDDEN -->
 
           
-        <table border="0" width="100%" cellpadding="0" cellspacing="0">
+        <table tc-category="current" border="0" width="100%" cellpadding="0" cellspacing="0">
       <tbody><tr>
         <td class="category_totals">
           TV: 2,
@@ -509,7 +509,7 @@ I haven't watched it yet. Is this enough filler?</span>
       </tr>
     </tbody></table>
     <br>
-            <table border="0" cellpadding="0" cellspacing="0" width="100%" align="center" class="header_completed">
+            <table tc-category="completed" border="0" cellpadding="0" cellspacing="0" width="100%" align="center" class="header_completed">
       <tbody><tr>
         <td>
           <div class="header_title">
@@ -519,21 +519,21 @@ I haven't watched it yet. Is this enough filler?</span>
       </tr>
     </tbody></table>
 
-    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+    <table tc-category="completed" border="0" cellpadding="0" cellspacing="0" width="100%">
       <tbody><tr>
                           <td class="table_header" width="30" align="center" style="border-width: 1px 1px 1px 1px;">
             <b><span class="table_headerLink">#</span></b>
           </td>
         
                         <td class="table_header">
-                <a href="https://myanimelist.net/animelist/Example?status=7&amp;order=1&amp;tag=" class="table_headerLink" onclick="return false;">
+                <a href="/animelist/Example?status=7&amp;order=1&amp;tag=" class="table_headerLink" onclick="return false;">
             <strong>Anime Title</strong>
           </a>
         </td>
 
                           <td class="table_header" width="45" tc-column="Score" align="center">
             <strong>
-              <a href="https://myanimelist.net/animelist/Example?status=7&amp;order=4&amp;tag=" class="table_headerLink" rel="#infoscore" onclick="return false;">Score</a>
+              <a href="/animelist/Example?status=7&amp;order=4&amp;tag=" class="table_headerLink" rel="#infoscore" onclick="return false;">Score</a>
             </strong>
             <div id="infoscore" style="display: none;">
               10 - Masterpiece<br>
@@ -551,7 +551,7 @@ I haven't watched it yet. Is this enough filler?</span>
         
                           <td class="table_header" width="50" align="center" tc-column="Type" nowrap="">
             <strong>
-              <a href="https://myanimelist.net/animelist/Example?status=7&amp;order=6&amp;tag=" class="table_headerLink" rel="#infotype" onclick="return false;">Type</a>
+              <a href="/animelist/Example?status=7&amp;order=6&amp;tag=" class="table_headerLink" rel="#infotype" onclick="return false;">Type</a>
             </strong>
             <div id="infotype" style="display: none;">
               TV (Television Series)<br>
@@ -562,7 +562,7 @@ I haven't watched it yet. Is this enough filler?</span>
         
                           <td class="table_header" width="70" align="center" tc-column="Episodes" nowrap="">
             <strong>
-              <a href="https://myanimelist.net/animelist/Example?status=7&amp;order=12&amp;tag=" class="table_headerLink" onclick="return false;">Progress</a>
+              <a href="/animelist/Example?status=7&amp;order=12&amp;tag=" class="table_headerLink" onclick="return false;">Progress</a>
             </strong>
           </td>
         
@@ -574,7 +574,7 @@ I haven't watched it yet. Is this enough filler?</span>
         
                           <td class="table_header" width="50" align="center" tc-column="Rating">
             <strong>
-              <a href="https://myanimelist.net/animelist/Example?status=7&amp;order=8&amp;tag=" class="table_headerLink" rel="#inforating" onclick="return false;">Rated</a>
+              <a href="/animelist/Example?status=7&amp;order=8&amp;tag=" class="table_headerLink" rel="#inforating" onclick="return false;">Rated</a>
             </strong>
             <div style="display: none;" id="inforating">
               <strong>MPAA Rating</strong><br>
@@ -589,12 +589,12 @@ I haven't watched it yet. Is this enough filler?</span>
         
                                                 <td class="table_header" width="90" align="center" tc-column="Start/End Dates">
               <strong>
-                <a href="https://myanimelist.net/animelist/Example?status=7&amp;order=3&amp;tag=" class="table_headerLink" title="Date this user started watching the anime" onclick="return false;">Started Date</a>
+                <a href="/animelist/Example?status=7&amp;order=3&amp;tag=" class="table_headerLink" title="Date this user started watching the anime" onclick="return false;">Started Date</a>
               </strong>
             </td>
             <td class="table_header" width="90" align="center" tc-column="Start/End Dates">
               <strong>
-                <a href="https://myanimelist.net/animelist/Example?status=7&amp;order=2&amp;tag=" class="table_headerLink" title="Date this user finished watching the anime" onclick="return false;">Finished Date</a>
+                <a href="/animelist/Example?status=7&amp;order=2&amp;tag=" class="table_headerLink" title="Date this user finished watching the anime" onclick="return false;">Finished Date</a>
               </strong>
             </td>
                   
@@ -604,7 +604,7 @@ I haven't watched it yet. Is this enough filler?</span>
         
                           <td class="table_header" width="75" tc-column="Storage" align="center" nowrap="">
             <strong>
-              <a href="https://myanimelist.net/animelist/Example?status=7&amp;order=13&amp;tag=" class="table_headerLink" onclick="return false;">Storage</a>
+              <a href="/animelist/Example?status=7&amp;order=13&amp;tag=" class="table_headerLink" onclick="return false;">Storage</a>
             </strong>
           </td>
         
@@ -626,7 +626,7 @@ I haven't watched it yet. Is this enough filler?</span>
 
                 
                   
-      <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <table tc-category="completed" border="0" cellpadding="0" cellspacing="0" width="100%">
         <tbody><tr>
                                 <td align="center" width="30" class="td1" style="border-left-width: 1px;">
               1
@@ -635,12 +635,12 @@ I haven't watched it yet. Is this enough filler?</span>
                               <td class="td1" style="border-left-width: 0">
                       <div style="float: right;">
               <small>
-                                                  <a href="https://myanimelist.net/ownlist/anime/3841/edit?hideLayout" class="List_LightBox" onclick="return false;">Edit</a>
+                                                  <a href="/ownlist/anime/3841/edit?hideLayout" class="List_LightBox" onclick="return false;">Edit</a>
                                 -
                 <a href="javascript:void(0);" id="xmenu3841" onclick="getExpand(3841, 1);" title="View More Information" onclick="return false;">More</a>
               </small>
             </div>
-            <a href="https://myanimelist.net/anime/3841/Chis_Sweet_Home" target="_blank" class="animetitle" title="Anime Information" onclick="return false;">
+            <a href="/anime/3841/Chis_Sweet_Home" target="_blank" class="animetitle" title="Anime Information" onclick="return false;">
               <span>Chi's Sweet Home</span>
             </a>
                                   </td>
@@ -672,7 +672,7 @@ I haven't watched it yet. Is this enough filler?</span>
                   </a>
                 </div>
                 <div id="tagRowEdit3841"></div>
-                            <span id="tagLinks3841">                  <a href="https://myanimelist.net/animelist/Example?status=7&amp;tag=Favourite" onclick="return false;">Favourite</a></span>
+                            <span id="tagLinks3841">                  <a href="/animelist/Example?status=7&amp;tag=Favourite" onclick="return false;">Favourite</a></span>
               <span id="tagRow3841" style="display: none;">Favourite</span>
             </td>
           
@@ -699,16 +699,16 @@ I haven't watched it yet. Is this enough filler?</span>
             </td>
           
                                                       
-                                <td class="td1" width="125" align="left" tc-column="Genre">                <a href="https://myanimelist.net/animelist/Example?status=7&amp;genre=4" onclick="return false;">Comedy</a>,                 <a href="https://myanimelist.net/animelist/Example?status=7&amp;genre=36" onclick="return false;">Slice of Life</a>            </td>
+                                <td class="td1" width="125" align="left" tc-column="Genre">                <a href="/animelist/Example?status=7&amp;genre=4" onclick="return false;">Comedy</a>,                 <a href="/animelist/Example?status=7&amp;genre=36" onclick="return false;">Slice of Life</a>            </td>
           
-                                <td class="td1" width="90" align="left" tc-column="Demographics">                <a href="https://myanimelist.net/animelist/Example?status=7&amp;demographic=42" onclick="return false;">Seinen</a>            </td>
+                                <td class="td1" width="90" align="left" tc-column="Demographics">                <a href="/animelist/Example?status=7&amp;demographic=42" onclick="return false;">Seinen</a>            </td>
           
         </tr>
       </tbody></table>
       <!-- START HIDDEN -->
       <div id="more3841" class="hide" style="display: none;">
                 <table border="0" cellpadding="0" cellspacing="0" width="100%">
-                <tbody><tr><td class="td1 borderRBL"><div style="margin-bottom: 3px;"><a href="https://myanimelist.net/forum/?animeid=3841" target="_blank" onclick="return false;">Discuss Anime</a></div>This series has been re-watched
+                <tbody><tr><td class="td1 borderRBL"><div style="margin-bottom: 3px;"><a href="/forum/?animeid=3841" target="_blank" onclick="return false;">Discuss Anime</a></div>This series has been re-watched
                                     <strong>0</strong> times<br>
                         <span title="Anime Database Rating">Rating: G - All Ages</span> (<a href="javascript:void(0);" onclick="window.open('/info.php?go=mpaa','bbcode','menubar=no,scrollbars=yes,status=no,width=350,height=250');return false;" onclick="return false;">Why?</a>)<br>Storage:  None<br>Rewatch Value: &nbsp;<br>
                             Deviation Score: 0.3<br>Retail Disks: <br>Start Date: Dec  1, 2021
@@ -728,7 +728,7 @@ I haven't watched it yet. Is this enough filler?</span>
 
                       
                   
-      <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <table tc-category="completed" border="0" cellpadding="0" cellspacing="0" width="100%">
         <tbody><tr>
                                 <td align="center" width="30" class="td2" style="border-left-width: 1px;">
               2
@@ -737,12 +737,12 @@ I haven't watched it yet. Is this enough filler?</span>
                               <td class="td2" style="border-left-width: 0">
                       <div style="float: right;">
               <small>
-                                                  <a href="https://myanimelist.net/ownlist/anime/32281/edit?hideLayout" class="List_LightBox" onclick="return false;">Edit</a>
+                                                  <a href="/ownlist/anime/32281/edit?hideLayout" class="List_LightBox" onclick="return false;">Edit</a>
                                 -
                 <a href="javascript:void(0);" id="xmenu32281" onclick="getExpand(32281, 2);" title="View More Information" onclick="return false;">More</a>
               </small>
             </div>
-            <a href="https://myanimelist.net/anime/32281/Kimi_no_Na_wa" target="_blank" class="animetitle" title="Anime Information" onclick="return false;">
+            <a href="/anime/32281/Kimi_no_Na_wa" target="_blank" class="animetitle" title="Anime Information" onclick="return false;">
               <span>Kimi no Na wa.</span>
             </a>
                                   </td>
@@ -802,7 +802,7 @@ I haven't watched it yet. Is this enough filler?</span>
             </td>
           
                                                       
-                                <td class="td2" width="125" align="left" tc-column="Genre">                <a href="https://myanimelist.net/animelist/Example?status=7&amp;genre=8" onclick="return false;">Drama</a>,                 <a href="https://myanimelist.net/animelist/Example?status=7&amp;genre=37" onclick="return false;">Supernatural</a>            </td>
+                                <td class="td2" width="125" align="left" tc-column="Genre">                <a href="/animelist/Example?status=7&amp;genre=8" onclick="return false;">Drama</a>,                 <a href="/animelist/Example?status=7&amp;genre=37" onclick="return false;">Supernatural</a>            </td>
           
                                 <td class="td2" width="90" align="left" tc-column="Demographics">            </td>
           
@@ -811,7 +811,7 @@ I haven't watched it yet. Is this enough filler?</span>
       <!-- START HIDDEN -->
       <div id="more32281" class="hide" style="display: none;">
                 <table border="0" cellpadding="0" cellspacing="0" width="100%">
-                <tbody><tr><td class="td2 borderRBL"><div style="margin-bottom: 3px;"><a href="https://myanimelist.net/forum/?animeid=32281" target="_blank" onclick="return false;">Discuss Anime</a></div>This series has been re-watched
+                <tbody><tr><td class="td2 borderRBL"><div style="margin-bottom: 3px;"><a href="/forum/?animeid=32281" target="_blank" onclick="return false;">Discuss Anime</a></div>This series has been re-watched
                                     <strong>3</strong> times<br>
                         <span title="Anime Database Rating">Rating: PG-13 - Teens 13 or older</span> (<a href="javascript:void(0);" onclick="window.open('/info.php?go=mpaa','bbcode','menubar=no,scrollbars=yes,status=no,width=350,height=250');return false;" onclick="return false;">Why?</a>)<br>Storage: NAS at 3.00 Gb<br>Rewatch Value: Very High<br>
                             Deviation Score: 1.1<br>Retail Disks: <br>Start Date: Jun  29, 2022
@@ -830,7 +830,7 @@ I haven't watched it yet. Is this enough filler?</span>
       <!-- // END HIDDEN -->
 
           
-        <table border="0" width="100%" cellpadding="0" cellspacing="0">
+        <table tc-category="completed" border="0" width="100%" cellpadding="0" cellspacing="0">
       <tbody><tr>
         <td class="category_totals">
           TV: 1,
@@ -845,7 +845,256 @@ I haven't watched it yet. Is this enough filler?</span>
       </tr>
     </tbody></table>
     <br>
-                  <table border="0" cellpadding="0" cellspacing="0" width="100%" align="center" class="header_dropped">
+    <table tc-category="paused" class="header_onhold" width="100%" cellspacing="0" cellpadding="0" border="0" align="center">
+      <tbody><tr>
+        <td>
+          <div class="header_title">
+            <span>On-Hold</span>
+          </div>
+        </td>
+      </tr>
+    </tbody></table>
+
+    <table tc-category="paused" width="100%" cellspacing="0" cellpadding="0" border="0">
+      <tbody><tr>
+                          <td class="table_header" style="border-width: 1px 1px 1px 1px;" width="30" align="center">
+            <b><span class="table_headerLink">#</span></b>
+          </td>
+        
+                        <td class="table_header">
+                <a href="/animelist/YuiAfterDark?status=7&amp;order=1&amp;tag=" class="table_headerLink" onclick="return false;">
+            <strong>Anime Title</strong>
+          </a>
+        </td>
+
+                          <td class="table_header" width="45" align="center" tc-column="Score">
+            <strong>
+              <a href="/animelist/YuiAfterDark?status=7&amp;order=4&amp;tag=" class="table_headerLink" rel="#infoscore" onclick="return false;">Score</a>
+            </strong>
+            <div id="infoscore" style="display: none;">
+              10 - Masterpiece<br>
+              9 - Great<br>
+              8 - Very Good<br>
+              7 - Good<br>
+              6 - Fine<br>
+              5 - Average<br>
+              4 - Bad<br>
+              3 - Very Bad<br>
+              2 - Horrible<br>
+              1 - Appalling
+            </div>
+          </td>
+        
+                          <td class="table_header" width="50" nowrap="" align="center" tc-column="Type">
+            <strong>
+              <a href="/animelist/YuiAfterDark?status=7&amp;order=6&amp;tag=" class="table_headerLink" rel="#infotype" onclick="return false;">Type</a>
+            </strong>
+            <div id="infotype" style="display: none;">
+              TV (Television Series)<br>
+              Movie<br>
+              OVA (Original Video Animation)
+            </div>
+          </td>
+        
+                          <td class="table_header" width="70" nowrap="" align="center" tc-column="Episodes">
+            <strong>
+              <a href="/animelist/YuiAfterDark?status=7&amp;order=12&amp;tag=" class="table_headerLink" onclick="return false;">Progress</a>
+            </strong>
+          </td>
+        
+                          <td class="table_header" width="125" nowrap="" align="center" tc-column="Tags">
+            <strong>
+              Tags
+                          </strong>
+          </td>
+        
+                          <td class="table_header" width="50" align="center" tc-column="Rating">
+            <strong>
+              <a href="/animelist/YuiAfterDark?status=7&amp;order=8&amp;tag=" class="table_headerLink" rel="#inforating" onclick="return false;">Rated</a>
+            </strong>
+            <div style="display: none;" id="inforating">
+              <strong>MPAA Rating</strong><br>
+              G - All Ages<br>
+              PG - Children<br>
+              PG-13 - Teens 13 or older<br>
+              R - 17+ (violence &amp; profanity)<br>
+              R+ - Mild Nudity<br>
+              Rx - Hentai
+            </div>
+          </td>
+        
+                                                <td class="table_header" width="90" align="center" tc-column="Start/End Dates">
+              <strong>
+                <a href="/animelist/YuiAfterDark?status=7&amp;order=3&amp;tag=" class="table_headerLink" title="Date this user started watching the anime" onclick="return false;">Started Date</a>
+              </strong>
+            </td>
+            <td class="table_header" width="90" align="center" tc-column="Start/End Dates">
+              <strong>
+                <a href="/animelist/YuiAfterDark?status=7&amp;order=2&amp;tag=" class="table_headerLink" title="Date this user finished watching the anime" onclick="return false;">Finished Date</a>
+              </strong>
+            </td>
+                  
+                          <td class="table_header" width="45" nowrap="" align="center" tc-column="Days">
+            <strong>Days</strong>
+          </td>
+        
+                          <td class="table_header" width="75" nowrap="" align="center" tc-column="Storage">
+            <strong>
+              <a href="/animelist/YuiAfterDark?status=7&amp;order=13&amp;tag=" class="table_headerLink" onclick="return false;">Storage</a>
+            </strong>
+          </td>
+        
+                                            
+                          <td class="table_header" width="125" nowrap="" align="center" tc-column="Genre">
+            <strong>
+              Genres
+                          </strong>
+          </td>
+        
+                          <td class="table_header" width="90" nowrap="" align="center" tc-column="Demographics">
+            <strong>
+              Demogr.
+                          </strong>
+          </td>
+        
+      </tr>
+    </tbody></table>
+
+                
+                  
+      <table tc-category="paused" width="100%" cellspacing="0" cellpadding="0" border="0">
+        <tbody><tr>
+                                <td class="td1" style="border-left-width: 1px;" width="30" align="center">
+              1
+            </td>
+          
+                              <td class="td1" style="border-left-width: 0">
+                      <div style="float: right;">
+              <small>
+                                                  <a href="/ownlist/anime/21/edit?hideLayout" class="List_LightBox" onclick="return false;">Edit</a>
+                                -
+                <a href="javascript:void(0);" id="xmenu21" onclick="getExpand(21, 1);" title="View More Information" onclick="return false;">More</a>
+              </small>
+            </div>
+            <a href="/anime/21/One_Piece" target="_blank" class="animetitle" title="Anime Information" onclick="return false;">
+              <span>One Piece</span>
+            </a>
+                                      <small>Airing</small>
+                      </td>
+
+                                <td class="td1" width="45" align="center" tc-column="Score">
+                                            <a href="javascript:void(0);" onclick="anime_scoreDisplay(21);" title="Click to bring up a text box to edit your current score" onclick="return false;">
+                <span id="scoreval21">
+                  <span class="score-label score-na">-</span>
+                </span>
+                </a>
+                <div id="scorediv21" style="display: none;">
+                  <input type="text" onkeydown="anime_checkScoreEnter(event,21);" id="scoretext21" size="2">
+                  <input type="button" value="Go" onclick="anime_updateScore(21);">
+                </div>
+                          </td>
+          
+                                <td class="td1" width="50" align="center" tc-column="Type">
+              TV
+            </td>
+          
+                                <td class="td1" width="70" align="center" tc-column="Episodes">
+                                                                            <span id="epText21" onclick="determineEpVisibility('21');">
+                    <a href="javascript:void(0);" title="Click to bring up a text box to edit your current episode number" onclick="return false;">
+                      <span id="output21">135</span>/-
+                    </a>
+                  </span>
+                  <a href="javascript:void(0);" title="Click to increase your watched ep number by one" onclick="updateEpNumByOne(21, '0', '1', 3, 21);" onclick="return false;">
+                    +
+                  </a>
+                  <div style="display: none;" id="holdDynamicEpNum21">
+                    136
+                  </div>
+                  <form name="changeEpXMLHTTP[21]" method="get" style="display: inline;" onsubmit="return changeep_loadurl('21', '0', '1', 3, 0, 21);">
+                    <span id="epLayer21" style="display: none;">
+                      <input type="text" name="change_ep_num[21]" id="epID21" size="2">
+                      <br>
+                      <input type="submit" value="Go" name="submitEp[21]" onclick="return changeep_loadurl('21', '0', '1', 3, 0, 21);">
+                    </span>
+                  </form>
+                                          </td>
+          
+                                <td class="td1" width="125" align="left" tc-column="Tags">
+                              <div style="float: right;" id="tagChangeRow21">
+                  <a href="javascript:void(0);" onclick="tag_showEdit(21, 1);" onclick="return false;">
+                    <small>edit</small>
+                  </a>
+                </div>
+                <div id="tagRowEdit21"></div>
+                            <span id="tagLinks21"></span>
+              <span id="tagRow21" style="display: none;"></span>
+            </td>
+          
+                                <td class="td1" width="50" align="center" tc-column="Rating">
+              PG-13
+            </td>
+          
+                                                          <td class="td1" width="90" align="center" tc-column="Start/End Dates">
+                01-08-07
+              </td>
+              <td class="td1" width="90" align="center" tc-column="Start/End Dates">
+                
+              </td>
+                      
+                                <td class="td1" width="45" nowrap="" align="center" tc-column="Days">
+              5686
+            </td>
+          
+                                <td class="td1" width="75" nowrap="" align="center" tc-column="Storage">
+            <span title="">
+              
+                            
+            </span>
+            </td>
+          
+                                                      
+                                <td class="td1" width="125" align="left" tc-column="Genre">                <a href="/animelist/YuiAfterDark?status=7&amp;genre=1" onclick="return false;">Action</a>,                 <a href="/animelist/YuiAfterDark?status=7&amp;genre=2" onclick="return false;">Adventure</a>,                 <a href="/animelist/YuiAfterDark?status=7&amp;genre=10" onclick="return false;">Fantasy</a>            </td>
+          
+                                <td class="td1" width="90" align="left" tc-column="Demographics">                <a href="/animelist/YuiAfterDark?status=7&amp;demographic=27" onclick="return false;">Shounen</a>            </td>
+          
+        </tr>
+      </tbody></table>
+      <!-- START HIDDEN -->
+      <div id="more21" class="hide" style="display: none;">
+                <table width="100%" cellspacing="0" cellpadding="0" border="0">
+                <tbody><tr><td class="td1 borderRBL"><div style="margin-bottom: 3px;"><a href="/forum/?animeid=21" target="_blank" onclick="return false;">Discuss Anime</a></div>
+                        <span title="Anime Database Rating">Rating: PG-13 - Teens 13 or older</span> (<a href="javascript:void(0);" onclick="window.open('/info.php?go=mpaa','bbcode','menubar=no,scrollbars=yes,status=no,width=350,height=250');return false;" onclick="return false;">Why?</a>)<br>Storage:  None<br>Rewatch Value: &nbsp;<br>Retail Disks: <br>Start Date: Jan  8, 2007
+                <br>
+                End Date: <br>
+                         Days Since Started Watching: 5,686<br>
+                         Last Updated: 
+                         08-01-22
+                        <br>
+                        Time Spent Watching: 
+                        54 hours, 0 minutes, and 0 seconds <small>(0 hours, 24 minutes, and 0 seconds per episode)</small><br>
+                        Comments: &nbsp;<br></td>
+                        </tr>
+                        </tbody></table>
+                </div>
+      <!-- // END HIDDEN -->
+
+          
+        <table tc-category="paused" width="100%" cellspacing="0" cellpadding="0" border="0">
+      <tbody><tr>
+        <td class="category_totals">
+          TV: 1,
+          OVA: 0,
+          Movies: 0,
+          <span title="Specials">Spcl.</span>: 0,
+          Eps: 135,
+          Days: 0.32,
+          Mean Score: <span class="score-label score-0">0.0</span>,
+          Score <span title="Deviation">Dev.</span>: 0.00
+        </td>
+      </tr>
+    </tbody></table>
+    <br>
+                  <table tc-category="dropped" border="0" cellpadding="0" cellspacing="0" width="100%" align="center" class="header_dropped">
       <tbody><tr>
         <td>
           <div class="header_title">
@@ -855,21 +1104,21 @@ I haven't watched it yet. Is this enough filler?</span>
       </tr>
     </tbody></table>
 
-    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+    <table tc-category="dropped" border="0" cellpadding="0" cellspacing="0" width="100%">
       <tbody><tr>
                           <td class="table_header" width="30" align="center" style="border-width: 1px 1px 1px 1px;">
             <b><span class="table_headerLink">#</span></b>
           </td>
         
                         <td class="table_header">
-                <a href="https://myanimelist.net/animelist/Example?status=7&amp;order=1&amp;tag=" class="table_headerLink" onclick="return false;">
+                <a href="/animelist/Example?status=7&amp;order=1&amp;tag=" class="table_headerLink" onclick="return false;">
             <strong>Anime Title</strong>
           </a>
         </td>
 
                           <td class="table_header" width="45" tc-column="Score" align="center">
             <strong>
-              <a href="https://myanimelist.net/animelist/Example?status=7&amp;order=4&amp;tag=" class="table_headerLink" rel="#infoscore" onclick="return false;">Score</a>
+              <a href="/animelist/Example?status=7&amp;order=4&amp;tag=" class="table_headerLink" rel="#infoscore" onclick="return false;">Score</a>
             </strong>
             <div id="infoscore" style="display: none;">
               10 - Masterpiece<br>
@@ -887,7 +1136,7 @@ I haven't watched it yet. Is this enough filler?</span>
         
                           <td class="table_header" width="50" align="center" tc-column="Type" nowrap="">
             <strong>
-              <a href="https://myanimelist.net/animelist/Example?status=7&amp;order=6&amp;tag=" class="table_headerLink" rel="#infotype" onclick="return false;">Type</a>
+              <a href="/animelist/Example?status=7&amp;order=6&amp;tag=" class="table_headerLink" rel="#infotype" onclick="return false;">Type</a>
             </strong>
             <div id="infotype" style="display: none;">
               TV (Television Series)<br>
@@ -898,7 +1147,7 @@ I haven't watched it yet. Is this enough filler?</span>
         
                           <td class="table_header" width="70" align="center" tc-column="Episodes" nowrap="">
             <strong>
-              <a href="https://myanimelist.net/animelist/Example?status=7&amp;order=12&amp;tag=" class="table_headerLink" onclick="return false;">Progress</a>
+              <a href="/animelist/Example?status=7&amp;order=12&amp;tag=" class="table_headerLink" onclick="return false;">Progress</a>
             </strong>
           </td>
         
@@ -910,7 +1159,7 @@ I haven't watched it yet. Is this enough filler?</span>
         
                           <td class="table_header" width="50" align="center" tc-column="Rating">
             <strong>
-              <a href="https://myanimelist.net/animelist/Example?status=7&amp;order=8&amp;tag=" class="table_headerLink" rel="#inforating" onclick="return false;">Rated</a>
+              <a href="/animelist/Example?status=7&amp;order=8&amp;tag=" class="table_headerLink" rel="#inforating" onclick="return false;">Rated</a>
             </strong>
             <div style="display: none;" id="inforating">
               <strong>MPAA Rating</strong><br>
@@ -925,12 +1174,12 @@ I haven't watched it yet. Is this enough filler?</span>
         
                                                 <td class="table_header" width="90" align="center" tc-column="Start/End Dates">
               <strong>
-                <a href="https://myanimelist.net/animelist/Example?status=7&amp;order=3&amp;tag=" class="table_headerLink" title="Date this user started watching the anime" onclick="return false;">Started Date</a>
+                <a href="/animelist/Example?status=7&amp;order=3&amp;tag=" class="table_headerLink" title="Date this user started watching the anime" onclick="return false;">Started Date</a>
               </strong>
             </td>
             <td class="table_header" width="90" align="center" tc-column="Start/End Dates">
               <strong>
-                <a href="https://myanimelist.net/animelist/Example?status=7&amp;order=2&amp;tag=" class="table_headerLink" title="Date this user finished watching the anime" onclick="return false;">Finished Date</a>
+                <a href="/animelist/Example?status=7&amp;order=2&amp;tag=" class="table_headerLink" title="Date this user finished watching the anime" onclick="return false;">Finished Date</a>
               </strong>
             </td>
                   
@@ -940,7 +1189,7 @@ I haven't watched it yet. Is this enough filler?</span>
         
                           <td class="table_header" width="75" tc-column="Storage" align="center" nowrap="">
             <strong>
-              <a href="https://myanimelist.net/animelist/Example?status=7&amp;order=13&amp;tag=" class="table_headerLink" onclick="return false;">Storage</a>
+              <a href="/animelist/Example?status=7&amp;order=13&amp;tag=" class="table_headerLink" onclick="return false;">Storage</a>
             </strong>
           </td>
         
@@ -962,7 +1211,7 @@ I haven't watched it yet. Is this enough filler?</span>
 
                 
                   
-      <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <table tc-category="dropped" border="0" cellpadding="0" cellspacing="0" width="100%">
         <tbody><tr>
                                 <td align="center" width="30" class="td1" style="border-left-width: 1px;">
               1
@@ -971,12 +1220,12 @@ I haven't watched it yet. Is this enough filler?</span>
                               <td class="td1" style="border-left-width: 0">
                       <div style="float: right;">
               <small>
-                                                  <a href="https://myanimelist.net/ownlist/anime/2372/edit?hideLayout" class="List_LightBox" onclick="return false;">Edit</a>
+                                                  <a href="/ownlist/anime/2372/edit?hideLayout" class="List_LightBox" onclick="return false;">Edit</a>
                                 -
                 <a href="javascript:void(0);" id="xmenu2372" onclick="getExpand(2372, 1);" title="View More Information" onclick="return false;">More</a>
               </small>
             </div>
-            <a href="https://myanimelist.net/anime/2372/Enbo" target="_blank" class="animetitle" title="Anime Information" onclick="return false;">
+            <a href="/anime/2372/Enbo" target="_blank" class="animetitle" title="Anime Information" onclick="return false;">
               <span>Enbo</span>
             </a>
                                   </td>
@@ -1025,7 +1274,7 @@ I haven't watched it yet. Is this enough filler?</span>
                   </a>
                 </div>
                 <div id="tagRowEdit2372"></div>
-                            <span id="tagLinks2372">                  <a href="https://myanimelist.net/animelist/Example?status=7&amp;tag=Hentai" onclick="return false;">Hentai</a>,                   <a href="https://myanimelist.net/animelist/Example?status=7&amp;tag=Rx" onclick="return false;">Rx</a>,                   <a href="https://myanimelist.net/animelist/Example?status=7&amp;tag=18%2B" onclick="return false;">18+</a></span>
+                            <span id="tagLinks2372">                  <a href="/animelist/Example?status=7&amp;tag=Hentai" onclick="return false;">Hentai</a>,                   <a href="/animelist/Example?status=7&amp;tag=Rx" onclick="return false;">Rx</a>,                   <a href="/animelist/Example?status=7&amp;tag=18%2B" onclick="return false;">18+</a></span>
               <span id="tagRow2372" style="display: none;">Hentai, Rx, 18+</span>
             </td>
           
@@ -1052,7 +1301,7 @@ I haven't watched it yet. Is this enough filler?</span>
             </td>
           
                                                       
-                                <td class="td1" width="125" align="left" tc-column="Genre">                <a href="https://myanimelist.net/animelist/Example?status=7&amp;genre=8" onclick="return false;">Drama</a>,                 <a href="https://myanimelist.net/animelist/Example?status=7&amp;genre=12" onclick="return false;">Hentai</a>            </td>
+                                <td class="td1" width="125" align="left" tc-column="Genre">                <a href="/animelist/Example?status=7&amp;genre=8" onclick="return false;">Drama</a>,                 <a href="/animelist/Example?status=7&amp;genre=12" onclick="return false;">Hentai</a>            </td>
           
                                 <td class="td1" width="90" align="left" tc-column="Demographics">            </td>
           
@@ -1061,7 +1310,7 @@ I haven't watched it yet. Is this enough filler?</span>
       <!-- START HIDDEN -->
       <div id="more2372" class="hide" style="display: none;">
                 <table border="0" cellpadding="0" cellspacing="0" width="100%">
-                <tbody><tr><td class="td1 borderRBL"><div style="margin-bottom: 3px;"><a href="https://myanimelist.net/forum/?animeid=2372" target="_blank" onclick="return false;">Discuss Anime</a></div>
+                <tbody><tr><td class="td1 borderRBL"><div style="margin-bottom: 3px;"><a href="/forum/?animeid=2372" target="_blank" onclick="return false;">Discuss Anime</a></div>
                         <span title="Anime Database Rating">Rating: Rx - Hentai</span> (<a href="javascript:void(0);" onclick="window.open('/info.php?go=mpaa','bbcode','menubar=no,scrollbars=yes,status=no,width=350,height=250');return false;" onclick="return false;">Why?</a>)<br>Storage:  None<br>Rewatch Value: &nbsp;<br>Retail Disks: <br>Start Date: Apr  3, 2019
                 <br>
                 End Date: <br>
@@ -1079,7 +1328,7 @@ I haven't watched it yet. Is this enough filler?</span>
 
                       
                   
-      <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <table tc-category="dropped" border="0" cellpadding="0" cellspacing="0" width="100%">
         <tbody><tr>
                                 <td align="center" width="30" class="td2" style="border-left-width: 1px;">
               2
@@ -1088,12 +1337,12 @@ I haven't watched it yet. Is this enough filler?</span>
                               <td class="td2" style="border-left-width: 0">
                       <div style="float: right;">
               <small>
-                                                  <a href="https://myanimelist.net/ownlist/anime/4654/edit?hideLayout" class="List_LightBox" onclick="return false;">Edit</a>
+                                                  <a href="/ownlist/anime/4654/edit?hideLayout" class="List_LightBox" onclick="return false;">Edit</a>
                                 -
                 <a href="javascript:void(0);" id="xmenu4654" onclick="getExpand(4654, 2);" title="View More Information" onclick="return false;">More</a>
               </small>
             </div>
-            <a href="https://myanimelist.net/anime/4654/Toaru_Majutsu_no_Index" target="_blank" class="animetitle" title="Anime Information" onclick="return false;">
+            <a href="/anime/4654/Toaru_Majutsu_no_Index" target="_blank" class="animetitle" title="Anime Information" onclick="return false;">
               <span>Toaru Majutsu no Index</span>
             </a>
                                   </td>
@@ -1169,7 +1418,7 @@ I haven't watched it yet. Is this enough filler?</span>
             </td>
           
                                                       
-                                <td class="td2" width="125" align="left" tc-column="Genre">                <a href="https://myanimelist.net/animelist/Example?status=7&amp;genre=1" onclick="return false;">Action</a>,                 <a href="https://myanimelist.net/animelist/Example?status=7&amp;genre=24" onclick="return false;">Sci-Fi</a>            </td>
+                                <td class="td2" width="125" align="left" tc-column="Genre">                <a href="/animelist/Example?status=7&amp;genre=1" onclick="return false;">Action</a>,                 <a href="/animelist/Example?status=7&amp;genre=24" onclick="return false;">Sci-Fi</a>            </td>
           
                                 <td class="td2" width="90" align="left" tc-column="Demographics">            </td>
           
@@ -1178,7 +1427,7 @@ I haven't watched it yet. Is this enough filler?</span>
       <!-- START HIDDEN -->
       <div id="more4654" class="hide" style="display: none;">
                 <table border="0" cellpadding="0" cellspacing="0" width="100%">
-                <tbody><tr><td class="td2 borderRBL"><div style="margin-bottom: 3px;"><a href="https://myanimelist.net/forum/?animeid=4654" target="_blank" onclick="return false;">Discuss Anime</a></div>
+                <tbody><tr><td class="td2 borderRBL"><div style="margin-bottom: 3px;"><a href="/forum/?animeid=4654" target="_blank" onclick="return false;">Discuss Anime</a></div>
                         <span title="Anime Database Rating">Rating: R - 17+ (violence &amp; profanity)</span> (<a href="javascript:void(0);" onclick="window.open('/info.php?go=mpaa','bbcode','menubar=no,scrollbars=yes,status=no,width=350,height=250');return false;" onclick="return false;">Why?</a>)<br>Storage:  None<br>Rewatch Value: &nbsp;<br>
                             Deviation Score: -6.4<br>Retail Disks: <br>Start Date: 
                 <br>
@@ -1196,7 +1445,7 @@ I haven't watched it yet. Is this enough filler?</span>
       <!-- // END HIDDEN -->
 
           
-        <table border="0" width="100%" cellpadding="0" cellspacing="0">
+        <table tc-category="dropped" border="0" width="100%" cellpadding="0" cellspacing="0">
       <tbody><tr>
         <td class="category_totals">
           TV: 1,
@@ -1211,7 +1460,7 @@ I haven't watched it yet. Is this enough filler?</span>
       </tr>
     </tbody></table>
     <br>
-            <table border="0" cellpadding="0" cellspacing="0" width="100%" align="center" class="header_ptw">
+            <table tc-category="planned" border="0" cellpadding="0" cellspacing="0" width="100%" align="center" class="header_ptw">
       <tbody><tr>
         <td>
           <div class="header_title">
@@ -1221,21 +1470,21 @@ I haven't watched it yet. Is this enough filler?</span>
       </tr>
     </tbody></table>
 
-    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+    <table tc-category="planned" border="0" cellpadding="0" cellspacing="0" width="100%">
       <tbody><tr>
                           <td class="table_header" width="30" align="center" style="border-width: 1px 1px 1px 1px;">
             <b><span class="table_headerLink">#</span></b>
           </td>
         
                         <td class="table_header">
-                <a href="https://myanimelist.net/animelist/Example?status=7&amp;order=1&amp;tag=" class="table_headerLink" onclick="return false;">
+                <a href="/animelist/Example?status=7&amp;order=1&amp;tag=" class="table_headerLink" onclick="return false;">
             <strong>Anime Title</strong>
           </a>
         </td>
 
                           <td class="table_header" width="45" tc-column="Score" align="center">
             <strong>
-              <a href="https://myanimelist.net/animelist/Example?status=7&amp;order=4&amp;tag=" class="table_headerLink" rel="#infoscore" onclick="return false;">Score</a>
+              <a href="/animelist/Example?status=7&amp;order=4&amp;tag=" class="table_headerLink" rel="#infoscore" onclick="return false;">Score</a>
             </strong>
             <div id="infoscore" style="display: none;">
               10 - Masterpiece<br>
@@ -1253,7 +1502,7 @@ I haven't watched it yet. Is this enough filler?</span>
         
                           <td class="table_header" width="50" align="center" tc-column="Type" nowrap="">
             <strong>
-              <a href="https://myanimelist.net/animelist/Example?status=7&amp;order=6&amp;tag=" class="table_headerLink" rel="#infotype" onclick="return false;">Type</a>
+              <a href="/animelist/Example?status=7&amp;order=6&amp;tag=" class="table_headerLink" rel="#infotype" onclick="return false;">Type</a>
             </strong>
             <div id="infotype" style="display: none;">
               TV (Television Series)<br>
@@ -1264,7 +1513,7 @@ I haven't watched it yet. Is this enough filler?</span>
         
                           <td class="table_header" width="70" align="center" tc-column="Episodes" nowrap="">
             <strong>
-              <a href="https://myanimelist.net/animelist/Example?status=7&amp;order=12&amp;tag=" class="table_headerLink" onclick="return false;">Progress</a>
+              <a href="/animelist/Example?status=7&amp;order=12&amp;tag=" class="table_headerLink" onclick="return false;">Progress</a>
             </strong>
           </td>
         
@@ -1276,7 +1525,7 @@ I haven't watched it yet. Is this enough filler?</span>
         
                           <td class="table_header" width="50" align="center" tc-column="Rating">
             <strong>
-              <a href="https://myanimelist.net/animelist/Example?status=7&amp;order=8&amp;tag=" class="table_headerLink" rel="#inforating" onclick="return false;">Rated</a>
+              <a href="/animelist/Example?status=7&amp;order=8&amp;tag=" class="table_headerLink" rel="#inforating" onclick="return false;">Rated</a>
             </strong>
             <div style="display: none;" id="inforating">
               <strong>MPAA Rating</strong><br>
@@ -1296,14 +1545,14 @@ I haven't watched it yet. Is this enough filler?</span>
         
                           <td class="table_header" width="75" tc-column="Storage" align="center" nowrap="">
             <strong>
-              <a href="https://myanimelist.net/animelist/Example?status=7&amp;order=13&amp;tag=" class="table_headerLink" onclick="return false;">Storage</a>
+              <a href="/animelist/Example?status=7&amp;order=13&amp;tag=" class="table_headerLink" onclick="return false;">Storage</a>
             </strong>
           </td>
         
                                                 <td class="table_header" width="80" tc-column="Priority" align="center" nowrap="">
           <span title="Priority">
             <strong>
-              <a href="https://myanimelist.net/animelist/Example?status=7&amp;order=11&amp;tag=" class="table_headerLink" onclick="return false;">Priority</a>
+              <a href="/animelist/Example?status=7&amp;order=11&amp;tag=" class="table_headerLink" onclick="return false;">Priority</a>
             </strong>
           </span>
             </td>
@@ -1325,7 +1574,7 @@ I haven't watched it yet. Is this enough filler?</span>
 
                 
                   
-      <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <table tc-category="planned" border="0" cellpadding="0" cellspacing="0" width="100%">
         <tbody><tr>
                                 <td align="center" width="30" class="td1" style="border-left-width: 1px;">
               1
@@ -1334,12 +1583,12 @@ I haven't watched it yet. Is this enough filler?</span>
                               <td class="td1" style="border-left-width: 0">
                       <div style="float: right;">
               <small>
-                                                  <a href="https://myanimelist.net/ownlist/anime/47/edit?hideLayout" class="List_LightBox" onclick="return false;">Edit</a>
+                                                  <a href="/ownlist/anime/47/edit?hideLayout" class="List_LightBox" onclick="return false;">Edit</a>
                                 -
                 <a href="javascript:void(0);" id="xmenu47" onclick="getExpand(47, 1);" title="View More Information" onclick="return false;">More</a>
               </small>
             </div>
-            <a href="https://myanimelist.net/anime/47/Akira" target="_blank" class="animetitle" title="Anime Information" onclick="return false;">
+            <a href="/anime/47/Akira" target="_blank" class="animetitle" title="Anime Information" onclick="return false;">
               <span>Akira</span>
             </a>
                                   </td>
@@ -1388,7 +1637,7 @@ I haven't watched it yet. Is this enough filler?</span>
                   </a>
                 </div>
                 <div id="tagRowEdit47"></div>
-                            <span id="tagLinks47">                  <a href="https://myanimelist.net/animelist/Example?status=7&amp;tag=High+Priority+Watch" onclick="return false;">High Priority Watch</a></span>
+                            <span id="tagLinks47">                  <a href="/animelist/Example?status=7&amp;tag=High+Priority+Watch" onclick="return false;">High Priority Watch</a></span>
               <span id="tagRow47" style="display: none;">High Priority Watch</span>
             </td>
           
@@ -1412,16 +1661,16 @@ I haven't watched it yet. Is this enough filler?</span>
                 High
               </td>
                       
-                                <td class="td1" width="125" align="left" tc-column="Genre">                <a href="https://myanimelist.net/animelist/Example?status=7&amp;genre=1" onclick="return false;">Action</a>,                 <a href="https://myanimelist.net/animelist/Example?status=7&amp;genre=2" onclick="return false;">Adventure</a>,                 <a href="https://myanimelist.net/animelist/Example?status=7&amp;genre=14" onclick="return false;">Horror</a>,                 <a href="https://myanimelist.net/animelist/Example?status=7&amp;genre=24" onclick="return false;">Sci-Fi</a>,                 <a href="https://myanimelist.net/animelist/Example?status=7&amp;genre=37" onclick="return false;">Supernatural</a>            </td>
+                                <td class="td1" width="125" align="left" tc-column="Genre">                <a href="/animelist/Example?status=7&amp;genre=1" onclick="return false;">Action</a>,                 <a href="/animelist/Example?status=7&amp;genre=2" onclick="return false;">Adventure</a>,                 <a href="/animelist/Example?status=7&amp;genre=14" onclick="return false;">Horror</a>,                 <a href="/animelist/Example?status=7&amp;genre=24" onclick="return false;">Sci-Fi</a>,                 <a href="/animelist/Example?status=7&amp;genre=37" onclick="return false;">Supernatural</a>            </td>
           
-                                <td class="td1" width="90" align="left" tc-column="Demographics">                <a href="https://myanimelist.net/animelist/Example?status=7&amp;demographic=42" onclick="return false;">Seinen</a>            </td>
+                                <td class="td1" width="90" align="left" tc-column="Demographics">                <a href="/animelist/Example?status=7&amp;demographic=42" onclick="return false;">Seinen</a>            </td>
           
         </tr>
       </tbody></table>
       <!-- START HIDDEN -->
       <div id="more47" class="hide" style="display: none;">
                 <table border="0" cellpadding="0" cellspacing="0" width="100%">
-                <tbody><tr><td class="td1 borderRBL"><div style="margin-bottom: 3px;"><a href="https://myanimelist.net/forum/?animeid=47" target="_blank" onclick="return false;">Discuss Anime</a></div>
+                <tbody><tr><td class="td1 borderRBL"><div style="margin-bottom: 3px;"><a href="/forum/?animeid=47" target="_blank" onclick="return false;">Discuss Anime</a></div>
                         <span title="Anime Database Rating">Rating: R+ - Mild Nudity</span> (<a href="javascript:void(0);" onclick="window.open('/info.php?go=mpaa','bbcode','menubar=no,scrollbars=yes,status=no,width=350,height=250');return false;" onclick="return false;">Why?</a>)<br>Storage:  None<br>Rewatch Value: &nbsp;<br>Retail Disks: <br>Start Date: 
                 <br>
                 End Date: <br>
@@ -1440,7 +1689,7 @@ During one of these battles, Shoutarou's best friend Tetsuo Shima is caught up i
       <!-- // END HIDDEN -->
 
           
-        <table border="0" width="100%" cellpadding="0" cellspacing="0">
+        <table tc-category="planned" border="0" width="100%" cellpadding="0" cellspacing="0">
       <tbody><tr>
         <td class="category_totals">
           TV: 0,

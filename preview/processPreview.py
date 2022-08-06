@@ -17,9 +17,10 @@ for filePath in previewFiles:
 			[r'YuiAfterDark|Valerio_Lyndon', r'Example'],
 			[r'(<div style="padding-top: 8px">)[\s\S]*?<div[\s\S]*?</div>', r'\1'],
 			[r'<div style="padding-top: 8px">[\s\S]*?</div>', ''],
-			[r'</footer>[\s\S]*</div>[\s\S]*?</body>', '</footer>\n</body>'],
+			[r'</footer>[\s\S]*</div>[\s\S]*?</body>', '</footer>\n<div id="fancybox-overlay"></div>\n</body>'],
 			[r'<a(.*?)>', r'<a\1 onclick="return false;">'],
 			[r'onclick="return false;" onclick="return false;"', r'onclick="return false;"'],
+			[r'<table.*?data-items=.*?>', '<table class="list-table" data-items="[{&quot;example&quot;:0}]">'],
 			[r'id="footer-block" style="[^"]*"', 'id="footer-block"'],
 			[r'class="header-title number"', r'class="header-title number" tc-column="Numbers"'],
 			[r'class="data number"', r'class="data number" tc-column="Numbers"'],
@@ -77,7 +78,6 @@ for filePath in previewFiles:
 			[r'(width="125" align="left")((?:[\s\S](?!td))*?genre=)', r'\1 tc-column="Genre"\2'],
 			[r'(width="90" align="left"|width="90" nowrap="" align="center"|width="90" align="center" nowrap="")', r'\1 tc-column="Demographics"'],
 			#both lists
-			[r'(url\(|href=)"\/', r'\1"https://myanimelist.net/'],
 			[r'(tc-column="[^"]*?") tc-column="[^"]*?"', r'\1']
 		]
 
