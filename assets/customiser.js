@@ -56,6 +56,89 @@ function confirm(msg, options = {'Yes': {'value': true, 'type': 'suggested'}, 'N
 	});
 }
 
+// Information popup that can be positioned anywhere on the page. Useful for a variety of circumstances.
+class InfoPopup {
+	constructor() {
+		this.element = document.createElement('div');
+		this.element.className = 'info-popup';
+		this.width = 270;
+		document.body.appendChild(this.element);
+	}
+
+	// target should either be an HTML element or an array of [x, y] coords.
+	show(target, text = '', alignment) {
+		// setup variables
+		let x = 0,
+			y = 0,
+			w = 0,
+			h = 0;
+
+		if(target instanceof Element || target instanceof HTMLElement) {
+			let bounds = target.getBoundingClientRect();
+			x = bounds.left;
+			y = bounds.top;
+			w = target['offsetWidth'];
+			h = target['offsetHeight'];
+		} else {
+			x = target[0];
+			y = target[1];
+		}
+
+		// calculate position
+		if(alignment === 'left') {
+			x = x + w + 12;
+			y = y - 16;
+			this.element.classList.add('left');
+			this.element.classList.remove('top', 'bottom', 'right');
+		}
+		else if(alignment === 'right') {
+			x = x + w + 8 - this.width;
+			y = y - 16;
+			this.element.classList.add('right');
+			this.element.classList.remove('top', 'bottom', 'left');
+		}
+		else if(alignment === 'top') {
+			x = x + (w / 2) - (this.width / 2);
+			y = y + h + 12;
+			this.element.classList.add('top');
+			this.element.classList.remove('left', 'bottom', 'right');
+		}
+		else if(alignment === 'bottom') {
+			x = x + (w / 2) - (this.width / 2);
+			y = y - 100;
+			console.log('[InfoPopup] top alignment ain\'t supported yet');
+			this.element.classList.add('bottom');
+			this.element.classList.remove('top', 'left', 'right');
+		}
+ 
+		// set pos
+		this.element.style.left = `${x}px`;
+		this.element.style.top = `${y}px`;
+
+		// set text
+		this.element.innerHTML = text;
+
+		// set visible
+		this.element.classList.add('is-visible');
+	}
+
+	hide() {
+		this.element.classList.remove('is-visible');
+	}
+}
+const info = new InfoPopup();
+
+function infoOn(target, alignment = 'left') {
+	if(target instanceof Event) {
+		target = target['target'];
+	}
+	let text = target.getAttribute('data-info');
+	info.show(target, text, alignment);
+}
+function infoOff() {
+	info.hide();
+}
+
 function splitSlide() {
 	let slider = document.getElementById('js-toggle-drawer'),
 		sidebar = document.getElementById('js-sidebar');
@@ -239,16 +322,19 @@ function updateMod(id, funcConfig = {}) {
 
 					// todo: do this using js classes or something that won't fall apart the moment you change the DOM
 					let check = document.getElementById(`mod:${requirement}`),
-						requiredToggle = check.nextElementSibling,
-						requiredToggleInfo = requiredToggle.firstElementChild;
+						requiredToggle = check.nextElementSibling;
 					
 					check.disabled = val;
 					check.checked = val;
 
 					if(val) {
 						requiredToggle.classList.add('is-forced', 'has-info');
-						requiredToggleInfo.textContent = 'This must be enabled for other options to work.';
+						requiredToggle.addEventListener('mouseover', infoOn);
+						requiredToggle.addEventListener('mouseout', infoOff);
+						requiredToggle.setAttribute('data-info', 'This must be enabled for other options to work.');
 					} else {
+						requiredToggle.removeEventListener('mouseover', infoOn);
+						requiredToggle.removeEventListener('mouseout', infoOff);
 						requiredToggle.classList.remove('is-forced', 'has-info');
 					}
 				}
@@ -264,15 +350,18 @@ function updateMod(id, funcConfig = {}) {
 				if(conflict in theme['mods']) {
 					// todo: do this using js classes or something that won't fall apart the moment you change the DOM
 					let check = document.getElementById(`mod:${conflict}`),
-						conflictToggle = check.nextElementSibling,
-						conflictToggleInfo = conflictToggle.firstElementChild;
+						conflictToggle = check.nextElementSibling;
 
 					check.disabled = val;
 
 					if(val) {
 						conflictToggle.classList.add('is-disabled', 'has-info');
-						conflictToggleInfo.textContent = `This mod is incompatible with one of your choices. To use, disable "${mod['name']}".`;
+						conflictToggle.addEventListener('mouseover', infoOn);
+						conflictToggle.addEventListener('mouseout', infoOff);
+						conflictToggle.setAttribute('data-info', `This mod is incompatible with one of your choices. To use, disable "${mod['name']}".`);
 					} else {
+						conflictToggle.removeEventListener('mouseover', infoOn);
+						conflictToggle.removeEventListener('mouseout', infoOff);
 						conflictToggle.classList.remove('is-disabled', 'has-info');
 					}
 				}
@@ -729,10 +818,6 @@ function renderHtml() {
 			baseType = split[0],
 			qualifier = split[1],
 			subQualifier = split[2];
-		
-		if('help' in opt) {
-			div.classList.add('has-help');
-		}
 
 		if(baseType === 'text' || opt['type'] === 'color') {
 			if(!('replacements' in opt)) {
@@ -818,9 +903,7 @@ function renderHtml() {
 				toggle.checked = true;
 			}
 			headRight.innerHTML = `
-				<label class="toggle info-popup" for="${fullId}">
-					<div class="info-popup__box"></div>
-				</label>
+				<label class="toggle" for="${fullId}"></label>
 			`;
 			headRight.prepend(toggle);
 
@@ -887,20 +970,18 @@ function renderHtml() {
 			if('css' in mod) {
 				headRight.innerHTML = `
 					<input id="mod:${modId}" type="checkbox" class="o-hidden" />
-					<label class="toggle info-popup" for="mod:${modId}">
-						<div class="info-popup__box"></div>
-					</label>
+					<label class="toggle" for="mod:${modId}"></label>
 				`;
 			} else if('url' in mod) {
 				let link = document.createElement('a');
-				link.className = 'entry__external-link info-popup info-popup--activated-on-hover';
+				link.className = 'entry__external-link js-info';
+				link.setAttribute('data-info', 'This mod has linked an external resource or guide for you to install. Unless otherwise instructed, these should be installed <b>after</b> you install the main theme.')
+				link.addEventListener('mouseover', () => { infoOn(link); });
+				link.addEventListener('mouseout', infoOff);
 				link.href = mod['url'];
 				link.target = "_blank";
 				link.innerHTML = `
 					<i class="entry__external-link-icon fa-solid fa-arrow-up-right-from-square"></i>
-					<div class="info-popup__box">
-						This mod has linked an external resource or guide for you to install. Unless otherwise instructed, these should be installed <b>after</b> you install the main theme.
-					</div>
 				`;
 				headRight.appendChild(link);
 			}
@@ -1061,6 +1142,8 @@ function renderHtml() {
 			check.checked = val;
 			check.disabled = true;
 			toggle.removeAttribute('onclick');
+			toggle.addEventListener('mouseover', function(e) { infoOn(toggle, 'top') });
+			toggle.addEventListener('mouseout', infoOff);
 			postToIframe(['cover', val]);
 		}
 

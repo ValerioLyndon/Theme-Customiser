@@ -54,69 +54,80 @@ input:checked + .toggle.is-forced::after {
 }
 
 .info-popup {
-	position: relative;
-}
-.info-popup__box {
-	position: absolute;
-	bottom: calc(100% + 10px);
-	right: -8px;
-	z-index: 5;
-	display: none;
+	position: fixed;
+	z-index: 15;
 	width: 270px;
 	padding: 8px;
 	background: var(--background);
 	border: 2px solid var(--border-light);
-
-	color: var(--text);
-
+	border-radius: 4px;
 	box-shadow: 2px 3px 6px rgba(0,0,0,0.3);
+	color: var(--text);
 	opacity: 0;
 	transition: opacity 0.1s ease;
 	pointer-events: none;
 }
-.info-popup__box--bottom {
-	top: calc(100% + 10px);
-	bottom: initial;
-}
-.info-popup:hover .info-popup__box {
+.info-popup.is-visible {
 	opacity: 1;
-}
-.info-popup--activated-on-hover .info-popup__box,
-.info-popup.has-info .info-popup__box {
-	display: block;
 }
 
 /* decorative arrow */
-.info-popup__box::before,
-.info-popup__box::after {
+.info-popup::before,
+.info-popup::after {
 	content: "";
 	position: absolute;
 	border-style: solid;
 	border-color: transparent;
 }
-.info-popup__box:not(.info-popup__box--bottom)::before {
-	top: 100%;
-	right: 12px;
+.info-popup::before {
 	border-width: 10px;
-	border-top-color: var(--border-light);
 }
-.info-popup__box--bottom::before {
+.info-popup::after {
+	border-width: 6px;
+}
+
+.info-popup.left::before {
+	right: 100%;
+	top: 12px;
+	border-right-color: var(--border-light);
+}
+.info-popup.left::after {
+	right: 100%;
+	top: 16px;
+	border-right-color: var(--background);
+}
+
+.info-popup.right::before {
+	left: 100%;
+	top: 12px;
+	border-left-color: var(--border-light);
+}
+.info-popup.right::after {
+	left: 100%;
+	top: 16px;
+	border-left-color: var(--background);
+}
+
+.info-popup.top::before {
+	left: calc(50% - 12px);
 	bottom: 100%;
-	right: 12px;
-	border-width: 10px;
 	border-bottom-color: var(--border-light);
 }
-.info-popup__box:not(.info-popup__box--bottom)::after {
-	bottom: -12px;
-	right: 16px;
-	border-width: 6px;
-	border-top-color: var(--background);
-}
-.info-popup__box--bottom::after {
-	top: -12px;
-	right: 16px;
-	border-width: 6px;
+.info-popup.top::after {
+	left: calc(50% - 6px);
+	bottom: 100%;
 	border-bottom-color: var(--background);
+}
+
+.info-popup.bottom::before {
+	left: calc(50% - 12px);
+	top: 100%;
+	border-top-color: var(--border-light);
+}
+.info-popup.bottom::after {
+	left: calc(50% - 6px);
+	top: 100%;
+	border-top-color: var(--background);
 }
 
 
