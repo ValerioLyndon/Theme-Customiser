@@ -38,9 +38,9 @@ function changeCategory(catId, catBtn) {
 	}
 	
 	// Change basic attributes
-	catBtn.classList.add('on');
 	document.body.setAttribute('data-query',`{"status":${catId}}`);
 	document.querySelector('.status-button.on').classList.remove('on');
+	catBtn.classList.add('on');
 	document.getElementsByClassName('list-unit')[0].className = `list-unit ${catBtn.className.substring(14)}`;
 	document.querySelector('.list-status-title .text').textContent = categoryNames[catId].toUpperCase();
 
