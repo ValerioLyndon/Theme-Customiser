@@ -391,8 +391,10 @@ input:checked + .toggle.is-forced::after {
 .sidebar__decorative {
 	position: sticky;
 	top: 0;
+	z-index: 1;
 	height: 20px;
 	margin-bottom: -5px;
+	background: linear-gradient(to bottom, var(--background), transparent);
 	pointer-events: none;
 }
 
