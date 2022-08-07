@@ -238,16 +238,22 @@ function returnCss(resource) {
 
 // If funcConfig['forceValue'] is set then the mod will be updated to match this value. If not, the value will be read from the HTML
 // Accepted values for funcConfig:
-// 'defaultValue' // Default none
 // 'parentModId' // Default none
-// 'skipUpdateCss' // Default off/false
 // 'forceValue' // Default none
 function updateOption(optId, funcConfig = {}) {
 	try {
 		// set values and default value
 		let fullId = funcConfig['parentModId'] ? `mod:${funcConfig['parentModId']}:${optId}` : `opt:${optId}`,
 			input = document.getElementById(fullId),
-			val = funcConfig['forceValue'];
+			val = funcConfig['forceValue'],
+			optData = theme['options'][optId];
+
+		let defaultValue = optData['default'];
+		if(defaultValue === undefined && optData['type'] === 'toggle') {
+			defaultValue = false;
+		} else if(defaultValue === undefined) {
+			defaultValue = '';
+		}
 
 		if(val === undefined) {
 			if(input.type === 'checkbox') {
@@ -258,7 +264,7 @@ function updateOption(optId, funcConfig = {}) {
 		}
 
 		// Add to userSettings unless matches default value
-		if(val === funcConfig['defaultValue']) {
+		if(val === defaultValue) {
 			if(funcConfig['parentModId']) {
 				delete userSettings['mods'][funcConfig['parentModId']][optId];
 			} else {
@@ -282,9 +288,6 @@ function updateOption(optId, funcConfig = {}) {
 			}
 		}
 
-		if(funcConfig['skipUpdateCss'] !== true) {
-			updateCss();
-		}
 		return true;
 	}
 	catch(e) {
@@ -295,7 +298,6 @@ function updateOption(optId, funcConfig = {}) {
 
 // If funcConfig['forceValue'] is set then the mod will be updated to match this value. If not, the value will be read from the HTML
 // Accepted values for funcConfig:
-// 'skipUpdateCss' // Default off/false
 // 'skipOptions' // Default off/false
 // 'forceValue' // Default none
 function updateMod(id, funcConfig = {}) {
@@ -391,19 +393,11 @@ function updateMod(id, funcConfig = {}) {
 			// Update options if it has any before calling CSS
 			if('options' in mod && !funcConfig['skipOptions']) {
 				for(let [optId, opt] of Object.entries(mod['options'])) {
-					if(opt['default'] === undefined && opt['type'] === 'toggle') {
-						opt['default'] = false;
-					} else if(opt['default'] === undefined) {
-						opt['default'] = '';
-					}
-					updateOption(optId, {'defaultValue': opt['default'], 'parentModId': id, 'skipUpdateCss': true});
+					updateOption(optId, {'parentModId': id});
 				}
 			}
 		}
 
-		if(funcConfig['skipUpdateCss'] !== true) {
-			updateCss();
-		}
 		return true;
 	}
 	catch(e) {
@@ -429,20 +423,20 @@ function applySettings(settings = false) {
 	// update HTML to match new options
 	let errors = [];
 	for(let [optId, val] of Object.entries(userSettings['options'])) {
-		if(!updateOption(optId, {'skipUpdateCss': true, 'forceValue': val})) {
+		if(!updateOption(optId, {'forceValue': val})) {
 			delete userSettings['options'][optId];
 			errors.push(`opt:<b>${optId}</b>`);
 		}
 	}
 	for(let [modId, modOpts] of Object.entries(userSettings['mods'])) {
-		if(!updateMod(modId, {'skipUpdateCss': true, 'forceValue': true, 'skipOptions': true})) {
+		if(!updateMod(modId, {'forceValue': true, 'skipOptions': true})) {
 			delete userSettings['mods'][modId];
 			errors.push(`mod:<b>${modId}</b>`);
 			continue;
 		}
 		
 		for(let [optId, optVal] of Object.entries(modOpts)) {
-			if(!updateOption(optId, {'parentModId': modId, 'skipUpdateCss': true, 'forceValue': optVal})) {
+			if(!updateOption(optId, {'parentModId': modId, 'forceValue': optVal})) {
 				delete userSettings['mods'][modId][optId];
 				errors.push(`opt:<b>${optId}</b><i> of mod:${modId}</i>`);
 			}
@@ -783,12 +777,6 @@ function renderHtml() {
 			notice = document.createElement('p'),
 			link = document.createElement('a');
 
-		if(opt['default'] === undefined && opt['type'] === 'toggle') {
-			opt['default'] = false;
-		} else if(opt['default'] === undefined) {
-			opt['default'] = '';
-		}
-
 		div.className = 'entry has-help';
 		head.className = 'entry__head';
 		headLeft.textContent = opt['name'] ? opt['name'] : 'Untitled';
@@ -872,7 +860,8 @@ function renderHtml() {
 			}
 
 			input.addEventListener('input', () => {
-				updateOption(optId, {'defaultValue': opt['default'], 'parentModId': parentModId});
+				updateOption(optId, {'parentModId': parentModId});
+				updateCss();
 			});
 		}
 
@@ -889,7 +878,10 @@ function renderHtml() {
 			input.placeholder = 'Your text here.';
 			div.appendChild(input);
 
-			input.addEventListener('input', () => { updateOption(optId, {'defaultValue': opt['default'], 'parentModId': parentModId}); });
+			input.addEventListener('input', () => {
+				updateOption(optId, {'parentModId': parentModId});
+				updateCss();
+			});
 		}
 
 		else if(baseType === 'toggle') {
@@ -901,7 +893,7 @@ function renderHtml() {
 			toggle.type = 'checkbox';
 			toggle.id = fullId;
 			toggle.className = 'o-hidden';
-			if('default' in opt && opt['default'] == true) {
+			if(opt['default'] == true) {
 				toggle.checked = true;
 			}
 			headRight.innerHTML = `
@@ -909,7 +901,10 @@ function renderHtml() {
 			`;
 			headRight.prepend(toggle);
 
-			toggle.addEventListener('input', () => { updateOption(optId, {'defaultValue': opt['default'], 'parentModId': parentModId}); });
+			toggle.addEventListener('input', () => {
+				updateOption(optId, {'parentModId': parentModId});
+				updateCss();
+			});
 		}
 
 		else if(baseType === 'select') {
@@ -933,7 +928,10 @@ function renderHtml() {
 			}
 			div.append(select);
 
-			select.addEventListener('input', () => { updateOption(optId, {'defaultValue': opt['default'], 'parentModId': parentModId}); });
+			select.addEventListener('input', () => {
+				updateOption(optId, {'parentModId': parentModId});
+				updateCss();
+			});
 		}
 
 		notice.id = `${fullId}-notice`;
@@ -1031,7 +1029,10 @@ function renderHtml() {
 			modsEle.appendChild(div);
 
 			if('css' in mod) {
-				document.getElementById(`mod:${modId}`).addEventListener('change', () => { updateMod(modId); });
+				document.getElementById(`mod:${modId}`).addEventListener('change', () => {
+					updateMod(modId);
+					updateCss();
+				});
 			}
 
 			// Add mod tag to list of tags
