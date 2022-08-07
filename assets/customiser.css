@@ -371,7 +371,6 @@ input:checked + .toggle.is-forced::after {
 }
 
 .sidebar__inner {
-	min-height: 100%;
 	border-right: inherit;
 	flex-grow: 1;
 }
