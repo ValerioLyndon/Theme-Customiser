@@ -381,10 +381,9 @@ async function updateCss() {
 		if(toFind.startsWith('RegExp')) {
 			toFind = new RegExp(toFind.substr(7), 'g');
 		}
-		
 		return str.replaceAll(toFind, toInsert);
 	}
-	
+
 	async function applyOptionToCss(css, optData, insert) {
 		let type = optData['type'],
 			qualifier = optData['type'].split('/')[1];
@@ -400,13 +399,13 @@ async function updateCss() {
 				insert = `url(${insert})`;
 			}
 		}
-		
+
 		if(type === 'toggle') {
 			for(let set of optData['replacements']) {
 				// Choose the correct replacement set based on whether the toggle is on or off
 				let toFind = set[0],
 					toInsert = (insert === true) ? set[2] : set[1];
-				
+
 				toInsert = await returnCss(toInsert);
 
 				css = findAndReplace(css, toFind, toInsert);
@@ -429,7 +428,7 @@ async function updateCss() {
 					toInsert = set[1];
 
 				toInsert = await returnCss(toInsert);
-				toInsert = toInsert.replaceAll('{{{insert}}}', toInsert);
+				toInsert = toInsert.replaceAll('{{{insert}}}', insert);
 
 				css = findAndReplace(css, toFind, toInsert);
 			}
