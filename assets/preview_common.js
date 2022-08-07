@@ -39,6 +39,9 @@ window.addEventListener(
 			else if(type === 'cover') {
 				toggleCover(content);
 			}
+			else if(type === 'category') {
+				changeCategory(content);
+			}
 			else {
 				console.log('[receiver.js] Malformed request received. No action taken.')
 			}

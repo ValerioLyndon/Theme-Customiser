@@ -1043,24 +1043,32 @@ function renderHtml() {
 
 	// Set preview options
 
-	if(theme['type'] === 'classic') {
-		document.getElementById('js-preview-options__cover').remove();
-	}
-	else if('preview' in theme && 'cover' in theme['preview']) {
-		let check = document.getElementById('js-preview__cover'),
-			toggle = check.nextElementSibling,
-			val = true;
-
-		if(!theme['preview']['cover']) {
-			val = false;
-			toggle.classList.add('is-disabled', 'has-info');
-		} else {
-			toggle.classList.add('is-forced', 'has-info');
+	if('preview' in theme) {
+		// Cover
+		if(theme['type'] === 'classic') {
+			document.getElementById('js-preview-options__cover').remove();
 		}
-		check.checked = val;
-		check.disabled = true;
-		toggle.removeAttribute('onclick');
-		postToIframe(['cover', val]);
+		else if('cover' in theme['preview']) {
+			let check = document.getElementById('js-preview__cover'),
+				toggle = check.nextElementSibling,
+				val = true;
+
+			if(!theme['preview']['cover']) {
+				val = false;
+				toggle.classList.add('is-disabled', 'has-info');
+			} else {
+				toggle.classList.add('is-forced', 'has-info');
+			}
+			check.checked = val;
+			check.disabled = true;
+			toggle.removeAttribute('onclick');
+			postToIframe(['cover', val]);
+		}
+
+		// Category
+		if('category' in theme['preview']) {
+			postToIframe(['category', theme['preview']['category']])
+		}
 	}
 
 	// Set theme columns and push to iframe

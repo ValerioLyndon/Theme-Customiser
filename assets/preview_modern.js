@@ -28,21 +28,26 @@ var categoryCodes = {
 	6: 'planned'
 }
 
-function changeCategory() {
-	let catId = this.href.substring(button.href.length - 1),
-		catClass = this.className.substring(14),
-		catName = categoryNames[catId],
-		listItems = document.getElementsByClassName('list-item');
+function changeCategory(catId, catBtn) {
+	if(!catBtn) {
+		for(let button of categoryButtons) {
+			if(button.href.includes(`status=${catId}`)) {
+				catBtn = button;
+			}
+		}
+	}
 	
 	// Change basic attributes
+	catBtn.classList.add('on');
 	document.body.setAttribute('data-query',`{"status":${catId}}`);
 	document.querySelector('.status-button.on').classList.remove('on');
-	this.classList.add('on');
-	document.getElementsByClassName('list-unit')[0].className = `list-unit ${catClass}`;
-	document.querySelector('.list-status-title .text').textContent = catName.toUpperCase();
+	document.getElementsByClassName('list-unit')[0].className = `list-unit ${catBtn.className.substring(14)}`;
+	document.querySelector('.list-status-title .text').textContent = categoryNames[catId].toUpperCase();
 
 	// Hide relevant list items
-	for(item of listItems) {
+	let listItems = document.getElementsByClassName('list-item');
+
+	for(let item of listItems) {
 		if(catId === '7' || item.getAttribute('tc-category') === categoryCodes[catId]) {
 			item.style = '';
 		} else {
@@ -50,8 +55,11 @@ function changeCategory() {
 		}
 	}
 }
-for(var button of categoryButtons) {
-	button.addEventListener('click', changeCategory.bind(button));
+for(let button of categoryButtons) {
+	button.addEventListener('click', () => {
+		let catId = button.href.substring(button.href.length - 1);
+		changeCategory(catId, button);
+	});
 }
 
 // Fixed header
