@@ -918,7 +918,7 @@ function renderHtml() {
 			let select = document.createElement('select');
 
 			// would be nice to have a simpler/nicer to look at switch for small lists but would require using radio buttons.
-			select.className = 'entry__select';
+			select.className = 'select entry__select';
 			select.id = fullId;
 			for(let [selectKey, selectData] of Object.entries(opt['selections'])) {
 				let selectOption = document.createElement('option');
