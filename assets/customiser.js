@@ -1064,6 +1064,7 @@ function pageSetup() {
 	if(megaUrls.length > 0) {
 		backUrl += `&m=${megaUrls.join('&m=')}`;
 	}
+	backUrl = backUrl.replace('?&', '?');
 	back.href = backUrl;
 
 	// Sponsor Link

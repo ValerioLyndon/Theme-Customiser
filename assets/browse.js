@@ -279,6 +279,11 @@ fetchAllFiles(megaUrls)
 
 	fetchAllFiles(allCollectionUrls)
 	.then((files) => {
+		loader.text('Rendering page...');
+
+		let processing = [];
+
+		// Process all files
 		for(let i = 0; i < files.length; i++) {
 			let tempData = {};
 			// Attempt to parse provided data.
@@ -290,18 +295,17 @@ fetchAllFiles(megaUrls)
 				continue;
 			}
 
-			loader.text('Rendering page...');
-
-			processJson(tempData, allCollectionUrls[i], 'collection')
-			.then((processedJson) => {
-				renderCards(processedJson['themes']);
-				if(i === files.length - 1) {
-					afterRenderingCards();
-				}
-			})
+			processing.push(processJson(tempData, allCollectionUrls[i], 'collection'));
 		}
 
-		function afterRenderingCards() {
+		// Render & Sort Cards
+		Promise.allSettled(processing)
+		.then((allJson) => {
+			for(let response of allJson) {
+				let json = response['value'];
+				renderCards(json['themes']);
+			}
+
 			loader.text('Sorting items...');
 
 			if(Object.keys(tags).length > 0 && itemCount > 5) {
@@ -338,6 +342,6 @@ fetchAllFiles(megaUrls)
 			}
 
 			loader.loaded();
-		}
+		});
 	});
 });
