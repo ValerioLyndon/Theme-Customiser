@@ -463,6 +463,7 @@ function applySettings(settings = false) {
 	updateCss();
 }
 
+// Processes all options & mods and applies the CSS to output & iframe
 async function updateCss() {
 	let storageString = {'date': Date.now(), 'settings': userSettings};
 	localStorage.setItem(`theme:${userSettings['data']}`, JSON.stringify(storageString));
