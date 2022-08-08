@@ -22,7 +22,6 @@ window.addEventListener(
 	"message",
 	function (event) {
 		if(event.origin === window.location.origin) {
-			console.log('[receiver.js] Message received.');
 			var push = event.data || event.message,
 				type = push[0],
 				content = push[1];
@@ -43,7 +42,7 @@ window.addEventListener(
 				changeCategory(content);
 			}
 			else {
-				console.log('[receiver.js] Malformed request received. No action taken.')
+				console.log('[ERROR] Malformed request sent to iframe. No action taken.')
 			}
 		}
 	},

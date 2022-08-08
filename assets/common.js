@@ -125,11 +125,11 @@ function fetchFile(path, cacheResult = true) {
 		let cache = sessionStorage.getItem(path);
 
 		if(cacheResult && cache) {
-			console.log(`[fetchFile] Retrieving cached result for ${path}`);
+			console.log(`[info] Retrieving cached result for ${path}`);
 			resolve(cache);
 		}
 		else {
-			console.log(`[fetchFile] Fetching ${path}`);
+			console.log(`[info] Fetching ${path}`);
 			var request = new XMLHttpRequest();
 			request.open("GET", path, true);
 			request.send(null);
@@ -142,13 +142,13 @@ function fetchFile(path, cacheResult = true) {
 						}
 						resolve(request.responseText);
 					} else {
-						console.log(`[FetchFile] Failed while fetching "${path}". Code: request.status.${request.status}`);
+						console.log(`[ERROR] Failed while fetching "${path}". Code: request.status.${request.status}`);
 						reject([`Encountered a problem while loading a resource.`, `request.status.${request.status}`]);
 					}
 				}
 			}
 			request.onerror = function(e) {
-				console.log(`[FetchFile] Failed while fetching "${path}". Code: request.error`);
+				console.log(`[ERROR] Failed while fetching "${path}". Code: request.error`);
 				reject(['Encountered a problem while loading a resource.', 'request.error']);
 			}
 		}
@@ -191,7 +191,7 @@ function importPreviousSettings(opts = undefined) {
 			try {
 				var previousSettings = JSON.parse(previous);
 			} catch(e) {
-				console.log(`[importPreviousSettings] Error during JSON.parse: ${e}`);
+				console.log(`[ERROR] Failed to parse imported settings JSON: ${e}`);
 				messenger.error('Import failed, could not interpret your options. Are you sure you copied and pasted all the settings?', 'json.parse');
 				return false;
 			}
