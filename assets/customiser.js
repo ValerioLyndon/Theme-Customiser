@@ -247,8 +247,8 @@ function returnCss(resource) {
 function updateOption(optId, funcConfig = {}) {
 	try {
 		// set values and default value
-		let fullId = funcConfig['parentModId'] ? `mod:${funcConfig['parentModId']}:${optId}` : `opt:${optId}`,
-			input = document.getElementById(fullId),
+		let htmlId = funcConfig['parentModId'] ? `mod:${funcConfig['parentModId']}:${optId}` : `opt:${optId}`,
+			input = document.getElementById(htmlId),
 			val = funcConfig['forceValue'];
 
 		if(funcConfig['parentModId'] !== undefined) {
