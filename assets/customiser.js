@@ -787,8 +787,10 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 			qualifier = split[1],
 			subQualifier = split[2];
 
-		if(type === 'select' && !('selections' in entryData)) {
-			return 'Option of type "select" must contain a "selections" key.';
+		if(type === 'select') {
+			if(!('selections' in entryData)) {
+				return 'Option of type "select" must contain a "selections" key.';
+			}
 		}
 		else if(!('replacements' in entryData)) {
 			return 'Option must contain a "replacements" key.';
