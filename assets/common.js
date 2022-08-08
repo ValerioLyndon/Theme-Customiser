@@ -125,11 +125,11 @@ function fetchFile(path, cacheResult = true) {
 		let cache = sessionStorage.getItem(path);
 
 		if(cacheResult && cache) {
-			console.log(`[fetchFile] Retrieving cached result for ${path}`);
+			console.log(`[info] Retrieving cached result for ${path}`);
 			resolve(cache);
 		}
 		else {
-			console.log(`[fetchFile] Fetching ${path}`);
+			console.log(`[info] Fetching ${path}`);
 			var request = new XMLHttpRequest();
 			request.open("GET", path, true);
 			request.send(null);
@@ -142,13 +142,13 @@ function fetchFile(path, cacheResult = true) {
 						}
 						resolve(request.responseText);
 					} else {
-						console.log(`[FetchFile] Failed while fetching "${path}". Code: request.status.${request.status}`);
+						console.log(`[ERROR] Failed while fetching "${path}". Code: request.status.${request.status}`);
 						reject([`Encountered a problem while loading a resource.`, `request.status.${request.status}`]);
 					}
 				}
 			}
 			request.onerror = function(e) {
-				console.log(`[FetchFile] Failed while fetching "${path}". Code: request.error`);
+				console.log(`[ERROR] Failed while fetching "${path}". Code: request.error`);
 				reject(['Encountered a problem while loading a resource.', 'request.error']);
 			}
 		}
@@ -191,7 +191,7 @@ function importPreviousSettings(opts = undefined) {
 			try {
 				var previousSettings = JSON.parse(previous);
 			} catch(e) {
-				console.log(`[importPreviousSettings] Error during JSON.parse: ${e}`);
+				console.log(`[ERROR] Failed to parse imported settings JSON: ${e}`);
 				messenger.error('Import failed, could not interpret your options. Are you sure you copied and pasted all the settings?', 'json.parse');
 				return false;
 			}
@@ -368,58 +368,52 @@ async function processJson(json, url, toReturn) {
 		ver = json['json_version'];
 	}
 
-	// Process as normal if version is good
-	if(ver === jsonVersion) {
-		// Process as collection or fetch correct theme from collection
-		if(toReturn === 'collection' && 'themes' in json
-		|| toReturn === 'theme' && 'data' in json) {
-			// Convert legacy dictionary to array
-			if('themes' in json && !Array.isArray(json['themes'])) {
-				let arrayThemes = [];
-				for(let t of Object.values(json['themes'])) {
-					arrayThemes.push(t);
-				}
-				json['themes'] = arrayThemes;
-			}
-			return json;
-		}
-		else if('themes' in json && toReturn in json['themes']) {
-			let themeUrl = json['themes'][toReturn]['url'];
-			if(themeUrl) {
-				return fetchFile(themeUrl)
-				.then((result) => {
-					let themeJson = '';
-					try {
-						themeJson = JSON.parse(result);
-					} catch {
-						themeJson = false;
-					}
-					return themeJson;
-				})
-				.catch(() => {
-					return false;
-				});
-			}
-		}
-		else if('data' in json && toReturn !== 'collection') {
-			return json;
-		}
-		else {
-			return 'The linked theme lacks a "data" or a "themes" entry.';
-		}
-	}
-
-	// Else, continue to process.
-	else if(ver > jsonVersion) {
+	// Check for legacy JSON
+	if(ver > jsonVersion) {
 		messenger.warn('Detected JSON version ahead of current release. Processing as normal.');
-		return json;
 	}
-
-	else {
+	else if(ver < jsonVersion) {
 		messenger.warn('The loaded JSON has been processed as legacy JSON. This can cause slowdowns or errors. If you are the JSON author, please see the GitHub page for assistance updating.');
 		if(ver === 0.1) {
-			return updateToBeta2(json, url, toReturn);
+			json = updateToBeta2(json, url, toReturn);
 		}
+	}
+
+	// Process as normal if/when format is good
+	
+	// Process as collection or fetch correct theme from collection
+	if(toReturn === 'collection' && 'themes' in json
+	|| toReturn !== 'collection' && 'data' in json) {
+		// Convert legacy dictionary to array
+		if('themes' in json && !Array.isArray(json['themes'])) {
+			let arrayThemes = [];
+			for(let t of Object.values(json['themes'])) {
+				arrayThemes.push(t);
+			}
+			json['themes'] = arrayThemes;
+		}
+		return json;
+	}
+	else if('themes' in json && toReturn in json['themes']) {
+		let themeUrl = json['themes'][toReturn]['url'];
+		if(themeUrl) {
+			return fetchFile(themeUrl)
+			.then((result) => {
+				let themeJson = '';
+				try {
+					themeJson = JSON.parse(result);
+				} catch {
+					themeJson = false;
+				}
+				return themeJson;
+			})
+			.catch(() => {
+				return false;
+			});
+		}
+	}
+	else {
+		return 'The linked theme lacks a "data" or a "themes" entry.';
 	}
 }
 
@@ -468,5 +462,4 @@ function updateToBeta2(json, url, toReturn) {
 			return false;
 		}
 	}
-
 }

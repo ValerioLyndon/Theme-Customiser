@@ -336,7 +336,6 @@ function toggleStats() {
 
 		setTimeout(() => {
 			stats.style = 'display: none;';
-			console.log('done')
 		}, 100);
 	}
 }

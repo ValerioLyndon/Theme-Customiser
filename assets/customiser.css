@@ -544,13 +544,14 @@ input:checked + .toggle.is-forced::after {
 
 .entry__colour {
 	position: relative;
+	right: 6px;
 	float: right;
+	top: 6px;
 	width: 1.3em;
 	height: 1.3em;
 	background: var(--border-light);
-	margin-top: -32px;
-	margin-right: 6px;
 	border-radius: 50%;
+	margin-bottom: -1.3em;
 }
 
 .entry__external-link {

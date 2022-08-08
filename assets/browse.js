@@ -101,7 +101,7 @@ function renderCards(cardData) {
 			themeAuthor = theme['author'] ? theme['author'] : 'Untitled',
 			thisId = itemCount;
 		if(!('url' in theme)) {
-			console.log(`[renderCards] Skipping theme ${themeName} due to missing "url" key.`);
+			console.log(`[ERROR] Skipping theme ${themeName} due to missing "url" key.`);
 			continue;
 		}
 
@@ -257,18 +257,18 @@ fetchAllFiles(megaUrls)
 		try {
 			tempData = JSON.parse(files[i]['value']);
 		} catch(e) {
-			console.log(`[fetchData] Error during JSON.parse: ${e}`);
+			console.log(`[ERROR] Failed to parse mega collection JSON: ${e}`);
 			failures++;
 			continue;
 		}
 
 		if(!('collections' in tempData)) {
-			console.log('[fetchData] Mega collection does not use correct format.');
+			console.log('[ERROR] Mega collection does not use correct format.');
 			continue;
 		}
 
 		if(tempData['collections'].length === 0) {
-			console.log('[fetchData] Mega collection has no URLs!');
+			console.log('[warn] Mega collection has no URLs!');
 			continue;
 		}
 
@@ -285,7 +285,7 @@ fetchAllFiles(megaUrls)
 			try {
 				tempData = JSON.parse(files[i]['value']);
 			} catch(e) {
-				console.log(`[fetchData] Error during JSON.parse: ${e}`);
+				console.log(`[ERROR] Failed to parse collection JSON: ${e}`);
 				failures++;
 				continue;
 			}

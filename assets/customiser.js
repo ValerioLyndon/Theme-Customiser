@@ -106,7 +106,7 @@ class InfoPopup {
 		else if(alignment === 'bottom') {
 			x = x + (w / 2) - (this.width / 2);
 			y = y - 100;
-			console.log('[InfoPopup] top alignment ain\'t supported yet');
+			console.log('[warn] InfoPopup top alignment is not supported yet');
 			this.element.classList.add('bottom');
 			this.element.classList.remove('top', 'left', 'right');
 		}
@@ -139,6 +139,7 @@ function infoOff() {
 	info.hide();
 }
 
+// Function for the slider button to hide the sidebar
 function splitSlide() {
 	let slider = document.getElementById('js-toggle-drawer'),
 		sidebar = document.getElementById('js-sidebar');
@@ -147,6 +148,7 @@ function splitSlide() {
 	sidebar.classList.toggle('is-aside');
 }
 
+// Creates and returns an HTML DOM element containing processed BB Code 
 function createBB(text) {
 	// Sanitise input from HTML characters
 
@@ -240,16 +242,22 @@ function returnCss(resource) {
 
 // If funcConfig['forceValue'] is set then the mod will be updated to match this value. If not, the value will be read from the HTML
 // Accepted values for funcConfig:
-// 'defaultValue' // Default none
 // 'parentModId' // Default none
-// 'skipUpdateCss' // Default off/false
 // 'forceValue' // Default none
 function updateOption(optId, funcConfig = {}) {
 	try {
 		// set values and default value
-		let fullId = funcConfig['parentModId'] ? `mod:${funcConfig['parentModId']}:${optId}` : `opt:${optId}`,
-			input = document.getElementById(fullId),
+		let htmlId = funcConfig['parentModId'] ? `mod:${funcConfig['parentModId']}:${optId}` : `opt:${optId}`,
+			input = document.getElementById(htmlId),
 			val = funcConfig['forceValue'];
+
+		if(funcConfig['parentModId'] !== undefined) {
+			optData = theme['mods'][funcConfig['parentModId']]['options'][optId];
+		} else {
+			optData = theme['options'][optId];
+		}
+
+		let defaultValue = optData['default'];
 
 		if(val === undefined) {
 			if(input.type === 'checkbox') {
@@ -260,7 +268,7 @@ function updateOption(optId, funcConfig = {}) {
 		}
 
 		// Add to userSettings unless matches default value
-		if(val === funcConfig['defaultValue']) {
+		if(val === defaultValue) {
 			if(funcConfig['parentModId']) {
 				delete userSettings['mods'][funcConfig['parentModId']][optId];
 			} else {
@@ -284,27 +292,23 @@ function updateOption(optId, funcConfig = {}) {
 			}
 		}
 
-		if(funcConfig['skipUpdateCss'] !== true) {
-			updateCss();
-		}
 		return true;
 	}
 	catch(e) {
-		console.log(`[updateMod] Unexpected error: ${e}`);
+		console.log(`[ERROR] Unexpected error on updateOption "${optId}": ${e}`);
 		return false;
 	}
 }
 
 // If funcConfig['forceValue'] is set then the mod will be updated to match this value. If not, the value will be read from the HTML
 // Accepted values for funcConfig:
-// 'skipUpdateCss' // Default off/false
 // 'skipOptions' // Default off/false
 // 'forceValue' // Default none
-function updateMod(id, funcConfig = {}) {
+function updateMod(modId, funcConfig = {}) {
 	try {
-		let toggle = document.getElementById(`mod:${id}`),
+		let toggle = document.getElementById(`mod:${modId}`),
 			val = toggle.checked,
-			mod = theme['mods'][id];
+			mod = theme['mods'][modId];
 
 		if(funcConfig['forceValue'] !== undefined) {
 			val = funcConfig['forceValue'];
@@ -339,7 +343,7 @@ function updateMod(id, funcConfig = {}) {
 					}
 				}
 				else {
-					messenger.warn(`Failed to set "${requirement}" requirement of mod "${id}". This usually indicates a problem with the theme JSON. Does the mod "${requirement}" exist?`);
+					messenger.warn(`Failed to set "${requirement}" requirement of mod "${modId}". This usually indicates a problem with the theme JSON. Does the mod "${requirement}" exist?`);
 				}
 			}
 		}
@@ -366,21 +370,21 @@ function updateMod(id, funcConfig = {}) {
 					}
 				}
 				else {
-					messenger.warn(`Failed to set the "${conflict}" conflict of mod "${id}". This usually indicates a problem with the theme JSON. Does the mod "${conflict}" exist?`);
+					messenger.warn(`Failed to set the "${conflict}" conflict of mod "${modId}". This usually indicates a problem with the theme JSON. Does the mod "${conflict}" exist?`);
 				}
 			}
 		}
 
 		// Add some CSS style rules
 		if(val === true) {
-			document.getElementById(`mod-parent:${id}`).classList.add('is-enabled');
+			document.getElementById(`mod-parent:${modId}`).classList.add('is-enabled');
 		} else {
-			document.getElementById(`mod-parent:${id}`).classList.remove('is-enabled');
+			document.getElementById(`mod-parent:${modId}`).classList.remove('is-enabled');
 		}
 
 		// Add to userSettings unless matches default value (i.e disabled)
 		if(val === false) {
-			delete userSettings['mods'][id];
+			delete userSettings['mods'][modId];
 		}
 		else {
 			// Update HTML if necessary
@@ -388,32 +392,26 @@ function updateMod(id, funcConfig = {}) {
 				toggle.checked = val;
 			}
 
-			userSettings['mods'][id] = {};
+			userSettings['mods'][modId] = {};
 
 			// Update options if it has any before calling CSS
 			if('options' in mod && !funcConfig['skipOptions']) {
 				for(let [optId, opt] of Object.entries(mod['options'])) {
-					if(opt['default'] === undefined && opt['type'] === 'toggle') {
-						opt['default'] = false;
-					} else if(opt['default'] === undefined) {
-						opt['default'] = '';
-					}
-					updateOption(optId, {'defaultValue': opt['default'], 'parentModId': id, 'skipUpdateCss': true});
+					updateOption(optId, {'parentModId': modId});
 				}
 			}
 		}
 
-		if(funcConfig['skipUpdateCss'] !== true) {
-			updateCss();
-		}
 		return true;
 	}
 	catch(e) {
-		console.log(`[updateMod] Unexpected error: ${e}`);
+		console.log(`[ERROR] Unexpected error on updateMod "${modId}": ${e}`);
 		return false;
 	}
 }
 
+// Used to force a change in settings.
+// Confirms all settings are correct, applies them to the HTML, then calls updateCss()
 function applySettings(settings = false) {
 	if(settings) {
 		if(settings['options']) {
@@ -431,20 +429,20 @@ function applySettings(settings = false) {
 	// update HTML to match new options
 	let errors = [];
 	for(let [optId, val] of Object.entries(userSettings['options'])) {
-		if(!updateOption(optId, {'skipUpdateCss': true, 'forceValue': val})) {
+		if(!updateOption(optId, {'forceValue': val})) {
 			delete userSettings['options'][optId];
 			errors.push(`opt:<b>${optId}</b>`);
 		}
 	}
 	for(let [modId, modOpts] of Object.entries(userSettings['mods'])) {
-		if(!updateMod(modId, {'skipUpdateCss': true, 'forceValue': true, 'skipOptions': true})) {
+		if(!updateMod(modId, {'forceValue': true, 'skipOptions': true})) {
 			delete userSettings['mods'][modId];
 			errors.push(`mod:<b>${modId}</b>`);
 			continue;
 		}
 		
 		for(let [optId, optVal] of Object.entries(modOpts)) {
-			if(!updateOption(optId, {'parentModId': modId, 'skipUpdateCss': true, 'forceValue': optVal})) {
+			if(!updateOption(optId, {'parentModId': modId, 'forceValue': optVal})) {
 				delete userSettings['mods'][modId][optId];
 				errors.push(`opt:<b>${optId}</b><i> of mod:${modId}</i>`);
 			}
@@ -453,85 +451,20 @@ function applySettings(settings = false) {
 
 	// Report errors
 	if(errors.length > 0) {
-		console.log(`Could not import settings for some mods or options: ${errors.join(', ').replaceAll(/<.*?>/g,'')}. Did the JSON change since this theme was customised?`);
+		console.log(`[ERROR] Could not import settings for some mods or options: ${errors.join(', ').replaceAll(/<.*?>/g,'')}. Did the JSON change since this theme was customised?`);
 		messenger.error(`Could not import settings for some mods or options. The skipped items were:<br />• ${errors.join('<br />• ')}.`);
 	}
 
 	updateCss();
 }
 
+// Processes all options & mods and applies the CSS to output & iframe
 async function updateCss() {
 	let storageString = {'date': Date.now(), 'settings': userSettings};
 	localStorage.setItem(`theme:${userSettings['data']}`, JSON.stringify(storageString));
 
 	let newCss = baseCss;
-		
-	function findAndReplace(str, toFind, toInsert) {
-		if(toFind.startsWith('RegExp')) {
-			toFind = new RegExp(toFind.substr(7), 'g');
-		}
-		return str.replaceAll(toFind, toInsert);
-	}
-
-	async function applyOptionToCss(css, optData, insert) {
-		let type = optData['type'],
-			qualifier = optData['type'].split('/')[1];
-
-		if(qualifier === 'content') {
-			// formats text to be valid for CSS content statements
-			insert = '"' + insert.replaceAll('\\','\\\\').replaceAll('"', '\\"').replaceAll('\n', '\\a ') + '"';
-		}
-		else if(qualifier === 'image_url') {
-			if(insert === '' || insert === 'none') {
-				insert = 'none';
-			} else {
-				insert = `url(${insert})`;
-			}
-		}
-
-		if(type === 'toggle') {
-			for(let set of optData['replacements']) {
-				// Choose the correct replacement set based on whether the toggle is on or off
-				let toFind = set[0],
-					toInsert = (insert === true) ? set[2] : set[1];
-
-				toInsert = await returnCss(toInsert);
-
-				css = findAndReplace(css, toFind, toInsert);
-			}
-		}
-		else if(type === 'select') {
-			let replacements = optData['selections'][insert]['replacements'];
-			for(let set of replacements) {
-				let toFind = set[0],
-					toInsert = set[1];
-				
-				toInsert = await returnCss(toInsert);
-
-				css = findAndReplace(css, toFind, toInsert);
-			}
-		}
-		else {
-			for(let set of optData['replacements']) {
-				let toFind = set[0],
-					toInsert = set[1];
-
-				toInsert = await returnCss(toInsert);
-				toInsert = toInsert.replaceAll('{{{insert}}}', insert);
-
-				css = findAndReplace(css, toFind, toInsert);
-			}
-		}
-
-		return css;
-	}
-
-	// Options
-	for(let [id, val] of Object.entries(userSettings['options'])) {
-		newCss = await applyOptionToCss(newCss, theme['options'][id], val);
-	}
-
-	// Mods
+	
 	function extendCss(extension, location = 'bottom') {
 		if(location === 'top') {
 			newCss = extension + '\n\n' + newCss;
@@ -545,23 +478,76 @@ async function updateCss() {
 			newCss = newCss + '\n\n' + extension;
 		}
 	}
-	
+
+	async function applyOptionToCss(css, optData, insert) {
+		let type = optData['type'],
+			qualifier = optData['type'].split('/')[1];
+
+		// Process user input as called for by the qualifier
+		if(qualifier === 'content') {
+			// formats text to be valid for CSS content statements
+			insert = '"' + insert.replaceAll('\\','\\\\').replaceAll('"', '\\"').replaceAll('\n', '\\a ') + '"';
+		}
+		else if(qualifier === 'image_url') {
+			if(insert === '' || insert === 'none') {
+				insert = 'none';
+			} else {
+				insert = `url(${insert})`;
+			}
+		}
+
+		if(type === 'select') {
+			var replacements = optData['selections'][insert]['replacements'];
+		} else {
+			var replacements = optData['replacements'];
+		}
+
+		for(let set of replacements) {
+			// Choose the correct replacement set based on whether the toggle is on or off
+			let find = set[0],
+				replace = (insert === true) ? set[2] : set[1];
+
+			// Fetch external CSS if necessary
+			replace = await returnCss(replace);
+
+			// Find {{{insert}}} texts and replace them with user input
+			if(type !== 'select' && type !== 'toggle') {
+				replace = replace.replaceAll('{{{insert}}}', insert);
+			}
+
+			// Use RegExp if called for
+			if(find.startsWith('RegExp')) {
+				find = new RegExp(find.substr(7), 'g');
+			}
+
+			css = css.replaceAll(find, replace);
+		}
+
+		return css;
+	}
+
+	// Options
+	for(let [id, val] of Object.entries(userSettings['options'])) {
+		newCss = await applyOptionToCss(newCss, theme['options'][id], val);
+	}
+
+	// Mods
 	if('mods' in theme && Object.keys(userSettings['mods']).length > 0) {
-		for(let id of Object.keys(userSettings['mods'])) {
-			let modData = theme['mods'][id];
-			if(!('css' in modData) || typeof modData['css'] === 'string') {
-				modData['css'] = {'bottom': ''}
+		for(let modId of Object.keys(userSettings['mods'])) {
+			let modData = theme['mods'][modId];
+			if(!('css' in modData)) {
+				modData['css'] = {'bottom': ''};
 			}
 			for(let [location, resource] of Object.entries(modData['css'])) {
 				try {
 					var modCss = await returnCss(resource);
 				} catch (failure) {
-					console.log(`[updateCss] Failed during mod ${id} returnCss: ${failure}`);
-					messenger.error(`Failed to return CSS for mod "${id}". Try waiting 30s then disabling and re-enabling the mod. If this continues to happen, check with the author if the listed resource still exists.`, failure[1] ? failure[1] : 'returnCss');
+					console.log(`[ERROR] Failed applying CSS of mod ${modId}: ${failure}`);
+					messenger.error(`Failed to return CSS for mod "${modId}". Try waiting 30s then disabling and re-enabling the mod. If this continues to happen, check with the author if the listed resource still exists.`, failure[1] ? failure[1] : 'returnCss');
 				}
 
 				let globalOpts = [];
-				for(let [optId, val] of Object.entries(userSettings['mods'][id])) {
+				for(let [optId, val] of Object.entries(userSettings['mods'][modId])) {
 					let optData = modData['options'][optId];
 					if('flags' in optData && optData['flags'].includes('global')) {
 						globalOpts.push([optData, val]);
@@ -577,60 +563,58 @@ async function updateCss() {
 				}
 			}
 		}
-		pushCss(newCss);
-	}
-	else {
-		pushCss(newCss);
 	}
 
-	function pushCss(css) {
-		// Encode options & sanitise any CSS character
-		let tempSettings = structuredClone(userSettings);
-		if(Object.keys(tempSettings['mods']).length === 0) {
-			delete tempSettings['mods'];
-		}
-		if(Object.keys(tempSettings['options']).length === 0) {
-			delete tempSettings['options'];
-		}
-		let settingsStr = JSON.stringify(tempSettings).replaceAll('*/','*\\/').replaceAll('/*','\\/*');
-		// Update export textareas
-		document.getElementById('js-export-code').textContent = settingsStr;
-		// Place options at top
-		let cssWithSettings = '/* Theme Customiser Settings\nhttps://github.com/ValerioLyndon/Theme-Customiser\n^TC' + settingsStr + 'TC$*/\n\n' + css;
+	// Encode options & sanitise any CSS character
 
-		// Add settings if there is room and add over-length notice if necessary
-		let notice = document.getElementById('js-output-notice');
-		if(css.length < 65535 && cssWithSettings.length > 65535) {
-			let spare = 65535 - css.length;
-			notice.innerHTML = `This configuration is close to exceeding MyAnimeList's maximum CSS length. The customiser settings area has been removed to make space and you now have ${spare} characters remaining. If you need help bypassing the limit, see <a class="hyperlink" href="https://myanimelist.net/forum/?topicid=1911384" target="_blank">this guide</a>.`;
-			notice.classList.add('info-box--warn');
-			notice.classList.remove('o-hidden', 'info-box--error');
-		}
-		else if(css.length > 65535) {
-			let excess = css.length - 65535;
-			notice.innerHTML = `This configuration exceeds MyAnimeList's maximum CSS length by ${excess} characters. You will need to <a class="hyperlink" href="https://www.toptal.com/developers/cssminifier" target="_blank">shorten this code</a> or <a class="hyperlink" href="https://myanimelist.net/forum/?topicid=1911384" target="_blank">host it on an external site to bypass the limit</a>.`;
-			notice.classList.add('info-box--error');
-			notice.classList.remove('o-hidden', 'info-box--warn');
-		} else {
-			notice.classList.add('o-hidden');
-			css = cssWithSettings;
-		}
-
-		// Update code textarea
-		document.getElementById('js-output').textContent = css;
-
-		// Update iframe
-		postToIframe(['css', css]);
+	let tempSettings = structuredClone(userSettings);
+	if(Object.keys(tempSettings['mods']).length === 0) {
+		delete tempSettings['mods'];
 	}
+	if(Object.keys(tempSettings['options']).length === 0) {
+		delete tempSettings['options'];
+	}
+	let settingsStr = JSON.stringify(tempSettings).replaceAll('*/','*\\/').replaceAll('/*','\\/*');
+	// Update export textareas
+	document.getElementById('js-export-code').textContent = settingsStr;
+	// Place options at top
+	let cssWithSettings = '/* Theme Customiser Settings\nhttps://github.com/ValerioLyndon/Theme-Customiser\n^TC' + settingsStr + 'TC$*/\n\n' + newCss;
+
+	// Add settings if there is room and add over-length notice if necessary
+	
+	let notice = document.getElementById('js-output-notice');
+	if(newCss.length < 65535 && cssWithSettings.length > 65535) {
+		let spare = 65535 - newCss.length;
+		notice.innerHTML = `This configuration is close to exceeding MyAnimeList's maximum CSS length. The customiser settings area has been removed to make space and you now have ${spare} characters remaining. If you need help bypassing the limit, see <a class="hyperlink" href="https://myanimelist.net/forum/?topicid=1911384" target="_blank">this guide</a>.`;
+		notice.classList.add('info-box--warn');
+		notice.classList.remove('o-hidden', 'info-box--error');
+	}
+	else if(newCss.length > 65535) {
+		let excess = newCss.length - 65535;
+		notice.innerHTML = `This configuration exceeds MyAnimeList's maximum CSS length by ${excess} characters. You will need to <a class="hyperlink" href="https://www.toptal.com/developers/cssminifier" target="_blank">shorten this code</a> or <a class="hyperlink" href="https://myanimelist.net/forum/?topicid=1911384" target="_blank">host it on an external site to bypass the limit</a>.`;
+		notice.classList.add('info-box--error');
+		notice.classList.remove('o-hidden', 'info-box--warn');
+	} else {
+		notice.classList.add('o-hidden');
+		newCss = cssWithSettings;
+	}
+
+	// Update code textarea
+	document.getElementById('js-output').textContent = newCss;
+
+	// Update iframe
+	postToIframe(['css', newCss]);
 }
 
-function validateInput(fullid, type) {
-	let notice = document.getElementById(`${fullid}-notice`),
+// "htmlId" should be a valid HTML ID to select the option with.
+// "type" is the full option type string: "type/qualifier/subqualifier" 
+// Also accepts an HTML DOM element with the bind function for certain features: validateInput.bind(DOMElement)
+function validateInput(htmlId, type) {
+	let notice = document.getElementById(`${htmlId}-notice`),
 		noticeHTML = '',
-		val = document.getElementById(`${fullid}`).value.toLowerCase(),
+		val = document.getElementById(`${htmlId}`).value.toLowerCase(),
 		problems = 0,
-		qualifier = type.split('/')[1],
-		subQualifier = type.split('/')[2];
+		qualifier = type.split('/')[1];
 	
 	if(val.length === 0) {
 		notice.classList.add('o-hidden');
@@ -730,15 +714,290 @@ function clearCache() {
 	});
 }
 
+// Render mods and options. Used inside renderHtml()
+function renderCustomisation(entryType, entry, parentEntry = [undefined, undefined]) {
+	let entryId = entry[0],
+		entryData = entry[1],
+		parentId = parentEntry[0];
+
+	// Setup basic HTML
+
+	let div = document.createElement('div'),
+		head = document.createElement('div'),
+		headLeft = document.createElement('b'),
+		headRight = document.createElement('div'),
+		expando = document.createElement('div'),
+		desc = document.createElement('div');
+
+	div.className = 'entry';
+	head.className = 'entry__head';
+	headLeft.textContent = entryData['name'] ? entryData['name'] : 'Untitled';
+	headLeft.className = 'entry__name';
+	headRight.className = 'entry__action-box';
+	expando.className = 'expando js-expando';
+	expando.setAttribute('data-expando-limit', "100");
+	expando.innerHTML = '<button class="expando__button expando__button--subtle js-expando-button">Expand</button>';
+	desc.className = 'entry__desc';
+
+	// Add HTML as necessary
+
+	head.appendChild(headLeft);
+	head.appendChild(headRight);
+	div.appendChild(head);
+	expando.appendChild(desc);
+	if('description' in entryData) {
+		desc.appendChild(createBB(entryData['description']));
+		div.appendChild(expando);
+	}
+
+	// Option & Mod Specific HTML
+
+	if(entryType === 'option') {
+		let htmlId = parentId ? `mod:${parentId}:${entryId}` : `opt:${entryId}`;
+
+		// Validate JSON
+
+		if(!('type' in entryData)) {
+			return `Option must have a "type" key.`;
+		}
+
+		let split = entryData['type'].split('/'),
+			type = split[0],
+			qualifier = split[1],
+			subQualifier = split[2];
+
+		if(type === 'select') {
+			if(!('selections' in entryData)) {
+				return 'Option of type "select" must contain a "selections" key.';
+			}
+		}
+		else if(!('replacements' in entryData)) {
+			return 'Option must contain a "replacements" key.';
+		}
+
+		// Set default value if needed
+
+		let defaultValue = '';
+		if(entryData['default'] === undefined && entryData['type'] === 'toggle') {
+			defaultValue = false;
+		} else if(entryData['default'] !== undefined) {
+			defaultValue = entryData['default'];
+		}
+		if(parentId) {
+			theme['mods'][parentId]['options'][entryId]['default'] = defaultValue;
+		} else {
+			theme['options'][entryId]['default'] = defaultValue;
+		}
+
+		// Help Links
+
+		let helpLink = document.createElement('a');
+		helpLink.className = 'entry__help hyperlink';
+		helpLink.target = "_blank";
+		div.classList.add('has-help');
+		head.appendChild(helpLink);
+
+		// Type-specific Option HTML & Functions
+
+		let interface = document.createElement('input');
+		interface.placeholder = 'Your text here.';
+		interface.className = 'input';
+
+		// Text-based Options
+
+		if(type === 'text' || type === 'color') {
+			interface.type = 'text';
+			interface.value = entryData['default'];
+
+			if(qualifier === 'value') {
+				interface.placeholder = 'Your value here.';
+				
+				// Add help link to Mozilla docs for CSS properties
+				if(subQualifier) {
+					helpLink.textContent = 'Valid Inputs';
+					helpLink.href = `https://developer.mozilla.org/en-US/docs/Web/CSS/${subQualifier}#values`
+				}
+			}
+			else if(type === 'color') {
+				interface.placeholder = 'Your colour here. e.x rgba(0, 135, 255, 1.0)';
+
+				// Add a colour preview
+				let display = document.createElement('div');
+				display.className = 'entry__colour';
+				div.appendChild(display);
+
+				helpLink.textContent = 'Colour Picker';
+				helpLink.href = 'https://mdn.github.io/css-examples/tools/color-picker/';
+
+				interface.addEventListener('input', validateInput.bind(display, htmlId, type));
+			}
+			else if(qualifier === 'size') {
+				interface.placeholder = 'Your size here. e.x 200px, 33%, 20vw, etc.';
+				interface.addEventListener('input', () => { validateInput(htmlId, type) });
+			}
+			else if(qualifier === 'image_url') {
+				interface.type = 'url';
+				interface.placeholder = 'https://example.com/image.jpg';
+
+				helpLink.textContent = 'Image Tips';
+				helpLink.href = 'https://github.com/ValerioLyndon/MAL-Public-List-Designs/wiki/Image-Hosting-Tips';
+
+				interface.addEventListener('input', () => { validateInput(htmlId, type); });
+			}
+		}
+
+		else if(type === 'textarea') {
+			interface = document.createElement('textarea');
+			interface.className = 'input entry__textarea input--textarea';
+			interface.value = entryData['default'];
+		}
+
+		// Toggle Options
+
+		else if(type === 'toggle') {
+			interface.type = 'checkbox';
+			interface.id = htmlId;
+			interface.className = 'o-hidden';
+			if(entryData['default'] == true) {
+				interface.checked = true;
+			}
+			headRight.innerHTML = `
+				<label class="toggle" for="${htmlId}"></label>
+			`;
+		}
+
+		// Select Options
+
+		else if(type === 'select') {
+			interface = document.createElement('select');
+			interface.className = 'select entry__select';
+
+			// Add selections
+			for(let [selectKey, selectData] of Object.entries(entryData['selections'])) {
+				let selectOption = document.createElement('option');
+				selectOption.value = selectKey;
+				selectOption.textContent = selectData['label'];
+				if(selectKey === entryData['default']) {
+					selectOption.selected = true;
+				}
+				interface.append(selectOption);
+			}
+		}
+
+		// Add functionality to all the options & finalise type-specific features
+
+		interface.addEventListener('input', () => {
+			updateOption(entryId, {'parentModId': parentId});
+			updateCss();
+		});
+
+		interface.id = htmlId;
+		if(type === 'toggle') {
+			headRight.prepend(interface);
+		} else {
+			div.appendChild(interface);
+		}
+
+		// Add notice
+
+		let notice = document.createElement('p');
+		notice.id = `${htmlId}-notice`;
+		notice.className = 'info-box info-box--indented info-box--error o-hidden';
+		div.appendChild(notice);
+	}
+
+	else if(entryType === 'modification') {
+		let htmlId = `mod:${entryId}`;
+
+		headLeft.classList.add('entry__name--emphasised');
+
+		// Basic Mod HTML & Functions
+
+		div.id = `mod-parent:${entryId}`;
+
+		if('url' in entryData) {
+			let link = document.createElement('a');
+			link.className = 'entry__external-link js-info';
+			link.setAttribute('data-info', 'This mod has linked an external resource or guide for you to install. Unless otherwise instructed, these should be installed <b>after</b> you install the main theme.')
+			link.addEventListener('mouseover', () => { infoOn(link); });
+			link.addEventListener('mouseout', infoOff);
+			link.href = entryData['url'];
+			link.target = "_blank";
+			link.innerHTML = `
+				<i class="entry__external-link-icon fa-solid fa-arrow-up-right-from-square"></i>
+			`;
+			headRight.appendChild(link);
+		}
+		else if('css' in entryData || 'options' in entryData && Object.keys(entryData['options']).length > 0) {
+			let toggle = document.createElement('input');
+			toggle.type = 'checkbox';
+			toggle.id = htmlId;
+			toggle.className = 'o-hidden';
+			headRight.innerHTML = `
+				<label class="toggle" for="${htmlId}"></label>
+			`;
+			toggle.addEventListener('change', () => {
+				updateMod(entryId);
+				updateCss();
+			});
+			headRight.prepend(toggle);
+		}
+
+		// Mod Flags
+
+		if('flags' in entryData && entryData['flags'].includes('hidden')) {
+			div.classList.add('o-hidden');
+			// skips tags on hidden items to prevent weird item counts on the GUI
+			delete entryData['tags'];
+		}
+
+		// Add mod tag to list of tags
+		if('tags' in entryData) {
+			for(let tag of entryData['tags']) {
+				if(modTags[tag]) {
+					modTags[tag].push(entryId);
+				} else {
+					modTags[tag] = [entryId];
+				}
+			}
+		}
+
+		// Mod Options
+
+		if('options' in entryData) {
+			let optDiv = document.createElement('div');
+			optDiv.className = 'entry__options';
+
+			for(let opt of Object.entries(entryData['options'])) {
+				let renderedOpt = renderCustomisation('option', opt, entry);
+				if(typeof renderedOpt === 'string') {
+					console.log(`[ERROR] Skipped option "${opt[0]}" of mod "${entryId}": ${renderedOpt}`);
+				} else {
+					optDiv.appendChild(renderedOpt);
+				}
+			}
+
+			div.appendChild(optDiv);
+		}
+	}
+
+	// Return rendered HTML
+	return div;
+}
+
 
 
 // ONE-TIME FUNCTIONS
 
-// Setup basic options structure and add event listeners
-function renderHtml() {
+// This function:
+// Sets up basic HTML structure
+// Adds functionality to page elements
+// Updates preview CSS
+// Removes loader
+function pageSetup() {
 	loader.text('Rendering page...');
 
-	// options & mods
+	// Basic variables
 	document.getElementById('js-title').textContent = theme['name'] ? theme['name'] : 'Untitled';
 	document.getElementById('js-author').textContent = theme['author'] ? theme['author'] : 'Unknown Author';
 	let credit = document.getElementById('js-theme-credit');
@@ -748,6 +1007,7 @@ function renderHtml() {
 		credit.textContent = `Customising "${theme['name']}"`;
 	}
 
+	// Theme flags
 	if('flags' in theme) {
 		let themeTag = document.getElementById('js-theme-tag');
 		if(theme['flags'].includes('beta')) {
@@ -760,298 +1020,37 @@ function renderHtml() {
 		}
 	}
 
-	var optionsEle = document.getElementById('js-options');
+	// Options & Mods
 
-	function generateOptionHtml(dictionary, parentModId) {
-
-		let optId = dictionary[0],
-			opt = dictionary[1],
-			fullId = `opt:${optId}`;
-		
-		if(parentModId) {
-			fullId = `mod:${parentModId}:${optId}`;
-		}
-			
-		if(!('type' in opt)) {
-			return `Option must have a "type" key.`;
-		}
-
-		let div = document.createElement('div'),
-			head = document.createElement('div'),
-			headLeft = document.createElement('b'),
-			headRight = document.createElement('div'),
-			expando = document.createElement('div'),
-			desc = document.createElement('div'),
-			notice = document.createElement('p'),
-			link = document.createElement('a');
-
-		if(opt['default'] === undefined && opt['type'] === 'toggle') {
-			opt['default'] = false;
-		} else if(opt['default'] === undefined) {
-			opt['default'] = '';
-		}
-
-		div.className = 'entry has-help';
-		head.className = 'entry__head';
-		headLeft.textContent = opt['name'] ? opt['name'] : 'Untitled';
-		headLeft.className = 'entry__name';
-		headRight.className = 'entry__action-box';
-		head.appendChild(headLeft);
-		head.appendChild(headRight);
-		div.appendChild(head);
-
-		expando.className = 'expando js-expando';
-		expando.setAttribute('data-expando-limit', "100");
-		expando.innerHTML = '<button class="expando__button expando__button--subtle js-expando-button">Expand</button>';
-		desc.className = 'entry__desc';
-		expando.appendChild(desc);
-		if('description' in opt) {
-			desc.appendChild(createBB(opt['description']));
-			div.appendChild(expando);
-		}
-
-		link.className = 'entry__help hyperlink';
-		link.target = "_blank";
-		head.appendChild(link);
-
-		let split = opt['type'].split('/'),
-			baseType = split[0],
-			qualifier = split[1],
-			subQualifier = split[2];
-
-		if(baseType === 'text' || opt['type'] === 'color') {
-			if(!('replacements' in opt)) {
-				return 'Option must contain a "replacements" key.';
-			}
-
-			let input = document.createElement('input');
-			input.id = fullId;
-			input.type = 'text';
-			input.value = opt['default'];
-			input.className = 'input';
-			input.placeholder = 'Your text here.';
-			div.appendChild(input);
-
-			if(qualifier === 'value' && subQualifier) {
-				input.placeholder = 'Your value here.';
-				
-				let property = opt['type'].split('/')[2];
-
-				link.textContent = 'Valid Inputs';
-				link.href = `https://developer.mozilla.org/en-US/docs/Web/CSS/${property}#values`
-			}
-			else if(opt['type'] === 'color') {
-				input.placeholder = 'Your colour here. e.x rgba(0, 135, 255, 1.0)';
-
-				let display = document.createElement('div');
-				display.className = 'entry__colour';
-
-				div.appendChild(display);
-
-				link.textContent = 'Colour Picker';
-				link.href = 'https://mdn.github.io/css-examples/tools/color-picker/';
-
-				input.addEventListener('input', validateInput.bind(display, fullId, opt['type']));
-			}
-			else if(qualifier === 'size') {
-				input.placeholder = 'Your size here. e.x 200px, 33%, 20vw, etc.';
-
-				input.addEventListener('input', () => { validateInput(fullId, opt['type']) });
-			}
-			else if(qualifier === 'image_url') {
-				input.type = 'url';
-				input.placeholder = 'https://example.com/image.jpg';
-				div.appendChild(input);
-
-				link.textContent = 'Image Tips';
-				link.href = 'https://github.com/ValerioLyndon/MAL-Public-List-Designs/wiki/Image-Hosting-Tips';
-
-				input.addEventListener('input', () => { validateInput(fullId, opt['type']); });
-			}
-
-			input.addEventListener('input', () => {
-				updateOption(optId, {'defaultValue': opt['default'], 'parentModId': parentModId});
-			});
-		}
-
-
-		else if(baseType === 'textarea') {
-			if(!('replacements' in opt)) {
-				return 'Option must contain a "replacements" key.';
-			}
-
-			let input = document.createElement('textarea');
-			input.id = fullId;
-			input.value = opt['default'];
-			input.className = 'entry__textarea input input--textarea';
-			input.placeholder = 'Your text here.';
-			div.appendChild(input);
-
-			input.addEventListener('input', () => { updateOption(optId, {'defaultValue': opt['default'], 'parentModId': parentModId}); });
-		}
-
-		else if(baseType === 'toggle') {
-			if(!('replacements' in opt)) {
-				return 'Option must contain a "replacements" key.';
-			}
-
-			let toggle = document.createElement('input');
-			toggle.type = 'checkbox';
-			toggle.id = fullId;
-			toggle.className = 'o-hidden';
-			if('default' in opt && opt['default'] == true) {
-				toggle.checked = true;
-			}
-			headRight.innerHTML = `
-				<label class="toggle" for="${fullId}"></label>
-			`;
-			headRight.prepend(toggle);
-
-			toggle.addEventListener('input', () => { updateOption(optId, {'defaultValue': opt['default'], 'parentModId': parentModId}); });
-		}
-
-		else if(baseType === 'select') {
-			if(!('selections' in opt)) {
-				return 'Option must contain a "replacements" key.';
-			}
-
-			let select = document.createElement('select');
-
-			// would be nice to have a simpler/nicer to look at switch for small lists but would require using radio buttons.
-			select.className = 'select entry__select';
-			select.id = fullId;
-			for(let [selectKey, selectData] of Object.entries(opt['selections'])) {
-				let selectOption = document.createElement('option');
-				selectOption.value = selectKey;
-				selectOption.textContent = selectData['label'];
-				if(selectKey === opt['default']) {
-					selectOption.selected = true;
-				}
-				select.append(selectOption);
-			}
-			div.append(select);
-
-			select.addEventListener('input', () => { updateOption(optId, {'defaultValue': opt['default'], 'parentModId': parentModId}); });
-		}
-
-		notice.id = `${fullId}-notice`;
-		notice.className = 'info-box info-box--indented info-box--error o-hidden';
-		div.appendChild(notice);
-
-		return div;
-	}
-
+	let optionsEle = document.getElementById('js-options');
 	if('options' in theme) {
-		for(let opt of Object.entries(theme['options'])) {
-			let ele = generateOptionHtml(opt);
-			if(typeof ele === 'string') {
-				console.log(`[generateOptionHtml] Skipped option "${opt[0]}": ${ele}`);
+		for(const opt of Object.entries(theme['options'])) {
+			let renderedOpt = renderCustomisation('option', opt);
+			if(typeof renderedOpt === 'string') {
+				console.log(`[ERROR] Skipped option "${opt[0]}": ${renderedOpt}`);
 			} else {
-				optionsEle.appendChild(ele);
+				optionsEle.appendChild(renderedOpt);
 			}
 		}
 	} else {
 		optionsEle.parentNode.remove();
 	}
 
-	var modsEle = document.getElementById('js-mods'),
-		modTags = {};
-
+	let modsEle = document.getElementById('js-mods');
 	if('mods' in theme) {
-		for (const [modId, mod] of Object.entries(theme['mods'])) {
-
-			let div = document.createElement('div'),
-				head = document.createElement('div'),
-				headLeft = document.createElement('b'),
-				headRight = document.createElement('div'),
-				expando = document.createElement('div'),
-				desc = document.createElement('div');
-
-			if('css' in mod) {
-				headRight.innerHTML = `
-					<input id="mod:${modId}" type="checkbox" class="o-hidden" />
-					<label class="toggle" for="mod:${modId}"></label>
-				`;
-			} else if('url' in mod) {
-				let link = document.createElement('a');
-				link.className = 'entry__external-link js-info';
-				link.setAttribute('data-info', 'This mod has linked an external resource or guide for you to install. Unless otherwise instructed, these should be installed <b>after</b> you install the main theme.')
-				link.addEventListener('mouseover', () => { infoOn(link); });
-				link.addEventListener('mouseout', infoOff);
-				link.href = mod['url'];
-				link.target = "_blank";
-				link.innerHTML = `
-					<i class="entry__external-link-icon fa-solid fa-arrow-up-right-from-square"></i>
-				`;
-				headRight.appendChild(link);
-			}
-
-			div.className = 'entry';
-			div.id = `mod-parent:${modId}`;
-			head.className = 'entry__head';
-			headLeft.textContent = mod['name'] ? mod['name'] : 'Untitled';
-			headLeft.className = 'entry__name entry__name--emphasised';
-			headRight.className = 'entry__action-box';
-			head.appendChild(headLeft);
-			head.appendChild(headRight);
-			div.appendChild(head);
-
-			expando.className = 'expando js-expando';
-			expando.setAttribute('data-expando-limit', "100");
-			expando.innerHTML = '<button class="expando__button expando__button--subtle js-expando-button">Expand</button>';
-			if('description' in mod) {
-				desc.appendChild(createBB(mod['description']));
-			}
-			desc.className = 'entry__desc';
-			expando.appendChild(desc);
-			div.appendChild(expando);
-
-			if('options' in mod) {
-				let optDiv = document.createElement('div');
-				optDiv.className = 'entry__options';
-
-				for(let opt of Object.entries(mod['options'])) {
-					let ele = generateOptionHtml(opt, modId);
-					if(typeof ele === 'string') {
-						console.log(`[generateOptionHtml] Skipped option "${opt[0]}" of mod "${modId}": ${ele}`);
-					} else {
-						optDiv.appendChild(ele);
-					}
-				}
-
-				div.appendChild(optDiv);
-			}
-
-			if('flags' in mod && mod['flags'].includes('hidden')) {
-				div.classList.add('o-hidden');
-				// skips tags on hidden items to prevent weird item counts on the GUI
-				delete mod['tags'];
-			}
-
-			modsEle.appendChild(div);
-
-			if('css' in mod) {
-				document.getElementById(`mod:${modId}`).addEventListener('change', () => { updateMod(modId); });
-			}
-
-			// Add mod tag to list of tags
-			if('tags' in mod) {
-				for(let tag of mod['tags']) {
-					if(modTags[tag]) {
-						modTags[tag].push(modId);
-					} else {
-						modTags[tag] = [modId];
-					}
-				}
+		for (const mod of Object.entries(theme['mods'])) {
+			let renderedMod = renderCustomisation('modification', mod);
+			if(typeof renderedMod === 'string') {
+				console.log(`[ERROR] Skipped mod "${modId}": ${renderedMod}`);
+			} else {
+				modsEle.appendChild(renderedMod);
 			}
 		}
 	} else {
 		modsEle.parentNode.remove();
 	}
 
-	// Add tag links
-
-	// Add mod tag to list of tags
+	// Tag links
 	if(Object.entries(modTags).length > 0 && Object.entries(theme['mods']).length > 3) {
 		renderTags(modTags, Object.keys(theme['mods']), 'mod-parent:ID');
 	}
@@ -1184,7 +1183,6 @@ function renderHtml() {
 
 	if('columns' in theme) {
 		intendedConfig.classList.remove('o-hidden');
-
 
 		function renderColumns(columns, listtype) {
 			let typeWrapper = document.createElement('div'),
@@ -1355,10 +1353,7 @@ function renderHtml() {
 	for(let swap of swaps) {
 		swap.addEventListener('click', swapText.bind(swap));
 	}
-}
 
-// Updates preview CSS & removes loader
-function finalSetup() {
 	loader.text('Fetching CSS...');
 
 	// Get theme CSS
@@ -1382,8 +1377,8 @@ function finalSetup() {
 				try {
 					tempSettings = JSON.parse(tempSettings);
 				} catch(e) {
-					console.log(`[finalise] Error during JSON.parse: ${e}`);
-					messenger.error('Failed to import options. Could not parse settings.', 'json.stringify');
+					console.log(`[ERROR] Failed to parse imported settings: ${e}`);
+					messenger.error('Failed to import options. Could not parse settings.', 'json.parse');
 				}
 				// importPreviousSettings will call updateCss and pushCss
 				if(importPreviousSettings(tempSettings)) {
@@ -1424,7 +1419,7 @@ function finalSetup() {
 		}
 		else {
 			loader.text('Loading preview...');
-			console.log('[finalSetup] Awaiting iframe before completing page load.');
+			console.log('[info] Awaiting iframe before completing page load.');
 		}
 	});
 }
@@ -1444,7 +1439,7 @@ var preview = document.getElementById('js-preview'),
 iframe.addEventListener('load', () => {
 	iframeLoaded = true;
 	if(toPost.length > 0) {
-		console.log(`[iframe] Posting ${toPost.length} backlogged messages.`);
+		console.log(`[info] Posting ${toPost.length} backlogged messages.`);
 		for(msg of toPost) {
 			postToIframe(msg);
 		}
@@ -1462,7 +1457,6 @@ function postToIframe(msg) {
 		return true;
 	}
 	toPost.push(msg);
-	console.log('[postToIframe] Tried to post a message before the iframe finished loading.');
 	return false;
 }
 
@@ -1470,7 +1464,8 @@ function postToIframe(msg) {
 
 var theme = '',
 	json = null,
-	baseCss = '';
+	baseCss = '',
+	modTags = {};
 
 var userSettings = {
 	'data': themeUrls[0],
@@ -1508,7 +1503,7 @@ fetchData.then((json) => {
 	try {
 		json = JSON.parse(json);
 	} catch(e) {
-		console.log(`[fetchData] Error during JSON.parse: ${e}`);
+		console.log(`[ERROR] Failed to parse theme JSON: ${e}`);
 		loader.failed(['Encountered a problem while parsing theme information.', 'json.parse']);
 		throw new Error('json.parse');
 	}
@@ -1540,7 +1535,7 @@ fetchData.then((json) => {
 		}
 		if(theme['supports'] === ['mangalist']) {
 			//framePath += 'mangalist.html';
-			console.log('Detected mangalist only, but this feature is not yet supported.');
+			console.log('[info] Detected mangalist only, but this feature is not yet supported.');
 			framePath += 'animelist.html';
 		} else {
 			framePath += 'animelist.html';
@@ -1550,19 +1545,18 @@ fetchData.then((json) => {
 
 		// Test for basic JSON values to assist list designers debug.
 		if(!('css' in theme)) {
-			console.log('[processJson] Theme did not define any CSS.');
+			console.log('[warn] Theme did not define any CSS.');
 			theme['css'] = '';
 		}
 		if(!('type' in theme)) {
-			console.log('[processJson] Theme did not define a list type, assuming "modern".');
+			console.log('[warn] Theme did not define a list type, assuming "modern".');
 			theme['type'] = 'modern';
 		}
 
 		// Set page title
 		document.getElementsByTagName('title')[0].textContent = `Theme Customiser - ${theme['name']}`;
 
-		renderHtml();
-		finalSetup();
+		pageSetup();
 	})
 });
 
