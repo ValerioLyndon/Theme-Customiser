@@ -468,6 +468,20 @@ async function updateCss() {
 	localStorage.setItem(`theme:${userSettings['data']}`, JSON.stringify(storageString));
 
 	let newCss = baseCss;
+	
+	function extendCss(extension, location = 'bottom') {
+		if(location === 'top') {
+			newCss = extension + '\n\n' + newCss;
+		} else if(location === 'import') {
+			if(/@\\*import/i.test(newCss)) {
+				newCss = newCss.replace(/([\s\S]*@\\*import.+?;)/i, '$1\n' + extension);
+			} else {
+				newCss = extension + '\n\n' + newCss;
+			}
+		} else {
+			newCss = newCss + '\n\n' + extension;
+		}
+	}
 
 	async function applyOptionToCss(css, optData, insert) {
 		let type = optData['type'],
@@ -522,20 +536,6 @@ async function updateCss() {
 	}
 
 	// Mods
-	function extendCss(extension, location = 'bottom') {
-		if(location === 'top') {
-			newCss = extension + '\n\n' + newCss;
-		} else if(location === 'import') {
-			if(/@\\*import/i.test(newCss)) {
-				newCss = newCss.replace(/([\s\S]*@\\*import.+?;)/i, '$1\n' + extension);
-			} else {
-				newCss = extension + '\n\n' + newCss;
-			}
-		} else {
-			newCss = newCss + '\n\n' + extension;
-		}
-	}
-	
 	if('mods' in theme && Object.keys(userSettings['mods']).length > 0) {
 		for(let modId of Object.keys(userSettings['mods'])) {
 			let modData = theme['mods'][modId];
@@ -567,51 +567,47 @@ async function updateCss() {
 				}
 			}
 		}
-		pushCss(newCss);
-	}
-	else {
-		pushCss(newCss);
 	}
 
-	function pushCss(css) {
-		// Encode options & sanitise any CSS character
-		let tempSettings = structuredClone(userSettings);
-		if(Object.keys(tempSettings['mods']).length === 0) {
-			delete tempSettings['mods'];
-		}
-		if(Object.keys(tempSettings['options']).length === 0) {
-			delete tempSettings['options'];
-		}
-		let settingsStr = JSON.stringify(tempSettings).replaceAll('*/','*\\/').replaceAll('/*','\\/*');
-		// Update export textareas
-		document.getElementById('js-export-code').textContent = settingsStr;
-		// Place options at top
-		let cssWithSettings = '/* Theme Customiser Settings\nhttps://github.com/ValerioLyndon/Theme-Customiser\n^TC' + settingsStr + 'TC$*/\n\n' + css;
+	// Encode options & sanitise any CSS character
 
-		// Add settings if there is room and add over-length notice if necessary
-		let notice = document.getElementById('js-output-notice');
-		if(css.length < 65535 && cssWithSettings.length > 65535) {
-			let spare = 65535 - css.length;
-			notice.innerHTML = `This configuration is close to exceeding MyAnimeList's maximum CSS length. The customiser settings area has been removed to make space and you now have ${spare} characters remaining. If you need help bypassing the limit, see <a class="hyperlink" href="https://myanimelist.net/forum/?topicid=1911384" target="_blank">this guide</a>.`;
-			notice.classList.add('info-box--warn');
-			notice.classList.remove('o-hidden', 'info-box--error');
-		}
-		else if(css.length > 65535) {
-			let excess = css.length - 65535;
-			notice.innerHTML = `This configuration exceeds MyAnimeList's maximum CSS length by ${excess} characters. You will need to <a class="hyperlink" href="https://www.toptal.com/developers/cssminifier" target="_blank">shorten this code</a> or <a class="hyperlink" href="https://myanimelist.net/forum/?topicid=1911384" target="_blank">host it on an external site to bypass the limit</a>.`;
-			notice.classList.add('info-box--error');
-			notice.classList.remove('o-hidden', 'info-box--warn');
-		} else {
-			notice.classList.add('o-hidden');
-			css = cssWithSettings;
-		}
-
-		// Update code textarea
-		document.getElementById('js-output').textContent = css;
-
-		// Update iframe
-		postToIframe(['css', css]);
+	let tempSettings = structuredClone(userSettings);
+	if(Object.keys(tempSettings['mods']).length === 0) {
+		delete tempSettings['mods'];
 	}
+	if(Object.keys(tempSettings['options']).length === 0) {
+		delete tempSettings['options'];
+	}
+	let settingsStr = JSON.stringify(tempSettings).replaceAll('*/','*\\/').replaceAll('/*','\\/*');
+	// Update export textareas
+	document.getElementById('js-export-code').textContent = settingsStr;
+	// Place options at top
+	let cssWithSettings = '/* Theme Customiser Settings\nhttps://github.com/ValerioLyndon/Theme-Customiser\n^TC' + settingsStr + 'TC$*/\n\n' + newCss;
+
+	// Add settings if there is room and add over-length notice if necessary
+	
+	let notice = document.getElementById('js-output-notice');
+	if(newCss.length < 65535 && cssWithSettings.length > 65535) {
+		let spare = 65535 - newCss.length;
+		notice.innerHTML = `This configuration is close to exceeding MyAnimeList's maximum CSS length. The customiser settings area has been removed to make space and you now have ${spare} characters remaining. If you need help bypassing the limit, see <a class="hyperlink" href="https://myanimelist.net/forum/?topicid=1911384" target="_blank">this guide</a>.`;
+		notice.classList.add('info-box--warn');
+		notice.classList.remove('o-hidden', 'info-box--error');
+	}
+	else if(newCss.length > 65535) {
+		let excess = newCss.length - 65535;
+		notice.innerHTML = `This configuration exceeds MyAnimeList's maximum CSS length by ${excess} characters. You will need to <a class="hyperlink" href="https://www.toptal.com/developers/cssminifier" target="_blank">shorten this code</a> or <a class="hyperlink" href="https://myanimelist.net/forum/?topicid=1911384" target="_blank">host it on an external site to bypass the limit</a>.`;
+		notice.classList.add('info-box--error');
+		notice.classList.remove('o-hidden', 'info-box--warn');
+	} else {
+		notice.classList.add('o-hidden');
+		newCss = cssWithSettings;
+	}
+
+	// Update code textarea
+	document.getElementById('js-output').textContent = newCss;
+
+	// Update iframe
+	postToIframe(['css', newCss]);
 }
 
 // "htmlId" should be a valid HTML ID to select the option with.
