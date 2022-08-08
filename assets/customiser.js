@@ -860,7 +860,7 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 
 		else if(type === 'select') {
 			interface = document.createElement('select');
-			interface.className = 'entry__select';
+			interface.className = 'select entry__select';
 
 			// Add selections
 			for(let [selectKey, selectData] of Object.entries(entryData['selections'])) {
