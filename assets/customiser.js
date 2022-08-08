@@ -128,9 +128,11 @@ class InfoPopup {
 }
 const info = new InfoPopup();
 
-function infoOn(event, alignment = 'left') {
-	let target = event['target'],
-		text = target.getAttribute('data-info');
+function infoOn(target, alignment = 'left') {
+	if(target instanceof Event) {
+		target = target['target'];
+	}
+	let text = target.getAttribute('data-info');
 	info.show(target, text, alignment);
 }
 function infoOff() {
@@ -804,10 +806,6 @@ function renderHtml() {
 			baseType = split[0],
 			qualifier = split[1],
 			subQualifier = split[2];
-		
-		if('help' in opt) {
-			div.classList.add('has-help');
-		}
 
 		if(baseType === 'text' || opt['type'] === 'color') {
 			if(!('replacements' in opt)) {
@@ -976,6 +974,8 @@ function renderHtml() {
 				let link = document.createElement('a');
 				link.className = 'entry__external-link js-info';
 				link.setAttribute('data-info', 'This mod has linked an external resource or guide for you to install. Unless otherwise instructed, these should be installed <b>after</b> you install the main theme.')
+				link.addEventListener('mouseover', () => { infoOn(link); });
+				link.addEventListener('mouseout', infoOff);
 				link.href = mod['url'];
 				link.target = "_blank";
 				link.innerHTML = `
@@ -1143,7 +1143,7 @@ function renderHtml() {
 			check.checked = val;
 			check.disabled = true;
 			toggle.removeAttribute('onclick');
-			toggle.addEventListener('mouseover', function(e) { infoOn(e, 'top') });
+			toggle.addEventListener('mouseover', function(e) { infoOn(toggle, 'top') });
 			toggle.addEventListener('mouseout', infoOff);
 			postToIframe(['cover', val]);
 		}
