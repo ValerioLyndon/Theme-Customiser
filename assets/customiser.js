@@ -980,8 +980,12 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 
 // ONE-TIME FUNCTIONS
 
-// Setup basic options structure and add event listeners
-function renderHtml() {
+// This function:
+// Sets up basic HTML structure
+// Adds functionality to page elements
+// Updates preview CSS
+// Removes loader
+function pageSetup() {
 	loader.text('Rendering page...');
 
 	// Basic variables
@@ -1340,10 +1344,7 @@ function renderHtml() {
 	for(let swap of swaps) {
 		swap.addEventListener('click', swapText.bind(swap));
 	}
-}
 
-// Updates preview CSS & removes loader
-function finalSetup() {
 	loader.text('Fetching CSS...');
 
 	// Get theme CSS
@@ -1546,8 +1547,7 @@ fetchData.then((json) => {
 		// Set page title
 		document.getElementsByTagName('title')[0].textContent = `Theme Customiser - ${theme['name']}`;
 
-		renderHtml();
-		finalSetup();
+		pageSetup();
 	})
 });
 
