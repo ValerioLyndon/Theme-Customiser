@@ -1049,9 +1049,7 @@ function renderHtml() {
 		modsEle.parentNode.remove();
 	}
 
-	// Add tag links
-
-	// Add mod tag to list of tags
+	// Tag links
 	if(Object.entries(modTags).length > 0 && Object.entries(theme['mods']).length > 3) {
 		renderTags(modTags, Object.keys(theme['mods']), 'mod-parent:ID');
 	}
