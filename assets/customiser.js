@@ -468,18 +468,12 @@ async function updateCss() {
 	localStorage.setItem(`theme:${userSettings['data']}`, JSON.stringify(storageString));
 
 	let newCss = baseCss;
-		
-	function findAndReplace(str, toFind, toInsert) {
-		if(toFind.startsWith('RegExp')) {
-			toFind = new RegExp(toFind.substr(7), 'g');
-		}
-		return str.replaceAll(toFind, toInsert);
-	}
 
 	async function applyOptionToCss(css, optData, insert) {
 		let type = optData['type'],
 			qualifier = optData['type'].split('/')[1];
 
+		// Process user input as called for by the qualifier
 		if(qualifier === 'content') {
 			// formats text to be valid for CSS content statements
 			insert = '"' + insert.replaceAll('\\','\\\\').replaceAll('"', '\\"').replaceAll('\n', '\\a ') + '"';
@@ -492,38 +486,31 @@ async function updateCss() {
 			}
 		}
 
-		if(type === 'toggle') {
-			for(let set of optData['replacements']) {
-				// Choose the correct replacement set based on whether the toggle is on or off
-				let toFind = set[0],
-					toInsert = (insert === true) ? set[2] : set[1];
-
-				toInsert = await returnCss(toInsert);
-
-				css = findAndReplace(css, toFind, toInsert);
-			}
+		if(type === 'select') {
+			var replacements = optData['selections'][insert]['replacements'];
+		} else {
+			var replacements = optData['replacements'];
 		}
-		else if(type === 'select') {
-			let replacements = optData['selections'][insert]['replacements'];
-			for(let set of replacements) {
-				let toFind = set[0],
-					toInsert = set[1];
-				
-				toInsert = await returnCss(toInsert);
 
-				css = findAndReplace(css, toFind, toInsert);
+		for(let set of replacements) {
+			// Choose the correct replacement set based on whether the toggle is on or off
+			let find = set[0],
+				replace = (insert === true) ? set[2] : set[1];
+
+			// Fetch external CSS if necessary
+			replace = await returnCss(replace);
+
+			// Find {{{insert}}} texts and replace them with user input
+			if(type !== 'select' && type !== 'toggle') {
+				replace = replace.replaceAll('{{{insert}}}', insert);
 			}
-		}
-		else {
-			for(let set of optData['replacements']) {
-				let toFind = set[0],
-					toInsert = set[1];
 
-				toInsert = await returnCss(toInsert);
-				toInsert = toInsert.replaceAll('{{{insert}}}', insert);
-
-				css = findAndReplace(css, toFind, toInsert);
+			// Use RegExp if called for
+			if(find.startsWith('RegExp')) {
+				find = new RegExp(find.substr(7), 'g');
 			}
+
+			css = css.replaceAll(find, replace);
 		}
 
 		return css;
@@ -550,21 +537,21 @@ async function updateCss() {
 	}
 	
 	if('mods' in theme && Object.keys(userSettings['mods']).length > 0) {
-		for(let id of Object.keys(userSettings['mods'])) {
-			let modData = theme['mods'][id];
-			if(!('css' in modData) || typeof modData['css'] === 'string') {
-				modData['css'] = {'bottom': ''}
+		for(let modId of Object.keys(userSettings['mods'])) {
+			let modData = theme['mods'][modId];
+			if(!('css' in modData)) {
+				modData['css'] = {'bottom': ''};
 			}
 			for(let [location, resource] of Object.entries(modData['css'])) {
 				try {
 					var modCss = await returnCss(resource);
 				} catch (failure) {
-					console.log(`[ERROR] Failed applying CSS of mod ${id}: ${failure}`);
-					messenger.error(`Failed to return CSS for mod "${id}". Try waiting 30s then disabling and re-enabling the mod. If this continues to happen, check with the author if the listed resource still exists.`, failure[1] ? failure[1] : 'returnCss');
+					console.log(`[ERROR] Failed applying CSS of mod ${modId}: ${failure}`);
+					messenger.error(`Failed to return CSS for mod "${modId}". Try waiting 30s then disabling and re-enabling the mod. If this continues to happen, check with the author if the listed resource still exists.`, failure[1] ? failure[1] : 'returnCss');
 				}
 
 				let globalOpts = [];
-				for(let [optId, val] of Object.entries(userSettings['mods'][id])) {
+				for(let [optId, val] of Object.entries(userSettings['mods'][modId])) {
 					let optData = modData['options'][optId];
 					if('flags' in optData && optData['flags'].includes('global')) {
 						globalOpts.push([optData, val]);
@@ -922,7 +909,20 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 
 		div.id = `mod-parent:${entryId}`;
 
-		if('css' in entryData) {
+		if('url' in entryData) {
+			let link = document.createElement('a');
+			link.className = 'entry__external-link js-info';
+			link.setAttribute('data-info', 'This mod has linked an external resource or guide for you to install. Unless otherwise instructed, these should be installed <b>after</b> you install the main theme.')
+			link.addEventListener('mouseover', () => { infoOn(link); });
+			link.addEventListener('mouseout', infoOff);
+			link.href = entryData['url'];
+			link.target = "_blank";
+			link.innerHTML = `
+				<i class="entry__external-link-icon fa-solid fa-arrow-up-right-from-square"></i>
+			`;
+			headRight.appendChild(link);
+		}
+		else {
 			let toggle = document.createElement('input');
 			toggle.type = 'checkbox';
 			toggle.id = htmlId;
@@ -935,19 +935,6 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 				updateCss();
 			});
 			headRight.prepend(toggle);
-		}
-		else if('url' in entryData) {
-			let link = document.createElement('a');
-			link.className = 'entry__external-link js-info';
-			link.setAttribute('data-info', 'This mod has linked an external resource or guide for you to install. Unless otherwise instructed, these should be installed <b>after</b> you install the main theme.')
-			link.addEventListener('mouseover', () => { infoOn(link); });
-			link.addEventListener('mouseout', infoOff);
-			link.href = entryData['url'];
-			link.target = "_blank";
-			link.innerHTML = `
-				<i class="entry__external-link-icon fa-solid fa-arrow-up-right-from-square"></i>
-			`;
-			headRight.appendChild(link);
 		}
 
 		// Mod Flags
