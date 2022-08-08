@@ -918,7 +918,7 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 			`;
 			headRight.appendChild(link);
 		}
-		else {
+		else if('css' in entryData || 'options' in entryData && Object.keys(entryData['options']).length > 0) {
 			let toggle = document.createElement('input');
 			toggle.type = 'checkbox';
 			toggle.id = htmlId;
