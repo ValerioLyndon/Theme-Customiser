@@ -54,8 +54,10 @@ function selectSort(link, array) {
 	
 	// Add styling to current item
 	link.classList.add('is-active');
-	let cls = array[2] === 'descending' ? 'js-descending' : 'js-ascending';
-	link.getElementsByClassName(cls)[0].classList.remove('o-hidden');
+	try {
+		let cls = array[2] === 'descending' ? 'js-descending' : 'js-ascending';
+		link.getElementsByClassName(cls)[0].classList.remove('o-hidden');
+	} catch {}
 	link.setAttribute('data-sort', array[2]);
 
 	// Sort items.
@@ -72,18 +74,33 @@ function sortItems(items, attribute, order = 'ascending') {
 		attributes.push([value, id]);
 	}
 
-	attributes.sort((attrOne,attrTwo) => {
-		a = attrOne[0].toLowerCase();
-		b = attrTwo[0].toLowerCase();
-		if(a < b && order === 'ascending' || a > b && order === 'descending') { return -1; }
-		if(a > b && order === 'ascending' || a < b && order === 'descending') { return 1; }
-		return 0;
-	});
+	if(attribute === 'random') {
+		let currentIndex = attributes.length, randomIndex;
+
+		// While there remain elements to shuffle.
+		while (currentIndex != 0) {
+
+			// Pick a remaining element.
+			randomIndex = Math.floor(Math.random() * currentIndex);
+			currentIndex--;
+
+			// And swap it with the current element.
+			[attributes[currentIndex], attributes[randomIndex]] = [
+			attributes[randomIndex], attributes[currentIndex]];
+		}
+	} else {
+		attributes.sort((attrOne,attrTwo) => {
+			a = attrOne[0].toLowerCase();
+			b = attrTwo[0].toLowerCase();
+			if(a < b && order === 'ascending' || a > b && order === 'descending') { return -1; }
+			if(a > b && order === 'ascending' || a < b && order === 'descending') { return 1; }
+			return 0;
+		});
+	}
 
 	// Apply sort order
 	for(i = 0; i < attributes.length; i++) {
-		let val = attributes[i][0],
-			id = attributes[i][1];
+		let id = attributes[i][1];
 		document.getElementById(`card:${id}`).style.order = i;
 	}
 }
@@ -324,7 +341,7 @@ fetchAllFiles(megaUrls)
 				sortItems(cards, 'data-date', 'descending');
 			} else {
 				dataLink.parentNode.remove();
-				sortItems(cards, 'data-title');
+				sortItems(cards, 'random');
 			}
 			
 			let authorLink = document.getElementById('js-sort-author')
@@ -333,6 +350,9 @@ fetchAllFiles(megaUrls)
 			} else {
 				authorLink.parentNode.remove();
 			}
+			
+			let randomLink = document.getElementById('js-sort-random')
+			randomLink.addEventListener('click', () => { selectSort(randomLink, [cards, 'random']) });
 
 			if(failures >= files.length) {
 				loader.failed(['Encountered a problem while parsing theme information.', 'json.parse']);
