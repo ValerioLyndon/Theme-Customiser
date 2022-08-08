@@ -753,7 +753,7 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 	div.className = 'entry';
 	head.className = 'entry__head';
 	headLeft.textContent = entryData['name'] ? entryData['name'] : 'Untitled';
-	headLeft.className = 'entry__name entry__name--emphasised';
+	headLeft.className = 'entry__name';
 	headRight.className = 'entry__action-box';
 	expando.className = 'expando js-expando';
 	expando.setAttribute('data-expando-limit', "100");
@@ -915,6 +915,8 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 
 	else if(entryType === 'modification') {
 		let htmlId = `mod:${entryId}`;
+
+		headLeft.classList.add('entry__name--emphasised');
 
 		// Basic Mod HTML & Functions
 
