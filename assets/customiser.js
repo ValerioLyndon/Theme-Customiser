@@ -247,8 +247,13 @@ function updateOption(optId, funcConfig = {}) {
 		// set values and default value
 		let fullId = funcConfig['parentModId'] ? `mod:${funcConfig['parentModId']}:${optId}` : `opt:${optId}`,
 			input = document.getElementById(fullId),
-			val = funcConfig['forceValue'],
+			val = funcConfig['forceValue'];
+
+		if(funcConfig['parentModId'] !== undefined) {
+			optData = theme['mods'][funcConfig['parentModId']]['options'][optId];
+		} else {
 			optData = theme['options'][optId];
+		}
 
 		let defaultValue = optData['default'];
 		if(defaultValue === undefined && optData['type'] === 'toggle') {
@@ -293,7 +298,7 @@ function updateOption(optId, funcConfig = {}) {
 		return true;
 	}
 	catch(e) {
-		console.log(`[updateMod] Unexpected error: ${e}`);
+		console.log(`[updateOption] Unexpected error: ${e}`);
 		return false;
 	}
 }
@@ -618,13 +623,15 @@ async function updateCss() {
 	}
 }
 
+// "fullid" should be a valid HTML ID to select the option with.
+// "type" is the full option type string: "type/qualifier/subqualifier" 
+// Also accepts an HTML DOM element with the bind function for certain features: validateInput.bind(DOMElement)
 function validateInput(fullid, type) {
 	let notice = document.getElementById(`${fullid}-notice`),
 		noticeHTML = '',
 		val = document.getElementById(`${fullid}`).value.toLowerCase(),
 		problems = 0,
-		qualifier = type.split('/')[1],
-		subQualifier = type.split('/')[2];
+		qualifier = type.split('/')[1];
 	
 	if(val.length === 0) {
 		notice.classList.add('o-hidden');
@@ -732,7 +739,7 @@ function clearCache() {
 function renderHtml() {
 	loader.text('Rendering page...');
 
-	// options & mods
+	// Basic variables
 	document.getElementById('js-title').textContent = theme['name'] ? theme['name'] : 'Untitled';
 	document.getElementById('js-author').textContent = theme['author'] ? theme['author'] : 'Unknown Author';
 	let credit = document.getElementById('js-theme-credit');
@@ -742,6 +749,7 @@ function renderHtml() {
 		credit.textContent = `Customising "${theme['name']}"`;
 	}
 
+	// Theme flags
 	if('flags' in theme) {
 		let themeTag = document.getElementById('js-theme-tag');
 		if(theme['flags'].includes('beta')) {
@@ -754,229 +762,210 @@ function renderHtml() {
 		}
 	}
 
-	var optionsEle = document.getElementById('js-options');
+	// Options & Mods
 
-	function generateOptionHtml(dictionary, parentModId) {
+	function renderCustomisation(entryType, entry, parentEntry = [undefined, undefined]) {
+		let entryId = entry[0],
+			entryData = entry[1],
+			parentId = parentEntry[0];
 
-		let optId = dictionary[0],
-			opt = dictionary[1],
-			fullId = `opt:${optId}`;
-		
-		if(parentModId) {
-			fullId = `mod:${parentModId}:${optId}`;
-		}
-			
-		if(!('type' in opt)) {
-			return `Option must have a "type" key.`;
-		}
+		// Setup basic HTML
 
 		let div = document.createElement('div'),
 			head = document.createElement('div'),
 			headLeft = document.createElement('b'),
 			headRight = document.createElement('div'),
 			expando = document.createElement('div'),
-			desc = document.createElement('div'),
-			notice = document.createElement('p'),
-			link = document.createElement('a');
+			desc = document.createElement('div');
 
-		div.className = 'entry has-help';
+		div.className = 'entry';
 		head.className = 'entry__head';
-		headLeft.textContent = opt['name'] ? opt['name'] : 'Untitled';
-		headLeft.className = 'entry__name';
+		headLeft.textContent = entryData['name'] ? entryData['name'] : 'Untitled';
+		headLeft.className = 'entry__name entry__name--emphasised';
 		headRight.className = 'entry__action-box';
-		head.appendChild(headLeft);
-		head.appendChild(headRight);
-		div.appendChild(head);
-
 		expando.className = 'expando js-expando';
 		expando.setAttribute('data-expando-limit', "100");
 		expando.innerHTML = '<button class="expando__button expando__button--subtle js-expando-button">Expand</button>';
 		desc.className = 'entry__desc';
+
+		// Add HTML as necessary
+
+		head.appendChild(headLeft);
+		head.appendChild(headRight);
+		div.appendChild(head);
 		expando.appendChild(desc);
-		if('description' in opt) {
-			desc.appendChild(createBB(opt['description']));
+		if('description' in entryData) {
+			desc.appendChild(createBB(entryData['description']));
 			div.appendChild(expando);
 		}
 
-		link.className = 'entry__help hyperlink';
-		link.target = "_blank";
-		head.appendChild(link);
+		// Option & Mod Specific HTML
 
-		let split = opt['type'].split('/'),
-			baseType = split[0],
-			qualifier = split[1],
-			subQualifier = split[2];
+		if(entryType === 'option') {
+			let htmlId = parentId ? `mod:${parentId}:${entryId}` : `opt:${entryId}`;
 
-		if(baseType === 'text' || opt['type'] === 'color') {
-			if(!('replacements' in opt)) {
+			// Validate JSON
+
+			if(!('type' in entryData)) {
+				return `Option must have a "type" key.`;
+			}
+
+			let split = entryData['type'].split('/'),
+				type = split[0],
+				qualifier = split[1],
+				subQualifier = split[2];
+
+			if(type === 'select' && !('selections' in entryData)) {
+				return 'Option of type "select" must contain a "selections" key.';
+			}
+			else if(!('replacements' in entryData)) {
 				return 'Option must contain a "replacements" key.';
 			}
 
-			let input = document.createElement('input');
-			input.id = fullId;
-			input.type = 'text';
-			input.value = opt['default'];
-			input.className = 'input';
-			input.placeholder = 'Your text here.';
-			div.appendChild(input);
+			// Help Links
 
-			if(qualifier === 'value' && subQualifier) {
-				input.placeholder = 'Your value here.';
-				
-				let property = opt['type'].split('/')[2];
+			let helpLink = document.createElement('a');
+			helpLink.className = 'entry__help hyperlink';
+			helpLink.target = "_blank";
+			div.classList.add('has-help');
+			head.appendChild(helpLink);
 
-				link.textContent = 'Valid Inputs';
-				link.href = `https://developer.mozilla.org/en-US/docs/Web/CSS/${property}#values`
-			}
-			else if(opt['type'] === 'color') {
-				input.placeholder = 'Your colour here. e.x rgba(0, 135, 255, 1.0)';
+			// Type-specific Option HTML & Functions
 
-				let display = document.createElement('div');
-				display.className = 'entry__colour';
+			let interface = document.createElement('input');
+			interface.placeholder = 'Your text here.';
+			interface.className = 'input';
 
-				div.appendChild(display);
+			// Text-based Options
 
-				link.textContent = 'Colour Picker';
-				link.href = 'https://mdn.github.io/css-examples/tools/color-picker/';
+			if(type === 'text' || type === 'color') {
+				interface.type = 'text';
+				interface.value = entryData['default'];
 
-				input.addEventListener('input', validateInput.bind(display, fullId, opt['type']));
-			}
-			else if(qualifier === 'size') {
-				input.placeholder = 'Your size here. e.x 200px, 33%, 20vw, etc.';
-
-				input.addEventListener('input', () => { validateInput(fullId, opt['type']) });
-			}
-			else if(qualifier === 'image_url') {
-				input.type = 'url';
-				input.placeholder = 'https://example.com/image.jpg';
-				div.appendChild(input);
-
-				link.textContent = 'Image Tips';
-				link.href = 'https://github.com/ValerioLyndon/MAL-Public-List-Designs/wiki/Image-Hosting-Tips';
-
-				input.addEventListener('input', () => { validateInput(fullId, opt['type']); });
-			}
-
-			input.addEventListener('input', () => {
-				updateOption(optId, {'parentModId': parentModId});
-				updateCss();
-			});
-		}
-
-
-		else if(baseType === 'textarea') {
-			if(!('replacements' in opt)) {
-				return 'Option must contain a "replacements" key.';
-			}
-
-			let input = document.createElement('textarea');
-			input.id = fullId;
-			input.value = opt['default'];
-			input.className = 'entry__textarea input input--textarea';
-			input.placeholder = 'Your text here.';
-			div.appendChild(input);
-
-			input.addEventListener('input', () => {
-				updateOption(optId, {'parentModId': parentModId});
-				updateCss();
-			});
-		}
-
-		else if(baseType === 'toggle') {
-			if(!('replacements' in opt)) {
-				return 'Option must contain a "replacements" key.';
-			}
-
-			let toggle = document.createElement('input');
-			toggle.type = 'checkbox';
-			toggle.id = fullId;
-			toggle.className = 'o-hidden';
-			if(opt['default'] == true) {
-				toggle.checked = true;
-			}
-			headRight.innerHTML = `
-				<label class="toggle" for="${fullId}"></label>
-			`;
-			headRight.prepend(toggle);
-
-			toggle.addEventListener('input', () => {
-				updateOption(optId, {'parentModId': parentModId});
-				updateCss();
-			});
-		}
-
-		else if(baseType === 'select') {
-			if(!('selections' in opt)) {
-				return 'Option must contain a "replacements" key.';
-			}
-
-			let select = document.createElement('select');
-
-			// would be nice to have a simpler/nicer to look at switch for small lists but would require using radio buttons.
-			select.className = 'entry__select';
-			select.id = fullId;
-			for(let [selectKey, selectData] of Object.entries(opt['selections'])) {
-				let selectOption = document.createElement('option');
-				selectOption.value = selectKey;
-				selectOption.textContent = selectData['label'];
-				if(selectKey === opt['default']) {
-					selectOption.selected = true;
+				if(qualifier === 'value') {
+					interface.placeholder = 'Your value here.';
+					
+					// Add help link to Mozilla docs for CSS properties
+					if(subQualifier) {
+						helpLink.textContent = 'Valid Inputs';
+						helpLink.href = `https://developer.mozilla.org/en-US/docs/Web/CSS/${subQualifier}#values`
+					}
 				}
-				select.append(selectOption);
-			}
-			div.append(select);
+				else if(type === 'color') {
+					interface.placeholder = 'Your colour here. e.x rgba(0, 135, 255, 1.0)';
 
-			select.addEventListener('input', () => {
-				updateOption(optId, {'parentModId': parentModId});
+					// Add a colour preview
+					let display = document.createElement('div');
+					display.className = 'entry__colour';
+					div.appendChild(display);
+
+					helpLink.textContent = 'Colour Picker';
+					helpLink.href = 'https://mdn.github.io/css-examples/tools/color-picker/';
+
+					interface.addEventListener('input', validateInput.bind(display, htmlId, type));
+				}
+				else if(qualifier === 'size') {
+					interface.placeholder = 'Your size here. e.x 200px, 33%, 20vw, etc.';
+					interface.addEventListener('input', () => { validateInput(htmlId, type) });
+				}
+				else if(qualifier === 'image_url') {
+					interface.type = 'url';
+					interface.placeholder = 'https://example.com/image.jpg';
+
+					helpLink.textContent = 'Image Tips';
+					helpLink.href = 'https://github.com/ValerioLyndon/MAL-Public-List-Designs/wiki/Image-Hosting-Tips';
+
+					interface.addEventListener('input', () => { validateInput(htmlId, type); });
+				}
+			}
+
+			else if(type === 'textarea') {
+				interface = document.createElement('textarea');
+				interface.className = 'input entry__textarea input--textarea';
+				interface.value = entryData['default'];
+			}
+
+			// Toggle Options
+
+			else if(type === 'toggle') {
+				interface.type = 'checkbox';
+				interface.id = htmlId;
+				interface.className = 'o-hidden';
+				if(entryData['default'] == true) {
+					interface.checked = true;
+				}
+				headRight.innerHTML = `
+					<label class="toggle" for="${htmlId}"></label>
+				`;
+			}
+
+			// Select Options
+
+			else if(type === 'select') {
+				interface = document.createElement('select');
+				interface.className = 'entry__select';
+
+				// Add selections
+				for(let [selectKey, selectData] of Object.entries(entryData['selections'])) {
+					let selectOption = document.createElement('option');
+					selectOption.value = selectKey;
+					selectOption.textContent = selectData['label'];
+					if(selectKey === entryData['default']) {
+						selectOption.selected = true;
+					}
+					interface.append(selectOption);
+				}
+			}
+
+			// Add functionality to all the options & finalise type-specific features
+
+			interface.addEventListener('input', () => {
+				updateOption(entryId, {'parentModId': parentId});
 				updateCss();
 			});
-		}
 
-		notice.id = `${fullId}-notice`;
-		notice.className = 'info-box info-box--indented info-box--error o-hidden';
-		div.appendChild(notice);
-
-		return div;
-	}
-
-	if('options' in theme) {
-		for(let opt of Object.entries(theme['options'])) {
-			let ele = generateOptionHtml(opt);
-			if(typeof ele === 'string') {
-				console.log(`[generateOptionHtml] Skipped option "${opt[0]}": ${ele}`);
+			interface.id = htmlId;
+			if(type === 'toggle') {
+				headRight.prepend(interface);
 			} else {
-				optionsEle.appendChild(ele);
+				div.appendChild(interface);
 			}
+
+			// Add notice
+
+			let notice = document.createElement('p');
+			notice.id = `${htmlId}-notice`;
+			notice.className = 'info-box info-box--indented info-box--error o-hidden';
+			div.appendChild(notice);
 		}
-	} else {
-		optionsEle.parentNode.remove();
-	}
 
-	var modsEle = document.getElementById('js-mods'),
-		modTags = {};
+		else if(entryType === 'modification') {
+			let htmlId = `mod:${entryId}`;
 
-	if('mods' in theme) {
-		for (const [modId, mod] of Object.entries(theme['mods'])) {
+			// Basic Mod HTML & Functions
 
-			let div = document.createElement('div'),
-				head = document.createElement('div'),
-				headLeft = document.createElement('b'),
-				headRight = document.createElement('div'),
-				expando = document.createElement('div'),
-				desc = document.createElement('div');
+			div.id = `mod-parent:${entryId}`;
 
-			if('css' in mod) {
+			if('css' in entryData) {
+				let toggle = document.createElement('input');
+				toggle.type = 'checkbox';
+				toggle.id = htmlId;
+				toggle.className = 'o-hidden';
 				headRight.innerHTML = `
-					<input id="mod:${modId}" type="checkbox" class="o-hidden" />
-					<label class="toggle" for="mod:${modId}"></label>
+					<label class="toggle" for="${htmlId}"></label>
 				`;
-			} else if('url' in mod) {
+				toggle.addEventListener('change', () => {
+					updateMod(entryId);
+					updateCss();
+				});
+				headRight.prepend(toggle);
+			} else if('url' in entryData) {
 				let link = document.createElement('a');
 				link.className = 'entry__external-link js-info';
 				link.setAttribute('data-info', 'This mod has linked an external resource or guide for you to install. Unless otherwise instructed, these should be installed <b>after</b> you install the main theme.')
 				link.addEventListener('mouseover', () => { infoOn(link); });
 				link.addEventListener('mouseout', infoOff);
-				link.href = mod['url'];
+				link.href = entryData['url'];
 				link.target = "_blank";
 				link.innerHTML = `
 					<i class="entry__external-link-icon fa-solid fa-arrow-up-right-from-square"></i>
@@ -984,66 +973,72 @@ function renderHtml() {
 				headRight.appendChild(link);
 			}
 
-			div.className = 'entry';
-			div.id = `mod-parent:${modId}`;
-			head.className = 'entry__head';
-			headLeft.textContent = mod['name'] ? mod['name'] : 'Untitled';
-			headLeft.className = 'entry__name entry__name--emphasised';
-			headRight.className = 'entry__action-box';
-			head.appendChild(headLeft);
-			head.appendChild(headRight);
-			div.appendChild(head);
+			// Mod Flags
 
-			expando.className = 'expando js-expando';
-			expando.setAttribute('data-expando-limit', "100");
-			expando.innerHTML = '<button class="expando__button expando__button--subtle js-expando-button">Expand</button>';
-			if('description' in mod) {
-				desc.appendChild(createBB(mod['description']));
+			if('flags' in entryData && entryData['flags'].includes('hidden')) {
+				div.classList.add('o-hidden');
+				// skips tags on hidden items to prevent weird item counts on the GUI
+				delete entryData['tags'];
 			}
-			desc.className = 'entry__desc';
-			expando.appendChild(desc);
-			div.appendChild(expando);
 
-			if('options' in mod) {
+			// Add mod tag to list of tags
+			if('tags' in entryData) {
+				for(let tag of entryData['tags']) {
+					if(modTags[tag]) {
+						modTags[tag].push(entryId);
+					} else {
+						modTags[tag] = [entryId];
+					}
+				}
+			}
+
+			// Mod Options
+
+			if('options' in entryData) {
 				let optDiv = document.createElement('div');
 				optDiv.className = 'entry__options';
 
-				for(let opt of Object.entries(mod['options'])) {
-					let ele = generateOptionHtml(opt, modId);
-					if(typeof ele === 'string') {
-						console.log(`[generateOptionHtml] Skipped option "${opt[0]}" of mod "${modId}": ${ele}`);
+				for(let opt of Object.entries(entryData['options'])) {
+					let renderedOpt = renderCustomisation('option', opt, entry);
+					if(typeof renderedOpt === 'string') {
+						console.log(`[renderCustomisation] Skipped option "${opt[0]}" of mod "${entryId}": ${renderedOpt}`);
 					} else {
-						optDiv.appendChild(ele);
+						optDiv.appendChild(renderedOpt);
 					}
 				}
 
 				div.appendChild(optDiv);
 			}
+		}
 
-			if('flags' in mod && mod['flags'].includes('hidden')) {
-				div.classList.add('o-hidden');
-				// skips tags on hidden items to prevent weird item counts on the GUI
-				delete mod['tags'];
+		// Return rendered HTML
+		return div;
+	}
+
+	let optionsEle = document.getElementById('js-options');
+	if('options' in theme) {
+		for(const opt of Object.entries(theme['options'])) {
+			let renderedOpt = renderCustomisation('option', opt);
+			if(typeof renderedOpt === 'string') {
+				console.log(`[renderCustomisation] Skipped option "${opt[0]}": ${renderedOpt}`);
+			} else {
+				optionsEle.appendChild(renderedOpt);
 			}
+		}
+	} else {
+		optionsEle.parentNode.remove();
+	}
 
-			modsEle.appendChild(div);
+	var modTags = {};
 
-			if('css' in mod) {
-				document.getElementById(`mod:${modId}`).addEventListener('change', () => {
-					updateMod(modId);
-					updateCss();
-				});
-			}
-
-			// Add mod tag to list of tags
-			if('tags' in mod) {
-				for(let tag of mod['tags']) {
-					if(modTags[tag]) {
-						modTags[tag].push(modId);
-					} else {
-						modTags[tag] = [modId];
-					}
-				}
+	let modsEle = document.getElementById('js-mods');
+	if('mods' in theme) {
+		for (const mod of Object.entries(theme['mods'])) {
+			let renderedMod = renderCustomisation('modification', mod);
+			if(typeof renderedMod === 'string') {
+				console.log(`[renderCustomisation] Skipped mod "${modId}": ${renderedMod}`);
+			} else {
+				modsEle.appendChild(renderedMod);
 			}
 		}
 	} else {
