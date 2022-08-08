@@ -258,11 +258,6 @@ function updateOption(optId, funcConfig = {}) {
 		}
 
 		let defaultValue = optData['default'];
-		if(defaultValue === undefined && optData['type'] === 'toggle') {
-			defaultValue = false;
-		} else if(defaultValue === undefined) {
-			defaultValue = '';
-		}
 
 		if(val === undefined) {
 			if(input.type === 'checkbox') {
@@ -778,6 +773,20 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 		}
 		else if(!('replacements' in entryData)) {
 			return 'Option must contain a "replacements" key.';
+		}
+
+		// Set default value if needed
+
+		let defaultValue = '';
+		if(entryData['default'] === undefined && entryData['type'] === 'toggle') {
+			defaultValue = false;
+		} else if(entryData['default'] !== undefined) {
+			defaultValue = entryData['default'];
+		}
+		if(parentId) {
+			theme['mods'][parentId]['options'][entryId]['default'] = defaultValue;
+		} else {
+			theme['options'][entryId]['default'] = defaultValue;
 		}
 
 		// Help Links
