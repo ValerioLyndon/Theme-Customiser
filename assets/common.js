@@ -125,11 +125,11 @@ function fetchFile(path, cacheResult = true) {
 		let cache = sessionStorage.getItem(path);
 
 		if(cacheResult && cache) {
-			console.log(`[fetchFile] Retrieving cached result for ${path}`);
+			console.log(`[info] Retrieving cached result for ${path}`);
 			resolve(cache);
 		}
 		else {
-			console.log(`[fetchFile] Fetching ${path}`);
+			console.log(`[info] Fetching ${path}`);
 			var request = new XMLHttpRequest();
 			request.open("GET", path, true);
 			request.send(null);
@@ -142,13 +142,13 @@ function fetchFile(path, cacheResult = true) {
 						}
 						resolve(request.responseText);
 					} else {
-						console.log(`[FetchFile] Failed while fetching "${path}". Code: request.status.${request.status}`);
+						console.log(`[ERROR] Failed while fetching "${path}". Code: request.status.${request.status}`);
 						reject([`Encountered a problem while loading a resource.`, `request.status.${request.status}`]);
 					}
 				}
 			}
 			request.onerror = function(e) {
-				console.log(`[FetchFile] Failed while fetching "${path}". Code: request.error`);
+				console.log(`[ERROR] Failed while fetching "${path}". Code: request.error`);
 				reject(['Encountered a problem while loading a resource.', 'request.error']);
 			}
 		}
@@ -179,7 +179,7 @@ function importPreviousSettings(opts = undefined) {
 			var previousSettings = JSON.parse(previous.trim());
 		}
 		catch {
-			previous = previous.match(/\^TC{.*?}}TC\$/);
+			previous = previous.match(/\^TC{.*?}TC\$/);
 
 			if(previous === null) {
 				messenger.error('Import failed, could not interpret your options. Are you sure you input the correct text?', ' regex.match');
@@ -191,7 +191,7 @@ function importPreviousSettings(opts = undefined) {
 			try {
 				var previousSettings = JSON.parse(previous);
 			} catch(e) {
-				console.log(`[importPreviousSettings] Error during JSON.parse: ${e}`);
+				console.log(`[ERROR] Failed to parse imported settings JSON: ${e}`);
 				messenger.error('Import failed, could not interpret your options. Are you sure you copied and pasted all the settings?', 'json.parse');
 				return false;
 			}
@@ -260,12 +260,91 @@ function toggleEle(selector, btn = false, set = undefined) {
 	}
 }
 
+// Tag Functionality & Renderer
+
+let tagsBtn = document.getElementById('js-tags__button');
+
+/* Adds functional tags to the HTML. Accepts three values:
+ * tags
+   - A dictionary containing tag keys and their id arrays
+   e.x { "my tag": ["item id", 0, "three"] }
+ * allIds
+   - an array of all ID values to show/hide when selecting tags.
+   e.x ["my mod", "mod 2", "image mod"]
+ * selector
+   - a CSS ID to target the correct items using IDs from allIds.
+   - will replace the "ID" text during runtime.
+   e.x "card:ID"
+ */
+function renderTags(tags, allIds, selector) {
+	tagsBtn.classList.remove('o-hidden');
+
+	let cloudEle = document.getElementById('js-tags__cloud');
+
+	for(let [tag, itemIds] of Object.entries(tags)) {
+		let tagEle = document.createElement('button'),
+			countEle = document.createElement('span'),
+			count = itemIds.length;
+
+		tagEle.textContent = tag;
+		tagEle.className = 'tag-cloud__tag js-tag';
+		tagEle.setAttribute('data-items', itemIds);
+
+		countEle.textContent = count;
+		countEle.className = 'tag-cloud__count';
+		tagEle.appendChild(countEle);
+		cloudEle.appendChild(tagEle);
+
+		// Add tag button functions
+		tagEle.addEventListener('click', () => { selectTag(tagEle, allIds, selector); });
+	}
+}
+
+function selectTag(tagEle, allIds, selector) {
+	// Clear previous selection
+	let hidden = document.querySelectorAll('.is-hidden-by-tag'),
+		isSelected = tagEle.className.includes('is-selected');
+	for(let ele of hidden) {
+		ele.classList.remove('is-hidden-by-tag');
+	}
+
+	// Remove other tags' styling & set our own
+	tagsBtn.classList.remove('has-selected');
+	let selectedTags = document.querySelectorAll('.js-tag.is-selected');
+
+	for(let tag of selectedTags) {
+		tag.classList.remove('is-selected');
+	}
+
+	// Select new tags
+	if(!isSelected) {
+		tagsBtn.classList.add('has-selected');
+		let itemsToKeep = tagEle.getAttribute('data-items').split(',');
+
+		for(let i = 0; i < itemsToKeep.length; i++) {
+			itemsToKeep[i] = String(itemsToKeep[i]);
+		}
+		
+		for(let id of allIds) {
+			id = String(id);
+			
+			if(itemsToKeep.includes(id)) {
+				continue;
+			} else {
+				document.getElementById(selector.replace('ID', id)).classList.add('is-hidden-by-tag');
+			}
+		}
+		tagEle.classList.add('is-selected');
+	}
+}
+
 
 
 // VARIABLES
 
 const
 	query = (new URL(document.location)).searchParams,
+	megaUrls = query.getAll('m'),
 	collectionUrls = query.getAll('c'),
 	themeUrls = query.getAll('t'),
 	loader = new loadingScreen(),
@@ -296,7 +375,7 @@ async function processJson(json, url, toReturn) {
 		messenger.warn('Detected JSON version ahead of current release. Processing as normal.');
 	}
 
-	else {
+	else if(ver < jsonVersion) {
 		messenger.warn('The loaded JSON has been processed as legacy JSON. This can cause slowdowns or errors. If you are the JSON author, please see the GitHub page for assistance updating.');
 		if(ver === 0.1) {
 			json = updateToBeta2(json, url, toReturn);
@@ -309,41 +388,40 @@ async function processJson(json, url, toReturn) {
 	}
 
 	// Process as normal once format has been updated
-	if(ver === jsonVersion) {
-		// Process as collection or fetch correct theme from collection
-		if(toReturn === 'collection' && 'themes' in json
-		|| toReturn === 'theme' && 'data' in json) {
-			// Convert legacy dictionary to array
-			if('themes' in json && !Array.isArray(json['themes'])) {
-				let arrayThemes = [];
-				for(let t of Object.values(json['themes'])) {
-					arrayThemes.push(t);
+	
+	// Process as collection or fetch correct theme from collection
+	if(toReturn === 'collection' && 'themes' in json
+	|| toReturn === 'theme' && 'data' in json) {
+		// Convert legacy dictionary to array
+		if('themes' in json && !Array.isArray(json['themes'])) {
+			let arrayThemes = [];
+			for(let t of Object.values(json['themes'])) {
+				arrayThemes.push(t);
+			}
+			json['themes'] = arrayThemes;
+		}
+		return json;
+	}
+	else if('themes' in json && toReturn in json['themes']) {
+		let themeUrl = json['themes'][toReturn]['url'];
+		if(themeUrl) {
+			return fetchFile(themeUrl)
+			.then((result) => {
+				let themeJson = '';
+				try {
+					themeJson = JSON.parse(result);
+				} catch {
+					themeJson = false;
 				}
-				json['themes'] = arrayThemes;
-			}
-			return json;
+				return themeJson;
+			})
+			.catch(() => {
+				return false;
+			});
 		}
-		else if('themes' in json && toReturn in json['themes']) {
-			let themeUrl = json['themes'][toReturn]['url'];
-			if(themeUrl) {
-				return fetchFile(themeUrl)
-				.then((result) => {
-					let themeJson = '';
-					try {
-						themeJson = JSON.parse(result);
-					} catch {
-						themeJson = false;
-					}
-					return themeJson;
-				})
-				.catch(() => {
-					return false;
-				});
-			}
-		}
-		else {
-			return 'The linked theme lacks a "data" or a "themes" entry.';
-		}
+	}
+	else {
+		return 'The linked theme lacks a "data" or a "themes" entry.';
 	}
 }
 
