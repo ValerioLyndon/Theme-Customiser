@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Create a report to help us improve
+about: Create a report to help improve the project
 title: "[BUG] "
 labels: bug
 assignees: ''
@@ -19,19 +19,24 @@ Steps to reproduce the behavior:
 3. Scroll down to '....'
 4. See error
 
-**Expected behavior**
+**Desktop (please complete the following information)**
 
-A clear and concise description of what you expected to happen.
+ - Operating System: [e.g. Windows, Linux, iOS]
+ - Browser: [e.g. chrome, safari]
+ - Version: [e.g. 96]
+ - Notable browser extensions: [e.g. uBlock Origin, Adblock, NoScript, etc, no need to list all]
 
 **Screenshots**
 
 If applicable, add screenshots to help explain your problem.
 
-**Desktop (please complete the following information):**
+**Customiser Settings**
 
- - Operating System: [e.g. Windows, Linux, iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 96]
+If applicable, paste the settings you were using below. You can find them by clicking "Export Settings" at the top of the Theme Customiser page.
+
+```
+settings go here
+```
 
 **Additional context**
 
