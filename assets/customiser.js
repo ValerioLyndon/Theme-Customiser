@@ -839,7 +839,7 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 				interface.type = 'url';
 				interface.placeholder = 'https://example.com/image.jpg';
 
-				helpLink.textContent = 'Image Tips';
+				helpLink.innerHTML = 'Tips & Help <i class="fa-solid fa-circle-question"></i>';
 				helpLink.href = 'https://github.com/ValerioLyndon/MAL-Public-List-Designs/wiki/Image-Hosting-Tips';
 
 				interface.addEventListener('input', () => { validateInput(htmlId, type); });
