@@ -852,6 +852,25 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 			interface.value = entryData['default'];
 		}
 
+		// Range Options
+
+		else if(type === 'range') {
+			interface.type = 'range';
+			if('min' in entryData) {
+				interface.setAttribute('min', entryData['min']);
+			}
+			if('max' in entryData) {
+				interface.setAttribute('max', entryData['max']);
+			}
+			if('decimal' in entryData) {
+				let step = '1';
+				if(entryData['decimal'] > 0) {
+					step = '0.' + '0'.repeat(entryData['decimal'] - 1) + '1';
+				}
+				interface.setAttribute('step', step);
+			}
+		}
+
 		// Toggle Options
 
 		else if(type === 'toggle') {
