@@ -814,7 +814,7 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 				
 				// Add help link to Mozilla docs for CSS properties
 				if(subQualifier) {
-					helpLink.textContent = 'Valid Inputs';
+					helpLink.innerHTML = ' Valid Inputs <i class="fa-solid fa-circle-info"></i>';
 					helpLink.href = `https://developer.mozilla.org/en-US/docs/Web/CSS/${subQualifier}#values`
 				}
 			}
