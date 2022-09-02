@@ -518,69 +518,6 @@ body {
 	float: right;
 }
 
-#controls #picker-switch {
-	text-align: center;
-	float: left;
-}
-
-#controls .icon {
-	width: 48px;
-	height: 48px;
-	margin: 10px 0;
-	background-repeat: no-repeat;
-	background-position: center;
-	border: 1px solid #DDD;
-	display: table;
-	float: left;
-}
-
-#controls .icon:hover {
-	cursor: pointer;
-}
-
-#controls .picker-icon {
-	background-image: url('picker.png');
-}
-
-#controls #void-sample {
-	margin-right: 10px;
-	background-image: url('void.png');
-	background-position: center left;
-}
-
-#controls #void-sample[data-active='true'] {
-	border-color: #CCC;
-	background-position: center right;
-}
-
-#controls .switch {
-	width: 106px;
-	padding: 1px;
-	border: 1px solid #CCC;
-	font-size: 14px;
-	text-align: center;
-	line-height: 24px;
-	overflow: hidden;
-	float: left;
-}
-
-#controls .switch:hover {
-	cursor: pointer;
-}
-
-#controls .switch > * {
-	width: 50%;
-	padding: 2px 0;
-	background-color: #EEE;
-	float: left;
-}
-
-#controls .switch [data-active='true'] {
-	color: #FFF;
-	background-image: url('grain.png');
-	background-color: #777;
-}
-
 /**
  * 	Trash Can
  */
@@ -622,38 +559,11 @@ body {
 }
 
 /**
- * 	Color Theme
- */
-
-#color-theme {
-	margin: 0 8px 0 0;
-	border: 1px solid #EEE;
-	display: inline-block;
-	float: right;
-}
-
-#color-theme .box {
-	width: 80px;
-	height: 92px;
-	float: left;
-}
-
-/**
  * Color info box
  */
 #color-info {
-	width: 360px;
-	float: left;
-}
-
-#color-info .title {
-	width: 100%;
-	padding: 15px;
-	font-size: 18px;
-	text-align: center;
-	background-image: url('color-wheel.png');
-	background-repeat:no-repeat;
-	background-position: center left 30%;
+	display: flex;
+	border-top: 1px solid #DDD;
 }
 
 #color-info .copy-container {
@@ -662,15 +572,16 @@ body {
 }
 
 #color-info .property {
+	display: flex;
 	min-width: 280px;
 	height: 30px;
 	margin: 10px 0;
 	text-align: center;
 	line-height: 30px;
+	flex: 1 1 auto;
 }
 
 #color-info .property > * {
-	float: left;
 }
 
 #color-info .property .type {
@@ -718,112 +629,6 @@ body {
 }
 
 /**
- * 	Color Palette
- */
-
-#palette {
-	width: 1000px;
-	padding: 10px 0;
-	background-image: url('grain.png');
-	background-repeat: repeat;
-	background-color: #EEE;
-	color: #777;
-
-	-moz-box-sizing: border-box;
-	-webkit-box-sizing: border-box;
-	box-sizing: border-box;
-}
-
-#color-palette {
-	width: 640px;
-	font-family: Arial, Helvetica, sans-serif;
-	color: #777;
-	float: left;
-}
-
-#color-palette .container {
-	width: 100%;
-	height: 50px;
-	line-height: 50px;
-	overflow: hidden;
-	float: left;
-	transition: all 0.5s;
-}
-
-#color-palette .container > * {
-	float: left;
-}
-
-#color-palette .title {
-	width: 100px;
-	padding: 0 10px;
-	text-align: right;
-	line-height: inherit;
-}
-
-#color-palette .palette {
-	width: 456px;
-	height: 38px;
-	margin: 3px;
-	padding: 3px;
-	display: table;
-	background-color: #FFF;
-}
-
-#color-palette .palette .sample {
-	width: 30px;
-	height: 30px;
-	margin: 3px;
-	position: relative;
-	border: 1px solid #DDD;
-	float: left;
-	transition: all 0.2s;
-}
-
-#color-palette .palette .sample:hover {
-	cursor: pointer;
-	border-color: #BBB;
-	transform: scale(1.15);
-	border-radius: 3px;
-}
-
-#color-palette .controls {
-}
-
-#color-palette .controls > * {
-	float: left;
-}
-
-#color-palette .controls > *:hover {
-	cursor: pointer;
-}
-
-#color-palette .controls .lock {
-	width: 24px;
-	height: 24px;
-	margin: 10px;
-	padding: 3px;
-	background-image: url('lock.png');
-	background-repeat: no-repeat;
-	background-position: bottom right;
-}
-
-#color-palette .controls .lock:hover {
-	/*background-image: url('images/unlocked-hover.png');*/
-	background-position: bottom left;
-}
-
-#color-palette .controls .lock[locked-state='true'] {
-	/*background-image: url('images/locked.png');*/
-	background-position: top left ;
-}
-
-#color-palette .controls .lock[locked-state='true']:hover {
-	/*background-image: url('images/lock-hover.png');*/
-	background-position: top right;
-}
-
-/**
  * Canvas
  */
 
@@ -836,6 +641,7 @@ body {
 	background-repeat: repeat;
 	position: relative;
 	float: left;
+	overflow: hidden;
 }
 
 #canvas[data-tutorial='drop'] {
@@ -845,9 +651,9 @@ body {
 }
 
 #canvas[data-tutorial='drop']:before {
-	content: "Drop colors here to compare";
+	content: "Drag colors here to compare";
 	width: 40%;
-	padding: 30px 9% 70px 11%;
+	padding: 50px 9% 50px 11%;
 
 	background-image: url('drop.png');
 	background-repeat: no-repeat;
@@ -861,16 +667,6 @@ body {
 	position: absolute;
 	top: 50px;
 	left: 20%;
-}
-
-#canvas[data-tutorial='drop']:after {
-	content: "adjust, change or modify";
-	width: 40%;
-	font-size: 24px;
-	position: absolute;
-	top: 130px;
-	left: 32%;
-	z-index: 2;
 }
 
 #canvas [data-tutorial='dblclick'] {
@@ -949,7 +745,7 @@ body {
 	width: 16px;
 	height: 16px;
 	margin: 5px;
-	background: url("images/canvas-controls.png") center left no-repeat;
+	background: url("canvas-controls.png") center left no-repeat;
 	position: absolute;
 	top: 0;
 	right: 0;

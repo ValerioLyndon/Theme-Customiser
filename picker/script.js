@@ -427,11 +427,11 @@ var UIColorPicker = (function UIColorPicker() {
 		this.newInputComponent('V', 'value', this.inputChangeValue.bind(this));
 		this.newInputComponent('L', 'lightness', this.inputChangeLightness.bind(this));
 
-		this.createAlphaArea();
-
 		this.newInputComponent('R', 'red', this.inputChangeRed.bind(this));
 		this.newInputComponent('G', 'green', this.inputChangeGreen.bind(this));
 		this.newInputComponent('B', 'blue', this.inputChangeBlue.bind(this));
+
+		this.createAlphaArea();
 
 		this.createPreviewBox();
 
