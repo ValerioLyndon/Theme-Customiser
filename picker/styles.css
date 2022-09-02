@@ -86,7 +86,8 @@
 	width: 198px;
 	height: 28px;
 	margin: 5px;
-	border: 1px solid #FFF;
+	border: 1px solid #fff;
+	border-radius: 4px;
 	float: left;
 }
 
@@ -100,6 +101,7 @@
 				#00F 66.66%, #F0F 83.33%, #F00 100%);
 	background: -o-linear-gradient(left, #F00 0%, #FF0 16.66%, #0F0 33.33%, #0FF 50%,
 				#00F 66.66%, #F0F 83.33%, #F00 100%);
+	background-clip: content-box;
 }
 
 .ui-color-picker .alpha {
@@ -155,6 +157,7 @@
 	margin: 0;
 	padding: 0;
 	border: 1px solid #DDD;
+	border-radius: 4px;
 	text-align: center;
 	float: right;
 
@@ -214,6 +217,8 @@
 	margin: 5px;
 	margin-top: 10px;
 	border: 1px solid #DDD;
+	border-radius: 4px;
+	overflow: hidden;
 	background-image: url("alpha.png");
 	float: left;
 	position: relative;
@@ -441,6 +446,8 @@ body {
 	height: 40px;
 	margin: 5px;
 	border: 1px solid #DDD;
+	background-clip: content-box;
+	border-radius: 4px;
 	position: absolute;
 	float: left;
 	transition: all 0.2s;
