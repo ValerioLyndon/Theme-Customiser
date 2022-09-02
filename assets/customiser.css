@@ -574,6 +574,8 @@ input:checked + .toggle.is-forced::after {
 }
 .entry.is-enabled .entry__options {
 	display: block;
+	padding-left: 15px;
+	border-left: 1px solid var(--border-light);
 }
 
 

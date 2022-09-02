@@ -815,7 +815,7 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 				
 				// Add help link to Mozilla docs for CSS properties
 				if(subQualifier) {
-					helpLink.textContent = 'Valid Inputs';
+					helpLink.innerHTML = ' Valid Inputs <i class="fa-solid fa-circle-info"></i>';
 					helpLink.href = `https://developer.mozilla.org/en-US/docs/Web/CSS/${subQualifier}#values`
 				}
 			}
@@ -840,7 +840,7 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 				interface.type = 'url';
 				interface.placeholder = 'https://example.com/image.jpg';
 
-				helpLink.textContent = 'Image Tips';
+				helpLink.innerHTML = 'Tips & Help <i class="fa-solid fa-circle-question"></i>';
 				helpLink.href = 'https://github.com/ValerioLyndon/MAL-Public-List-Designs/wiki/Image-Hosting-Tips';
 
 				interface.addEventListener('input', () => { validateInput(htmlId, type); });
@@ -1157,8 +1157,8 @@ function pageSetup() {
 	// Set theme columns and push to iframe
 
 	let baseColumns = {
-			'animelist': ['Numbers', 'Score', 'Type', 'Episodes', 'Rating', 'Start/End Dates', 'Total Days Watched', 'Storage', 'Tags', 'Priority', 'Genre', 'Demographics', 'Image', 'Premiered', 'Aired Dates', 'Studios', 'Licensors'],
-			'mangalist': ['Numbers', 'Score', 'Type', 'Chapters', 'Volumes', 'Start/End Dates', 'Total Days Read', 'Retail Manga', 'Tags', 'Priority', 'Genres', 'Demographics', 'Image', 'Published Dates', 'Magazine']
+			'animelist': ['Numbers', 'Score', 'Type', 'Episodes', 'Rating', 'Start/End Dates', 'Total Days Watched', 'Storage', 'Tags', 'Priority', 'Genre', 'Demographics', 'Image', 'Premiered', 'Aired Dates', 'Studios', 'Licensors', 'Notes'],
+			'mangalist': ['Numbers', 'Score', 'Type', 'Chapters', 'Volumes', 'Start/End Dates', 'Total Days Read', 'Retail Manga', 'Tags', 'Priority', 'Genres', 'Demographics', 'Image', 'Published Dates', 'Magazine', 'Notes']
 		},
 		columns = {};
 
