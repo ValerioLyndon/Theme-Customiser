@@ -505,6 +505,15 @@ body {
 	width: 800px;
 }
 
+.popup__section {
+	padding: 0 6px;
+	border-radius: 6px;
+	border: 2px solid var(--border-light);
+}
+.popup__section + .popup__section {
+	margin-top: 12px;
+}
+
 .popup__header {
 	display: block;
 	padding-bottom: 4px;

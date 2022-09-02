@@ -698,7 +698,7 @@ input:checked + .toggle.is-forced::after {
 .columns__split {
 	display: flex;
 	flex-flow: column nowrap;
-	width: 142px;
+	width: 138px;
 	max-width: 190px;
 	flex: 1 0 auto;
 }
@@ -846,4 +846,47 @@ input:checked + .toggle.is-forced::after {
 }
 .steps__step--optional::before {
 	content: "*";
+}
+.steps__step--blank::before {
+	content: none;
+}
+
+
+
+/* Dummy Theme Unit to replicate MyAnimeList appearance */
+
+.dummy-theme-unit {
+	display: block;
+	background-color: #e1e7f5;
+	border: #bebebe 1px solid;
+	width: 170px;
+	margin-bottom: 8px;
+	box-sizing: content-box;
+	font-family: 11px/1 Verdana, Arial, sans-serif;
+	text-align: center;
+	text-decoration: none;
+}
+
+.dummy-theme-unit__name {
+	padding: 2px 0;
+	margin-bottom: 3px;
+	color: #1c439b;
+	pointer-events: none;
+}
+
+.dummy-theme-unit__image {
+	display: block;
+	margin-bottom: 3px;
+	opacity: .75;
+	pointer-events: none;
+}
+
+.dummy-theme-unit__selection {
+	padding: 4px 0;
+	pointer-events: none;
+}
+
+.dummy-theme-unit__label {
+	display: inline-block;
+	padding: 1px 4px;
 }

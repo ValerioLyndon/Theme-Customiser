@@ -483,6 +483,22 @@ function updateToBeta3(json) {
 		return json;
 	}
 
+	// Update config formatting
+	if('columns' in json['data']) {
+		if(!('config' in json['data'])) {
+			json['data']['config'] = {};
+		}
+		json['data']['config']['columns'] = structuredClone(json['data']['columns']);
+		delete json['data']['columns'];
+	}
+	if('preview' in json['data']) {
+		if(!('config' in json['data'])) {
+			json['data']['config'] = {};
+		}
+		json['data']['preview_config'] = structuredClone(json['data']['preview']);
+		delete json['data']['preview'];
+	}
+
 	// Update replacement formatting
 	function convertReplacements(replacements) {
 		let newReplacements = [];

@@ -48,7 +48,7 @@ function changeCategory(catId, catBtn) {
 
 	for(let table of tables) {
 		let tableCat = table.getAttribute('tc-category');
-		if(catId === '7' || tableCat === categoryCodes[catId]) {
+		if(catId == 7 || tableCat === categoryCodes[catId]) {
 			table.style = '';
 		} else if(tableCat === null) {
 			continue;

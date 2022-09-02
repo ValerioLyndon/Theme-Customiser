@@ -1092,78 +1092,22 @@ function pageSetup() {
 		}
 	}
 
-	let intendedConfig = document.getElementById('js-intended-config');
+	// Theme config - variables & functions
 
-	// Add support
-	if('supports' in theme && theme['supports'].length === 1) {
-		let type = theme['supports'][0];
-		if(['animelist','mangalist'].includes(type)) {
-			intendedConfig.classList.remove('o-hidden');
-			
-			let parent = document.getElementById('js-list-type'),
-				child = document.getElementById('js-list-type__text');
-			child.innerHTML = `This theme was designed only for <b>${type}s</b>. Use on ${type === 'animelist' ? 'mangalist' : 'animelist'}s may have unexpected results.`;
-			parent.classList.remove('o-hidden');
-		}
-		else {
-			messenger.warn('The supported list was ignored due to being invalid. The only accepted values are "animelist" and "mangalist".');
-		}
-	} else {
-		theme['supports'] = ['animelist','mangalist'];
-	}
+	let configList = document.getElementById('js-theme-config'),
+		configNotice = document.getElementById('js-intended-config');
 
-	// Add classic list functions
+	var listType = 'both';
 
-	let installBtn = document.getElementById('js-installation-btn');
-	if(theme['type'] === 'classic') {
-		installBtn.addEventListener('click', () => { toggleEle('#js-pp-installation-classic') });
-		installBtn.textContent = 'How do I install classic lists?';
-	} else {
-		installBtn.addEventListener('click', () => { toggleEle('#js-pp-installation-modern') });
-	}
-
-	// Set preview options
-
-	if('preview' in theme) {
-		// Cover
-		if(theme['type'] === 'classic') {
-			document.getElementById('js-preview-options__cover').remove();
-		}
-		else if('cover' in theme['preview']) {
-			let check = document.getElementById('js-preview__cover'),
-				toggle = check.nextElementSibling,
-				val = true;
-
-			if(!theme['preview']['cover']) {
-				val = false;
-				toggle.classList.add('is-disabled', 'has-info');
-			} else {
-				toggle.classList.add('is-forced', 'has-info');
-			}
-			check.checked = val;
-			check.disabled = true;
-			toggle.removeAttribute('onclick');
-			toggle.addEventListener('mouseover', function(e) { infoOn(toggle, 'top') });
-			toggle.addEventListener('mouseout', infoOff);
-			postToIframe(['cover', val]);
-		}
-
-		// Category
-		if('category' in theme['preview']) {
-			postToIframe(['category', theme['preview']['category']])
-		}
-	}
-
-	// Set theme columns and push to iframe
-
-	let baseColumns = {
+	var baseColumns = {
 			'animelist': ['Numbers', 'Score', 'Type', 'Episodes', 'Rating', 'Start/End Dates', 'Total Days Watched', 'Storage', 'Tags', 'Priority', 'Genre', 'Demographics', 'Image', 'Premiered', 'Aired Dates', 'Studios', 'Licensors', 'Notes'],
 			'mangalist': ['Numbers', 'Score', 'Type', 'Chapters', 'Volumes', 'Start/End Dates', 'Total Days Read', 'Retail Manga', 'Tags', 'Priority', 'Genres', 'Demographics', 'Image', 'Published Dates', 'Magazine', 'Notes']
-		},
-		columns = {};
+		};
 
-	function processColumns(base, mode, todo) {
-		let columns = {};
+	function processColumns(mode, todo) {
+		let columns = {},
+			listType = theme['supports'][0],
+			base = baseColumns[listType];
 
 		for(let col of base) {
 			if(Object.keys(todo).includes(col)) {
@@ -1183,84 +1127,305 @@ function pageSetup() {
 		return columns;
 	}
 
-	if('columns' in theme) {
-		intendedConfig.classList.remove('o-hidden');
+	// Check for listType support
 
-		function renderColumns(columns, listtype) {
-			let typeWrapper = document.createElement('div'),
-				glue = document.createElement('div'),
-				classic = document.createElement('div'),
-				modern = document.createElement('div');
-			
-			typeWrapper.className = 'columns__wrapper';
-			glue.className = 'columns__glue';
-			classic.className = 'columns__split';
-			modern.className = 'columns__split';
-
-			typeWrapper.innerHTML = `<b class="columns__header">${listtype[0].toUpperCase()}${listtype.substr(1)} Columns</b>`;
-			typeWrapper.appendChild(glue);
-			glue.appendChild(classic);
-			if(theme['type'] === 'modern') {
-				glue.appendChild(modern);
-				classic.innerHTML = `<b class="columns__split-header">Common</b>`;
-				modern.innerHTML = `<b class="columns__split-header">Modern Only</b>`;
-			}
-
-			for(let [name, value] of Object.entries(columns)) {
-				let col = document.createElement('div');
-				col.className = 'columns__item';
-				col.innerHTML = `
-					<input type="checkbox" disabled="disabled" style="display:none">
-					<label class="columns__check"></label>
-					<span class="columns__name">${name}</span>
-				`;
-				
-				let input = col.getElementsByTagName('input')[0];
-				
-				if(value === true) {
-					input.checked = true;
-				}
-				else if(value === false) {
-					input.checked = false;
-				}
-				else if(value === null) {
-					input.indeterminate = true;
-				}
-
-				if(['Image', 'Premiered', 'Aired Dates', 'Studios', 'Licensors', 'Published Dates', 'Magazine'].includes(name)) {
-					modern.appendChild(col);
-				} else {
-					classic.appendChild(col);
-				}
-			}
-			columnsContainer.appendChild(typeWrapper);
+	if('supports' in theme && theme['supports'].length === 1) {
+		let type = theme['supports'][0];
+		if(['animelist','mangalist'].includes(type)) {
+			configNotice.classList.remove('o-hidden');
+			let typeHtml = document.createElement('div');
+			typeHtml.className = 'popup__section';
+			typeHtml.innerHTML = `
+				<h5 class="popup__sub-header">List type.</h5>
+				<p class="popup__paragraph">This theme was designed only for <b>${type}s</b>. Use on ${type === 'animelist' ? 'mangalist' : 'animelist'}s may have unexpected results.</p>
+			`;
+			configList.appendChild(typeHtml);
 		}
-
-		// Get column info
-		let mode = 'mode' in theme['columns'] ? theme['columns']['mode'] : 'whitelist';
-
-		// Do actual stuff here
-		let parent = document.getElementById('js-columns');
-		parent.classList.remove('o-hidden');
-
-		var columnsContainer = document.createElement('div');
-		columnsContainer.className = 'columns';
-
-		for(let listtype of theme['supports']) {
-			if(listtype in theme['columns']) {
-				let tempcolumns = processColumns(baseColumns[listtype], mode, theme['columns'][listtype]);
-				
-				renderColumns(tempcolumns, listtype);
-			}
+		else {
+			messenger.warn('The supported list was ignored due to being invalid. The only accepted values are "animelist" and "mangalist".');
 		}
-
-		columns = processColumns(baseColumns[theme['supports'][0]], mode, theme['columns'][theme['supports'][0]])
-
-		parent.appendChild(columnsContainer);
+	} else {
+		theme['supports'] = ['animelist','mangalist'];
 	}
-	// Set random columns if they aren't set
+
+	// Check for various other support
+
+	let coverHtml = document.getElementById('js-install-cover'),
+		backgroundHtml = document.getElementById('js-install-background'),
+		categoryInstallHtml = document.getElementById('js-install-category');
+	if('config' in theme) {
+		configNotice.classList.remove('o-hidden');
+
+		if('style' in theme['config']) {
+			let styleDict = {
+					1: 'Default Theme',
+					2: 'White',
+					3: 'White Blue',
+					4: 'White Green',
+					5: 'White Red',
+					6: 'White Yellow',
+					7: 'Dark Blue',
+					8: 'Dark Green',
+					9: 'Dark Pink',
+					10: 'Dark Red'
+				},
+				styleNum = theme['config']['style'][0],
+				styleName = styleDict[styleNum];
+			
+			let styleHtml = document.createElement('div');
+			styleHtml.className = 'popup__section';
+			styleHtml.innerHTML = `
+				<h5 class="popup__sub-header">List style.</h5>
+				<p class="popup__paragraph">This theme was designed for use with a specific list style. While installing the theme, please use the "${styleName}" style on your <a class="hyperlink" href="https://myanimelist.net/ownlist/style" target="_blank">style page</a>.</p>
+			`;
+			configList.appendChild(styleHtml);
+
+			// change install instructions to match
+			let installStep = document.getElementById('js-install-style');
+			installStep.innerHTML = `
+				<p class="popup__paragraph">Find and activate the ${styleName} style. Save your changes, then click on the style to open its' page.</p>
+				<a class="dummy-theme-unit" target="_blank" href="https://myanimelist.net/ownlist/style/theme/${styleNum}">
+					<div class="dummy-theme-unit__name">${styleName}</div>
+					<img src="./images/style-${styleNum}.png" class="dummy-theme-unit__image" />
+					<div class="dummy-theme-unit__selection">
+						<label class="dummy-theme-unit__label">
+							<input type="radio" class="dummy-theme-unit__radio" checked="checked" />
+							Anime
+						</label>
+						<label class="dummy-theme-unit__label">
+							<input type="radio" class="dummy-theme-unit__radio" checked="checked" />
+							Manga
+						</label>
+					</div>
+				</a>
+				<p class="info-box">This theme requires the use of this specific style. Use of other styles may cause colour issues.</p>
+			`;
+		}
+
+		// Set recommended category
+
+		if('category' in theme['config']) {
+			let categoryDict = {
+				7: '"Show All"',
+				1: '"Watching" or "Reading"',
+				2: '"Completed"',
+				3: '"On-Hold"',
+				4: '"Dropped"',
+				6: '"Plan to Watch" or "Plan to Read"'
+			}
+
+			// recommended config
+			let categoryConfigHtml = document.createElement('div');
+			categoryConfigHtml.className = 'popup__section';
+			categoryConfigHtml.innerHTML = `
+				<h5 class="popup__sub-header">List category.</h5>
+				<p class="popup__paragraph">This theme recommends a specific starting category of ${categoryDict[theme['config']['category']]}. You can set this in your <a class="hyperlink" href="https://myanimelist.net/editprofile.php?go=listpreferences" target="_blank">list preferences</a> by finding the "Default Status Selected" dropdown menus.</p>
+			`;
+			configList.appendChild(categoryConfigHtml);
+
+			// install steps
+			categoryInstallHtml.innerHTML = `
+				<p class="popup__paragraph">This theme recommends a specific starting category of ${categoryDict[theme['config']['category']]}. You can set this in your <a class="hyperlink" href="https://myanimelist.net/editprofile.php?go=listpreferences" target="_blank">list preferences</a> by finding the "Default Status Selected" dropdown menus.</p>
+			`;
+		}
+		else {
+			categoryInstallHtml.remove();
+		}
+
+		// Set recommended images
+
+		if(theme['type'] === 'classic') {
+			coverHtml.remove();
+			backgroundHtml.remove();
+		}
+		else {
+			if('cover' in theme['config']) {
+				let choice = theme['config']['cover'] === true ? 'Yes' : 'No',
+					extra = '';
+				if(choice === 'Yes') {
+					extra = `Be sure to upload an image by using the "Browse..." button.`;
+				}
+				coverHtml.innerHTML = `
+					<p class="popup__paragraph">
+						In the sidebar, find the "Cover Image" area. Click to expand it if necessary. Set the "Show cover image" option to "<b>${choice}</b>". ${extra}
+					</p>
+				`;
+			} else {
+				coverHtml.remove();
+			}
+
+			if('background' in theme['config']) {
+				let choice = theme['config']['background'] === true ? 'Yes' : 'No',
+					extra = '';
+				if(choice === 'Yes') {
+					extra = `Be sure to upload an image by using the "Browse..." button.`;
+				}
+				backgroundHtml.innerHTML = `
+					<p class="popup__paragraph">
+						In the sidebar, find the "Background Image" area. Click to expand it if necessary. Set the "Show background image" option to "<b>${choice}</b>". ${extra}
+					</p>
+				`;
+			} else {
+				backgroundHtml.remove();
+			}
+		}
+
+		// Set recommended theme columns
+
+		if('columns' in theme['config']) {
+			let columnsHtml = document.createElement('div');
+			columnsHtml.className = 'popup__section';
+			columnsHtml.innerHTML = `
+				<h5 class="popup__sub-header">List columns.</h5>
+				<p class="popup__paragraph">You can set your list columns to match in your <a class="hyperlink" href="https://myanimelist.net/editprofile.php?go=listpreferences" target="_blank">list preferences</a>.</p>
+			`;
+			configList.appendChild(columnsHtml);
+
+			let mode = 'mode' in theme['config']['columns'] ? theme['config']['columns']['mode'] : 'whitelist';
+
+			// Do actual stuff here
+			var columnsContainer = document.createElement('div');
+			columnsContainer.className = 'columns';
+
+			function renderColumns(columns, listType) {
+				let typeWrapper = document.createElement('div'),
+					glue = document.createElement('div'),
+					classic = document.createElement('div'),
+					modern = document.createElement('div');
+				
+				typeWrapper.className = 'columns__wrapper';
+				glue.className = 'columns__glue';
+				classic.className = 'columns__split';
+				modern.className = 'columns__split';
+
+				typeWrapper.innerHTML = `<b class="columns__header">${listType[0].toUpperCase()}${listType.substr(1)} Columns</b>`;
+				typeWrapper.appendChild(glue);
+				glue.appendChild(classic);
+				if(theme['type'] === 'modern') {
+					glue.appendChild(modern);
+					classic.innerHTML = `<b class="columns__split-header">Common</b>`;
+					modern.innerHTML = `<b class="columns__split-header">Modern Only</b>`;
+				}
+
+				for(let [name, value] of Object.entries(columns)) {
+					let col = document.createElement('div');
+					col.className = 'columns__item';
+					col.innerHTML = `
+						<input type="checkbox" disabled="disabled" style="display:none">
+						<label class="columns__check"></label>
+						<span class="columns__name">${name}</span>
+					`;
+					
+					let input = col.getElementsByTagName('input')[0];
+					
+					if(value === true) {
+						input.checked = true;
+						col.title = 'This column should be enabled.';
+					}
+					else if(value === false) {
+						input.checked = false;
+						col.title = 'This column should be disabled.';
+					}
+					else if(value === null) {
+						input.indeterminate = true;
+						col.title = 'This column is optional.';
+					}
+
+					if(['Image', 'Premiered', 'Aired Dates', 'Studios', 'Licensors', 'Published Dates', 'Magazine'].includes(name)) {
+						modern.appendChild(col);
+					} else {
+						classic.appendChild(col);
+					}
+				}
+				columnsContainer.appendChild(typeWrapper);
+			}
+
+			for(let listType of theme['supports']) {
+				if(listType in theme['config']['columns']) {
+					let tempcolumns = processColumns(mode, theme['config']['columns'][listType]);
+					renderColumns(tempcolumns, listType);
+				}
+			}
+
+			columnsHtml.appendChild(columnsContainer);
+		}
+	}
 	else {
-		var tempcolumns = {
+		coverHtml.remove();
+		backgroundHtml.remove();
+		categoryInstallHtml.remove();
+	}
+
+	// Set preview config
+
+	if(!('preview_config' in theme)) {
+		theme['preview_config'] = {};
+	}
+	// Inherit settings from regular config.
+	if('config' in theme) {
+		if(!('cover' in theme['preview_config']) && 'cover' in theme['config']) {
+			theme['preview_config']['cover'] = theme['config']['cover'];
+		}
+		if(!('background' in theme['preview_config']) && 'background' in theme['config']) {
+			theme['preview_config']['background'] = theme['config']['background'];
+		}
+		if(!('columns' in theme['preview_config']) && 'columns' in theme['config']) {
+			theme['preview_config']['columns'] = theme['config']['columns'];
+		}
+		if(!('category' in theme['preview_config']) && 'category' in theme['config']) {
+			theme['preview_config']['category'] = theme['config']['category'];
+		}
+		if(!('style' in theme['preview_config']) && 'style' in theme['config']) {
+			theme['preview_config']['style'] = theme['config']['style'];
+		}
+	}
+
+	// Cover
+	if(theme['type'] === 'classic') {
+		document.getElementById('js-preview-options__cover').remove();
+	}
+	else if('cover' in theme['preview_config']) {
+		let check = document.getElementById('js-preview__cover'),
+			toggle = check.nextElementSibling,
+			val = true;
+
+		if(!theme['preview_config']['cover']) {
+			val = false;
+			toggle.classList.add('is-disabled', 'has-info');
+		} else {
+			toggle.classList.add('is-forced', 'has-info');
+		}
+		check.checked = val;
+		check.disabled = true;
+		toggle.removeAttribute('onclick');
+		toggle.addEventListener('mouseover', function(e) { infoOn(toggle, 'top') });
+		toggle.addEventListener('mouseout', infoOff);
+		postToIframe(['cover', val]);
+	}
+
+	// Category
+	if('category' in theme['preview_config']) {
+		postToIframe(['category', theme['preview_config']['category']])
+	}
+	
+	// Style
+	if('style' in theme['preview_config']) {
+		postToIframe(['style', theme['preview_config']['style'][0]]);
+	}
+
+	// Columns
+	var tempcolumns = {};
+
+	// Set correct columns
+	let mode = 'whitelist',
+		templistType = theme['supports'][0];
+	if('columns' in theme['preview_config']) {
+		mode = 'mode' in theme['preview_config']['columns'] ? theme['preview_config']['columns']['mode'] : 'whitelist';
+		tempcolumns = theme['preview_config']['columns'];
+	}
+	else {
+		// Set random columns if they aren't set
+		tempcolumns = {
 			'animelist': {
 				'Score': true,
 				'Episodes': true,
@@ -1273,21 +1438,30 @@ function pageSetup() {
 				'Image': true
 			}
 		};
-		let listtype = theme['supports'][0];
-		for(let col of baseColumns[listtype]) {
-			if(Object.keys(tempcolumns[listtype]).length > 8) {
+		for(let col of baseColumns[templistType]) {
+			if(Object.keys(tempcolumns[templistType]).length > 8) {
 				break;
 			}
 
-			if(!Object.keys(tempcolumns[listtype]).includes(col) && Math.round(Math.random()) === 1) {
-				tempcolumns[listtype][col] = true;
+			if(!Object.keys(tempcolumns[templistType]).includes(col) && Math.round(Math.random()) === 1) {
+				tempcolumns[templistType][col] = true;
 			}
 		}
-		columns = processColumns(baseColumns[listtype], 'whitelist', tempcolumns[listtype]);
 	}
 
-	// Update iframe
+	// process columns and update iframe
+	columns = processColumns(mode, tempcolumns[templistType]);
 	postToIframe(['columns', columns]);
+
+	// Add classic list functions
+
+	let installBtn = document.getElementById('js-installation-btn');
+	if(theme['type'] === 'classic') {
+		installBtn.addEventListener('click', () => { toggleEle('#js-pp-installation-classic') });
+		installBtn.textContent = 'How do I install classic lists?';
+	} else {
+		installBtn.addEventListener('click', () => { toggleEle('#js-pp-installation-modern') });
+	}
 
 	// Add expando functions
 
