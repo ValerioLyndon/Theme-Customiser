@@ -434,7 +434,6 @@ var UIColorPicker = (function UIColorPicker() {
 		this.newInputComponent('B', 'blue', this.inputChangeBlue.bind(this));
 
 		this.createPreviewBox();
-		this.createChangeModeButton();
 
 		this.newInputComponent('alpha', 'alpha', this.inputChangeAlpha.bind(this));
 		this.newInputComponent('hexa', 'hexa', this.inputChangeHexa.bind(this));
@@ -532,21 +531,6 @@ var UIColorPicker = (function UIColorPicker() {
 		this.subscribe(topic, function(value) {
 			input.value = value;
 		});
-	};
-
-	ColorPicker.prototype.createChangeModeButton = function createChangeModeButton() {
-
-		var button = document.createElement('div');
-		button.className = 'switch_mode';
-		button.addEventListener('click', function() {
-			if (this.picker_mode === 'HSV')
-				this.setPickerMode('HSL');
-			else
-				this.setPickerMode('HSV');
-
-		}.bind(this));
-
-		this.node.appendChild(button);
 	};
 
 	/*************************************************************************/
@@ -1481,7 +1465,6 @@ var ColorPickerTool = (function ColorPickerTool() {
 				return;
 
 			unsetActiveSample(active);
-			Tool.unsetVoidSample();
 			CanvasSamples.unsetActiveSample();
 			active = samples[e.target.getAttribute('sample-id')];
 			active.activate();
@@ -1695,7 +1678,6 @@ var ColorPickerTool = (function ColorPickerTool() {
 
 		var setActiveSample = function setActiveSample(sample) {
 			ColorPickerSamples.unsetActiveSample();
-			Tool.unsetVoidSample();
 			unsetActiveSample();
 			active = sample;
 			active.activate();
@@ -1781,52 +1763,6 @@ var ColorPickerTool = (function ColorPickerTool() {
 
 		var samples = [];
 		var controls = null;
-		var void_sw;
-
-		var createPickerModeSwitch = function createPickerModeSwitch() {
-			var parent = getElemById('controls');
-			var icon = document.createElement('div');
-			var button = document.createElement('div');
-			var hsv = document.createElement('div');
-			var hsl = document.createElement('div');
-			var active = null;
-
-			icon.className = 'icon picker-icon';
-			button.className = 'switch';
-			button.appendChild(hsv);
-			button.appendChild(hsl);
-
-			hsv.textContent = 'HSV';
-			hsl.textContent = 'HSL';
-
-			active = hsl;
-			active.setAttribute('data-active', 'true');
-
-			function switchPickingModeTo(elem) {
-				active.removeAttribute('data-active');
-				active = elem;
-				active.setAttribute('data-active', 'true');
-				UIColorPicker.setPickerMode('picker', active.textContent);
-			};
-
-			var picker_sw = new StateButton(icon);
-			picker_sw.subscribe(function() {
-				if (active === hsv)
-					switchPickingModeTo(hsl);
-				else
-					switchPickingModeTo(hsv);
-			});
-
-			hsv.addEventListener('click', function() {
-				switchPickingModeTo(hsv);
-			});
-			hsl.addEventListener('click', function() {
-				switchPickingModeTo(hsl);
-			});
-
-			parent.appendChild(icon);
-			parent.appendChild(button);
-		};
 
 		var setPickerDragAndDrop = function setPickerDragAndDrop() {
 			var preview = document.querySelector('#picker .preview-color');
@@ -1861,22 +1797,6 @@ var ColorPickerTool = (function ColorPickerTool() {
 				return ColorPickerSamples.getSampleColor(sampleID);
 		};
 
-		var setVoidSwitch = function setVoidSwitch() {
-			var void_sample = getElemById('void-sample');
-			void_sw = new StateButton(void_sample);
-			void_sw.subscribe( function (state) {
-				void_sample.setAttribute('data-active', state);
-				if (state === true) {
-					ColorPickerSamples.unsetActiveSample();
-					CanvasSamples.unsetActiveSample();
-				}
-			});
-		};
-
-		var unsetVoidSample = function unsetVoidSample() {
-			void_sw.unset();
-		};
-
 		var init = function init() {
 			controls = getElemById('controls');
 
@@ -1886,12 +1806,10 @@ var ColorPickerTool = (function ColorPickerTool() {
 
 			setPickerDragAndDrop();
 			createPickerModeSwitch();
-			setVoidSwitch();
 		};
 
 		return {
 			init : init,
-			unsetVoidSample : unsetVoidSample,
 			getSampleColorFrom : getSampleColorFrom
 		};
 
