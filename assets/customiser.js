@@ -805,7 +805,7 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 
 		// Text-based Options
 
-		if(type === 'text' || type === 'color') {
+		if(type === 'text') {
 			interface.type = 'text';
 			interface.value = entryData['default'];
 
@@ -817,19 +817,6 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 					helpLink.innerHTML = ' Valid Inputs <i class="fa-solid fa-circle-info"></i>';
 					helpLink.href = `https://developer.mozilla.org/en-US/docs/Web/CSS/${subQualifier}#values`
 				}
-			}
-			else if(type === 'color') {
-				interface.placeholder = 'Your colour here. e.x rgba(0, 135, 255, 1.0)';
-
-				// Add a colour preview
-				let display = document.createElement('div');
-				display.className = 'entry__colour';
-				div.appendChild(display);
-
-				helpLink.textContent = 'Colour Picker';
-				helpLink.href = 'https://mdn.github.io/css-examples/tools/color-picker/';
-
-				interface.addEventListener('input', validateInput.bind(display, htmlId, type));
 			}
 			else if(qualifier === 'size') {
 				interface.placeholder = 'Your size here. e.x 200px, 33%, 20vw, etc.';
@@ -844,6 +831,33 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 
 				interface.addEventListener('input', () => { validateInput(htmlId, type); });
 			}
+		}
+
+		else if(type === 'color') {
+			interface.classList.add('o-hidden');
+
+			// Add a colour preview
+			let display = document.createElement('div');
+			display.className = 'entry__colour';
+			div.appendChild(display);
+			if('default' in entryData) {
+				display.style.backgroundColor = entryData['default'];
+			}
+			display.id = `${htmlId}:colour`;
+			display.addEventListener('click', () => {
+				console.log(display.id);
+				validateInput.bind(display, htmlId, type);
+
+				if(picker.getAttribute('data-focus') === htmlId) {
+					picker.classList.remove('is-active');
+					picker.removeAttribute('data-focus');
+				} else {
+					picker.classList.add('is-active');
+					picker.setAttribute('data-focus', htmlId);
+				}
+			});
+
+			//interface.addEventListener('input', validateInput.bind(display, htmlId, type));
 		}
 
 		else if(type === 'textarea') {
@@ -1473,6 +1487,8 @@ var userSettings = {
 	'options': {},
 	'mods': {}
 };
+
+var picker = document.getElementById('js-picker');
 
 
 // Get data for all themes and call other functions
