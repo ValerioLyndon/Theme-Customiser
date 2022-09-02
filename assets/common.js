@@ -372,11 +372,11 @@ async function processJson(json, url, toReturn) {
 
 	// Else, continue to process.
 	if(ver > jsonVersion) {
-		messenger.warn('Detected JSON version ahead of current release. Processing as normal.');
+		console.log('Detected JSON version ahead of current release. Processing as normal.');
 	}
 
 	else if(ver < jsonVersion) {
-		messenger.warn('The loaded JSON has been processed as legacy JSON. This can cause slowdowns or errors. If you are the JSON author, please see the GitHub page for assistance updating.');
+		console.log('The loaded JSON has been processed as legacy JSON. This can cause slowdowns or errors. If you are the JSON author, please see the GitHub page for assistance updating.');
 		if(ver === 0.1) {
 			json = updateToBeta2(json, url, toReturn);
 			ver = 0.2;
