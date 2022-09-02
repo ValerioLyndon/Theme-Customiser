@@ -1152,7 +1152,7 @@ function pageSetup() {
 
 	let coverHtml = document.getElementById('js-install-cover'),
 		backgroundHtml = document.getElementById('js-install-background'),
-		categoryInstallHtml = document.getElementById('js-install-category');
+		categoryInstallHtml = document.querySelectorAll('.js-install-category');
 	if('config' in theme) {
 		configNotice.classList.remove('o-hidden');
 
@@ -1218,18 +1218,22 @@ function pageSetup() {
 			let categoryConfigHtml = document.createElement('div');
 			categoryConfigHtml.className = 'popup__section';
 			categoryConfigHtml.innerHTML = `
-				<h5 class="popup__sub-header">List category.</h5>
+				<h5 class="popup__sub-header">Starting category.</h5>
 				<p class="popup__paragraph">This theme recommends a specific starting category of ${categoryDict[theme['config']['category']]}. You can set this in your <a class="hyperlink" href="https://myanimelist.net/editprofile.php?go=listpreferences" target="_blank">list preferences</a> by finding the "Default Status Selected" dropdown menus.</p>
 			`;
 			configList.appendChild(categoryConfigHtml);
 
 			// install steps
-			categoryInstallHtml.innerHTML = `
-				<p class="popup__paragraph">This theme recommends a specific starting category of ${categoryDict[theme['config']['category']]}. You can set this in your <a class="hyperlink" href="https://myanimelist.net/editprofile.php?go=listpreferences" target="_blank">list preferences</a> by finding the "Default Status Selected" dropdown menus.</p>
-			`;
+			for(let html of categoryInstallHtml) {
+				html.innerHTML = `
+					<p class="popup__paragraph">This theme recommends a specific starting category of ${categoryDict[theme['config']['category']]}. You can set this in your <a class="hyperlink" href="https://myanimelist.net/editprofile.php?go=listpreferences" target="_blank">list preferences</a> by finding the "Default Status Selected" dropdown menus.</p>
+				`;
+			}
 		}
 		else {
-			categoryInstallHtml.remove();
+			for(let html of categoryInstallHtml) {
+				html.remove();
+			}
 		}
 
 		// Set recommended images
@@ -1239,6 +1243,7 @@ function pageSetup() {
 			backgroundHtml.remove();
 		}
 		else {
+			let texts = [];
 			if('cover' in theme['config']) {
 				let choice = theme['config']['cover'] === true ? 'Yes' : 'No',
 					extra = '';
@@ -1250,6 +1255,7 @@ function pageSetup() {
 						In the sidebar, find the "Cover Image" area. Click to expand it if necessary. Set the "Show cover image" option to "<b>${choice}</b>". ${extra}
 					</p>
 				`;
+				texts.push(`Set your "Cover Image" option to "<b>${choice}</b>".`);
 			} else {
 				coverHtml.remove();
 			}
@@ -1265,8 +1271,19 @@ function pageSetup() {
 						In the sidebar, find the "Background Image" area. Click to expand it if necessary. Set the "Show background image" option to "<b>${choice}</b>". ${extra}
 					</p>
 				`;
+				texts.push(`Set your "Background Image" option to "<b>${choice}</b>".`);
 			} else {
 				backgroundHtml.remove();
+			}
+
+			if(texts.length > 0) {
+				let imagesHtml = document.createElement('div');
+				imagesHtml.className = 'popup__section';
+				imagesHtml.innerHTML = `
+					<h5 class="popup__sub-header">Images.</h5>
+					<p class="popup__paragraph">During installation of the theme, you should match your images to these settings: ${texts.join(' ')}<br /><br />See <a class="hyperlink js-installation-btn">"How do I install this?"</a> for more information.</p>
+				`;
+				configList.appendChild(imagesHtml);
 			}
 		}
 
@@ -1353,7 +1370,9 @@ function pageSetup() {
 	else {
 		coverHtml.remove();
 		backgroundHtml.remove();
-		categoryInstallHtml.remove();
+		for(let html of categoryInstallHtml) {
+			html.remove();
+		}
 	}
 
 	// Set preview config
@@ -1455,12 +1474,14 @@ function pageSetup() {
 
 	// Add classic list functions
 
-	let installBtn = document.getElementById('js-installation-btn');
-	if(theme['type'] === 'classic') {
-		installBtn.addEventListener('click', () => { toggleEle('#js-pp-installation-classic') });
-		installBtn.textContent = 'How do I install classic lists?';
-	} else {
-		installBtn.addEventListener('click', () => { toggleEle('#js-pp-installation-modern') });
+	let installBtns = document.getElementsByClassName('js-installation-btn');
+	for(let btn of installBtns) {
+		if(theme['type'] === 'classic') {
+			btn.addEventListener('click', () => { toggleEle('#js-pp-installation-classic') });
+			btn.textContent = 'How do I install classic lists?';
+		} else {
+			btn.addEventListener('click', () => { toggleEle('#js-pp-installation-modern') });
+		}
 	}
 
 	// Add expando functions
