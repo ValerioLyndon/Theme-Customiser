@@ -613,13 +613,16 @@ async function updateCss() {
 // "type" is the full option type string: "type/qualifier/subqualifier" 
 // Also accepts an HTML DOM element with the bind function for certain features: validateInput.bind(DOMElement)
 function validateInput(htmlId, type) {
+	console.log(`validate ${htmlId}`);
 	let notice = document.getElementById(`${htmlId}-notice`),
 		noticeHTML = '',
 		val = document.getElementById(`${htmlId}`).value.toLowerCase(),
 		problems = 0,
 		qualifier = type.split('/')[1];
 	
+	console.log(val, type, qualifier);
 	if(val.length === 0) {
+		console.log('skipping');
 		notice.classList.add('o-hidden');
 		return undefined;
 	}
@@ -678,6 +681,7 @@ function validateInput(htmlId, type) {
 		}
 	}
 	
+	console.log(problems);
 	if(problems > 0) {
 		notice.innerHTML = noticeHTML;
 		notice.classList.remove('o-hidden');
@@ -809,20 +813,11 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 
 		// Text-based Options
 
-		if(type === 'text' || type === 'color') {
+		if(type.startsWith('text') || type === 'color') {
 			interface.type = 'text';
 			interface.value = entryData['default'];
 
-			if(qualifier === 'value') {
-				interface.placeholder = 'Your value here.';
-				
-				// Add help link to Mozilla docs for CSS properties
-				if(subQualifier) {
-					helpLink.innerHTML = ' Valid Inputs <i class="fa-solid fa-circle-info"></i>';
-					helpLink.href = `https://developer.mozilla.org/en-US/docs/Web/CSS/${subQualifier}#values`
-				}
-			}
-			else if(type === 'color') {
+			if(type === 'color') {
 				interface.placeholder = 'Your colour here. e.x rgba(0, 135, 255, 1.0)';
 
 				// Add a colour preview
@@ -833,27 +828,38 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 				helpLink.textContent = 'Colour Picker';
 				helpLink.href = 'https://mdn.github.io/css-examples/tools/color-picker/';
 
-				interface.addEventListener('input', validateInput.bind(display, htmlId, type));
+				interface.addEventListener('input', validateInput.bind(display, htmlId, entryData['type']) );
 			}
-			else if(qualifier === 'size') {
-				interface.placeholder = 'Your size here. e.x 200px, 33%, 20vw, etc.';
-				interface.addEventListener('input', () => { validateInput(htmlId, type) });
+			else {
+				if(type === 'textarea') {
+					interface = document.createElement('textarea');
+					interface.className = 'input entry__textarea input--textarea';
+					interface.value = entryData['default'];
+				}
+
+				if(qualifier === 'value') {
+					interface.placeholder = 'Your value here.';
+					
+					// Add help link to Mozilla docs for CSS properties
+					if(subQualifier) {
+						helpLink.innerHTML = ' Valid Inputs <i class="fa-solid fa-circle-info"></i>';
+						helpLink.href = `https://developer.mozilla.org/en-US/docs/Web/CSS/${subQualifier}#values`
+					}
+				}
+				else if(qualifier === 'size') {
+					interface.placeholder = 'Your size here. e.x 200px, 33%, 20vw, etc.';
+					interface.addEventListener('input', () => { validateInput(htmlId, entryData['type']); });
+				}
+				else if(qualifier === 'image_url') {
+					interface.type = 'url';
+					interface.placeholder = 'https://example.com/image.jpg';
+
+					helpLink.innerHTML = 'Tips & Help <i class="fa-solid fa-circle-question"></i>';
+					helpLink.href = 'https://github.com/ValerioLyndon/MAL-Public-List-Designs/wiki/Image-Hosting-Tips';
+
+					interface.addEventListener('input', () => { validateInput(htmlId, entryData['type']); });
+				}
 			}
-			else if(qualifier === 'image_url') {
-				interface.type = 'url';
-				interface.placeholder = 'https://example.com/image.jpg';
-
-				helpLink.innerHTML = 'Tips & Help <i class="fa-solid fa-circle-question"></i>';
-				helpLink.href = 'https://github.com/ValerioLyndon/MAL-Public-List-Designs/wiki/Image-Hosting-Tips';
-
-				interface.addEventListener('input', () => { validateInput(htmlId, type); });
-			}
-		}
-
-		else if(type === 'textarea') {
-			interface = document.createElement('textarea');
-			interface.className = 'input entry__textarea input--textarea';
-			interface.value = entryData['default'];
 		}
 
 		// Toggle Options
