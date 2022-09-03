@@ -413,6 +413,9 @@ function updateMod(modId, funcConfig = {}) {
 // Used to force a change in settings.
 // Confirms all settings are correct, applies them to the HTML, then calls updateCss()
 function applySettings(settings = false) {
+	// resets all HTML before applying new settings.
+	document.getElementById('js-theme').reset();
+	
 	if(settings) {
 		if(settings['options']) {
 			userSettings['options'] = settings['options'];
@@ -610,13 +613,16 @@ async function updateCss() {
 // "type" is the full option type string: "type/qualifier/subqualifier" 
 // Also accepts an HTML DOM element with the bind function for certain features: validateInput.bind(DOMElement)
 function validateInput(htmlId, type) {
+	console.log(`validate ${htmlId}`);
 	let notice = document.getElementById(`${htmlId}-notice`),
 		noticeHTML = '',
 		val = document.getElementById(`${htmlId}`).value.toLowerCase(),
 		problems = 0,
 		qualifier = type.split('/')[1];
 	
+	console.log(val, type, qualifier);
 	if(val.length === 0) {
+		console.log('skipping');
 		notice.classList.add('o-hidden');
 		return undefined;
 	}
@@ -675,6 +681,7 @@ function validateInput(htmlId, type) {
 		}
 	}
 	
+	console.log(problems);
 	if(problems > 0) {
 		notice.innerHTML = noticeHTML;
 		notice.classList.remove('o-hidden');
@@ -802,23 +809,15 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 		let interface = document.createElement('input');
 		interface.placeholder = 'Your text here.';
 		interface.className = 'input';
+		interface.setAttribute('value', defaultValue);
 
 		// Text-based Options
 
-		if(type === 'text' || type === 'color') {
+		if(type.startsWith('text') || type === 'color') {
 			interface.type = 'text';
 			interface.value = entryData['default'];
 
-			if(qualifier === 'value') {
-				interface.placeholder = 'Your value here.';
-				
-				// Add help link to Mozilla docs for CSS properties
-				if(subQualifier) {
-					helpLink.textContent = 'Valid Inputs';
-					helpLink.href = `https://developer.mozilla.org/en-US/docs/Web/CSS/${subQualifier}#values`
-				}
-			}
-			else if(type === 'color') {
+			if(type === 'color') {
 				interface.placeholder = 'Your colour here. e.x rgba(0, 135, 255, 1.0)';
 
 				// Add a colour preview
@@ -829,27 +828,38 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 				helpLink.textContent = 'Colour Picker';
 				helpLink.href = 'https://mdn.github.io/css-examples/tools/color-picker/';
 
-				interface.addEventListener('input', validateInput.bind(display, htmlId, type));
+				interface.addEventListener('input', validateInput.bind(display, htmlId, entryData['type']) );
 			}
-			else if(qualifier === 'size') {
-				interface.placeholder = 'Your size here. e.x 200px, 33%, 20vw, etc.';
-				interface.addEventListener('input', () => { validateInput(htmlId, type) });
+			else {
+				if(type === 'textarea') {
+					interface = document.createElement('textarea');
+					interface.className = 'input entry__textarea input--textarea';
+					interface.value = entryData['default'];
+				}
+
+				if(qualifier === 'value') {
+					interface.placeholder = 'Your value here.';
+					
+					// Add help link to Mozilla docs for CSS properties
+					if(subQualifier) {
+						helpLink.innerHTML = ' Valid Inputs <i class="fa-solid fa-circle-info"></i>';
+						helpLink.href = `https://developer.mozilla.org/en-US/docs/Web/CSS/${subQualifier}#values`
+					}
+				}
+				else if(qualifier === 'size') {
+					interface.placeholder = 'Your size here. e.x 200px, 33%, 20vw, etc.';
+					interface.addEventListener('input', () => { validateInput(htmlId, entryData['type']); });
+				}
+				else if(qualifier === 'image_url') {
+					interface.type = 'url';
+					interface.placeholder = 'https://example.com/image.jpg';
+
+					helpLink.innerHTML = 'Tips & Help <i class="fa-solid fa-circle-question"></i>';
+					helpLink.href = 'https://github.com/ValerioLyndon/MAL-Public-List-Designs/wiki/Image-Hosting-Tips';
+
+					interface.addEventListener('input', () => { validateInput(htmlId, entryData['type']); });
+				}
 			}
-			else if(qualifier === 'image_url') {
-				interface.type = 'url';
-				interface.placeholder = 'https://example.com/image.jpg';
-
-				helpLink.innerHTML = 'Tips & Help <i class="fa-solid fa-circle-question"></i>';
-				helpLink.href = 'https://github.com/ValerioLyndon/MAL-Public-List-Designs/wiki/Image-Hosting-Tips';
-
-				interface.addEventListener('input', () => { validateInput(htmlId, type); });
-			}
-		}
-
-		else if(type === 'textarea') {
-			interface = document.createElement('textarea');
-			interface.className = 'input entry__textarea input--textarea';
-			interface.value = entryData['default'];
 		}
 
 		// Range Options
@@ -1110,78 +1120,22 @@ function pageSetup() {
 		}
 	}
 
-	let intendedConfig = document.getElementById('js-intended-config');
+	// Theme config - variables & functions
 
-	// Add support
-	if('supports' in theme && theme['supports'].length === 1) {
-		let type = theme['supports'][0];
-		if(['animelist','mangalist'].includes(type)) {
-			intendedConfig.classList.remove('o-hidden');
-			
-			let parent = document.getElementById('js-list-type'),
-				child = document.getElementById('js-list-type__text');
-			child.innerHTML = `This theme was designed only for <b>${type}s</b>. Use on ${type === 'animelist' ? 'mangalist' : 'animelist'}s may have unexpected results.`;
-			parent.classList.remove('o-hidden');
-		}
-		else {
-			messenger.warn('The supported list was ignored due to being invalid. The only accepted values are "animelist" and "mangalist".');
-		}
-	} else {
-		theme['supports'] = ['animelist','mangalist'];
-	}
+	let configList = document.getElementById('js-theme-config'),
+		configNotice = document.getElementById('js-intended-config');
 
-	// Add classic list functions
+	var listType = 'both';
 
-	let installBtn = document.getElementById('js-installation-btn');
-	if(theme['type'] === 'classic') {
-		installBtn.addEventListener('click', () => { toggleEle('#js-pp-installation-classic') });
-		installBtn.textContent = 'How do I install classic lists?';
-	} else {
-		installBtn.addEventListener('click', () => { toggleEle('#js-pp-installation-modern') });
-	}
+	var baseColumns = {
+			'animelist': ['Numbers', 'Score', 'Type', 'Episodes', 'Rating', 'Start/End Dates', 'Total Days Watched', 'Storage', 'Tags', 'Priority', 'Genre', 'Demographics', 'Image', 'Premiered', 'Aired Dates', 'Studios', 'Licensors', 'Notes'],
+			'mangalist': ['Numbers', 'Score', 'Type', 'Chapters', 'Volumes', 'Start/End Dates', 'Total Days Read', 'Retail Manga', 'Tags', 'Priority', 'Genres', 'Demographics', 'Image', 'Published Dates', 'Magazine', 'Notes']
+		};
 
-	// Set preview options
-
-	if('preview' in theme) {
-		// Cover
-		if(theme['type'] === 'classic') {
-			document.getElementById('js-preview-options__cover').remove();
-		}
-		else if('cover' in theme['preview']) {
-			let check = document.getElementById('js-preview__cover'),
-				toggle = check.nextElementSibling,
-				val = true;
-
-			if(!theme['preview']['cover']) {
-				val = false;
-				toggle.classList.add('is-disabled', 'has-info');
-			} else {
-				toggle.classList.add('is-forced', 'has-info');
-			}
-			check.checked = val;
-			check.disabled = true;
-			toggle.removeAttribute('onclick');
-			toggle.addEventListener('mouseover', function(e) { infoOn(toggle, 'top') });
-			toggle.addEventListener('mouseout', infoOff);
-			postToIframe(['cover', val]);
-		}
-
-		// Category
-		if('category' in theme['preview']) {
-			postToIframe(['category', theme['preview']['category']])
-		}
-	}
-
-	// Set theme columns and push to iframe
-
-	let baseColumns = {
-			'animelist': ['Numbers', 'Score', 'Type', 'Episodes', 'Rating', 'Start/End Dates', 'Total Days Watched', 'Storage', 'Tags', 'Priority', 'Genre', 'Demographics', 'Image', 'Premiered', 'Aired Dates', 'Studios', 'Licensors'],
-			'mangalist': ['Numbers', 'Score', 'Type', 'Chapters', 'Volumes', 'Start/End Dates', 'Total Days Read', 'Retail Manga', 'Tags', 'Priority', 'Genres', 'Demographics', 'Image', 'Published Dates', 'Magazine']
-		},
-		columns = {};
-
-	function processColumns(base, mode, todo) {
-		let columns = {};
+	function processColumns(mode, todo) {
+		let columns = {},
+			listType = theme['supports'][0],
+			base = baseColumns[listType];
 
 		for(let col of base) {
 			if(Object.keys(todo).includes(col)) {
@@ -1201,10 +1155,71 @@ function pageSetup() {
 		return columns;
 	}
 
-	if('columns' in theme) {
-		intendedConfig.classList.remove('o-hidden');
+	// Check for listType support
 
-		function renderColumns(columns, listtype) {
+	if('supports' in theme && theme['supports'].length === 1) {
+		let type = theme['supports'][0];
+		if(['animelist','mangalist'].includes(type)) {
+			configNotice.classList.remove('o-hidden');
+			let typeHtml = document.createElement('div');
+			typeHtml.className = 'popup__section';
+			typeHtml.innerHTML = `
+				<h5 class="popup__sub-header">List type.</h5>
+				<p class="popup__paragraph">This theme was designed only for <b>${type}s</b>. Use on ${type === 'animelist' ? 'mangalist' : 'animelist'}s may have unexpected results.</p>
+			`;
+			configList.appendChild(typeHtml);
+		}
+		else {
+			messenger.warn('The supported list was ignored due to being invalid. The only accepted values are "animelist" and "mangalist".');
+		}
+	} else {
+		theme['supports'] = ['animelist','mangalist'];
+	}
+
+	// Set recommended category
+
+	if('category' in theme) {
+		configNotice.classList.remove('o-hidden');
+
+		let categoryDict = {
+			7: '"Show All"',
+			1: '"Watching" or "Reading"',
+			2: '"Completed"',
+			3: '"On-Hold"',
+			4: '"Dropped"',
+			6: '"Plan to Watch" or "Plan to Read"'
+		}
+
+		// recommended config
+		let categoryConfigHtml = document.createElement('div');
+		categoryConfigHtml.className = 'popup__section';
+		categoryConfigHtml.innerHTML = `
+			<h5 class="popup__sub-header">Starting category.</h5>
+			<p class="popup__paragraph">This theme recommends a specific starting category of ${categoryDict[theme['category']]}. You can set this in your <a class="hyperlink" href="https://myanimelist.net/editprofile.php?go=listpreferences" target="_blank">list preferences</a> by finding the "Default Status Selected" dropdown menus.</p>
+		`;
+		configList.appendChild(categoryConfigHtml);
+	}
+
+	// Set recommended theme columns
+
+	if('columns' in theme) {
+		configNotice.classList.remove('o-hidden');
+
+		let columnsHtml = document.createElement('div');
+		columnsHtml.className = 'popup__section';
+		columnsHtml.innerHTML = `
+			<h5 class="popup__sub-header">List columns.</h5>
+			<p class="popup__paragraph">You can set your list columns to match in your <a class="hyperlink" href="https://myanimelist.net/editprofile.php?go=listpreferences" target="_blank">list preferences</a>.</p>
+		`;
+		configList.appendChild(columnsHtml);
+
+		let mode = 'mode' in theme['columns'] ? theme['columns']['mode'] : 'whitelist';
+
+		// Do actual stuff here
+		var columnsContainer = document.createElement('div');
+		columnsContainer.className = 'columns';
+
+		function renderColumns(columns, listType) {
 			let typeWrapper = document.createElement('div'),
 				glue = document.createElement('div'),
 				classic = document.createElement('div'),
@@ -1215,7 +1230,7 @@ function pageSetup() {
 			classic.className = 'columns__split';
 			modern.className = 'columns__split';
 
-			typeWrapper.innerHTML = `<b class="columns__header">${listtype[0].toUpperCase()}${listtype.substr(1)} Columns</b>`;
+			typeWrapper.innerHTML = `<b class="columns__header">${listType[0].toUpperCase()}${listType.substr(1)} Columns</b>`;
 			typeWrapper.appendChild(glue);
 			glue.appendChild(classic);
 			if(theme['type'] === 'modern') {
@@ -1237,12 +1252,15 @@ function pageSetup() {
 				
 				if(value === true) {
 					input.checked = true;
+					col.title = 'This column should be enabled.';
 				}
 				else if(value === false) {
 					input.checked = false;
+					col.title = 'This column should be disabled.';
 				}
 				else if(value === null) {
 					input.indeterminate = true;
+					col.title = 'This column is optional.';
 				}
 
 				if(['Image', 'Premiered', 'Aired Dates', 'Studios', 'Licensors', 'Published Dates', 'Magazine'].includes(name)) {
@@ -1254,31 +1272,193 @@ function pageSetup() {
 			columnsContainer.appendChild(typeWrapper);
 		}
 
-		// Get column info
-		let mode = 'mode' in theme['columns'] ? theme['columns']['mode'] : 'whitelist';
-
-		// Do actual stuff here
-		let parent = document.getElementById('js-columns');
-		parent.classList.remove('o-hidden');
-
-		var columnsContainer = document.createElement('div');
-		columnsContainer.className = 'columns';
-
-		for(let listtype of theme['supports']) {
-			if(listtype in theme['columns']) {
-				let tempcolumns = processColumns(baseColumns[listtype], mode, theme['columns'][listtype]);
-				
-				renderColumns(tempcolumns, listtype);
+		for(let listType of theme['supports']) {
+			if(listType in theme['columns']) {
+				let tempcolumns = processColumns(mode, theme['columns'][listType]);
+				renderColumns(tempcolumns, listType);
 			}
 		}
 
-		columns = processColumns(baseColumns[theme['supports'][0]], mode, theme['columns'][theme['supports'][0]])
-
-		parent.appendChild(columnsContainer);
+		columnsHtml.appendChild(columnsContainer);
 	}
-	// Set random columns if they aren't set
+
+	// Set recommended installation steps
+
+	let coverHtml = document.getElementById('js-install-cover'),
+		backgroundHtml = document.getElementById('js-install-background');
+
+	if(theme['type'] === 'classic') {
+		coverHtml.remove();
+		backgroundHtml.remove();
+	}
 	else {
-		var tempcolumns = {
+		let hasCustomInstall = false,
+			customInstallTexts = [];
+
+		if('style' in theme) {
+			hasCustomInstall = true;
+
+			let styleDict = {
+					1: 'Default Theme',
+					2: 'White',
+					3: 'White Blue',
+					4: 'White Green',
+					5: 'White Red',
+					6: 'White Yellow',
+					7: 'Dark Blue',
+					8: 'Dark Green',
+					9: 'Dark Pink',
+					10: 'Dark Red'
+				},
+				styleNum = theme['style'][0],
+				styleName = styleDict[styleNum];
+			
+			customInstallTexts.push(`Use only with the "<b>${styleName}</b>" style.`);
+
+			// change install instructions to match
+			let installStep = document.getElementById('js-install-style');
+			installStep.innerHTML = `
+				<p class="popup__paragraph">Find and activate the ${styleName} style. Save your changes, then click on the style to open its page.</p>
+				<a class="dummy-theme-unit" target="_blank" href="https://myanimelist.net/ownlist/style/theme/${styleNum}">
+					<div class="dummy-theme-unit__name">${styleName}</div>
+					<img src="./images/style-${styleNum}.png" class="dummy-theme-unit__image" />
+					<div class="dummy-theme-unit__selection">
+						<label class="dummy-theme-unit__label">
+							<input type="radio" class="dummy-theme-unit__radio" checked="checked" />
+							Anime
+						</label>
+						<label class="dummy-theme-unit__label">
+							<input type="radio" class="dummy-theme-unit__radio" checked="checked" />
+							Manga
+						</label>
+					</div>
+				</a>
+				<p class="info-box">This theme requires the use of this specific style. Use of other styles may cause colour issues.</p>
+			`;
+		}
+
+		if('cover' in theme) {
+			hasCustomInstall = true;
+
+			let choice = theme['cover'] === true ? 'Yes' : 'No',
+				extra = '';
+			if(choice === 'Yes') {
+				extra = `Be sure to upload an image by using the "Browse..." button.`;
+			}
+			
+			customInstallTexts.push(`Set the "Show cover image" option to "<b>${choice}</b>".`);
+			coverHtml.innerHTML = `
+				<p class="popup__paragraph">
+					In the sidebar, find the "Cover Image" area. Click to expand it if necessary. Set the "Show cover image" option to "<b>${choice}</b>". ${extra}
+				</p>
+			`;
+		} else {
+			coverHtml.remove();
+		}
+
+		if('background' in theme) {
+			hasCustomInstall = true;
+
+			let choice = theme['background'] === true ? 'Yes' : 'No',
+				extra = '';
+			if(choice === 'Yes') {
+				extra = `Be sure to upload an image by using the "Browse..." button.`;
+			}
+
+			customInstallTexts.push(`Set the "Show background image" option to "<b>${choice}</b>".`);
+			backgroundHtml.innerHTML = `
+				<p class="popup__paragraph">
+					In the sidebar, find the "Background Image" area. Click to expand it if necessary. Set the "Show background image" option to "<b>${choice}</b>". ${extra}
+				</p>
+			`;
+		} else {
+			backgroundHtml.remove();
+		}
+
+		if(hasCustomInstall) {
+			configNotice.classList.remove('o-hidden');
+			let installHtml = document.createElement('div');
+			installHtml.className = 'popup__section';
+			installHtml.innerHTML = `
+				<h5 class="popup__sub-header">Installation steps.</h5>
+				<p class="popup__paragraph">
+					This theme has extra installation specifications. Please take these actions during install:<br />
+					• ${customInstallTexts.join('<br />• ')}<br />
+					<br />
+					If you don't know how to apply these changes, please follow the <a class="hyperlink js-installation-btn">installation guide</a> for detailed instructions.</p>
+			`;
+			configList.appendChild(installHtml);
+		}
+	}
+
+	// Set preview options and post to preview iframe
+
+	if(!('preview' in theme)) {
+		theme['preview'] = {};
+	}
+	// Inherit settings from regular config.
+	if(!('cover' in theme['preview']) && 'cover' in theme) {
+		theme['preview']['cover'] = theme['cover'];
+	}
+	if(!('background' in theme['preview']) && 'background' in theme) {
+		theme['preview']['background'] = theme['background'];
+	}
+	if(!('columns' in theme['preview']) && 'columns' in theme) {
+		theme['preview']['columns'] = theme['columns'];
+	}
+	if(!('category' in theme['preview']) && 'category' in theme) {
+		theme['preview']['category'] = theme['category'];
+	}
+	if(!('style' in theme['preview']) && 'style' in theme) {
+		theme['preview']['style'] = theme['style'];
+	}
+
+	// Cover
+	if(theme['type'] === 'classic') {
+		document.getElementById('js-preview-options__cover').remove();
+	}
+	else if('cover' in theme['preview']) {
+		let check = document.getElementById('js-preview__cover'),
+			toggle = check.nextElementSibling,
+			val = true;
+
+		if(!theme['preview']['cover']) {
+			val = false;
+			toggle.classList.add('is-disabled', 'has-info');
+		} else {
+			toggle.classList.add('is-forced', 'has-info');
+		}
+		check.checked = val;
+		check.disabled = true;
+		toggle.removeAttribute('onclick');
+		toggle.addEventListener('mouseover', function(e) { infoOn(toggle, 'top') });
+		toggle.addEventListener('mouseout', infoOff);
+		postToIframe(['cover', val]);
+	}
+
+	// Category
+	if('category' in theme['preview']) {
+		postToIframe(['category', theme['preview']['category']])
+	}
+	
+	// Style
+	if('style' in theme['preview']) {
+		postToIframe(['style', theme['preview']['style'][0]]);
+	}
+
+	// Columns
+	var tempcolumns = {};
+
+	// Set correct columns
+	let mode = 'whitelist',
+		templistType = theme['supports'][0];
+	if('columns' in theme['preview']) {
+		mode = 'mode' in theme['preview']['columns'] ? theme['preview']['columns']['mode'] : 'whitelist';
+		tempcolumns = theme['preview']['columns'];
+	}
+	else {
+		// Set random columns if they aren't set
+		tempcolumns = {
 			'animelist': {
 				'Score': true,
 				'Episodes': true,
@@ -1291,21 +1471,32 @@ function pageSetup() {
 				'Image': true
 			}
 		};
-		let listtype = theme['supports'][0];
-		for(let col of baseColumns[listtype]) {
-			if(Object.keys(tempcolumns[listtype]).length > 8) {
+		for(let col of baseColumns[templistType]) {
+			if(Object.keys(tempcolumns[templistType]).length > 8) {
 				break;
 			}
 
-			if(!Object.keys(tempcolumns[listtype]).includes(col) && Math.round(Math.random()) === 1) {
-				tempcolumns[listtype][col] = true;
+			if(!Object.keys(tempcolumns[templistType]).includes(col) && Math.round(Math.random()) === 1) {
+				tempcolumns[templistType][col] = true;
 			}
 		}
-		columns = processColumns(baseColumns[listtype], 'whitelist', tempcolumns[listtype]);
 	}
 
-	// Update iframe
+	// process columns and update iframe
+	columns = processColumns(mode, tempcolumns[templistType]);
 	postToIframe(['columns', columns]);
+
+	// Add classic list functions
+
+	let installBtns = document.getElementsByClassName('js-installation-btn');
+	for(let btn of installBtns) {
+		if(theme['type'] === 'classic') {
+			btn.addEventListener('click', () => { toggleEle('#js-pp-installation-classic') });
+			btn.textContent = 'How do I install classic lists?';
+		} else {
+			btn.addEventListener('click', () => { toggleEle('#js-pp-installation-modern') });
+		}
+	}
 
 	// Add expando functions
 
