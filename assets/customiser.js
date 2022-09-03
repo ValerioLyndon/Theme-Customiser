@@ -1147,60 +1147,6 @@ function pageSetup() {
 		theme['supports'] = ['animelist','mangalist'];
 	}
 
-	// Check for various other support
-
-	let coverHtml = document.getElementById('js-install-cover'),
-		backgroundHtml = document.getElementById('js-install-background'),
-		categoryInstallHtml = document.querySelectorAll('.js-install-category');
-
-	if('style' in theme) {
-		configNotice.classList.remove('o-hidden');
-
-		let styleDict = {
-				1: 'Default Theme',
-				2: 'White',
-				3: 'White Blue',
-				4: 'White Green',
-				5: 'White Red',
-				6: 'White Yellow',
-				7: 'Dark Blue',
-				8: 'Dark Green',
-				9: 'Dark Pink',
-				10: 'Dark Red'
-			},
-			styleNum = theme['style'][0],
-			styleName = styleDict[styleNum];
-		
-		let styleHtml = document.createElement('div');
-		styleHtml.className = 'popup__section';
-		styleHtml.innerHTML = `
-			<h5 class="popup__sub-header">List style.</h5>
-			<p class="popup__paragraph">This theme was designed for use with a specific list style. While installing the theme, please use the "${styleName}" style on your <a class="hyperlink" href="https://myanimelist.net/ownlist/style" target="_blank">style page</a>.</p>
-		`;
-		configList.appendChild(styleHtml);
-
-		// change install instructions to match
-		let installStep = document.getElementById('js-install-style');
-		installStep.innerHTML = `
-			<p class="popup__paragraph">Find and activate the ${styleName} style. Save your changes, then click on the style to open its' page.</p>
-			<a class="dummy-theme-unit" target="_blank" href="https://myanimelist.net/ownlist/style/theme/${styleNum}">
-				<div class="dummy-theme-unit__name">${styleName}</div>
-				<img src="./images/style-${styleNum}.png" class="dummy-theme-unit__image" />
-				<div class="dummy-theme-unit__selection">
-					<label class="dummy-theme-unit__label">
-						<input type="radio" class="dummy-theme-unit__radio" checked="checked" />
-						Anime
-					</label>
-					<label class="dummy-theme-unit__label">
-						<input type="radio" class="dummy-theme-unit__radio" checked="checked" />
-						Manga
-					</label>
-				</div>
-			</a>
-			<p class="info-box">This theme requires the use of this specific style. Use of other styles may cause colour issues.</p>
-		`;
-	}
-
 	// Set recommended category
 
 	if('category' in theme) {
@@ -1223,70 +1169,6 @@ function pageSetup() {
 			<p class="popup__paragraph">This theme recommends a specific starting category of ${categoryDict[theme['category']]}. You can set this in your <a class="hyperlink" href="https://myanimelist.net/editprofile.php?go=listpreferences" target="_blank">list preferences</a> by finding the "Default Status Selected" dropdown menus.</p>
 		`;
 		configList.appendChild(categoryConfigHtml);
-
-		// install steps
-		for(let html of categoryInstallHtml) {
-			html.innerHTML = `
-				<p class="popup__paragraph">This theme recommends a specific starting category of ${categoryDict[theme['category']]}. You can set this in your <a class="hyperlink" href="https://myanimelist.net/editprofile.php?go=listpreferences" target="_blank">list preferences</a> by finding the "Default Status Selected" dropdown menus.</p>
-			`;
-		}
-	}
-	else {
-		for(let html of categoryInstallHtml) {
-			html.remove();
-		}
-	}
-
-	// Set recommended images
-
-	if(theme['type'] === 'classic') {
-		coverHtml.remove();
-		backgroundHtml.remove();
-	}
-	else {
-		let texts = [];
-		if('cover' in theme) {
-			let choice = theme['cover'] === true ? 'Yes' : 'No',
-				extra = '';
-			if(choice === 'Yes') {
-				extra = `Be sure to upload an image by using the "Browse..." button.`;
-			}
-			coverHtml.innerHTML = `
-				<p class="popup__paragraph">
-					In the sidebar, find the "Cover Image" area. Click to expand it if necessary. Set the "Show cover image" option to "<b>${choice}</b>". ${extra}
-				</p>
-			`;
-			texts.push(`Set your "Cover Image" option to "<b>${choice}</b>".`);
-		} else {
-			coverHtml.remove();
-		}
-
-		if('background' in theme) {
-			let choice = theme['background'] === true ? 'Yes' : 'No',
-				extra = '';
-			if(choice === 'Yes') {
-				extra = `Be sure to upload an image by using the "Browse..." button.`;
-			}
-			backgroundHtml.innerHTML = `
-				<p class="popup__paragraph">
-					In the sidebar, find the "Background Image" area. Click to expand it if necessary. Set the "Show background image" option to "<b>${choice}</b>". ${extra}
-				</p>
-			`;
-			texts.push(`Set your "Background Image" option to "<b>${choice}</b>".`);
-		} else {
-			backgroundHtml.remove();
-		}
-
-		if(texts.length > 0) {
-			configNotice.classList.remove('o-hidden');
-			let imagesHtml = document.createElement('div');
-			imagesHtml.className = 'popup__section';
-			imagesHtml.innerHTML = `
-				<h5 class="popup__sub-header">Images.</h5>
-				<p class="popup__paragraph">During installation of the theme, you should match your images to these settings: ${texts.join(' ')}<br /><br />See <a class="hyperlink js-installation-btn">"How do I install this?"</a> for more information.</p>
-			`;
-			configList.appendChild(imagesHtml);
-		}
 	}
 
 	// Set recommended theme columns
@@ -1371,7 +1253,116 @@ function pageSetup() {
 		columnsHtml.appendChild(columnsContainer);
 	}
 
-	// Set preview config
+	// Set recommended installation steps
+
+	let coverHtml = document.getElementById('js-install-cover'),
+		backgroundHtml = document.getElementById('js-install-background');
+
+	if(theme['type'] === 'classic') {
+		coverHtml.remove();
+		backgroundHtml.remove();
+	}
+	else {
+		let hasCustomInstall = false,
+			customInstallTexts = [];
+
+		if('style' in theme) {
+			hasCustomInstall = true;
+
+			let styleDict = {
+					1: 'Default Theme',
+					2: 'White',
+					3: 'White Blue',
+					4: 'White Green',
+					5: 'White Red',
+					6: 'White Yellow',
+					7: 'Dark Blue',
+					8: 'Dark Green',
+					9: 'Dark Pink',
+					10: 'Dark Red'
+				},
+				styleNum = theme['style'][0],
+				styleName = styleDict[styleNum];
+			
+			customInstallTexts.push(`Use only with the "<b>${styleName}</b>" style.`);
+
+			// change install instructions to match
+			let installStep = document.getElementById('js-install-style');
+			installStep.innerHTML = `
+				<p class="popup__paragraph">Find and activate the ${styleName} style. Save your changes, then click on the style to open its page.</p>
+				<a class="dummy-theme-unit" target="_blank" href="https://myanimelist.net/ownlist/style/theme/${styleNum}">
+					<div class="dummy-theme-unit__name">${styleName}</div>
+					<img src="./images/style-${styleNum}.png" class="dummy-theme-unit__image" />
+					<div class="dummy-theme-unit__selection">
+						<label class="dummy-theme-unit__label">
+							<input type="radio" class="dummy-theme-unit__radio" checked="checked" />
+							Anime
+						</label>
+						<label class="dummy-theme-unit__label">
+							<input type="radio" class="dummy-theme-unit__radio" checked="checked" />
+							Manga
+						</label>
+					</div>
+				</a>
+				<p class="info-box">This theme requires the use of this specific style. Use of other styles may cause colour issues.</p>
+			`;
+		}
+
+		if('cover' in theme) {
+			hasCustomInstall = true;
+
+			let choice = theme['cover'] === true ? 'Yes' : 'No',
+				extra = '';
+			if(choice === 'Yes') {
+				extra = `Be sure to upload an image by using the "Browse..." button.`;
+			}
+			
+			customInstallTexts.push(`Set the "Show cover image" option to "<b>${choice}</b>".`);
+			coverHtml.innerHTML = `
+				<p class="popup__paragraph">
+					In the sidebar, find the "Cover Image" area. Click to expand it if necessary. Set the "Show cover image" option to "<b>${choice}</b>". ${extra}
+				</p>
+			`;
+		} else {
+			coverHtml.remove();
+		}
+
+		if('background' in theme) {
+			hasCustomInstall = true;
+
+			let choice = theme['background'] === true ? 'Yes' : 'No',
+				extra = '';
+			if(choice === 'Yes') {
+				extra = `Be sure to upload an image by using the "Browse..." button.`;
+			}
+
+			customInstallTexts.push(`Set the "Show background image" option to "<b>${choice}</b>".`);
+			backgroundHtml.innerHTML = `
+				<p class="popup__paragraph">
+					In the sidebar, find the "Background Image" area. Click to expand it if necessary. Set the "Show background image" option to "<b>${choice}</b>". ${extra}
+				</p>
+			`;
+		} else {
+			backgroundHtml.remove();
+		}
+
+		if(hasCustomInstall) {
+			configNotice.classList.remove('o-hidden');
+			let installHtml = document.createElement('div');
+			installHtml.className = 'popup__section';
+			installHtml.innerHTML = `
+				<h5 class="popup__sub-header">Installation steps.</h5>
+				<p class="popup__paragraph">
+					This theme has extra installation specifications. Please take these actions during install:<br />
+					• ${customInstallTexts.join('<br />• ')}<br />
+					<br />
+					If you don't know how to apply these changes, please follow the <a class="hyperlink js-installation-btn">installation guide</a> for detailed instructions.</p>
+			`;
+			configList.appendChild(installHtml);
+		}
+	}
+
+	// Set preview options and post to preview iframe
 
 	if(!('preview' in theme)) {
 		theme['preview'] = {};
