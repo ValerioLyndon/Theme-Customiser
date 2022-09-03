@@ -38,6 +38,10 @@ window.addEventListener(
 			else if(type === 'cover') {
 				toggleCover(content);
 			}
+			else if(type === 'style') {
+				console.log(`This option is still to do. Style #${content}`);
+				//changeStyle(content);
+			}
 			else if(type === 'category') {
 				changeCategory(content);
 			}

@@ -361,6 +361,8 @@ let path = window.location.pathname,
 
 // Check for legacy JSON and process as needed
 async function processJson(json, url, toReturn) {
+	loader.text('Updating JSON...');
+
 	var ver = 0;
 	if(!('json_version' in json)) {
 		ver = 0.1;
@@ -368,22 +370,24 @@ async function processJson(json, url, toReturn) {
 		ver = json['json_version'];
 	}
 
-	// Check for legacy JSON
+	// Else, continue to process.
 	if(ver > jsonVersion) {
-		messenger.warn('Detected JSON version ahead of current release. Processing as normal.');
+		console.log('Detected JSON version ahead of current release. Processing as normal.');
 	}
+
 	else if(ver < jsonVersion) {
-		messenger.warn('The loaded JSON has been processed as legacy JSON. This can cause slowdowns or errors. If you are the JSON author, please see the GitHub page for assistance updating.');
+		console.log('The loaded JSON has been processed as legacy JSON. This can cause slowdowns or errors. If you are the JSON author, please see the GitHub page for assistance updating.');
 		if(ver === 0.1) {
 			json = updateToBeta2(json, url, toReturn);
+			ver = 0.2;
 		}
 	}
 
-	// Process as normal if/when format is good
+	// Process as normal once format has been updated
 	
 	// Process as collection or fetch correct theme from collection
 	if(toReturn === 'collection' && 'themes' in json
-	|| toReturn !== 'collection' && 'data' in json) {
+	|| toReturn === 'theme' && 'data' in json) {
 		// Convert legacy dictionary to array
 		if('themes' in json && !Array.isArray(json['themes'])) {
 			let arrayThemes = [];

@@ -48,7 +48,7 @@ function changeCategory(catId, catBtn) {
 	let listItems = document.getElementsByClassName('list-item');
 
 	for(let item of listItems) {
-		if(catId === '7' || item.getAttribute('tc-category') === categoryCodes[catId]) {
+		if(catId == 7 || item.getAttribute('tc-category') === categoryCodes[catId]) {
 			item.style = '';
 		} else {
 			item.style = 'display: none !important';
