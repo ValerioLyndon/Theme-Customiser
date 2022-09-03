@@ -145,9 +145,11 @@ body {
 	opacity: 1;
 }
 .content__customiser {
-	display: flex;
+	display: grid;
 	height: 100vh;
-	padding-top: 50px;
+	grid-template-rows: auto auto;
+	grid-template-columns: auto 1fr;
+	grid-template-areas: "top top" "left right";
 }
 .content__browse {
 	padding-bottom: 32px;

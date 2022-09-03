@@ -248,27 +248,22 @@ input:checked + .toggle.is-forced::after {
 /* Topbar */
 
 .topbar {
-	position: absolute;
-	top: 0;
+	position: relative;
 	z-index: 10;
-	width: 100%;
-	height: 50px;
+	display: flex;
 	background: var(--invert-background);
+	justify-content: space-between;
+	flex-flow: row wrap;
+	grid-area: top;
 }
 
 .topbar__section {
 	float: var(--place);
 	display: flex;
-	height: 100%;
+	height: 50px;
 	margin: 0 15px;
-	justify-content: var(--place);
 	align-items: center;
-}
-.topbar__section--left {
-	--place: left;
-}
-.topbar__section--right {
-	--place: right;
+	flex-shrink: 0;
 }
 
 
@@ -397,6 +392,7 @@ input:checked + .toggle.is-forced::after {
 	overflow-y: auto;
 	border-right: 2px solid var(--invert-background);
 	flex: 0 0 auto;
+	grid-area: left;
 	transition:
 		margin-left 0.5s ease,
 		scrollbar-color .18s ease-out;
@@ -427,11 +423,10 @@ input:checked + .toggle.is-forced::after {
 }
 
 @supports (mask-image: url()) or (-webkit-mask-image: url()) {
-	.sidebar::after,
+	.preview::after,
 	.sidebar__decorative::after {
 		content: "";
 		position: absolute;
-		z-index: 1;
 		width: 20px;
 		height: 20px;
 		background: var(--invert-background);
@@ -442,17 +437,11 @@ input:checked + .toggle.is-forced::after {
 		-webkit-mask-size: 40px 40px;
 		mask-size: 40px 40px;
 	}
-	.sidebar::after {
+	.preview::after {
 		left: var(--sidebar-width);
-		top: 50px;
+		top: 0;
 		-webkit-mask-position: 0 0;
 		mask-position: 0 0;
-		transition-property: left;
-		transition-timing-function: inherit;
-		transition-duration: inherit;
-	}
-	.sidebar.is-aside::after {
-		left: 4px;
 	}
 	.sidebar__decorative::after {
 		right: 0;
@@ -752,10 +741,11 @@ input:checked + .toggle.is-forced::after {
 
 .preview {
 	position: relative;
-	width: 80%;
+	width: 100%;
 	height: 100%;
 	flex: 1 1 auto;
 	overflow: hidden;
+	grid-area: right;
 }
 
 .preview__window-wrapper {
