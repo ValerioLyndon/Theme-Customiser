@@ -413,6 +413,9 @@ function updateMod(modId, funcConfig = {}) {
 // Used to force a change in settings.
 // Confirms all settings are correct, applies them to the HTML, then calls updateCss()
 function applySettings(settings = false) {
+	// resets all HTML before applying new settings.
+	document.getElementById('js-theme').reset();
+	
 	if(settings) {
 		if(settings['options']) {
 			userSettings['options'] = settings['options'];
@@ -802,6 +805,7 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 		let interface = document.createElement('input');
 		interface.placeholder = 'Your text here.';
 		interface.className = 'input';
+		interface.setAttribute('value', defaultValue);
 
 		// Text-based Options
 
