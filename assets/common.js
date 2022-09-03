@@ -349,7 +349,7 @@ const
 	themeUrls = query.getAll('t'),
 	loader = new loadingScreen(),
 	messenger = new messageHandler(),
-	jsonVersion = 0.3;
+	jsonVersion = 0.2;
 
 
 
@@ -380,10 +380,6 @@ async function processJson(json, url, toReturn) {
 		if(ver === 0.1) {
 			json = updateToBeta2(json, url, toReturn);
 			ver = 0.2;
-		}
-		if(ver === 0.2) {
-			json = updateToBeta3(json);
-			ver = 0.3;
 		}
 	}
 
@@ -470,85 +466,4 @@ function updateToBeta2(json, url, toReturn) {
 			return false;
 		}
 	}
-}
-
-
-// json v0.2 > v0.3
-
-function updateToBeta3(json) {
-	json['json_version'] = 0.3;
-
-	// No updates to collections in this version.
-	if(!('data' in json)) {
-		return json;
-	}
-
-	// Update config formatting
-	if('columns' in json['data']) {
-		if(!('config' in json['data'])) {
-			json['data']['config'] = {};
-		}
-		json['data']['config']['columns'] = structuredClone(json['data']['columns']);
-		delete json['data']['columns'];
-	}
-	if('preview' in json['data']) {
-		if(!('config' in json['data'])) {
-			json['data']['config'] = {};
-		}
-		json['data']['preview_config'] = structuredClone(json['data']['preview']);
-		delete json['data']['preview'];
-	}
-
-	// Update replacement formatting
-	function convertReplacements(replacements) {
-		let newReplacements = [];
-
-		for(i = 0; i < replacements.length; i++) {
-			let rArray = replacements[i],
-				rDict = {};
-
-			rDict['find'] = rArray[0];
-			if(rArray[0].startsWith('RegExp/')) {
-				rDict['settings'] = {};
-				rDict['settings']['RegExp'] = true;
-			}
-
-			if(rArray.length === 3) {
-				rDict['off_fill'] = rArray[1];
-				rDict['fill'] = rArray[2];
-			} else {
-				rDict['fill'] = rArray[1];
-			}
-
-			newReplacements.push(rDict);
-		}
-
-		return newReplacements;
-	}
-
-	if('options' in json['data']) {
-		for(let [optId, optData] of Object.entries(json['data']['options'])) {
-			if('replacements' in optData) {
-				json['data']['options'][optId]['replacements'] = convertReplacements(optData['replacements']);
-			}
-		}
-	}
-
-	if('mods' in json['data']) {
-		for(let [modId, modData] of Object.entries(json['data']['mods'])) {
-			if('options' in modData) {
-				for(let [optId, optData] of Object.entries(modData['options'])) {
-					if('replacements' in optData) {
-						json['data']['mods'][modId]['options'][optId]['replacements'] = convertReplacements(optData['replacements']);
-					} else if('selections' in optData) {
-						for(let [selectId, selectData] of Object.entries(optData['selections'])) {
-							json['data']['mods'][modId]['options'][optId]['selections'][selectId]['replacements'] = convertReplacements(selectData['replacements']);
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return json;
 }

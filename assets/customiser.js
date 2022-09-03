@@ -504,9 +504,8 @@ async function updateCss() {
 
 		for(let set of replacements) {
 			// Choose the correct replacement set based on whether the toggle is on or off
-			let find = set['find'],
-				replace = (insert === false) ? set['off_fill'] : set['fill'],
-				settings = set['settings'] ? set['settings'] : false;
+			let find = set[0],
+				replace = (insert === true) ? set[2] : set[1];
 
 			// Fetch external CSS if necessary
 			replace = await returnCss(replace);
@@ -517,7 +516,7 @@ async function updateCss() {
 			}
 
 			// Use RegExp if called for
-			if(settings && settings['RegExp']) {
+			if(find.startsWith('RegExp')) {
 				find = new RegExp(find.substr(7), 'g');
 			}
 
