@@ -156,7 +156,7 @@ body {
 .content__customiser {
 	display: grid;
 	height: 100vh;
-	grid-template-rows: auto auto;
+	grid-template-rows: auto 1fr;
 	grid-template-columns: auto 1fr;
 	grid-template-areas: "top top" "left right";
 }
@@ -568,42 +568,6 @@ body {
 .popup__image--expand:hover {
 	transform: scale(3) translateY(-5%);
 	border-color: transparent;
-}
-
-
-
-/* TEMPORARY */
-
-.beta {
-	position: fixed;
-	bottom: 8px;
-	left: 8px;
-	height: 24px;
-	padding: 3px 6px;
-	background: #000;
-	color: #fff;
-	font-weight: 900;
-	text-decoration: none;
-}
-.beta__inline {
-	position: static;
-	display: inline-block;
-	font-size: 0.9em;
-}
-.beta::after {
-	content: " - Report an issue?";
-	font-size: 0;
-	opacity: 0;
-	transition:
-		font-size 0.15s ease 0.15s,
-		opacity 0.15s ease;
-}
-.beta:hover::after {
-	font-size: 1em;
-	opacity: 1;
-	transition:
-		font-size 0.15s ease,
-		opacity 0.15s ease 0.15s;
 }
 
 
