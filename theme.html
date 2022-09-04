@@ -80,7 +80,7 @@ permalink: /theme
 			</div>
 
 			<div class="sidebar" id="js-sidebar">
-				<form class="sidebar__inner" id="js-theme">
+				<form class="sidebar__inner" id="js-theme" method="dialog" novalidate="novalidate" target="_self">
 					<div class="sidebar__decorative"></div>
 
 					<div class="sidebar__section">
@@ -91,7 +91,7 @@ permalink: /theme
 
 					<div class="sidebar__section">
 						<div class="expando js-expando" data-expando-limit="400" style="--margin: 16px" id="js-options">
-							<button class="expando__button js-expando-button">Expand</button>
+							<button type="button" class="expando__button js-expando-button">Expand</button>
 							
 							<h3 class="sidebar__header">Change theme options</h3>
 
@@ -101,12 +101,12 @@ permalink: /theme
 
 					<div class="sidebar__section">
 						<div class="expando js-expando" data-expando-limit="400" style="--margin: 16px" id="js-mods">
-							<button class="expando__button js-expando-button">Expand</button>
+							<button type="button" class="expando__button js-expando-button">Expand</button>
 							
 							<h3 class="sidebar__header">
 								Choose theme modifications
 								<div class="sidebar__header-aside">
-									<button class="button o-hidden" id="js-tags__button" onclick="toggleEle('#js-tags__cloud', this)">
+									<button type="button" class="button o-hidden" id="js-tags__button" onclick="toggleEle('#js-tags__cloud', this)">
 										<i class="fa-solid fa-tags"></i> Tags
 									</button>
 								</div>
@@ -123,7 +123,7 @@ permalink: /theme
 					<div class="sidebar__section">
 						<h3 class="sidebar__header">Use your customised theme</h3>
 						
-						<button onclick="toggleEle('#js-pp-config')" class="alert-button o-hidden" id="js-intended-config">
+						<button type="button" onclick="toggleEle('#js-pp-config')" class="alert-button o-hidden" id="js-intended-config">
 							<div class="alert-button__icon">
 								<i class="fa-solid fa-circle-exclamation"></i>
 							</div>
@@ -142,7 +142,7 @@ permalink: /theme
 
 							<p class="info-box info-box--indented info-box--error o-hidden" id="js-output-notice"></p>
 						
-							<button class="button button--highlighted js-swappable-text" id="js-copy-output" onclick="navigator.clipboard.writeText(document.getElementById('js-output').textContent);">
+							<button type="button" class="button button--highlighted js-swappable-text" id="js-copy-output" onclick="navigator.clipboard.writeText(document.getElementById('js-output').textContent);">
 								<div class="swappable-text">
 									<div class="swappable-text__text">
 										Copy CSS
@@ -157,9 +157,9 @@ permalink: /theme
 					</div>
 
 					<div class="sidebar__section">
-						<button class="button" onclick="toggleEle('#js-pp-export')">Export settings</button>
-						<button class="button" onclick="resetSettings()">Reset settings</button>
-						<button class="button" onclick="clearCache()">Clear cache</button>
+						<button type="button" class="button" onclick="toggleEle('#js-pp-export')">Export settings</button>
+						<button type="button" class="button" onclick="resetSettings()">Reset settings</button>
+						<button type="button" class="button" onclick="clearCache()">Clear cache</button>
 					</div>
 
 					<footer class="sidebar__section sidebar__section--no-border">
@@ -299,7 +299,7 @@ permalink: /theme
 					</p>
 
 					<textarea id="js-pp-import-code" class="input input--textarea"></textarea>
-					<button class="button button--highlighted" onclick="importPreviousSettings()">Import Settings</button>
+					<button type="button" class="button button--highlighted" onclick="importPreviousSettings()">Import Settings</button>
 				</div>
 			</div>
 		</div>
@@ -315,7 +315,7 @@ permalink: /theme
 					</p>
 
 					<textarea id="js-export-code" class="input input--code" readonly="readonly"></textarea>
-					<button class="button button--highlighted js-swappable-text" onclick="navigator.clipboard.writeText(document.getElementById('js-export-code').textContent);">
+					<button type="button" class="button button--highlighted js-swappable-text" onclick="navigator.clipboard.writeText(document.getElementById('js-export-code').textContent);">
 						<div class="swappable-text">
 							<div class="swappable-text__text">
 								Copy settings
