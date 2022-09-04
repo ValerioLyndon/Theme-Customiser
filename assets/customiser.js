@@ -268,7 +268,7 @@ function updateOption(optId, funcConfig = {}) {
 		}
 
 		// Add to userSettings unless matches default value
-		if(val === defaultValue) {
+		if(val === defaultValue || optData['type'] === 'range' && val === '') {
 			if(funcConfig['parentModId']) {
 				delete userSettings['mods'][funcConfig['parentModId']][optId];
 			} else {
@@ -436,6 +436,9 @@ function applySettings(settings = false) {
 			delete userSettings['options'][optId];
 			errors.push(`opt:<b>${optId}</b>`);
 		}
+		else if(theme['options'][optId]['type'] === 'range') {
+			document.getElementById(`opt:${optId}-range`).value = val;
+		}
 	}
 	for(let [modId, modOpts] of Object.entries(userSettings['mods'])) {
 		if(!updateMod(modId, {'forceValue': true, 'skipOptions': true})) {
@@ -448,6 +451,9 @@ function applySettings(settings = false) {
 			if(!updateOption(optId, {'parentModId': modId, 'forceValue': optVal})) {
 				delete userSettings['mods'][modId][optId];
 				errors.push(`opt:<b>${optId}</b><i> of mod:${modId}</i>`);
+			}
+			else if(theme['mods'][modId]['options'][optId]['type'] === 'range') {
+				document.getElementById(`mod:${modId}:${optId}-range`).value = val;
 			}
 		}
 	}
@@ -866,6 +872,70 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 			}
 		}
 
+		// Range Options
+
+		else if(type === 'range') {
+			interface.classList.add('input--small');
+			interface.type = 'number';
+			interface.addEventListener('input', () => {
+				range.value = interface.value;
+			});
+			interface.placeholder = '#';
+
+			let rangeParent = document.createElement('label');
+			rangeParent.className = 'entry__range';
+			
+			let range = document.createElement('input');
+			range.type = 'range';
+			range.id = `${htmlId}-range`;
+			range.className = 'range';
+			range.setAttribute('value', defaultValue);
+			range.addEventListener('input', () => {
+				interface.value = range.value;
+				updateOption(entryId, {'parentModId': parentId});
+				updateCss();
+			});
+
+			rangeParent.appendChild(range);
+			rangeParent.appendChild(interface);
+			div.appendChild(rangeParent);
+
+			let difference = 100,
+				min = 0,
+				max = 100;
+
+			if('step' in entryData && entryData['step'] < 1) {
+				difference = 1;
+			}
+
+			if('min' in entryData && 'max' in entryData) {
+				min = entryData['min'];
+				max = entryData['max'];
+			}
+			else if('min' in entryData) {
+				min = entryData['min'];
+				max = entryData['min'] + difference;
+			}
+			else if('max' in entryData) {
+				max = entryData['max'];
+				min = entryData['max'] - difference;
+			}
+
+			interface.setAttribute('min', min);
+			range.setAttribute('min', min);
+			interface.setAttribute('max', max);
+			range.setAttribute('max', max);
+
+			if('step' in entryData) {
+				interface.setAttribute('step', entryData['step']);
+				range.setAttribute('step', entryData['step']);
+			}
+			else if(max - min <= 5) {
+				interface.setAttribute('step', 0.1);
+				range.setAttribute('step', 0.1);
+			}
+		}
+
 		// Toggle Options
 
 		else if(type === 'toggle') {
@@ -905,7 +975,7 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 		interface.id = htmlId;
 		if(type === 'toggle') {
 			headRight.prepend(interface);
-		} else {
+		} else if(type !== 'range') {
 			div.appendChild(interface);
 		}
 

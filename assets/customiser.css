@@ -557,6 +557,10 @@ input:checked + .toggle.is-forced::after {
 	margin: 0 0 8px;
 	min-width: 100px;
 }
+.entry__range {
+	display: flex;
+	align-items: center;
+}
 
 .entry__options {
 	display: none;
