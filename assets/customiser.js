@@ -1184,9 +1184,8 @@ function pageSetup() {
 			'mangalist': ['Numbers', 'Score', 'Type', 'Chapters', 'Volumes', 'Start/End Dates', 'Total Days Read', 'Retail Manga', 'Tags', 'Priority', 'Genres', 'Demographics', 'Image', 'Published Dates', 'Magazine', 'Notes']
 		};
 
-	function processColumns(mode, todo) {
+	function processColumns(mode, todo, listType) {
 		let columns = {},
-			listType = theme['supports'][0],
 			base = baseColumns[listType];
 
 		for(let col of base) {
@@ -1326,7 +1325,7 @@ function pageSetup() {
 
 		for(let listType of theme['supports']) {
 			if(listType in theme['columns']) {
-				let tempcolumns = processColumns(mode, theme['columns'][listType]);
+				let tempcolumns = processColumns(mode, theme['columns'][listType], listType);
 				renderColumns(tempcolumns, listType);
 			}
 		}
@@ -1503,7 +1502,7 @@ function pageSetup() {
 
 	// Set correct columns
 	let mode = 'whitelist',
-		templistType = theme['supports'][0];
+		tempListType = theme['supports'][0];
 	if('columns' in theme['preview']) {
 		mode = 'mode' in theme['preview']['columns'] ? theme['preview']['columns']['mode'] : 'whitelist';
 		tempcolumns = theme['preview']['columns'];
@@ -1523,19 +1522,19 @@ function pageSetup() {
 				'Image': true
 			}
 		};
-		for(let col of baseColumns[templistType]) {
-			if(Object.keys(tempcolumns[templistType]).length > 8) {
+		for(let col of baseColumns[tempListType]) {
+			if(Object.keys(tempcolumns[tempListType]).length > 8) {
 				break;
 			}
 
-			if(!Object.keys(tempcolumns[templistType]).includes(col) && Math.round(Math.random()) === 1) {
-				tempcolumns[templistType][col] = true;
+			if(!Object.keys(tempcolumns[tempListType]).includes(col) && Math.round(Math.random()) === 1) {
+				tempcolumns[tempListType][col] = true;
 			}
 		}
 	}
 
 	// process columns and update iframe
-	columns = processColumns(mode, tempcolumns[templistType]);
+	columns = processColumns(mode, tempcolumns[tempListType], tempListType);
 	postToIframe(['columns', columns]);
 
 	// Add classic list functions
