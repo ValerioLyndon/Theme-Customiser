@@ -433,6 +433,9 @@ function applySettings(settings = false) {
 			delete userSettings['options'][optId];
 			errors.push(`opt:<b>${optId}</b>`);
 		}
+		else if(theme['options'][optId]['type'] === 'color') {
+			document.getElementById(`opt:${optId}:colour`).style.backgroundColor = val;
+		}
 	}
 	for(let [modId, modOpts] of Object.entries(userSettings['mods'])) {
 		if(!updateMod(modId, {'forceValue': true, 'skipOptions': true})) {
@@ -445,6 +448,9 @@ function applySettings(settings = false) {
 			if(!updateOption(optId, {'parentModId': modId, 'forceValue': optVal})) {
 				delete userSettings['mods'][modId][optId];
 				errors.push(`opt:<b>${optId}</b><i> of mod:${modId}</i>`);
+			}
+			else if(theme['mods'][modId]['options'][optId]['type'] === 'color') {
+				document.getElementById(`mod:${modId}:${optId}:colour`).style.backgroundColor = optVal;
 			}
 		}
 	}
@@ -648,17 +654,6 @@ function validateInput(htmlId, type) {
 		
 	}
 
-	else if(type === 'color') {
-		this.style.color = '';
-		this.style.color = val;
-		if(this.style.color.length === 0) {
-			problems += 1;
-			noticeHTML = 'Your colour appears to be invalid. For help creating valid CSS colours, see <a class="hyperlink" href="https://css-tricks.com/almanac/properties/c/color/">this guide</a>.';
-		} else {
-			this.style.backgroundColor = val;
-		}
-	}
-
 	else if(qualifier === 'size') {
 		let units = ['px','%','em','rem','vh','vmax','vmin','vw','ch','cm','mm','Q','in','pc','pt','ex']
 		problems += 1;
@@ -845,8 +840,10 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 			}
 			display.id = `${htmlId}:colour`;
 			display.addEventListener('click', () => {
-				console.log(display.id);
-				validateInput.bind(display, htmlId, type);
+				colorToSet = {
+					'html': display,
+					'input': interface
+				};
 
 				if(picker.getAttribute('data-focus') === htmlId) {
 					picker.classList.remove('is-active');
@@ -998,6 +995,33 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 	// Return rendered HTML
 	return div;
 }
+
+// Listen for messages from color picker
+
+var colorToSet = null;
+window.addEventListener(
+	"message",
+	function (event) {
+		if(event.origin === window.location.origin) {
+			var push = event.data || event.message,
+				type = push[0],
+				content = push[1];
+
+			if(type === 'color') {
+				if(colorToSet !== null) {
+					colorToSet['html'].style.backgroundColor = content;
+					colorToSet['input'].value = content;
+					colorToSet['input'].dispatchEvent(new Event('input'));
+				}
+				console.log('[WARN] Received request to change colour, but no option is currently selected.')
+			}
+			else {
+				console.log('[ERROR] Malformed request received from iframe. No action taken.')
+			}
+		}
+	},
+	false
+);
 
 
 

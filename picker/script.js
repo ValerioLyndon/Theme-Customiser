@@ -774,6 +774,9 @@ var UIColorPicker = (function UIColorPicker() {
 	ColorPicker.prototype.notify = function notify(topic, value) {
 		if (this.subscribers[topic])
 			this.subscribers[topic](value);
+
+		// Update customiser.js
+		window.parent.postMessage(['color', this.color.getRGBA()]);
 	};
 
 	/*************************************************************************/
@@ -1805,7 +1808,6 @@ var ColorPickerTool = (function ColorPickerTool() {
 			UIColorPicker.setColor('picker', color);
 
 			setPickerDragAndDrop();
-			createPickerModeSwitch();
 		};
 
 		return {
