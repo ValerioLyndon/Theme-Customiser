@@ -146,10 +146,17 @@
 	padding: 0 15px;
 	min-height: calc(100vh - 300px);
 }
+.browser.is-table {
+	flex-flow: column nowrap;
+	align-items: center;
+}
 
 .browser__card {
 	margin: 14px;
 	text-decoration: none;
+}
+.is-table .browser__card {
+	margin: 7px 0;
 }
 .browser__card.is-hidden-by-tag {
 	display: none;
@@ -157,7 +164,7 @@
 
 .card {
 	display: flex;
-	flex-direction: column-reverse;
+	flex-direction: column;
 	width: 244px;
 	border: 2px solid var(--border-light);
 	border-radius: 6px;
@@ -166,14 +173,27 @@
 	color: var(--text);
 	transition: transform 0.18s cubic-bezier(.3,.85,.63,1.2);
 }
-
 .card:hover {
 	transform: scale(1.035);
+}
+
+.is-table .card {
+	width: 80vw;
+	min-width: 300px;
+	max-width: 800px;
+	flex-direction: row;
 }
 
 .card__info {
 	padding: 10px;
 	line-height: 20px;
+}
+.is-table .card__info {
+	display: flex;
+	width: 40%;
+	flex: 0 0 auto;
+	order: 2;
+	align-items: baseline;
 }
 
 .card__title {
@@ -185,11 +205,15 @@
 .card__author {
 	font-style: italic;
 }
+.is-table .card__author {
+	margin-left: 3px;
+}
 
 .card__display {
 	position: relative;
-	width: 100%;
+	width: 240px;
 	height: 135px;
+	flex: 0 0 auto;
 }
 .card__display--no-image {
 	background-image: repeating-linear-gradient(
@@ -200,26 +224,41 @@
 			rgba(0,0,0,0) 9px
 		);
 }
+.is-table .card__display {
+	width: 80px;
+	height: 45px;
+	order: 1;
+}
 
 .card__image {
-	width: 240px;
-	height: 135px;
-	border-radius: 0 0 4px 4px;
+	width: 100%;
+	height: 100%;
+	border-radius: 4px;
 	object-fit: cover;
 	object-position: center;
 }
 
 .card__tag-list {
-	position: absolute;
-	bottom: 8px;
-	right: 8px;
 	display: flex;
+	padding: 0 8px;
+	height: 0;
 	flex-direction: row-reverse;
 	flex-wrap: wrap-reverse;
-	
+}
+.is-table .card__tag-list {
+	width: 40%;
+	padding: 10px;
+	height: auto;
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: center;
+	order: 3;
+	flex: 1 1 auto;
 }
 
 .card__tag {
+	position: relative;
+	bottom: 8px;
 	--tag-accent: var(--box);
 	padding: 2px 4px;
 	background: var(--tag-accent);

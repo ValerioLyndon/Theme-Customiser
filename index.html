@@ -72,6 +72,15 @@
 					<button class="button o-hidden" id="js-tags__button" onclick="toggleEle('#js-tags__cloud', this)">
 						<i class="fa-solid fa-tags"></i> Tags
 					</button>
+
+					<div class="switch">
+						<button type="button" class="button" onclick="let browser = document.getElementById('js-theme-list'); browser.classList.add('is-grid'); browser.classList.remove('is-table');">
+							<i class="fa-solid fa-grip"></i>
+						</button>
+						<button type="button" class="button" onclick="let browser = document.getElementById('js-theme-list'); browser.classList.add('is-table'); browser.classList.remove('is-grid');">
+							<i class="fa-solid fa-bars"></i>
+						</button>
+					</div>
 				</div>
 
 				<div class="filter__row">

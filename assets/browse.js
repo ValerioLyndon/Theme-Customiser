@@ -157,29 +157,30 @@ function renderCards(cardData) {
 
 		let card = document.createElement('div');
 		card.className = 'card';
-		cardParent.appendChild(card);
 
 		let info = document.createElement('div');
 		info.className = 'card__info';
-		card.appendChild(info);
 		
 		let title = document.createElement('h3');
 		title.className = 'card__title';
 		title.textContent = themeName;
-		info.appendChild(title);
 		
 		let author = document.createElement('span');
 		author.className = 'card__author';
 		author.textContent = `by ${themeAuthor}`;
-		info.appendChild(author);
 
 		let display = document.createElement('div');
 		display.className = 'card__display';
-		card.appendChild(display);
 
 		let tagArea = document.createElement('div');
 		tagArea.className = 'card__tag-list';
-		display.appendChild(tagArea);
+
+		info.appendChild(title);
+		info.appendChild(author);
+		card.appendChild(display);
+		card.appendChild(tagArea);
+		card.appendChild(info);
+		cardParent.appendChild(card);
 
 		function addTag(name, colour) {
 			let tag = document.createElement('span');
