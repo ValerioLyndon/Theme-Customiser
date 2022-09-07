@@ -453,7 +453,7 @@ function applySettings(settings = false) {
 				errors.push(`opt:<b>${optId}</b><i> of mod:${modId}</i>`);
 			}
 			else if(theme['mods'][modId]['options'][optId]['type'] === 'range') {
-				document.getElementById(`mod:${modId}:${optId}-range`).value = val;
+				document.getElementById(`mod:${modId}:${optId}-range`).value = optVal;
 			}
 		}
 	}
