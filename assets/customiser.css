@@ -670,11 +670,12 @@ input:checked + .toggle.is-forced::after {
 
 .columns {
 	display: flex;
-	overflow-x: auto;
+	flex-flow: row wrap;
 	padding: 8px 0;
 }
 
 .columns__wrapper {
+	width: 50%;
 	flex-grow: 1;
 }
 
@@ -704,6 +705,7 @@ input:checked + .toggle.is-forced::after {
 
 .columns__item {
 	white-space: nowrap;
+	margin-right: 8px;
 }
 
 .columns__check {
@@ -723,20 +725,30 @@ input:checked + .toggle.is-forced::after {
 	line-height: 12px;
 }
 
-:checked + .columns__check {
+.columns__check--checked {
 	background: var(--accent);
 	border-color: var(--accent);
 }
-:checked + .columns__check::before {
+.columns__check--checked::before {
 	content: "✔";
 }
 
-:indeterminate + .columns__check {
-	background: rgb(29, 122, 35);
+.columns__check--optional {
 	border-color: rgb(29, 122, 35);
 }
-:indeterminate + .columns__check::before {
+.columns__check--optional::before {
 	content: "—";
+	color: rgb(29, 122, 35);
+}
+
+.columns__legend {
+	width: 100%;
+	flex-shrink: 0;
+	margin-top: 8px;
+}
+
+.columns__legend-list {
+	display: flex;
 }
 
 

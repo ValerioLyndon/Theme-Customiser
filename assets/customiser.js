@@ -1294,23 +1294,21 @@ function pageSetup() {
 				let col = document.createElement('div');
 				col.className = 'columns__item';
 				col.innerHTML = `
-					<input type="checkbox" disabled="disabled" style="display:none">
 					<label class="columns__check"></label>
 					<span class="columns__name">${name}</span>
 				`;
 				
-				let input = col.getElementsByTagName('input')[0];
+				let check = col.getElementsByTagName('label')[0];
 				
 				if(value === true) {
-					input.checked = true;
+					check.classList.add('columns__check--checked');
 					col.title = 'This column should be enabled.';
 				}
 				else if(value === false) {
-					input.checked = false;
 					col.title = 'This column should be disabled.';
 				}
 				else if(value === null) {
-					input.indeterminate = true;
+					check.classList.add('columns__check--optional');
 					col.title = 'This column is optional.';
 				}
 
@@ -1329,6 +1327,29 @@ function pageSetup() {
 				renderColumns(tempcolumns, listType);
 			}
 		}
+
+		// Add legend
+
+		let columnsLegend = document.createElement('div');
+		columnsLegend.className = 'columns__legend'
+		columnsLegend.innerHTML = `
+			<b class="columns__header">Legend</b>
+			<div class="columns__legend-list">
+				<div class="columns__item" title="This column should be enabled.">
+					<label class="columns__check columns__check--checked"></label>
+					<span class="columns__name">Enabled</span>
+				</div>
+				<div class="columns__item" title="This column is optional.">
+					<label class="columns__check columns__check--optional"></label>
+					<span class="columns__name">Optional</span>
+				</div>
+				<div class="columns__item" title="This column should be disabled.">
+					<label class="columns__check"></label>
+					<span class="columns__name">Disabled</span>
+				</div>
+			</div>
+		`;
+		columnsContainer.appendChild(columnsLegend);
 
 		columnsHtml.appendChild(columnsContainer);
 	}
