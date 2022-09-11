@@ -488,6 +488,27 @@ async function updateCss() {
 		}
 	}
 
+	var userInserts = {};
+
+	function replacementString(length = 5) {
+		let result = '';
+		const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
+		      charactersLength = characters.length;
+		for(let i = 0; i < length; i++) {
+			if(i % 2 === 0) {
+				result += '~';
+			}
+			result += characters.charAt(Math.random() * 
+		charactersLength);
+		}
+		result += '~';
+		// Start over if string already exists
+		if(userInserts[replacementString] !== undefined) {
+			result = replacementString(length);
+		}
+		return result;
+	}
+
 	async function applyOptionToCss(css, optData, insert) {
 		let type = optData['type'],
 			qualifier = optData['type'].split('/')[1];
@@ -519,9 +540,13 @@ async function updateCss() {
 			// Fetch external CSS if necessary
 			replace = await returnCss(replace);
 
-			// Find {{{insert}}} texts and replace them with user input
+			// Add a random string to CSS and user input to dictionary.
+			// String will be replaced by user input later.
+			// This prevents input accidentally getting over-ridden by other replacements
 			if(type !== 'select' && type !== 'toggle') {
-				replace = replace.replaceAll('{{{insert}}}', insert);
+				let str = replacementString(10);
+				userInserts[str] = insert;
+				replace = replace.replaceAll('{{{insert}}}', str);
 			}
 
 			// Use RegExp if called for
@@ -572,6 +597,13 @@ async function updateCss() {
 				}
 			}
 		}
+	}
+
+	// Process user inserts after all other code has been added.
+	// This prevents unexpected behaviour with user inserts that match other replacements.
+	
+	for(let [find, replace] of Object.entries(userInserts)) {
+		newCss = newCss.replaceAll(find,replace);
 	}
 
 	// Encode options & sanitise any CSS character
