@@ -1819,7 +1819,7 @@ var userSettings = {
 // Get data for all themes and call other functions
 
 let fetchUrl = themeUrls[0],
-	selectedTheme = query.get('q') || query.get('theme');
+	selectedTheme = query.get('q') || query.get('theme') || 'theme';
 
 // Legacy processing for json 0.1 > 0.2
 if(themeUrls.length === 0 && collectionUrls.length > 0) {
@@ -1850,10 +1850,6 @@ fetchData.then((json) => {
 		throw new Error('json.parse');
 	}
 
-	// Check for legacy json
-	if(themeUrls.length > 0 && collectionUrls.includes(themeUrls[0]) && !selectedTheme) {
-		selectedTheme = 'theme';
-	}
 	processJson(json, themeUrls[0], selectedTheme ? selectedTheme : 'theme')
 	.then((processedJson) => {
 
@@ -1865,7 +1861,7 @@ fetchData.then((json) => {
 			jsonfail(processedJson);
 		} else {
 			theme = processedJson['data'];
-			userSettings['theme'] = selectedTheme ? selectedTheme : theme['name'];
+			userSettings['theme'] = selectedTheme === 'theme' ? theme['name'] : selectedTheme;
 		}
 
 		// Set preview to correct type and add iframe to page

@@ -208,8 +208,8 @@ function importPreviousSettings(opts = undefined) {
 		window.location = `./theme?q=${previousSettings['theme']}&t=${previousSettings['data']}`;
 	}
 
-	// Do nothing if userSettings are the same.
-	if(userSettings === previousSettings) {
+	// Do nothing if on theme page & userSettings are the same.
+	if(userSettings & userSettings === previousSettings) {
 		messenger.warn('Nothing imported. Settings exactly match the current page.');
 		return null;
 	}
@@ -387,7 +387,7 @@ async function processJson(json, url, toReturn) {
 	
 	// Process as collection or fetch correct theme from collection
 	if(toReturn === 'collection' && 'themes' in json
-	|| toReturn === 'theme' && 'data' in json) {
+	|| 'data' in json) {
 		// Convert legacy dictionary to array
 		if('themes' in json && !Array.isArray(json['themes'])) {
 			let arrayThemes = [];
@@ -398,8 +398,15 @@ async function processJson(json, url, toReturn) {
 		}
 		return json;
 	}
-	else if('themes' in json && toReturn in json['themes']) {
-		let themeUrl = json['themes'][toReturn]['url'];
+	// If a collection is linked under a theme query, check for valid values
+	else if('themes' in json && Object.values(json['themes']).length > 0) {
+		let themeUrl = false;
+		if(toReturn in json['themes']) {
+			themeUrl = json['themes'][toReturn]['url'];
+		} else {
+			themeUrl = Object.values(json['themes'])[0]['url'];
+		}
+
 		if(themeUrl) {
 			return fetchFile(themeUrl)
 			.then((result) => {
@@ -417,7 +424,7 @@ async function processJson(json, url, toReturn) {
 		}
 	}
 	else {
-		return 'The linked theme lacks a "data" or a "themes" entry.';
+		return 'The linked theme could not be parsed.';
 	}
 }
 
