@@ -527,6 +527,9 @@ async function updateCss() {
 				insert = `url(${insert})`;
 			}
 		}
+		else if(qualifier === 'url_fragment') {
+			insert = encodeURIComponent(insert.trim());
+		}
 
 		if(type === 'select') {
 			var replacements = optData['selections'][insert]['replacements'];
@@ -691,7 +694,6 @@ function validateInput(htmlId, type) {
 				problem('SVG images will not display on your list while logged out or for other users. Host your CSS on an external website to bypass this.');
 			}
 		}
-		
 	}
 
 	else if(type === 'color') {
