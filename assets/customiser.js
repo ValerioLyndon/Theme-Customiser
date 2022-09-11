@@ -656,16 +656,13 @@ async function updateCss() {
 // "type" is the full option type string: "type/qualifier/subqualifier" 
 // Also accepts an HTML DOM element with the bind function for certain features: validateInput.bind(DOMElement)
 function validateInput(htmlId, type) {
-	console.log(`validate ${htmlId}`);
 	let notice = document.getElementById(`${htmlId}-notice`),
 		noticeHTML = '',
 		val = document.getElementById(`${htmlId}`).value.toLowerCase(),
 		problems = 0,
 		qualifier = type.split('/')[1];
 	
-	console.log(val, type, qualifier);
 	if(val.length === 0) {
-		console.log('skipping');
 		notice.classList.add('o-hidden');
 		return undefined;
 	}
@@ -723,7 +720,6 @@ function validateInput(htmlId, type) {
 		}
 	}
 	
-	console.log(problems);
 	if(problems > 0) {
 		notice.innerHTML = noticeHTML;
 		notice.classList.remove('o-hidden');
