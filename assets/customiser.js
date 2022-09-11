@@ -66,7 +66,7 @@ class InfoPopup {
 	}
 
 	// target should either be an HTML element or an array of [x, y] coords.
-	show(target, text = '', alignment) {
+	show(target, text = '', alignment = 'left') {
 		// setup variables
 		let x = 0,
 			y = 0,
@@ -79,9 +79,11 @@ class InfoPopup {
 			y = bounds.top;
 			w = target['offsetWidth'];
 			h = target['offsetHeight'];
-		} else {
+		} else if(target instanceof Array) {
 			x = target[0];
 			y = target[1];
+		} else {
+			return false;
 		}
 
 		// calculate position
@@ -334,11 +336,11 @@ function updateMod(modId, funcConfig = {}) {
 					if(val) {
 						requiredToggle.classList.add('is-forced', 'has-info');
 						requiredToggle.addEventListener('mouseover', infoOn);
-						requiredToggle.addEventListener('mouseout', infoOff);
+						requiredToggle.addEventListener('mouseleave', infoOff);
 						requiredToggle.setAttribute('data-info', 'This must be enabled for other options to work.');
 					} else {
 						requiredToggle.removeEventListener('mouseover', infoOn);
-						requiredToggle.removeEventListener('mouseout', infoOff);
+						requiredToggle.removeEventListener('mouseleave', infoOff);
 						requiredToggle.classList.remove('is-forced', 'has-info');
 					}
 				}
@@ -361,11 +363,11 @@ function updateMod(modId, funcConfig = {}) {
 					if(val) {
 						conflictToggle.classList.add('is-disabled', 'has-info');
 						conflictToggle.addEventListener('mouseover', infoOn);
-						conflictToggle.addEventListener('mouseout', infoOff);
+						conflictToggle.addEventListener('mouseleave', infoOff);
 						conflictToggle.setAttribute('data-info', `This mod is incompatible with one of your choices. To use, disable "${mod['name']}".`);
 					} else {
 						conflictToggle.removeEventListener('mouseover', infoOn);
-						conflictToggle.removeEventListener('mouseout', infoOff);
+						conflictToggle.removeEventListener('mouseleave', infoOff);
 						conflictToggle.classList.remove('is-disabled', 'has-info');
 					}
 				}
@@ -601,7 +603,7 @@ async function updateCss() {
 
 	// Process user inserts after all other code has been added.
 	// This prevents unexpected behaviour with user inserts that match other replacements.
-	
+
 	for(let [find, replace] of Object.entries(userInserts)) {
 		newCss = newCss.replaceAll(find,replace);
 	}
@@ -798,7 +800,13 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 	// Option & Mod Specific HTML
 
 	if(entryType === 'option') {
+		div.classList.add('entry__option');
+
 		let htmlId = parentId ? `mod:${parentId}:${entryId}` : `opt:${entryId}`;
+
+		let inputRow = document.createElement('div');
+		inputRow.className = 'entry__inputs';
+		div.appendChild(inputRow);
 
 		// Validate JSON
 
@@ -839,7 +847,6 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 		let helpLink = document.createElement('a');
 		helpLink.className = 'entry__help hyperlink';
 		helpLink.target = "_blank";
-		div.classList.add('has-help');
 		head.appendChild(helpLink);
 
 		// Type-specific Option HTML & Functions
@@ -865,7 +872,7 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 				// Add a colour preview
 				let display = document.createElement('div');
 				display.className = 'entry__colour';
-				div.appendChild(display);
+				inputRow.appendChild(display);
 
 				helpLink.textContent = 'Colour Picker';
 				helpLink.href = 'https://mdn.github.io/css-examples/tools/color-picker/';
@@ -913,9 +920,6 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 				range.value = interface.value;
 			});
 			interface.placeholder = '#';
-
-			let rangeParent = document.createElement('label');
-			rangeParent.className = 'entry__range';
 			
 			let range = document.createElement('input');
 			range.type = 'range';
@@ -928,9 +932,7 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 				updateCss();
 			});
 
-			rangeParent.appendChild(range);
-			rangeParent.appendChild(interface);
-			div.appendChild(rangeParent);
+			inputRow.appendChild(range);
 
 			let difference = 100,
 				min = 0,
@@ -1007,8 +1009,25 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 		interface.id = htmlId;
 		if(type === 'toggle') {
 			headRight.prepend(interface);
-		} else if(type !== 'range') {
-			div.appendChild(interface);
+		} else {
+			inputRow.appendChild(interface);
+		}
+
+		// Add reset button
+
+		if(type !== 'select' && type !== 'toggle') {
+			let reset = document.createElement('button');
+			reset.type = 'button';
+			reset.className = 'button entry__reset has-info';
+			reset.innerHTML = '<i class="fa-solid fa-rotate-right"></i>';
+			inputRow.appendChild(reset);
+			
+			reset.addEventListener('click', () => {
+				interface.value = interface.getAttribute('value');
+				interface.dispatchEvent(new Event('input'));
+			});
+			reset.addEventListener('mouseover', () => { info.show(reset, 'Reset this option to default.', 'top'); });
+			reset.addEventListener('mouseleave', () => { info.hide(); });
 		}
 
 		// Add notice
@@ -1033,7 +1052,7 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 			link.className = 'entry__external-link js-info';
 			link.setAttribute('data-info', 'This mod has linked an external resource or guide for you to install. Unless otherwise instructed, these should be installed <b>after</b> you install the main theme.')
 			link.addEventListener('mouseover', () => { infoOn(link); });
-			link.addEventListener('mouseout', infoOff);
+			link.addEventListener('mouseleave', infoOff);
 			link.href = entryData['url'];
 			link.target = "_blank";
 			link.innerHTML = `
@@ -1536,7 +1555,7 @@ function pageSetup() {
 		check.disabled = true;
 		toggle.removeAttribute('onclick');
 		toggle.addEventListener('mouseover', function(e) { infoOn(toggle, 'top') });
-		toggle.addEventListener('mouseout', infoOff);
+		toggle.addEventListener('mouseleave', infoOff);
 		postToIframe(['cover', val]);
 	}
 
