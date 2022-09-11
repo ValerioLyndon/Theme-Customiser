@@ -152,7 +152,7 @@ function renderCards(cardData) {
 		}
 
 		let themeTags = theme['tags'] ? theme['tags'] : [];
-		themeTags.push(theme['type']);
+		themeTags.push(`for ${theme['type']} lists`);
 		cardParent.setAttribute('data-tags', themeTags);
 
 		let card = document.createElement('div');
@@ -171,6 +171,7 @@ function renderCards(cardData) {
 		let author = document.createElement('span');
 		author.className = 'card__author';
 		author.textContent = `by ${themeAuthor}`;
+		themeTags.push(`made by ${themeAuthor}`);
 		info.appendChild(author);
 
 		let display = document.createElement('div');
