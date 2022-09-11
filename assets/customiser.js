@@ -1408,7 +1408,8 @@ function pageSetup() {
 	// Set recommended installation steps
 
 	let coverHtml = document.getElementById('js-install-cover'),
-		backgroundHtml = document.getElementById('js-install-background');
+		backgroundHtml = document.getElementById('js-install-background'),
+		coverCheck = document.getElementById('js-preview__cover');
 
 	if(theme['type'] === 'classic') {
 		coverHtml.remove();
@@ -1460,7 +1461,27 @@ function pageSetup() {
 			`;
 		}
 
-		if('cover' in theme) {
+		if(theme['type'] === 'classic') {
+			document.getElementById('js-preview-options__cover').remove();
+		}
+		else if('cover' in theme) {
+			// toggle button
+			let toggle = check.nextElementSibling,
+				val = true;
+
+			if(!theme['cover']) {
+				val = false;
+				toggle.classList.add('is-disabled', 'has-info');
+			} else {
+				toggle.classList.add('is-forced', 'has-info');
+			}
+			coverCheck.checked = val;
+			coverCheck.disabled = true;
+			toggle.removeAttribute('onclick');
+			toggle.addEventListener('mouseover', function(e) { infoOn(toggle, 'top') });
+			toggle.addEventListener('mouseleave', infoOff);
+
+			// installation steps
 			hasCustomInstall = true;
 
 			let choice = theme['cover'] === true ? 'Yes' : 'No',
@@ -1537,25 +1558,12 @@ function pageSetup() {
 	}
 
 	// Cover
-	if(theme['type'] === 'classic') {
-		document.getElementById('js-preview-options__cover').remove();
-	}
-	else if('cover' in theme['preview']) {
-		let check = document.getElementById('js-preview__cover'),
-			toggle = check.nextElementSibling,
-			val = true;
-
-		if(!theme['preview']['cover']) {
-			val = false;
-			toggle.classList.add('is-disabled', 'has-info');
-		} else {
-			toggle.classList.add('is-forced', 'has-info');
+	if('cover' in theme['preview']) {
+		let val = theme['preview']['cover'];
+		// change toggle value unless it was already changed by regular settings
+		if(coverCheck.disabled === false) {
+			coverCheck.checked = val;
 		}
-		check.checked = val;
-		check.disabled = true;
-		toggle.removeAttribute('onclick');
-		toggle.addEventListener('mouseover', function(e) { infoOn(toggle, 'top') });
-		toggle.addEventListener('mouseleave', infoOff);
 		postToIframe(['cover', val]);
 	}
 
