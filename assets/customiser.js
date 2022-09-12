@@ -377,18 +377,10 @@ function updateMod(modId, funcConfig = {}) {
 			}
 		}
 
-		// Add some CSS style rules
+		// Mod enabled
 		if(val === true) {
 			document.getElementById(`mod-parent:${modId}`).classList.add('is-enabled');
-		} else {
-			document.getElementById(`mod-parent:${modId}`).classList.remove('is-enabled');
-		}
 
-		// Add to userSettings unless matches default value (i.e disabled)
-		if(val === false) {
-			delete userSettings['mods'][modId];
-		}
-		else {
 			// Update HTML if necessary
 			if(funcConfig['forceValue'] !== undefined) {
 				toggle.checked = val;
@@ -404,6 +396,14 @@ function updateMod(modId, funcConfig = {}) {
 			}
 		}
 
+		// Mod disabled
+		else {
+			document.getElementById(`mod-parent:${modId}`).classList.remove('is-enabled');
+			
+			// Remove from userSettings
+			delete userSettings['mods'][modId];
+		}
+
 		return true;
 	}
 	catch(e) {
@@ -417,7 +417,15 @@ function updateMod(modId, funcConfig = {}) {
 function applySettings(settings = false) {
 	// resets all HTML before applying new settings.
 	document.getElementById('js-theme').reset();
-	
+	for(let entry of document.querySelectorAll('.entry.is-enabled')) {
+		entry.classList.remove('is-enabled');
+	}
+	for(let swatch of document.getElementsByClassName('entry__colour')) {
+		swatch.style.backgroundColor = '';
+		swatch.style.backgroundColor = swatch.getAttribute('value');
+	}
+
+	// Updates variables to match new settings
 	if(settings) {
 		if(settings['options']) {
 			userSettings['options'] = settings['options'];
@@ -441,6 +449,9 @@ function applySettings(settings = false) {
 		else if(theme['options'][optId]['type'] === 'range') {
 			document.getElementById(`opt:${optId}-range`).value = val;
 		}
+		else if(theme['options'][optId]['type'] === 'color') {
+			document.getElementById(`opt:${optId}-colour`).style.backgroundColor = val;
+		}
 	}
 	for(let [modId, modOpts] of Object.entries(userSettings['mods'])) {
 		if(!updateMod(modId, {'forceValue': true, 'skipOptions': true})) {
@@ -456,6 +467,9 @@ function applySettings(settings = false) {
 			}
 			else if(theme['mods'][modId]['options'][optId]['type'] === 'range') {
 				document.getElementById(`mod:${modId}:${optId}-range`).value = optVal;
+			}
+			else if(theme['mods'][modId]['options'][optId]['type'] === 'color') {
+				document.getElementById(`mod:${modId}:${optId}-colour`).style.backgroundColor = optVal;
 			}
 		}
 	}
@@ -658,7 +672,7 @@ async function updateCss() {
 function validateInput(htmlId, type) {
 	let notice = document.getElementById(`${htmlId}-notice`),
 		noticeHTML = '',
-		val = document.getElementById(`${htmlId}`).value.toLowerCase(),
+		val = document.getElementById(htmlId).value.toLowerCase(),
 		problems = 0,
 		qualifier = type.split('/')[1];
 	
@@ -694,13 +708,13 @@ function validateInput(htmlId, type) {
 	}
 
 	else if(type === 'color') {
-		this.style.color = '';
-		this.style.color = val;
-		if(this.style.color.length === 0) {
+		let swatch = document.getElementById(`${htmlId}-colour`);
+		// reset colour before applying new one to be sure it gets reset
+		swatch.style.backgroundColor = '';
+		swatch.style.backgroundColor = val;
+		if(swatch.style.backgroundColor.length === 0) {
 			problems += 1;
 			noticeHTML = 'Your colour appears to be invalid. For help creating valid CSS colours, see <a class="hyperlink" href="https://css-tricks.com/almanac/properties/c/color/">this guide</a>.';
-		} else {
-			this.style.backgroundColor = val;
 		}
 	}
 
@@ -868,14 +882,17 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 				interface.placeholder = 'Your colour here. e.x rgba(0, 135, 255, 1.0)';
 
 				// Add a colour preview
-				let display = document.createElement('div');
-				display.className = 'entry__colour';
-				inputRow.appendChild(display);
+				let swatch = document.createElement('div');
+				swatch.className = 'entry__colour';
+				swatch.id = `${htmlId}-colour`;
+				swatch.style.backgroundColor = defaultValue;
+				swatch.setAttribute('value', defaultValue);
+				inputRow.appendChild(swatch);
 
 				helpLink.textContent = 'Colour Picker';
 				helpLink.href = 'https://mdn.github.io/css-examples/tools/color-picker/';
 
-				interface.addEventListener('input', validateInput.bind(display, htmlId, entryData['type']) );
+				interface.addEventListener('input', () => { validateInput(htmlId, entryData['type']); });
 			}
 			else {
 				if(type === 'textarea') {

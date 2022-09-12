@@ -543,12 +543,22 @@ input:checked + .toggle.is-forced::after {
 	left: -6px;
 	width: 1.3em;
 	height: 1.3em;
-	background: var(--border-light);
+	background: url(../images/alpha.png) center repeat var(--border-light);;
 	border-radius: 50%;
+	overflow: hidden;
 	margin-left: -1.3em;
 	margin-bottom: 8px;
 	flex: 0 0 auto;
 	order: 2;
+}
+.entry__colour::after {
+	position: absolute;
+	content: "";
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: inherit;
 }
 
 .entry__reset {
