@@ -260,6 +260,21 @@ function toggleEle(selector, btn = false, set = undefined) {
 	}
 }
 
+// sorts a dictionary by key
+function sortKeys(dict) {
+	let keys = Object.keys(dict);
+	keys.sort((a,b) => {
+		return a.toLowerCase().localeCompare(b.toLowerCase());
+	});
+
+	let sorted = {};
+	for(let k of keys) {
+		sorted[k] = dict[k];
+	}
+
+	return sorted;
+}
+
 // Tag Functionality & Renderer
 
 /* Adds functional tags to the HTML.
@@ -279,7 +294,7 @@ function toggleEle(selector, btn = false, set = undefined) {
  | • A div with ID 'js-tags__cloud'
  */
 class filters {
-	constructor( items, selector = 'ID' ){
+	constructor( items, filters, selector = 'ID' ){
 		// DOM Nodes
 		this.toggle = document.getElementById('js-tags__button');
 		this.container = document.getElementById('js-tags__cloud');
@@ -295,40 +310,55 @@ class filters {
 		this.btnCls = 'is-selected';
 		this.toggleCls = 'has-selected';
 
-		// Other
+		// Other Variables
 		this.selector = selector;
-	}
 
-	renderHtml( filters ) {
+
+		// Render HTML
 		this.toggle.classList.remove('o-hidden');
-		for(let [tag, itemIds] of Object.entries(filters)) {
-			let button = document.createElement('button'),
-				countEle = document.createElement('span'),
-				count = itemIds.length;
 
-			button.textContent = tag;
-			button.className = 'tag-cloud__tag';
-
-			// count of items
-			countEle.textContent = count;
-			countEle.className = 'tag-cloud__count';
-			button.appendChild(countEle);
-			this.container.appendChild(button);
-
-			// format Ids
-			for( let i = 0; i < itemIds.length; i++ ) {
-				itemIds[i] = this.formatId(itemIds[i]);
+		let filterCategories = Object.entries(filters);
+		for( let [category, tags] of filterCategories ){
+			if( filterCategories.length > 1 ){
+				let header = document.createElement('div');
+				header.textContent = capitalise(category);
+				header.className = 'tag-cloud__header';
+				this.container.appendChild(header);
 			}
 
-			this.buttons.push({
-				'btn': button,
-				'count': countEle,
-				'ids': itemIds,
-				'total': count
-			});
+			// Sort filters ascending
+			tags = sortKeys(tags);
 
-			// Add tag button functions
-			button.addEventListener('click', () => { this.activateFilter(button, tag, itemIds); });
+			// Create HTML
+			for(let [tag, itemIds] of Object.entries(tags)) {
+				let button = document.createElement('button'),
+					countEle = document.createElement('span'),
+					count = itemIds.length;
+
+				button.textContent = tag;
+				button.className = 'tag-cloud__tag';
+
+				// count of items
+				countEle.textContent = count;
+				countEle.className = 'tag-cloud__count';
+				button.appendChild(countEle);
+				this.container.appendChild(button);
+
+				// format Ids
+				for( let i = 0; i < itemIds.length; i++ ) {
+					itemIds[i] = this.formatId(itemIds[i]);
+				}
+
+				this.buttons.push({
+					'btn': button,
+					'count': countEle,
+					'ids': itemIds,
+					'total': count
+				});
+
+				// Add tag button functions
+				button.addEventListener('click', () => { this.activateFilter(button, tag, itemIds); });
+			}
 		}
 	}
 

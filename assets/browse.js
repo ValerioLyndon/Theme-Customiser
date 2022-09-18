@@ -106,25 +106,13 @@ function sortItems(items, attribute, order = 'ascending') {
 }
 
 function pushTag(thisId, tag, category = 'other') {
-	if(!tags[category][tag]) {
+	if( !tags[category] ){
+		tags[category] = [];
+	}
+	if( !tags[category][tag] ){
 		tags[category][tag] = [];
 	}
 	tags[category][tag].push(thisId);
-}
-
-// sorts a dictionary by key
-function sortKeys(dict) {
-	let keys = Object.keys(dict);
-	keys.sort((a,b) => {
-		return a.toLowerCase().localeCompare(b.toLowerCase());
-	});
-
-	let sorted = {};
-	for(let k of keys) {
-		sorted[k] = dict[k];
-	}
-
-	return sorted;
 }
 
 
@@ -244,12 +232,15 @@ function renderCards(cardData) {
 		// Add tags to sortable list
 		pushTag(thisId, theme['type'], 'list type');
 		pushTag(thisId, themeAuthor, 'author');
-		for(let tag of theme['tags'] ? theme['tags'] : []) {
-			let category = 'other';
-			if(['card layout', 'cover layout', 'table layout'].includes(tag)) {
-				category = 'layout';
+		if( theme['tags'] ){
+			if( theme['tags'] instanceof Array ){
+				theme['tags'] = {'other': theme['tags']};
 			}
-			pushTag(thisId, tag, category);
+			for( let [category, tags] of Object.entries(theme['tags']) ){
+				for( let tag of tags ){
+					pushTag(thisId, tag, category);
+				}
+			}
 		}
 		itemCount++;
 	}
@@ -263,9 +254,6 @@ function renderCards(cardData) {
 
 var tags = {
 		"list type": {},
-		"layout": {},
-		"author": {},
-		"source": {},
 		"other": {}
 	},
 	itemCount = 0,
@@ -352,25 +340,16 @@ fetchAllFiles(megaUrls)
 
 			loader.text('Filtering items...');
 
-			var filter = new filters(document.getElementsByClassName('js-card'), 'card:ID');
-
-			function renderBrowseTags(categoryName, categoryTags) {
-				let cloudEle = document.getElementById('js-tags__cloud');
-
-				let header = document.createElement('div');
-				header.textContent = capitalise(categoryName);
-				header.className = 'tag-cloud__header';
-				cloudEle.appendChild(header);
-
-				filter.renderHtml(categoryTags);
-			}
-
 			if(itemCount > 5) {
-				for(let [categoryName, categoryTags] of Object.entries(tags)) {
+				let hasTags = false;
+				for(let categoryTags of Object.values(tags)) {
 					if(Object.keys(categoryTags).length > 0) {
-						categoryTags = sortKeys(categoryTags);
-						renderBrowseTags(categoryName, categoryTags);
+						hasTags = true;
+						break;
 					}
+				}
+				if( hasTags ){
+					var filter = new filters(document.getElementsByClassName('js-card'), tags, 'card:ID');
 				}
 			}
 
