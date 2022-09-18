@@ -288,19 +288,19 @@ class filters {
 		this.visibleItems = [...items]; // Array
 		this.buttons = [];
 		this.selectedButtons = [];
+		this.selectedFilters = {};
 
 		// Class Names
 		this.itemCls = 'is-hidden-by-tag';
 		this.btnCls = 'is-selected';
 		this.toggleCls = 'has-selected';
 
-		// Render HTML
-
+		// Other
 		this.selector = selector;
-		this.toggle.classList.remove('o-hidden');
 	}
 
 	renderHtml( filters ) {
+		this.toggle.classList.remove('o-hidden');
 		for(let [tag, itemIds] of Object.entries(filters)) {
 			let button = document.createElement('button'),
 				countEle = document.createElement('span'),
@@ -308,7 +308,6 @@ class filters {
 
 			button.textContent = tag;
 			button.className = 'tag-cloud__tag';
-			this.buttons.push(button);
 
 			// count of items
 			countEle.textContent = count;
@@ -321,8 +320,15 @@ class filters {
 				itemIds[i] = this.formatId(itemIds[i]);
 			}
 
+			this.buttons.push({
+				'btn': button,
+				'count': countEle,
+				'ids': itemIds,
+				'total': count
+			});
+
 			// Add tag button functions
-			button.addEventListener('click', () => { this.activateFilter(button, itemIds); });
+			button.addEventListener('click', () => { this.activateFilter(button, tag, itemIds); });
 		}
 	}
 
@@ -350,8 +356,12 @@ class filters {
 
 	// Show all items
 	showAll( ){
-		for (let item of this.hiddenItems) {
+		for( let item of this.hiddenItems ){
 			item.classList.remove(this.itemCls);
+		}
+		for( let btn of this.buttons ){
+			btn['btn'].classList.remove('is-disabled');
+			btn['count'].textContent = btn['total'];
 		}
 		this.hiddenItems = [];
 		this.visibleItems = [...this.allItems];
@@ -362,34 +372,70 @@ class filters {
 		return this.selector.replace('ID', id);
 	}
 
-	activateFilter( button, itemIds ){
-		let selected = button.className.includes(this.btnCls);
-
-		// Clear other buttons
-		for( let selectedButton of this.selectedButtons ){
-			selectedButton.classList.remove(this.btnCls);
-		}
-		this.selectedButtons = [];
-
-		if( selected ){
-			this.showAll();
+	// On button click
+	activateFilter( button, itemName, itemIds ){
+		// Check if already selected and select button if not
+		let selected = this.selectedButtons.indexOf(button);
+		if( selected !== -1 ){
 			button.classList.remove(this.btnCls);
-			this.toggle.classList.remove(this.toggleCls);
+			this.selectedButtons.splice(selected, 1);
+			delete this.selectedFilters[itemName];
 		}
-
-		// Select new items
 		else {
+			this.toggle.classList.add(this.toggleCls);
 			button.classList.add(this.btnCls);
 			this.selectedButtons.push(button);
-			this.toggle.classList.add(this.toggleCls);
-			
-			for( let item of this.allItems ){
-				if( itemIds.includes(item.id) ) {
-					this.show(item);
+			this.selectedFilters[itemName] = itemIds;
+		}
+
+		// If nothing is selected anymore, clear all.
+		if( this.selectedButtons.length === 0 ){
+			this.toggle.classList.remove(this.toggleCls);
+			this.showAll();
+			return;
+		}
+		
+		// Calculate new filter based on selected buttons
+		let filterCount = {};
+		for( let filter of Object.values(this.selectedFilters) ){
+			for( let id of filter ){
+				if( !Object.keys(filterCount).includes(id) ){
+					filterCount[id] = 1;
+				} else {
+					filterCount[id] += 1;
 				}
-				else {
-					this.hide(item);
+			}
+		}
+		let orFilters = Object.keys(filterCount),
+			andFilters = [];
+		// create AND filter by only adding filters that match all of the selected filters
+		for( let [id, count] of Object.entries(filterCount) ){
+			if( count === Object.keys(this.selectedFilters).length ){
+				andFilters.push(id);
+			}
+		}
+
+		// Show matching items
+		for( let item of this.allItems ){
+			if( andFilters.includes(item.id) ) {
+				this.show(item);
+			}
+			else {
+				this.hide(item);
+			}
+		}
+
+		// Update buttons
+		for( let btn of this.buttons ){
+			let crossover = 0;
+			for( let id of andFilters ){
+				if( btn['ids'].includes(id) ){
+					crossover++;
 				}
+			}
+			btn['count'].textContent = crossover;
+			if( crossover === 0 ){
+				btn['btn'].classList.add('is-disabled');
 			}
 		}
 	}

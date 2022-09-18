@@ -173,9 +173,6 @@ function renderCards(cardData) {
 			cardParent.setAttribute('data-author', theme['author']);
 		}
 
-		let themeTags = theme['tags'] ? theme['tags'] : [];
-		cardParent.setAttribute('data-tags', themeTags);
-
 		let card = document.createElement('div');
 		card.className = 'card';
 		cardParent.appendChild(card);
@@ -247,7 +244,7 @@ function renderCards(cardData) {
 		// Add tags to sortable list
 		pushTag(thisId, theme['type'], 'list type');
 		pushTag(thisId, themeAuthor, 'author');
-		for(let tag of themeTags) {
+		for(let tag of theme['tags'] ? theme['tags'] : []) {
 			let category = 'other';
 			if(['card layout', 'cover layout', 'table layout'].includes(tag)) {
 				category = 'layout';

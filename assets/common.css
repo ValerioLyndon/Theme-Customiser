@@ -269,6 +269,10 @@ body {
 	background: var(--accent);
 	color: var(--accent-text);
 }
+.tag-cloud__tag.is-disabled {
+	opacity: 0.5;
+	pointer-events: none;
+}
 
 .tag-cloud__count {
 	display: inline-block;
