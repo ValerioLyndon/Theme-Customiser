@@ -353,10 +353,11 @@ fetchAllFiles(megaUrls)
 				renderCards(json['themes']);
 			}
 
-			loader.text('Sorting items...');
+			loader.text('Filtering items...');
+
+			var filter = new filters(document.getElementsByClassName('js-card'), 'card:ID');
 
 			function renderBrowseTags(categoryName, categoryTags) {
-
 				let cloudEle = document.getElementById('js-tags__cloud');
 
 				let header = document.createElement('div');
@@ -364,7 +365,7 @@ fetchAllFiles(megaUrls)
 				header.className = 'tag-cloud__header';
 				cloudEle.appendChild(header);
 
-				renderTags(categoryTags, [...Array(itemCount).keys()], 'card:ID');
+				filter.renderHtml(categoryTags);
 			}
 
 			if(itemCount > 5) {

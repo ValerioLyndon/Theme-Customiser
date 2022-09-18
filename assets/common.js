@@ -262,82 +262,138 @@ function toggleEle(selector, btn = false, set = undefined) {
 
 // Tag Functionality & Renderer
 
-let tagsBtn = document.getElementById('js-tags__button');
-
-/* Adds functional tags to the HTML. Accepts three values:
- * tags
-   - A dictionary containing tag keys and their id arrays
-   e.x { "my tag": ["item id", 0, "three"] }
- * allIds
-   - an array of all ID values to show/hide when selecting tags.
-   e.x ["my mod", "mod 2", "image mod"]
- * selector
-   - a CSS ID to target the correct items using IDs from allIds.
-   - will replace the "ID" text during runtime.
-   e.x "card:ID"
+/* Adds functional tags to the HTML.
+ | 
+ | Constructor must be fed:
+ | • a NodeList or array of Nodes
+ | • a dictionary of filter/ID pairs. Example:
+ |   {
+ |     "My Tag": [0, 3, 12, 32],
+ |     …
+ |   }
+ | • a string selector with "ID" in place of tag ID. E.x:
+ |   "card:ID" or "mod:ID"
+ |
+ | Also requires two elements in the HTML:
+ | • A button with ID 'js-tags__button'
+ | • A div with ID 'js-tags__cloud'
  */
-function renderTags(tags, allIds, selector) {
-	tagsBtn.classList.remove('o-hidden');
+class filters {
+	constructor( items, selector = 'ID' ){
+		// DOM Nodes
+		this.toggle = document.getElementById('js-tags__button');
+		this.container = document.getElementById('js-tags__cloud');
+		this.allItems = [...items];
+		this.hiddenItems = []; // Array
+		this.visibleItems = [...items]; // Array
+		this.buttons = [];
+		this.selectedButtons = [];
 
-	let cloudEle = document.getElementById('js-tags__cloud');
+		// Class Names
+		this.itemCls = 'is-hidden-by-tag';
+		this.btnCls = 'is-selected';
+		this.toggleCls = 'has-selected';
 
-	for(let [tag, itemIds] of Object.entries(tags)) {
-		let tagEle = document.createElement('button'),
-			countEle = document.createElement('span'),
-			count = itemIds.length;
+		// Render HTML
 
-		tagEle.textContent = tag;
-		tagEle.className = 'tag-cloud__tag js-tag';
-		tagEle.setAttribute('data-items', itemIds);
-
-		countEle.textContent = count;
-		countEle.className = 'tag-cloud__count';
-		tagEle.appendChild(countEle);
-		cloudEle.appendChild(tagEle);
-
-		// Add tag button functions
-		tagEle.addEventListener('click', () => { selectTag(tagEle, allIds, selector); });
-	}
-}
-
-function selectTag(tagEle, allIds, selector) {
-	// Clear previous selection
-	let hidden = document.querySelectorAll('.is-hidden-by-tag'),
-		isSelected = tagEle.className.includes('is-selected');
-	for(let ele of hidden) {
-		ele.classList.remove('is-hidden-by-tag');
+		this.selector = selector;
+		this.toggle.classList.remove('o-hidden');
 	}
 
-	// Remove other tags' styling & set our own
-	tagsBtn.classList.remove('has-selected');
-	let selectedTags = document.querySelectorAll('.js-tag.is-selected');
+	renderHtml( filters ) {
+		for(let [tag, itemIds] of Object.entries(filters)) {
+			let button = document.createElement('button'),
+				countEle = document.createElement('span'),
+				count = itemIds.length;
 
-	for(let tag of selectedTags) {
-		tag.classList.remove('is-selected');
-	}
+			button.textContent = tag;
+			button.className = 'tag-cloud__tag';
+			this.buttons.push(button);
 
-	// Select new tags
-	if(!isSelected) {
-		tagsBtn.classList.add('has-selected');
-		let itemsToKeep = tagEle.getAttribute('data-items').split(',');
+			// count of items
+			countEle.textContent = count;
+			countEle.className = 'tag-cloud__count';
+			button.appendChild(countEle);
+			this.container.appendChild(button);
 
-		for(let i = 0; i < itemsToKeep.length; i++) {
-			itemsToKeep[i] = String(itemsToKeep[i]);
+			// format Ids
+			for( let i = 0; i < itemIds.length; i++ ) {
+				itemIds[i] = this.formatId(itemIds[i]);
+			}
+
+			// Add tag button functions
+			button.addEventListener('click', () => { this.activateFilter(button, itemIds); });
 		}
-		
-		for(let id of allIds) {
-			id = String(id);
+	}
+
+	// Show/hide individual items
+	show( node ){
+		// Remove from hidden
+		let hidden = this.hiddenItems.indexOf(node);
+		if(hidden !== -1) {
+			this.hiddenItems.splice(hidden,1);
+		}
+		// Show in DOM and add to visible
+		node.classList.remove(this.itemCls);
+		this.visibleItems.push(node);
+	}
+	hide( node ){
+		// Remove from visible
+		let visible = this.visibleItems.indexOf(node);
+		if(visible !== -1) {
+			this.visibleItems.splice(visible,1);
+		}
+		// Hide in DOM and add to hidden
+		node.classList.add(this.itemCls);
+		this.hiddenItems.push(node);
+	}
+
+	// Show all items
+	showAll( ){
+		for (let item of this.hiddenItems) {
+			item.classList.remove(this.itemCls);
+		}
+		this.hiddenItems = [];
+		this.visibleItems = [...this.allItems];
+	}
+
+	// ID Formatting
+	formatId( id ) {
+		return this.selector.replace('ID', id);
+	}
+
+	activateFilter( button, itemIds ){
+		let selected = button.className.includes(this.btnCls);
+
+		// Clear other buttons
+		for( let selectedButton of this.selectedButtons ){
+			selectedButton.classList.remove(this.btnCls);
+		}
+		this.selectedButtons = [];
+
+		if( selected ){
+			this.showAll();
+			button.classList.remove(this.btnCls);
+			this.toggle.classList.remove(this.toggleCls);
+		}
+
+		// Select new items
+		else {
+			button.classList.add(this.btnCls);
+			this.selectedButtons.push(button);
+			this.toggle.classList.add(this.toggleCls);
 			
-			if(itemsToKeep.includes(id)) {
-				continue;
-			} else {
-				document.getElementById(selector.replace('ID', id)).classList.add('is-hidden-by-tag');
+			for( let item of this.allItems ){
+				if( itemIds.includes(item.id) ) {
+					this.show(item);
+				}
+				else {
+					this.hide(item);
+				}
 			}
 		}
-		tagEle.classList.add('is-selected');
 	}
 }
-
 
 
 // VARIABLES

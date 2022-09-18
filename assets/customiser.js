@@ -1183,6 +1183,7 @@ function pageSetup() {
 		optionsEle.parentNode.remove();
 	}
 
+	let mods = [];
 	let modsEle = document.getElementById('js-mods');
 	if('mods' in theme) {
 		for (const mod of Object.entries(theme['mods'])) {
@@ -1190,6 +1191,7 @@ function pageSetup() {
 			if(typeof renderedMod === 'string') {
 				console.log(`[ERROR] Skipped mod "${modId}": ${renderedMod}`);
 			} else {
+				mods.push(renderedMod);
 				modsEle.appendChild(renderedMod);
 			}
 		}
@@ -1199,7 +1201,8 @@ function pageSetup() {
 
 	// Tag links
 	if(Object.entries(modTags).length > 0 && Object.entries(theme['mods']).length > 3) {
-		renderTags(modTags, Object.keys(theme['mods']), 'mod-parent:ID');
+		var filter = new filters(mods, 'mod-parent:ID');
+		filter.renderHtml(modTags);
 	}
 
 	// Back link
