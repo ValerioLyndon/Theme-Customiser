@@ -235,6 +235,15 @@ body {
 	margin-bottom: 4px;
 }
 
+.tag-cloud__header {
+	font-weight: bold;
+	display: block;
+	width: 100%;
+	flex: 0 0 auto;
+	margin-top: 8px;
+	margin-bottom: 4px;
+}
+
 .tag-cloud__tag {
 	height: 24px;
 	padding: 2px 8px;

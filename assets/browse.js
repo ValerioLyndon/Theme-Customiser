@@ -105,6 +105,28 @@ function sortItems(items, attribute, order = 'ascending') {
 	}
 }
 
+function pushTag(thisId, tag, category = 'other') {
+	if(!tags[category][tag]) {
+		tags[category][tag] = [];
+	}
+	tags[category][tag].push(thisId);
+}
+
+// sorts a dictionary by key
+function sortKeys(dict) {
+	let keys = Object.keys(dict);
+	keys.sort((a,b) => {
+		return a.toLowerCase().localeCompare(b.toLowerCase());
+	});
+
+	let sorted = {};
+	for(let k of keys) {
+		sorted[k] = dict[k];
+	}
+
+	return sorted;
+}
+
 
 
 // ==================
@@ -152,7 +174,6 @@ function renderCards(cardData) {
 		}
 
 		let themeTags = theme['tags'] ? theme['tags'] : [];
-		themeTags.push(`for ${theme['type']} lists`);
 		cardParent.setAttribute('data-tags', themeTags);
 
 		let card = document.createElement('div');
@@ -171,7 +192,6 @@ function renderCards(cardData) {
 		let author = document.createElement('span');
 		author.className = 'card__author';
 		author.textContent = `by ${themeAuthor}`;
-		themeTags.push(`made by ${themeAuthor}`);
 		info.appendChild(author);
 
 		let display = document.createElement('div');
@@ -224,12 +244,15 @@ function renderCards(cardData) {
 
 		document.getElementById('js-theme-list').appendChild(cardParent);
 
+		// Add tags to sortable list
+		pushTag(thisId, theme['type'], 'list type');
+		pushTag(thisId, themeAuthor, 'author');
 		for(let tag of themeTags) {
-			if(tags[tag]) {
-				tags[tag].push(thisId);
-			} else {
-				tags[tag] = [thisId];
+			let category = 'other';
+			if(['card layout', 'cover layout', 'table layout'].includes(tag)) {
+				category = 'layout';
 			}
+			pushTag(thisId, tag, category);
 		}
 		itemCount++;
 	}
@@ -241,7 +264,13 @@ function renderCards(cardData) {
 
 // Variables
 
-var tags = {},
+var tags = {
+		"list type": {},
+		"layout": {},
+		"author": {},
+		"source": {},
+		"other": {}
+	},
 	itemCount = 0,
 	sorts = ['data-title'];
 
@@ -326,8 +355,25 @@ fetchAllFiles(megaUrls)
 
 			loader.text('Sorting items...');
 
-			if(Object.keys(tags).length > 0 && itemCount > 5) {
-				renderTags(tags, [...Array(itemCount).keys()], 'card:ID');
+			function renderBrowseTags(categoryName, categoryTags) {
+
+				let cloudEle = document.getElementById('js-tags__cloud');
+
+				let header = document.createElement('div');
+				header.textContent = capitalise(categoryName);
+				header.className = 'tag-cloud__header';
+				cloudEle.appendChild(header);
+
+				renderTags(categoryTags, [...Array(itemCount).keys()], 'card:ID');
+			}
+
+			if(itemCount > 5) {
+				for(let [categoryName, categoryTags] of Object.entries(tags)) {
+					if(Object.keys(categoryTags).length > 0) {
+						categoryTags = sortKeys(categoryTags);
+						renderBrowseTags(categoryName, categoryTags);
+					}
+				}
 			}
 
 			// Add sort dropdown items and apply default sort
