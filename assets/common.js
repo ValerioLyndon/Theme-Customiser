@@ -366,11 +366,26 @@ class BaseFilters {
 		for( let [category, tags] of tagCategories ){
 			let totalInCategory = 0;
 
+			let group = document.createElement('div');
+			group.className = 'tag-cloud__group';
+			if(category === 'other') {
+				group.style.order = 100;
+			} else if(category === 'list type') {
+				group.style.order = 1;
+				group.classList.add('tag-cloud__group--column');
+			} else if(category === 'layout') {
+				group.style.order = 2;
+				group.classList.add('tag-cloud__group--column');
+			} else {
+				group.style.order = 50;
+			}
+			this.tagContainer.appendChild(group);
+
 			let header = document.createElement('div');
 			if( tagCategories.length > 1 ){
 				header.textContent = capitalise(category);
 				header.className = 'tag-cloud__header';
-				this.tagContainer.appendChild(header);
+				group.appendChild(header);
 			}
 
 			// Sort filters ascending
@@ -397,7 +412,7 @@ class BaseFilters {
 				countEle.textContent = count;
 				countEle.className = 'tag-cloud__count';
 				button.appendChild(countEle);
-				this.tagContainer.appendChild(button);
+				group.appendChild(button);
 
 				// format Ids
 				for( let i = 0; i < itemIds.length; i++ ) {
@@ -417,7 +432,7 @@ class BaseFilters {
 
 			// If category is empty, skip
 			if( totalInCategory === 0 ){
-				header.remove();
+				group.remove();
 			}
 		}
 	}

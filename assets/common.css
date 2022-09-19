@@ -221,7 +221,9 @@ body {
 
 .tag-cloud {
 	display: flex;
+	width: 100%;
 	flex-flow: row wrap;
+	align-items: flex-start;
 	margin-bottom: 4px;
 }
 .tag-cloud--center {
@@ -230,6 +232,23 @@ body {
 }
 .tag-cloud.is-hidden {
 	display: none;
+}
+
+.tag-cloud__group {
+	display: flex;
+	width: fit-content;
+	flex-flow: row wrap;
+	max-width: 400px;
+	padding: 5px;
+	flex: 0 1 auto;
+}
+.tag-cloud__group:only-of-type {
+	max-width: initial;
+	padding: 0;
+	flex: 1 1 auto;
+}
+.tag-cloud__group--column {
+	flex-flow: column wrap;
 }
 
 .tag-cloud__blurb {
@@ -247,6 +266,8 @@ body {
 	flex: 0 0 auto;
 	margin-top: 8px;
 	margin-bottom: 4px;
+	text-align: left;
+	text-indent: 5px;
 }
 
 .tag-cloud__tag {
