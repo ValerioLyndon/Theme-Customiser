@@ -2,20 +2,6 @@
 // COMMON FUNCTIONS
 // ================
 
-// Capitalises the first letter of every word. To capitalise sentences, set the divider to ".".
-function capitalise(str, divider = ' ') {
-	let words = str.split(divider);
-	
-	for(i = 0; i < words.length; i++) {
-		let first = words[i].substring(0,1).toUpperCase(),
-			theRest = words[i].substring(1);
-		words[i] = first + theRest;
-	}
-	
-	str = words.join(divider);
-	return str;
-}
-
 // Sort function
 
 /* Activated by user on click of a button. Updates relevant UI elements then call sortItems. 
@@ -103,16 +89,6 @@ function sortItems(items, attribute, order = 'ascending') {
 		let id = attributes[i][1];
 		document.getElementById(`card:${id}`).style.order = i;
 	}
-}
-
-function pushTag(thisId, tag, category = 'other') {
-	if( !tags[category] ){
-		tags[category] = [];
-	}
-	if( !tags[category][tag] ){
-		tags[category][tag] = [];
-	}
-	tags[category][tag].push(thisId);
 }
 
 
@@ -230,16 +206,13 @@ function renderCards(cardData) {
 		document.getElementById('js-theme-list').appendChild(cardParent);
 
 		// Add tags to sortable list
-		pushTag(thisId, theme['type'], 'list type');
-		pushTag(thisId, themeAuthor, 'author');
-		if( theme['tags'] ){
-			if( theme['tags'] instanceof Array ){
-				theme['tags'] = {'other': theme['tags']};
-			}
-			for( let [category, tags] of Object.entries(theme['tags']) ){
-				for( let tag of tags ){
-					pushTag(thisId, tag, category);
-				}
+		tempTags = formatFilters(theme['tags']);
+		tempTags['list type'] = [theme['type']];
+		tempTags['author'] = [themeAuthor];
+
+		for( let [category, tags] of Object.entries(tempTags) ){
+			for( let tag of tags ){
+				pushFilter(thisId, tag, category);
 			}
 		}
 		itemCount++;
@@ -252,11 +225,7 @@ function renderCards(cardData) {
 
 // Variables
 
-var tags = {
-		"list type": {},
-		"other": {}
-	},
-	itemCount = 0,
+var itemCount = 0,
 	sorts = ['data-title'];
 
 // Get data for all collections and call other functions

@@ -1100,11 +1100,11 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 
 		// Add mod tag to list of tags
 		if('tags' in entryData) {
-			for(let tag of entryData['tags']) {
-				if(modTags[tag]) {
-					modTags[tag].push(entryId);
-				} else {
-					modTags[tag] = [entryId];
+			tempTags = formatFilters(entryData['tags']);
+
+			for( let [category, tags] of Object.entries(tempTags) ){
+				for( let tag of tags ){
+					pushFilter(entryId, tag, category);
 				}
 			}
 		}
@@ -1200,9 +1200,8 @@ function pageSetup() {
 	}
 
 	// Tag links
-	if(Object.entries(modTags).length > 0 && Object.entries(theme['mods']).length > 3) {
-		var filter = new filters(mods, 'mod-parent:ID');
-		filter.renderHtml(modTags);
+	if(Object.entries(tags).length > 0 && Object.entries(theme['mods']).length > 3) {
+		var filter = new filters(mods, tags, 'mod-parent:ID');
 	}
 
 	// Back link
@@ -1825,7 +1824,7 @@ function postToIframe(msg) {
 var theme = '',
 	json = null,
 	baseCss = '',
-	modTags = {};
+	tags = {};
 
 var userSettings = {
 	'data': themeUrls[0],

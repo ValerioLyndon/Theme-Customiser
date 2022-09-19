@@ -260,6 +260,20 @@ function toggleEle(selector, btn = false, set = undefined) {
 	}
 }
 
+// Capitalises the first letter of every word. To capitalise sentences, set the divider to ".".
+function capitalise(str, divider = ' ') {
+	let words = str.split(divider);
+	
+	for(i = 0; i < words.length; i++) {
+		let first = words[i].substring(0,1).toUpperCase(),
+			theRest = words[i].substring(1);
+		words[i] = first + theRest;
+	}
+	
+	str = words.join(divider);
+	return str;
+}
+
 // sorts a dictionary by key
 function sortKeys(dict) {
 	let keys = Object.keys(dict);
@@ -276,6 +290,30 @@ function sortKeys(dict) {
 }
 
 // Tag Functionality & Renderer
+
+// Tag variables
+
+var tags = {};
+
+function formatFilters( filters ){
+	if( filters instanceof Array ){
+		return {'other': filters};
+	}
+	if( filters instanceof Object ){
+		return filters;
+	}
+	return {};
+}
+
+function pushFilter(thisId, tag, category = 'other') {
+	if( !tags[category] ){
+		tags[category] = [];
+	}
+	if( !tags[category][tag] ){
+		tags[category][tag] = [];
+	}
+	tags[category][tag].push(thisId);
+}
 
 /* Adds functional tags to the HTML.
  | 
@@ -318,6 +356,7 @@ class filters {
 		this.toggle.classList.remove('o-hidden');
 
 		let filterCategories = Object.entries(filters);
+		console.log(filters);
 		for( let [category, tags] of filterCategories ){
 			if( filterCategories.length > 1 ){
 				let header = document.createElement('div');
