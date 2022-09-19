@@ -332,7 +332,7 @@ function pushFilter(thisId, tag, category = 'other') {
  | • A div with ID 'js-tags__cloud'
  */
 class filters {
-	constructor( items, filters, selector = 'ID' ){
+	constructor( items, selector = 'ID' ){
 		// DOM Nodes
 		this.toggle = document.getElementById('js-tags__button');
 		this.clearBtn = document.getElementById('js-tags__clear');
@@ -341,7 +341,7 @@ class filters {
 		this.buttons = [];
 		this.selectedButtons = [];
 		this.selectedTags = {};
-		this.searchBar = null;
+		this.searchBar = document.getElementById('js-search');
 
 		// Class Names
 		this.itemTagCls = 'is-hidden-by-tag';
@@ -352,22 +352,29 @@ class filters {
 		// Other Variables
 		this.selector = selector;
 		this.clearBtn.classList.remove('o-hidden');
+		this.searchAttributes = ['data-title'];
 
 
 		// Create Meta Buttons
 		this.clearBtn.addEventListener('click', () => {
 			this.reset();
 		});
+	}
 
-		// Render HTML
+	renderSearch( ){
+		this.searchBar.classList.remove('o-hidden');
+		this.searchBar.addEventListener('input', () => { this.search(this.searchBar.value); } );
+	}
+
+	renderTags( tags ){
 		this.toggle.classList.remove('o-hidden');
 
-		let filterCategories = Object.entries(filters);
-		for( let [category, tags] of filterCategories ){
+		let tagCategories = Object.entries(tags);
+		for( let [category, tags] of tagCategories ){
 			let totalInCategory = 0;
 
 			let header = document.createElement('div');
-			if( filterCategories.length > 1 ){
+			if( tagCategories.length > 1 ){
 				header.textContent = capitalise(category);
 				header.className = 'tag-cloud__header';
 				this.container.appendChild(header);
@@ -391,6 +398,7 @@ class filters {
 
 				button.textContent = tag;
 				button.className = 'tag-cloud__tag';
+				button.id = `tag-${tag}`;
 
 				// count of items
 				countEle.textContent = count;
@@ -426,6 +434,8 @@ class filters {
 		this.resetTags();
 	}
 	resetTags( ){
+		query.remove('tags');
+
 		for( let item of this.items ){
 			item.classList.remove(this.itemTagCls);
 		}
@@ -439,6 +449,8 @@ class filters {
 		this.selectedTags = [];
 	}
 	resetSearch( ){
+		query.remove('search');
+		
 		for( let item of this.items ){
 			item.classList.remove(this.itemSearchCls);
 		}
@@ -450,14 +462,20 @@ class filters {
 	}
 
 	// Search
-	search( query, attributes = [] ){
-		
+	search( input ){
+		if( input.length > 0 ){
+			query.set('search', input);
+		}
+		else {
+			query.remove('search');
+		}
+
 		for( let item of this.items ){
 			let match = false;
-			for( let attr of attributes ){
-				let value = item.getAttribute(attr);
+			for( let attr of this.searchAttributes ){
+				let attrValue = item.getAttribute(attr);
 
-				if( value && value.toLowerCase().includes( query.toLowerCase() ) ){
+				if( attrValue && attrValue.toLowerCase().includes( input.toLowerCase() ) ){
 					match = true;
 					break;
 				}
@@ -474,17 +492,33 @@ class filters {
 	// On button click
 	activateTag( button, itemName, itemIds ){
 		// Check if already selected and select button if not
+		let tagQ = query.get('tags'),
+			tagSplit = tagQ ? tagQ.split('&&') : [],
+			tagIndex = tagSplit.indexOf(itemName);
+		
 		let selected = this.selectedButtons.indexOf(button);
 		if( selected !== -1 ){
 			button.classList.remove(this.btnCls);
 			this.selectedButtons.splice(selected, 1);
 			delete this.selectedTags[itemName];
+
+			// Remove from URL
+			if( tagIndex !== -1 ) {
+				tagSplit.splice(tagIndex, 1);
+				query.set('tags', tagSplit.join('&&'));
+			}
 		}
 		else {
 			this.toggle.classList.add(this.toggleCls);
 			button.classList.add(this.btnCls);
 			this.selectedButtons.push(button);
 			this.selectedTags[itemName] = itemIds;
+
+			// Add to URL
+			if( tagIndex === -1 ) {
+				tagSplit.push(itemName);
+				query.set('tags', tagSplit.join('&&'));
+			}
 		}
 
 		// If nothing is selected anymore, clear all.
@@ -539,11 +573,54 @@ class filters {
 	}
 }
 
+// URL class for easy setting and changing of current location.
+const query = new class ActiveURLParams {
+	constructor( ){
+		this.url = new URL(document.location);
+		this.params = this.url.searchParams;
+		// aliases
+		this.remove = this.delete;
+		this.add = this.set;
+	}
+
+	has( ){
+		return this.params.has(...arguments);
+	}
+	get( ){
+		return this.params.get(...arguments);
+	}
+	getAll( ){
+		return this.params.getAll(...arguments);
+	}
+	entries( ){
+		return this.params.entries(...arguments);
+	}
+	append( ){
+		this.params.append(...arguments);
+		this.updateUrl();
+	}
+	set( ){
+		this.params.set(...arguments);
+		this.updateUrl();
+	}
+	delete( ){
+		this.params.delete(...arguments);
+		this.updateUrl();
+	}
+
+	updateUrl( ){
+		console.log('updating url');
+		console.log(this);
+		history.replaceState(null, '', this.url.href);
+	}
+	gotoUrl( ){
+		window.location = this.url.href;
+	}
+};
 
 // VARIABLES
 
 const
-	query = (new URL(document.location)).searchParams,
 	megaUrls = query.getAll('m'),
 	collectionUrls = query.getAll('c'),
 	themeUrls = query.getAll('t'),

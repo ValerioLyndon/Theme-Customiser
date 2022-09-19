@@ -19,6 +19,17 @@ function selectSort(link, array) {
 	// Check if currently sorted
 	let currentSort = link.getAttribute('data-sort');
 
+	// Correct array sorting if needed
+	if(array[2] === 'descending' && currentSort === 'descending') {
+		array[2] = 'ascending';
+	} else if(array[2] === 'ascending' && currentSort === 'ascending') {
+		array[2] = 'descending';
+	}
+
+	// Set URL query
+	query.set('sort', array[1]);
+	query.set('sortdir', array[2]);
+
 	// Remove all other sort styling
 	let sortLinks = document.getElementsByClassName('js-sort');
 	for(let l of sortLinks) {
@@ -29,13 +40,6 @@ function selectSort(link, array) {
 		for(let icon of icons) {
 			icon.classList.add('o-hidden');
 		}
-	}
-
-	// Correct array sorting if needed
-	if(array[2] === 'descending' && currentSort === 'descending') {
-		array[2] = 'ascending';
-	} else if(array[2] === 'ascending' && currentSort === 'ascending') {
-		array[2] = 'descending';
 	}
 	
 	// Add styling to current item
@@ -109,7 +113,7 @@ function renderCards(cardData) {
 		}
 
 		let cardParent = document.createElement('a');
-		cardParent.className = 'browser__card js-card';
+		cardParent.className = 'browser__card';
 		let cardUrl = `./theme?t=${theme['url']}`;
 		if(collectionUrls.length > 0) {
 			cardUrl += `&c=${collectionUrls.join('&c=')}`;
@@ -204,6 +208,7 @@ function renderCards(cardData) {
 		}
 
 		document.getElementById('js-theme-list').appendChild(cardParent);
+		cards.push(cardParent);
 
 		// Add tags to sortable list
 		tempTags = formatFilters(theme['tags']);
@@ -226,7 +231,8 @@ function renderCards(cardData) {
 // Variables
 
 var itemCount = 0,
-	sorts = ['data-title'];
+	sorts = ['data-title'],
+	cards = [];
 
 // Get data for all collections and call other functions
 
@@ -309,7 +315,10 @@ fetchAllFiles(megaUrls)
 
 			loader.text('Filtering items...');
 
+			// Create and load filters.
 			if(itemCount > 5) {
+				var filter = new filters(cards, 'card:ID');
+
 				let hasTags = false;
 				for(let categoryTags of Object.values(tags)) {
 					if(Object.keys(categoryTags).length > 0) {
@@ -318,39 +327,55 @@ fetchAllFiles(megaUrls)
 					}
 				}
 				if( hasTags ){
-					var filter = new filters(document.getElementsByClassName('js-card'), tags, 'card:ID');
+					filter.renderTags(tags);
+				}
+
+				// Add search functionality
+				filter.renderSearch();
+
+				let tSearch = query.get('search'),
+					tTags = query.get('tags');
+				
+				if( tSearch ){
+					filter.search( tSearch );
+					filter.searchBar.value = tSearch;
+				}
+				if( tTags ){
+					let splitTags = tTags.split('&&');
+					for( let tag of splitTags ){
+						document.getElementById(`tag-${tag}`).dispatchEvent( new Event('click') );
+					}
 				}
 			}
 
-			// Add search functionality
-
-			let search = document.getElementById('js-search');
-			filter.searchBar = search;
-			search.addEventListener('input', () => { filter.search(search.value, ['data-title']); } );
-
 			// Add sort dropdown items and apply default sort
-			var cards = document.getElementsByClassName('js-card');
-			
-			let titleLink = document.getElementById('js-sort-title')
+			let titleLink = document.getElementById('js-sort-title');
 			titleLink.addEventListener('click', () => { selectSort(titleLink, [cards, 'data-title']) });
 			
-			let dataLink = document.getElementById('js-sort-date')
-			if(sorts.includes('data-date')) {
+			let dataLink = document.getElementById('js-sort-date');
+			let tSort = query.get('sort'),
+				tSortDir = query.get('sortdir') ? query.get('sortdir') : 'ascending';
+			if( tSort ){
+				console.log('sorting', tSort, tSortDir);
+				sortItems(cards, tSort, tSortDir);
+			}
+			else if( sorts.includes('data-date') ){
 				dataLink.addEventListener('click', () => { selectSort(dataLink, [cards, 'data-date', 'descending']) });
 				sortItems(cards, 'data-date', 'descending');
-			} else {
+			}
+			else {
 				dataLink.parentNode.remove();
 				sortItems(cards, 'random');
 			}
 			
-			let authorLink = document.getElementById('js-sort-author')
+			let authorLink = document.getElementById('js-sort-author');
 			if(sorts.includes('data-author')) {
 				authorLink.addEventListener('click', () => { selectSort(authorLink, [cards, 'data-author']) });
 			} else {
 				authorLink.parentNode.remove();
 			}
 			
-			let randomLink = document.getElementById('js-sort-random')
+			let randomLink = document.getElementById('js-sort-random');
 			randomLink.addEventListener('click', () => { selectSort(randomLink, [cards, 'random']) });
 
 			if(failures >= files.length) {
