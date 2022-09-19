@@ -335,6 +335,7 @@ class filters {
 	constructor( items, filters, selector = 'ID' ){
 		// DOM Nodes
 		this.toggle = document.getElementById('js-tags__button');
+		this.clearBtn = document.getElementById('js-tags__clear');
 		this.container = document.getElementById('js-tags__cloud');
 		this.allItems = [...items];
 		this.hiddenItems = []; // Array
@@ -350,7 +351,13 @@ class filters {
 
 		// Other Variables
 		this.selector = selector;
+		this.clearBtn.classList.remove('o-hidden');
 
+
+		// Create Meta Buttons
+		this.clearBtn.addEventListener('click', () => {
+			this.showAll();
+		});
 
 		// Render HTML
 		this.toggle.classList.remove('o-hidden');
@@ -358,8 +365,10 @@ class filters {
 		let filterCategories = Object.entries(filters);
 		console.log(filters);
 		for( let [category, tags] of filterCategories ){
+			let totalInCategory = 0;
+
+			let header = document.createElement('div');
 			if( filterCategories.length > 1 ){
-				let header = document.createElement('div');
 				header.textContent = capitalise(category);
 				header.className = 'tag-cloud__header';
 				this.container.appendChild(header);
@@ -368,11 +377,18 @@ class filters {
 			// Sort filters ascending
 			tags = sortKeys(tags);
 
-			// Create HTML
+			// Create Filter Buttons
 			for(let [tag, itemIds] of Object.entries(tags)) {
 				let button = document.createElement('button'),
 					countEle = document.createElement('span'),
 					count = itemIds.length;
+
+				// skip rendering tag if all items match, thus making it useless
+				if( count === this.allItems.length ){
+					continue;
+				} else {
+					totalInCategory++;
+				}
 
 				button.textContent = tag;
 				button.className = 'tag-cloud__tag';
@@ -397,6 +413,11 @@ class filters {
 
 				// Add tag button functions
 				button.addEventListener('click', () => { this.activateFilter(button, tag, itemIds); });
+			}
+
+			// If category is empty, skip
+			if( totalInCategory === 0 ){
+				header.remove();
 			}
 		}
 	}
@@ -425,13 +446,18 @@ class filters {
 
 	// Show all items
 	showAll( ){
+		// Reset HTML
 		for( let item of this.hiddenItems ){
 			item.classList.remove(this.itemCls);
 		}
 		for( let btn of this.buttons ){
-			btn['btn'].classList.remove('is-disabled');
+			this.toggle.classList.remove(this.toggleCls);
+			btn['btn'].classList.remove('is-disabled', 'is-selected');
 			btn['count'].textContent = btn['total'];
 		}
+		// Reset variables
+		this.selectedButtons = [];
+		this.selectedFilters = [];
 		this.hiddenItems = [];
 		this.visibleItems = [...this.allItems];
 	}
@@ -459,7 +485,6 @@ class filters {
 
 		// If nothing is selected anymore, clear all.
 		if( this.selectedButtons.length === 0 ){
-			this.toggle.classList.remove(this.toggleCls);
 			this.showAll();
 			return;
 		}
