@@ -337,15 +337,15 @@ class filters {
 		this.toggle = document.getElementById('js-tags__button');
 		this.clearBtn = document.getElementById('js-tags__clear');
 		this.container = document.getElementById('js-tags__cloud');
-		this.allItems = [...items];
-		this.hiddenItems = []; // Array
-		this.visibleItems = [...items]; // Array
+		this.items = [...items];
 		this.buttons = [];
 		this.selectedButtons = [];
-		this.selectedFilters = {};
+		this.selectedTags = {};
+		this.searchBar = null;
 
 		// Class Names
-		this.itemCls = 'is-hidden-by-tag';
+		this.itemTagCls = 'is-hidden-by-tag';
+		this.itemSearchCls = 'is-hidden-by-search';
 		this.btnCls = 'is-selected';
 		this.toggleCls = 'has-selected';
 
@@ -356,14 +356,13 @@ class filters {
 
 		// Create Meta Buttons
 		this.clearBtn.addEventListener('click', () => {
-			this.showAll();
+			this.reset();
 		});
 
 		// Render HTML
 		this.toggle.classList.remove('o-hidden');
 
 		let filterCategories = Object.entries(filters);
-		console.log(filters);
 		for( let [category, tags] of filterCategories ){
 			let totalInCategory = 0;
 
@@ -384,7 +383,7 @@ class filters {
 					count = itemIds.length;
 
 				// skip rendering tag if all items match, thus making it useless
-				if( count === this.allItems.length ){
+				if( count === this.items.length ){
 					continue;
 				} else {
 					totalInCategory++;
@@ -412,7 +411,7 @@ class filters {
 				});
 
 				// Add tag button functions
-				button.addEventListener('click', () => { this.activateFilter(button, tag, itemIds); });
+				button.addEventListener('click', () => { this.activateTag(button, tag, itemIds); });
 			}
 
 			// If category is empty, skip
@@ -422,44 +421,27 @@ class filters {
 		}
 	}
 
-	// Show/hide individual items
-	show( node ){
-		// Remove from hidden
-		let hidden = this.hiddenItems.indexOf(node);
-		if(hidden !== -1) {
-			this.hiddenItems.splice(hidden,1);
-		}
-		// Show in DOM and add to visible
-		node.classList.remove(this.itemCls);
-		this.visibleItems.push(node);
+	reset( ){
+		this.resetSearch();
+		this.resetTags();
 	}
-	hide( node ){
-		// Remove from visible
-		let visible = this.visibleItems.indexOf(node);
-		if(visible !== -1) {
-			this.visibleItems.splice(visible,1);
+	resetTags( ){
+		for( let item of this.items ){
+			item.classList.remove(this.itemTagCls);
 		}
-		// Hide in DOM and add to hidden
-		node.classList.add(this.itemCls);
-		this.hiddenItems.push(node);
-	}
 
-	// Show all items
-	showAll( ){
-		// Reset HTML
-		for( let item of this.hiddenItems ){
-			item.classList.remove(this.itemCls);
-		}
+		this.toggle.classList.remove(this.toggleCls);
 		for( let btn of this.buttons ){
-			this.toggle.classList.remove(this.toggleCls);
 			btn['btn'].classList.remove('is-disabled', 'is-selected');
 			btn['count'].textContent = btn['total'];
 		}
-		// Reset variables
 		this.selectedButtons = [];
-		this.selectedFilters = [];
-		this.hiddenItems = [];
-		this.visibleItems = [...this.allItems];
+		this.selectedTags = [];
+	}
+	resetSearch( ){
+		for( let item of this.items ){
+			item.classList.remove(this.itemSearchCls);
+		}
 	}
 
 	// ID Formatting
@@ -467,31 +449,53 @@ class filters {
 		return this.selector.replace('ID', id);
 	}
 
+	// Search
+	search( query, attributes = [] ){
+		
+		for( let item of this.items ){
+			let match = false;
+			for( let attr of attributes ){
+				let value = item.getAttribute(attr);
+
+				if( value && value.toLowerCase().includes( query.toLowerCase() ) ){
+					match = true;
+					break;
+				}
+			}
+			if( match ){
+				item.classList.remove(this.itemSearchCls);
+			}
+			else {
+				item.classList.add(this.itemSearchCls);
+			}
+		}
+	}
+
 	// On button click
-	activateFilter( button, itemName, itemIds ){
+	activateTag( button, itemName, itemIds ){
 		// Check if already selected and select button if not
 		let selected = this.selectedButtons.indexOf(button);
 		if( selected !== -1 ){
 			button.classList.remove(this.btnCls);
 			this.selectedButtons.splice(selected, 1);
-			delete this.selectedFilters[itemName];
+			delete this.selectedTags[itemName];
 		}
 		else {
 			this.toggle.classList.add(this.toggleCls);
 			button.classList.add(this.btnCls);
 			this.selectedButtons.push(button);
-			this.selectedFilters[itemName] = itemIds;
+			this.selectedTags[itemName] = itemIds;
 		}
 
 		// If nothing is selected anymore, clear all.
 		if( this.selectedButtons.length === 0 ){
-			this.showAll();
+			this.resetTags();
 			return;
 		}
 		
 		// Calculate new filter based on selected buttons
 		let filterCount = {};
-		for( let filter of Object.values(this.selectedFilters) ){
+		for( let filter of Object.values(this.selectedTags) ){
 			for( let id of filter ){
 				if( !Object.keys(filterCount).includes(id) ){
 					filterCount[id] = 1;
@@ -504,18 +508,18 @@ class filters {
 			andFilters = [];
 		// create AND filter by only adding filters that match all of the selected filters
 		for( let [id, count] of Object.entries(filterCount) ){
-			if( count === Object.keys(this.selectedFilters).length ){
+			if( count === Object.keys(this.selectedTags).length ){
 				andFilters.push(id);
 			}
 		}
 
 		// Show matching items
-		for( let item of this.allItems ){
+		for( let item of this.items ){
 			if( andFilters.includes(item.id) ) {
-				this.show(item);
+				item.classList.remove(this.itemTagCls);
 			}
 			else {
-				this.hide(item);
+				item.classList.add(this.itemTagCls);
 			}
 		}
 

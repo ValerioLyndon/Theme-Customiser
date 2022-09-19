@@ -135,6 +135,11 @@ body {
 	width: 60px;
 	text-align: center;
 }
+.input--search {
+	width: 200px;
+	padding: 3px 6px;
+	margin: 0 6px 6px 0;
+}
 
 .range {
 	width: calc(100% - 12px);

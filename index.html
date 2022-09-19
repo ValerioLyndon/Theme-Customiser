@@ -69,12 +69,14 @@
 						</div>
 					</div>
 
+					<input class="input input--search" type="search" placeholder="Search titles..." id="js-search" />
+
 					<button class="button o-hidden" id="js-tags__button" onclick="toggleEle('#js-tags__cloud', this)">
 						<i class="fa-solid fa-tags"></i> Filters
 					</button>
 
-					<button class="button o-hidden" id="js-tags__clear">
-							<i class="fa-solid fa-xmark"></i> Clear
+					<button class="button o-hidden" id="js-tags__clear" onclick="document.getElementById('js-search').value = '';">
+							<i class="fa-solid fa-xmark"></i> Clear All
 						</button>
 				</div>
 

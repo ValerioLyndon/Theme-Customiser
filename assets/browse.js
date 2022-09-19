@@ -322,6 +322,12 @@ fetchAllFiles(megaUrls)
 				}
 			}
 
+			// Add search functionality
+
+			let search = document.getElementById('js-search');
+			filter.searchBar = search;
+			search.addEventListener('input', () => { filter.search(search.value, ['data-title']); } );
+
 			// Add sort dropdown items and apply default sort
 			var cards = document.getElementsByClassName('js-card');
 			
