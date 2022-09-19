@@ -2,132 +2,209 @@
 // COMMON FUNCTIONS
 // ================
 
-// Capitalises the first letter of every word. To capitalise sentences, set the divider to ".".
-function capitalise(str, divider = ' ') {
-	let words = str.split(divider);
-	
-	for(i = 0; i < words.length; i++) {
-		let first = words[i].substring(0,1).toUpperCase(),
-			theRest = words[i].substring(1);
-		words[i] = first + theRest;
-	}
-	
-	str = words.join(divider);
-	return str;
-}
+// An extended filter class with search & sorting
+class ExtendedFilters extends BaseFilters {
+	constructor( items, selector = 'ID' ){
+		super( items, selector );
 
-// Sort function
+		// Search Variables
+		this.searchBar = document.getElementById('js-search');
+		this.searchAttributes = ['data-title'];
+		this.itemSearchCls = 'is-hidden-by-search';
 
-/* Activated by user on click of a button. Updates relevant UI elements then call sortItems. 
- * link
-   - the clicked link/element
- * array
-   - an array of arguments to pass directly to sortItems
- */
-function selectSort(link, array) {
-	// Add sort value to array if needed
-	if(!array[2]) {
-		array[2] = 'ascending';
-	}
-
-	// Check if currently sorted
-	let currentSort = link.getAttribute('data-sort');
-
-	// Remove all other sort styling
-	let sortLinks = document.getElementsByClassName('js-sort');
-	for(let l of sortLinks) {
-		l.classList.remove('is-active');
-		l.removeAttribute('data-sort');
-
-		let icons = l.getElementsByClassName('js-sort-icon');
-		for(let icon of icons) {
-			icon.classList.add('o-hidden');
+		// Sort Variables
+		this.sortContainer = document.getElementById('js-sorts');
+		this.activeSort = [];
+		this.sorts = {
+			'title': {
+				'attr': 'data-title',
+				'default': 'ascending',
+				'label': 'Title'
+			},
+			'author': {
+				'attr': 'data-author',
+				'default': 'ascending',
+				'label': 'Author'
+			},
+			'date': {
+				'attr': 'data-date',
+				'default': 'descending',
+				'label': 'Release Date'
+			},
+			'random': {
+				'attr': 'random',
+				'label': 'Random'
+			}
 		}
 	}
 
-	// Correct array sorting if needed
-	if(array[2] === 'descending' && currentSort === 'descending') {
-		array[2] = 'ascending';
-	} else if(array[2] === 'ascending' && currentSort === 'ascending') {
-		array[2] = 'descending';
-	}
-	
-	// Add styling to current item
-	link.classList.add('is-active');
-	try {
-		let cls = array[2] === 'descending' ? 'js-descending' : 'js-ascending';
-		link.getElementsByClassName(cls)[0].classList.remove('o-hidden');
-	} catch {}
-	link.setAttribute('data-sort', array[2]);
+	renderSorts( ){
+		for( let [key, info] of Object.entries(this.sorts) ){
+			// Check that sort is valid and delete if not
+			let valid = false;
+			if(info['attr'] !== 'random') {
+				for( let item of this.items ){
+					if( item.hasAttribute(info['attr']) ){
+						valid = true;
+						break;
+					}
+				}
+				if(!valid) {
+					delete this.sorts[key];
+					continue;
+				}
+			}
 
-	// Sort items.
-	sortItems(...array);
-}
+			// Render HTML
+			let div = document.createElement('div'),
+				link = document.createElement('a'),
+				icon = document.createElement('i');
+			div.className = 'dropdown__item';
+			link.className = 'hyper-button';
+			link.id = `sort:${key}`;
+			link.textContent = `${info['label']} `;
+			icon.className = 'hyper-button__icon fa-solid fa-sort-asc o-hidden';
 
-// "items" var should be a DOM node list
-function sortItems(items, attribute, order = 'ascending') {
-	let attributes = [];
+			link.appendChild(icon);
+			div.appendChild(link);
+			this.sortContainer.appendChild(div);
 
-	for(let it of items) {
-		let value = it.getAttribute(attribute),
-			id = it.id.split(':')[1];
-		attributes.push([value, id]);
-	}
+			this.sorts[key]['btn'] = link;
+			this.sorts[key]['icon'] = icon;
 
-	if(attribute === 'random') {
-		let currentIndex = attributes.length, randomIndex;
-
-		// While there remain elements to shuffle.
-		while (currentIndex != 0) {
-
-			// Pick a remaining element.
-			randomIndex = Math.floor(Math.random() * currentIndex);
-			currentIndex--;
-
-			// And swap it with the current element.
-			[attributes[currentIndex], attributes[randomIndex]] = [
-			attributes[randomIndex], attributes[currentIndex]];
+			link.addEventListener('click', () => {
+				this.sort(key);
+			});
 		}
-	} else {
-		attributes.sort((attrOne,attrTwo) => {
-			a = attrOne[0].toLowerCase();
-			b = attrTwo[0].toLowerCase();
-			if(a < b && order === 'ascending' || a > b && order === 'descending') { return -1; }
-			if(a > b && order === 'ascending' || a < b && order === 'descending') { return 1; }
-			return 0;
-		});
 	}
 
-	// Apply sort order
-	for(i = 0; i < attributes.length; i++) {
-		let id = attributes[i][1];
-		document.getElementById(`card:${id}`).style.order = i;
+	renderSearch( ){
+		this.searchBar.classList.remove('o-hidden');
+		this.searchBar.addEventListener('input', () => { this.search(this.searchBar.value); } );
+	}
+
+	reset( ){
+		this.resetTags();
+		this.resetSearch();
+	}
+	resetSearch( ){
+		query.remove('search');
+		
+		for( let item of this.items ){
+			item.classList.remove(this.itemSearchCls);
+		}
+	}
+
+	// Search
+	search( input ){
+		if( input.length > 0 ){
+			query.set('search', input);
+		}
+		else {
+			query.remove('search');
+		}
+
+		for( let item of this.items ){
+			let match = false;
+			for( let attr of this.searchAttributes ){
+				let attrValue = item.getAttribute(attr);
+
+				if( attrValue && attrValue.toLowerCase().includes( input.toLowerCase() ) ){
+					match = true;
+					break;
+				}
+			}
+			if( match ){
+				item.classList.remove(this.itemSearchCls);
+			}
+			else {
+				item.classList.add(this.itemSearchCls);
+			}
+		}
+	}
+
+	sort( key, forceOrder, updateQuery = true ) {
+		let info = this.sorts[key];
+		// returns false if sort key is invalid
+		if(!info) {
+			return false;
+		}
+
+		let attributes = [],
+			order = forceOrder ? forceOrder : info['default'];
+
+		// check if already sorted
+		if( this.activeSort.length > 0 ){
+			if( !(this.activeSort[0] === key) ) {
+				this.sorts[this.activeSort[0]]['btn'].classList.remove('is-active');
+				this.sorts[this.activeSort[0]]['icon'].classList.add('o-hidden');
+			}
+			else if( this.activeSort[1] === order ){
+				order = (order === 'ascending') ? 'descending' : 'ascending';
+			}
+		}
+
+		// update button
+		info['btn'].classList.add('is-active');
+		if( key !== 'random' ) {
+			info['icon'].classList.remove('o-hidden', 'fa-sort-asc', 'fa-sort-desc');
+			if( order === 'ascending' ){
+				info['icon'].classList.add('fa-sort-asc');
+			}
+			else {
+				info['icon'].classList.add('fa-sort-desc');
+			}
+		}
+
+		// calculate sort
+		for( let item of this.items ) {
+			let value = item.getAttribute(info['attr']),
+				id = item.id;
+			attributes.push([value, id]);
+		}
+
+		if( key === 'random' ){
+			let currentIndex = attributes.length, randomIndex;
+
+			// While there remain elements to shuffle.
+			while (currentIndex != 0) {
+
+				// Pick a remaining element.
+				randomIndex = Math.floor(Math.random() * currentIndex);
+				currentIndex--;
+
+				// And swap it with the current element.
+				[attributes[currentIndex], attributes[randomIndex]] = [
+				attributes[randomIndex], attributes[currentIndex]];
+			}
+		}
+		else {
+			attributes.sort((attrOne,attrTwo) => {
+				let a = attrOne[0].toLowerCase();
+				let b = attrTwo[0].toLowerCase();
+				if(a < b && order === 'ascending' || a > b && order === 'descending') { return -1; }
+				if(a > b && order === 'ascending' || a < b && order === 'descending') { return 1; }
+				return 0;
+			});
+		}
+
+		// Apply sort, set URL query, update variables
+
+		for( i = 0; i < attributes.length; i++ ){
+			let id = attributes[i][1];
+			document.getElementById(id).style.order = i;
+		}
+
+		if(updateQuery) {
+			query.set('sort', key);
+			query.set('sortdir', order);
+		}
+
+		this.activeSort = [key, order];
+
+		return true;
 	}
 }
-
-function pushTag(thisId, tag, category = 'other') {
-	if(!tags[category][tag]) {
-		tags[category][tag] = [];
-	}
-	tags[category][tag].push(thisId);
-}
-
-// sorts a dictionary by key
-function sortKeys(dict) {
-	let keys = Object.keys(dict);
-	keys.sort((a,b) => {
-		return a.toLowerCase().localeCompare(b.toLowerCase());
-	});
-
-	let sorted = {};
-	for(let k of keys) {
-		sorted[k] = dict[k];
-	}
-
-	return sorted;
-}
-
-
 
 // ==================
 // ONE-TIME FUNCTIONS
@@ -145,7 +222,7 @@ function renderCards(cardData) {
 		}
 
 		let cardParent = document.createElement('a');
-		cardParent.className = 'browser__card js-card';
+		cardParent.className = 'browser__card';
 		let cardUrl = `./theme?t=${theme['url']}`;
 		if(collectionUrls.length > 0) {
 			cardUrl += `&c=${collectionUrls.join('&c=')}`;
@@ -172,9 +249,6 @@ function renderCards(cardData) {
 
 			cardParent.setAttribute('data-author', theme['author']);
 		}
-
-		let themeTags = theme['tags'] ? theme['tags'] : [];
-		cardParent.setAttribute('data-tags', themeTags);
 
 		let card = document.createElement('div');
 		card.className = 'card';
@@ -243,16 +317,17 @@ function renderCards(cardData) {
 		}
 
 		document.getElementById('js-theme-list').appendChild(cardParent);
+		cards.push(cardParent);
 
 		// Add tags to sortable list
-		pushTag(thisId, theme['type'], 'list type');
-		pushTag(thisId, themeAuthor, 'author');
-		for(let tag of themeTags) {
-			let category = 'other';
-			if(['card layout', 'cover layout', 'table layout'].includes(tag)) {
-				category = 'layout';
+		tempTags = formatFilters(theme['tags']);
+		tempTags['list type'] = [theme['type']];
+		tempTags['author'] = [themeAuthor];
+
+		for( let [category, tags] of Object.entries(tempTags) ){
+			for( let tag of tags ){
+				pushFilter(thisId, tag, category);
 			}
-			pushTag(thisId, tag, category);
 		}
 		itemCount++;
 	}
@@ -264,15 +339,9 @@ function renderCards(cardData) {
 
 // Variables
 
-var tags = {
-		"list type": {},
-		"layout": {},
-		"author": {},
-		"source": {},
-		"other": {}
-	},
-	itemCount = 0,
-	sorts = ['data-title'];
+var itemCount = 0,
+	sorts = ['data-title'],
+	cards = [];
 
 // Get data for all collections and call other functions
 
@@ -353,53 +422,58 @@ fetchAllFiles(megaUrls)
 				renderCards(json['themes']);
 			}
 
-			loader.text('Sorting items...');
+			loader.text('Filtering items...');
 
-			function renderBrowseTags(categoryName, categoryTags) {
-
-				let cloudEle = document.getElementById('js-tags__cloud');
-
-				let header = document.createElement('div');
-				header.textContent = capitalise(categoryName);
-				header.className = 'tag-cloud__header';
-				cloudEle.appendChild(header);
-
-				renderTags(categoryTags, [...Array(itemCount).keys()], 'card:ID');
-			}
-
+			// Create and load filters.
 			if(itemCount > 5) {
-				for(let [categoryName, categoryTags] of Object.entries(tags)) {
+				var filter = new ExtendedFilters(cards, 'card:ID');
+
+				let hasTags = false;
+				for(let categoryTags of Object.values(tags)) {
 					if(Object.keys(categoryTags).length > 0) {
-						categoryTags = sortKeys(categoryTags);
-						renderBrowseTags(categoryName, categoryTags);
+						hasTags = true;
+						break;
+					}
+				}
+				if( hasTags ){
+					filter.renderTags(tags);
+				}
+
+				// Add sort functionality
+				filter.renderSorts();
+
+				// Add search functionality
+				filter.renderSearch();
+
+				let tSearch = query.get('search'),
+					tTags = query.get('tags');
+				
+				if( tSearch ){
+					filter.search( tSearch );
+					filter.searchBar.value = tSearch;
+				}
+				if( tTags ){
+					let splitTags = tTags.split('&&');
+					for( let tag of splitTags ){
+						document.getElementById(`tag:${tag}`).dispatchEvent( new Event('click') );
 					}
 				}
 			}
 
 			// Add sort dropdown items and apply default sort
-			var cards = document.getElementsByClassName('js-card');
+			let attemptedSort = false,
+				tSort = query.get('sort'),
+				tSortDir = query.get('sortdir') ? query.get('sortdir') : 'ascending';
 			
-			let titleLink = document.getElementById('js-sort-title')
-			titleLink.addEventListener('click', () => { selectSort(titleLink, [cards, 'data-title']) });
-			
-			let dataLink = document.getElementById('js-sort-date')
-			if(sorts.includes('data-date')) {
-				dataLink.addEventListener('click', () => { selectSort(dataLink, [cards, 'data-date', 'descending']) });
-				sortItems(cards, 'data-date', 'descending');
-			} else {
-				dataLink.parentNode.remove();
-				sortItems(cards, 'random');
+			if( tSort ){
+				attemptedSort = filter.sort(tSort, tSortDir, false);
 			}
-			
-			let authorLink = document.getElementById('js-sort-author')
-			if(sorts.includes('data-author')) {
-				authorLink.addEventListener('click', () => { selectSort(authorLink, [cards, 'data-author']) });
-			} else {
-				authorLink.parentNode.remove();
+			else {
+				attemptedSort = filter.sort('date', undefined, false)
 			}
-			
-			let randomLink = document.getElementById('js-sort-random')
-			randomLink.addEventListener('click', () => { selectSort(randomLink, [cards, 'random']) });
+			if( attemptedSort === false ){
+				filter.sort('random', undefined, false);
+			}
 
 			if(failures >= files.length) {
 				loader.failed(['Encountered a problem while parsing theme information.', 'json.parse']);

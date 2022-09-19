@@ -135,6 +135,11 @@ body {
 	width: 60px;
 	text-align: center;
 }
+.input--search {
+	width: 200px;
+	padding: 3px 6px;
+	margin: 0 6px 6px 0;
+}
 
 .range {
 	width: calc(100% - 12px);
@@ -216,7 +221,9 @@ body {
 
 .tag-cloud {
 	display: flex;
+	width: 100%;
 	flex-flow: row wrap;
+	align-items: flex-start;
 	margin-bottom: 4px;
 }
 .tag-cloud--center {
@@ -225,6 +232,23 @@ body {
 }
 .tag-cloud.is-hidden {
 	display: none;
+}
+
+.tag-cloud__group {
+	display: flex;
+	width: fit-content;
+	flex-flow: row wrap;
+	max-width: 400px;
+	padding: 5px;
+	flex: 0 1 auto;
+}
+.tag-cloud__group:only-of-type {
+	max-width: initial;
+	padding: 0;
+	flex: 1 1 auto;
+}
+.tag-cloud__group--column {
+	flex-flow: column wrap;
 }
 
 .tag-cloud__blurb {
@@ -242,6 +266,8 @@ body {
 	flex: 0 0 auto;
 	margin-top: 8px;
 	margin-bottom: 4px;
+	text-align: left;
+	text-indent: 5px;
 }
 
 .tag-cloud__tag {
@@ -268,6 +294,10 @@ body {
 	border-color: var(--accent);
 	background: var(--accent);
 	color: var(--accent-text);
+}
+.tag-cloud__tag.is-disabled {
+	opacity: 0.5;
+	pointer-events: none;
 }
 
 .tag-cloud__count {

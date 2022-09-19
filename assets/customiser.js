@@ -1100,11 +1100,11 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 
 		// Add mod tag to list of tags
 		if('tags' in entryData) {
-			for(let tag of entryData['tags']) {
-				if(modTags[tag]) {
-					modTags[tag].push(entryId);
-				} else {
-					modTags[tag] = [entryId];
+			tempTags = formatFilters(entryData['tags']);
+
+			for( let [category, tags] of Object.entries(tempTags) ){
+				for( let tag of tags ){
+					pushFilter(entryId, tag, category);
 				}
 			}
 		}
@@ -1183,6 +1183,7 @@ function pageSetup() {
 		optionsEle.parentNode.remove();
 	}
 
+	let mods = [];
 	let modsEle = document.getElementById('js-mods');
 	if('mods' in theme) {
 		for (const mod of Object.entries(theme['mods'])) {
@@ -1190,6 +1191,7 @@ function pageSetup() {
 			if(typeof renderedMod === 'string') {
 				console.log(`[ERROR] Skipped mod "${modId}": ${renderedMod}`);
 			} else {
+				mods.push(renderedMod);
 				modsEle.appendChild(renderedMod);
 			}
 		}
@@ -1198,8 +1200,9 @@ function pageSetup() {
 	}
 
 	// Tag links
-	if(Object.entries(modTags).length > 0 && Object.entries(theme['mods']).length > 3) {
-		renderTags(modTags, Object.keys(theme['mods']), 'mod-parent:ID');
+	if(Object.entries(tags).length > 0 && Object.entries(theme['mods']).length > 3) {
+		var filter = new BaseFilters(mods, 'mod-parent:ID');
+		filter.renderTags(tags);
 	}
 
 	// Back link
@@ -1822,7 +1825,7 @@ function postToIframe(msg) {
 var theme = '',
 	json = null,
 	baseCss = '',
-	modTags = {};
+	tags = {};
 
 var userSettings = {
 	'data': themeUrls[0],

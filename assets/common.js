@@ -260,96 +260,343 @@ function toggleEle(selector, btn = false, set = undefined) {
 	}
 }
 
+// Capitalises the first letter of every word. To capitalise sentences, set the divider to ".".
+function capitalise(str, divider = ' ') {
+	let words = str.split(divider);
+	
+	for(i = 0; i < words.length; i++) {
+		let first = words[i].substring(0,1).toUpperCase(),
+			theRest = words[i].substring(1);
+		words[i] = first + theRest;
+	}
+	
+	str = words.join(divider);
+	return str;
+}
+
+// sorts a dictionary by key
+function sortKeys(dict) {
+	let keys = Object.keys(dict);
+	keys.sort((a,b) => {
+		return a.toLowerCase().localeCompare(b.toLowerCase());
+	});
+
+	let sorted = {};
+	for(let k of keys) {
+		sorted[k] = dict[k];
+	}
+
+	return sorted;
+}
+
 // Tag Functionality & Renderer
 
-let tagsBtn = document.getElementById('js-tags__button');
+// Tag variables
 
-/* Adds functional tags to the HTML. Accepts three values:
- * tags
-   - A dictionary containing tag keys and their id arrays
-   e.x { "my tag": ["item id", 0, "three"] }
- * allIds
-   - an array of all ID values to show/hide when selecting tags.
-   e.x ["my mod", "mod 2", "image mod"]
- * selector
-   - a CSS ID to target the correct items using IDs from allIds.
-   - will replace the "ID" text during runtime.
-   e.x "card:ID"
- */
-function renderTags(tags, allIds, selector) {
-	tagsBtn.classList.remove('o-hidden');
+var tags = {};
 
-	let cloudEle = document.getElementById('js-tags__cloud');
-
-	for(let [tag, itemIds] of Object.entries(tags)) {
-		let tagEle = document.createElement('button'),
-			countEle = document.createElement('span'),
-			count = itemIds.length;
-
-		tagEle.textContent = tag;
-		tagEle.className = 'tag-cloud__tag js-tag';
-		tagEle.setAttribute('data-items', itemIds);
-
-		countEle.textContent = count;
-		countEle.className = 'tag-cloud__count';
-		tagEle.appendChild(countEle);
-		cloudEle.appendChild(tagEle);
-
-		// Add tag button functions
-		tagEle.addEventListener('click', () => { selectTag(tagEle, allIds, selector); });
+function formatFilters( filters ){
+	if( filters instanceof Array ){
+		return {'other': filters};
 	}
+	if( filters instanceof Object ){
+		return filters;
+	}
+	return {};
 }
 
-function selectTag(tagEle, allIds, selector) {
-	// Clear previous selection
-	let hidden = document.querySelectorAll('.is-hidden-by-tag'),
-		isSelected = tagEle.className.includes('is-selected');
-	for(let ele of hidden) {
-		ele.classList.remove('is-hidden-by-tag');
+function pushFilter(thisId, tag, category = 'other') {
+	if( !tags[category] ){
+		tags[category] = [];
 	}
-
-	// Remove other tags' styling & set our own
-	tagsBtn.classList.remove('has-selected');
-	let selectedTags = document.querySelectorAll('.js-tag.is-selected');
-
-	for(let tag of selectedTags) {
-		tag.classList.remove('is-selected');
+	if( !tags[category][tag] ){
+		tags[category][tag] = [];
 	}
+	tags[category][tag].push(thisId);
+}
 
-	// Select new tags
-	if(!isSelected) {
-		tagsBtn.classList.add('has-selected');
-		let itemsToKeep = tagEle.getAttribute('data-items').split(',');
+/* Adds functional tags to the HTML.
+ | 
+ | Constructor must be fed:
+ | • a NodeList or array of Nodes
+ | • a dictionary of filter/ID pairs. Example:
+ |   {
+ |     "My Tag": [0, 3, 12, 32],
+ |     …
+ |   }
+ | • a string selector with "ID" in place of tag ID. E.x:
+ |   "card:ID" or "mod:ID"
+ |
+ | Also requires two elements in the HTML:
+ | • A button with ID 'js-tags__button'
+ | • A div with ID 'js-tags__cloud'
+ */
+class BaseFilters {
+	constructor( items, selector = 'ID' ){
+		// Variables for all
+		this.toggle = document.getElementById('js-tags__button');
+		this.toggleCls = 'has-selected';
+		this.clearBtn = document.getElementById('js-tags__clear');
+		this.items = [...items];
 
-		for(let i = 0; i < itemsToKeep.length; i++) {
-			itemsToKeep[i] = String(itemsToKeep[i]);
+		// Tag Variables
+		this.tagContainer = document.getElementById('js-tags__cloud');
+		this.buttons = [];
+		this.selectedButtons = [];
+		this.selectedTags = {};
+		this.btnCls = 'is-selected';
+		this.itemTagCls = 'is-hidden-by-tag';
+
+		// Other Variables
+		this.selector = selector;
+
+		// Create Meta Buttons
+		if( this.clearBtn ){
+			this.clearBtn.classList.remove('o-hidden');
+			this.clearBtn.addEventListener('click', () => {
+				this.reset();
+			});
 		}
-		
-		for(let id of allIds) {
-			id = String(id);
-			
-			if(itemsToKeep.includes(id)) {
-				continue;
+	}
+
+	renderTags( tags ){
+		this.toggle.classList.remove('o-hidden');
+
+		let tagCategories = Object.entries(tags);
+		for( let [category, tags] of tagCategories ){
+			let totalInCategory = 0;
+
+			let group = document.createElement('div');
+			group.className = 'tag-cloud__group';
+			if(category === 'other') {
+				group.style.order = 100;
+			} else if(category === 'list type') {
+				group.style.order = 1;
+				group.classList.add('tag-cloud__group--column');
+			} else if(category === 'layout') {
+				group.style.order = 2;
+				group.classList.add('tag-cloud__group--column');
 			} else {
-				document.getElementById(selector.replace('ID', id)).classList.add('is-hidden-by-tag');
+				group.style.order = 50;
+			}
+			this.tagContainer.appendChild(group);
+
+			let header = document.createElement('div');
+			if( tagCategories.length > 1 ){
+				header.textContent = capitalise(category);
+				header.className = 'tag-cloud__header';
+				group.appendChild(header);
+			}
+
+			// Sort filters ascending
+			tags = sortKeys(tags);
+
+			// Create Filter Buttons
+			for(let [tag, itemIds] of Object.entries(tags)) {
+				let button = document.createElement('button'),
+					countEle = document.createElement('span'),
+					count = itemIds.length;
+
+				// skip rendering tag if all items match, thus making it useless
+				if( count === this.items.length ){
+					continue;
+				} else {
+					totalInCategory++;
+				}
+
+				button.textContent = tag;
+				button.className = 'tag-cloud__tag';
+				button.id = `tag:${tag}`;
+
+				// count of items
+				countEle.textContent = count;
+				countEle.className = 'tag-cloud__count';
+				button.appendChild(countEle);
+				group.appendChild(button);
+
+				// format Ids
+				for( let i = 0; i < itemIds.length; i++ ) {
+					itemIds[i] = this.formatId(itemIds[i]);
+				}
+
+				this.buttons.push({
+					'btn': button,
+					'count': countEle,
+					'ids': itemIds,
+					'total': count
+				});
+
+				// Add tag button functions
+				button.addEventListener('click', () => { this.activateTag(button, tag, itemIds); });
+			}
+
+			// If category is empty, skip
+			if( totalInCategory === 0 ){
+				group.remove();
 			}
 		}
-		tagEle.classList.add('is-selected');
+	}
+
+	reset( ){
+		this.resetTags();
+	}
+	resetTags( ){
+		query.remove('tags');
+
+		for( let item of this.items ){
+			item.classList.remove(this.itemTagCls);
+		}
+
+		this.toggle.classList.remove(this.toggleCls);
+		for( let btn of this.buttons ){
+			btn['btn'].classList.remove('is-disabled', 'is-selected');
+			btn['count'].textContent = btn['total'];
+		}
+		this.selectedButtons = [];
+		this.selectedTags = [];
+	}
+
+	// ID Formatting
+	formatId( id ) {
+		return this.selector.replace('ID', id);
+	}
+
+	// On button click
+	activateTag( button, itemName, itemIds ){
+		// Check if already selected and select button if not
+		let tagQ = query.get('tags'),
+			tagSplit = tagQ ? tagQ.split('&&') : [],
+			tagIndex = tagSplit.indexOf(itemName);
+		
+		let selected = this.selectedButtons.indexOf(button);
+		if( selected !== -1 ){
+			button.classList.remove(this.btnCls);
+			this.selectedButtons.splice(selected, 1);
+			delete this.selectedTags[itemName];
+
+			// Remove from URL
+			if( tagIndex !== -1 ) {
+				tagSplit.splice(tagIndex, 1);
+				query.set('tags', tagSplit.join('&&'));
+			}
+		}
+		else {
+			this.toggle.classList.add(this.toggleCls);
+			button.classList.add(this.btnCls);
+			this.selectedButtons.push(button);
+			this.selectedTags[itemName] = itemIds;
+
+			// Add to URL
+			if( tagIndex === -1 ) {
+				tagSplit.push(itemName);
+				query.set('tags', tagSplit.join('&&'));
+			}
+		}
+
+		// If nothing is selected anymore, clear all.
+		if( this.selectedButtons.length === 0 ){
+			this.resetTags();
+			return;
+		}
+		
+		// Calculate new filter based on selected buttons
+		let filterCount = {};
+		for( let filter of Object.values(this.selectedTags) ){
+			for( let id of filter ){
+				if( !Object.keys(filterCount).includes(id) ){
+					filterCount[id] = 1;
+				} else {
+					filterCount[id] += 1;
+				}
+			}
+		}
+		let orFilters = Object.keys(filterCount),
+			andFilters = [];
+		// create AND filter by only adding filters that match all of the selected filters
+		for( let [id, count] of Object.entries(filterCount) ){
+			if( count === Object.keys(this.selectedTags).length ){
+				andFilters.push(id);
+			}
+		}
+
+		// Show matching items
+		for( let item of this.items ){
+			if( andFilters.includes(item.id) ) {
+				item.classList.remove(this.itemTagCls);
+			}
+			else {
+				item.classList.add(this.itemTagCls);
+			}
+		}
+
+		// Update buttons
+		for( let btn of this.buttons ){
+			let crossover = 0;
+			for( let id of andFilters ){
+				if( btn['ids'].includes(id) ){
+					crossover++;
+				}
+			}
+			btn['count'].textContent = crossover;
+			if( crossover === 0 ){
+				btn['btn'].classList.add('is-disabled');
+			}
+		}
 	}
 }
 
+// URL class for easy setting and changing of current location.
+const query = new class ActiveURLParams {
+	constructor( ){
+		this.url = new URL(document.location);
+		this.params = this.url.searchParams;
+		// aliases
+		this.remove = this.delete;
+		this.add = this.set;
+	}
 
+	has( ){
+		return this.params.has(...arguments);
+	}
+	get( ){
+		return this.params.get(...arguments);
+	}
+	getAll( ){
+		return this.params.getAll(...arguments);
+	}
+	entries( ){
+		return this.params.entries(...arguments);
+	}
+	append( ){
+		this.params.append(...arguments);
+		this.updateUrl();
+	}
+	set( ){
+		this.params.set(...arguments);
+		this.updateUrl();
+	}
+	delete( ){
+		this.params.delete(...arguments);
+		this.updateUrl();
+	}
+
+	updateUrl( ){
+		history.replaceState(null, '', this.url.href);
+	}
+	gotoUrl( ){
+		window.location = this.url.href;
+	}
+};
 
 // VARIABLES
 
 const
-	query = (new URL(document.location)).searchParams,
 	megaUrls = query.getAll('m'),
 	collectionUrls = query.getAll('c'),
 	themeUrls = query.getAll('t'),
 	loader = new loadingScreen(),
 	messenger = new messageHandler(),
-	jsonVersion = 0.2;
+	jsonVersion = 0.3;
 
 
 
@@ -372,7 +619,8 @@ async function processJson(json, url, toReturn) {
 
 	// Else, continue to process.
 	if(ver > jsonVersion) {
-		console.log('Detected JSON version ahead of current release. Processing as normal.');
+		messenger.send('Detected JSON version beyond what is supported by this instance. Attempting to process as normal. If any bugs or failures occur, try using the main instance at valeriolyndon.github.io.');
+		console.log('Detected JSON version beyond what is supported by this instance. Attempting to process as normal. If any bugs or failures occur, try updating your fork from the main instance at valeriolyndon.github.io.');
 	}
 
 	else if(ver < jsonVersion) {

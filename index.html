@@ -39,39 +39,18 @@
 						<button class="button button--unusable">
 							<i class="fa-solid fa-sort"></i> Sort
 						</button>
-						<div class="dropdown__box">
-							<div class="dropdown__item">
-								<a class="hyper-button js-sort" id="js-sort-title">
-									Title
-									<i class="hyper-button__icon fa-solid fa-sort-asc o-hidden js-ascending js-sort-icon"></i>
-									<i class="hyper-button__icon fa-solid fa-sort-desc o-hidden js-descending js-sort-icon"></i>
-								</a>
-							</div>
-							<div class="dropdown__item">
-								<a class="hyper-button js-sort" id="js-sort-author">
-									Author
-									<i class="hyper-button__icon fa-solid fa-sort-asc o-hidden js-ascending js-sort-icon"></i>
-									<i class="hyper-button__icon fa-solid fa-sort-desc o-hidden js-descending js-sort-icon"></i>
-								</a>
-							</div>
-							<div class="dropdown__item">
-								<a class="hyper-button js-sort" id="js-sort-date">
-									Release Date
-									<i class="hyper-button__icon fa-solid fa-sort-asc o-hidden js-ascending js-sort-icon"></i>
-									<i class="hyper-button__icon fa-solid fa-sort-desc o-hidden js-descending js-sort-icon"></i>
-								</a>
-							</div>
-							<div class="dropdown__item">
-								<a class="hyper-button js-sort" id="js-sort-random">
-									Random
-								</a>
-							</div>
-						</div>
+						<div id="js-sorts" class="dropdown__box"></div>
 					</div>
+
+					<input class="input input--search o-hidden" type="search" placeholder="Search titles..." id="js-search" />
 
 					<button class="button o-hidden" id="js-tags__button" onclick="toggleEle('#js-tags__cloud', this)">
 						<i class="fa-solid fa-tags"></i> Filters
 					</button>
+
+					<button class="button o-hidden" id="js-tags__clear" onclick="document.getElementById('js-search').value = '';">
+							<i class="fa-solid fa-xmark"></i> Clear All
+						</button>
 				</div>
 
 				<div class="filter__row">
