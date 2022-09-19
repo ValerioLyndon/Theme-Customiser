@@ -227,7 +227,7 @@ function renderCards(cardData) {
 		if(collectionUrls.length > 0) {
 			cardUrl += `&c=${collectionUrls.join('&c=')}`;
 		}
-		if(megaUrls.length > 0) {
+		if( (megaUrls.length !== 1 && megaUrls[0] !== 'json/default.json') && megaUrls.length > 0 ){
 			cardUrl += `&m=${megaUrls.join('&m=')}`;
 		}
 		cardParent.href = cardUrl;
