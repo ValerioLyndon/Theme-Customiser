@@ -481,7 +481,7 @@ const
 	themeUrls = query.getAll('t'),
 	loader = new loadingScreen(),
 	messenger = new messageHandler(),
-	jsonVersion = 0.2;
+	jsonVersion = 0.3;
 
 
 
@@ -504,7 +504,8 @@ async function processJson(json, url, toReturn) {
 
 	// Else, continue to process.
 	if(ver > jsonVersion) {
-		console.log('Detected JSON version ahead of current release. Processing as normal.');
+		messenger.send('Detected JSON version beyond what is supported by this instance. Attempting to process as normal. If any bugs or failures occur, try using the main instance at valeriolyndon.github.io.');
+		console.log('Detected JSON version beyond what is supported by this instance. Attempting to process as normal. If any bugs or failures occur, try updating your fork from the main instance at valeriolyndon.github.io.');
 	}
 
 	else if(ver < jsonVersion) {
