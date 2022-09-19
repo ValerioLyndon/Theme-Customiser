@@ -1,102 +1,3 @@
-// ================
-// COMMON FUNCTIONS
-// ================
-
-// Sort function
-
-/* Activated by user on click of a button. Updates relevant UI elements then call sortItems. 
- * link
-   - the clicked link/element
- * array
-   - an array of arguments to pass directly to sortItems
- */
-function selectSort(link, array) {
-	// Add sort value to array if needed
-	if(!array[2]) {
-		array[2] = 'ascending';
-	}
-
-	// Check if currently sorted
-	let currentSort = link.getAttribute('data-sort');
-
-	// Correct array sorting if needed
-	if(array[2] === 'descending' && currentSort === 'descending') {
-		array[2] = 'ascending';
-	} else if(array[2] === 'ascending' && currentSort === 'ascending') {
-		array[2] = 'descending';
-	}
-
-	// Set URL query
-	query.set('sort', array[1]);
-	query.set('sortdir', array[2]);
-
-	// Remove all other sort styling
-	let sortLinks = document.getElementsByClassName('js-sort');
-	for(let l of sortLinks) {
-		l.classList.remove('is-active');
-		l.removeAttribute('data-sort');
-
-		let icons = l.getElementsByClassName('js-sort-icon');
-		for(let icon of icons) {
-			icon.classList.add('o-hidden');
-		}
-	}
-	
-	// Add styling to current item
-	link.classList.add('is-active');
-	try {
-		let cls = array[2] === 'descending' ? 'js-descending' : 'js-ascending';
-		link.getElementsByClassName(cls)[0].classList.remove('o-hidden');
-	} catch {}
-	link.setAttribute('data-sort', array[2]);
-
-	// Sort items.
-	sortItems(...array);
-}
-
-// "items" var should be a DOM node list
-function sortItems(items, attribute, order = 'ascending') {
-	let attributes = [];
-
-	for(let it of items) {
-		let value = it.getAttribute(attribute),
-			id = it.id.split(':')[1];
-		attributes.push([value, id]);
-	}
-
-	if(attribute === 'random') {
-		let currentIndex = attributes.length, randomIndex;
-
-		// While there remain elements to shuffle.
-		while (currentIndex != 0) {
-
-			// Pick a remaining element.
-			randomIndex = Math.floor(Math.random() * currentIndex);
-			currentIndex--;
-
-			// And swap it with the current element.
-			[attributes[currentIndex], attributes[randomIndex]] = [
-			attributes[randomIndex], attributes[currentIndex]];
-		}
-	} else {
-		attributes.sort((attrOne,attrTwo) => {
-			a = attrOne[0].toLowerCase();
-			b = attrTwo[0].toLowerCase();
-			if(a < b && order === 'ascending' || a > b && order === 'descending') { return -1; }
-			if(a > b && order === 'ascending' || a < b && order === 'descending') { return 1; }
-			return 0;
-		});
-	}
-
-	// Apply sort order
-	for(i = 0; i < attributes.length; i++) {
-		let id = attributes[i][1];
-		document.getElementById(`card:${id}`).style.order = i;
-	}
-}
-
-
-
 // ==================
 // ONE-TIME FUNCTIONS
 // ==================
@@ -330,6 +231,9 @@ fetchAllFiles(megaUrls)
 					filter.renderTags(tags);
 				}
 
+				// Add sort functionality
+				filter.renderSorts();
+
 				// Add search functionality
 				filter.renderSearch();
 
@@ -343,40 +247,25 @@ fetchAllFiles(megaUrls)
 				if( tTags ){
 					let splitTags = tTags.split('&&');
 					for( let tag of splitTags ){
-						document.getElementById(`tag-${tag}`).dispatchEvent( new Event('click') );
+						document.getElementById(`tag:${tag}`).dispatchEvent( new Event('click') );
 					}
 				}
 			}
 
 			// Add sort dropdown items and apply default sort
-			let titleLink = document.getElementById('js-sort-title');
-			titleLink.addEventListener('click', () => { selectSort(titleLink, [cards, 'data-title']) });
-			
-			let dataLink = document.getElementById('js-sort-date');
-			let tSort = query.get('sort'),
+			let attemptedSort = false,
+				tSort = query.get('sort'),
 				tSortDir = query.get('sortdir') ? query.get('sortdir') : 'ascending';
+			
 			if( tSort ){
-				console.log('sorting', tSort, tSortDir);
-				sortItems(cards, tSort, tSortDir);
-			}
-			else if( sorts.includes('data-date') ){
-				dataLink.addEventListener('click', () => { selectSort(dataLink, [cards, 'data-date', 'descending']) });
-				sortItems(cards, 'data-date', 'descending');
+				attemptedSort = filter.sort(tSort, tSortDir, false);
 			}
 			else {
-				dataLink.parentNode.remove();
-				sortItems(cards, 'random');
+				attemptedSort = filter.sort('date', undefined, false)
 			}
-			
-			let authorLink = document.getElementById('js-sort-author');
-			if(sorts.includes('data-author')) {
-				authorLink.addEventListener('click', () => { selectSort(authorLink, [cards, 'data-author']) });
-			} else {
-				authorLink.parentNode.remove();
+			if( attemptedSort === false ){
+				filter.sort('random', undefined, false);
 			}
-			
-			let randomLink = document.getElementById('js-sort-random');
-			randomLink.addEventListener('click', () => { selectSort(randomLink, [cards, 'random']) });
 
 			if(failures >= files.length) {
 				loader.failed(['Encountered a problem while parsing theme information.', 'json.parse']);
