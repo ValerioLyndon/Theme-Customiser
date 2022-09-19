@@ -331,7 +331,7 @@ function pushFilter(thisId, tag, category = 'other') {
  | • A button with ID 'js-tags__button'
  | • A div with ID 'js-tags__cloud'
  */
-class filters {
+class BaseFilters {
 	constructor( items, selector = 'ID' ){
 		// Variables for all
 		this.toggle = document.getElementById('js-tags__button');
@@ -344,92 +344,19 @@ class filters {
 		this.buttons = [];
 		this.selectedButtons = [];
 		this.selectedTags = {};
-		this.itemTagCls = 'is-hidden-by-tag';
-
-		// Search Variables
-		this.searchBar = document.getElementById('js-search');
-		this.searchAttributes = ['data-title'];
-		this.itemSearchCls = 'is-hidden-by-search';
 		this.btnCls = 'is-selected';
-
-		// Sort Variables
-		this.sortContainer = document.getElementById('js-sorts');
-		this.activeSort = [];
-		this.sorts = {
-			'title': {
-				'attr': 'data-title',
-				'default': 'ascending',
-				'label': 'Title'
-			},
-			'author': {
-				'attr': 'data-author',
-				'default': 'ascending',
-				'label': 'Author'
-			},
-			'date': {
-				'attr': 'data-date',
-				'default': 'descending',
-				'label': 'Release Date'
-			},
-			'random': {
-				'attr': 'random',
-				'label': 'Random'
-			}
-		}
+		this.itemTagCls = 'is-hidden-by-tag';
 
 		// Other Variables
 		this.selector = selector;
-		this.clearBtn.classList.remove('o-hidden');
 
 		// Create Meta Buttons
-		this.clearBtn.addEventListener('click', () => {
-			this.reset();
-		});
-	}
-
-	renderSorts( ){
-		for( let [key, info] of Object.entries(this.sorts) ){
-			// Check that sort is valid and delete if not
-			let valid = false;
-			if(info['attr'] !== 'random') {
-				for( let item of this.items ){
-					if( item.hasAttribute(info['attr']) ){
-						valid = true;
-						break;
-					}
-				}
-				if(!valid) {
-					delete this.sorts[key];
-					continue;
-				}
-			}
-
-			// Render HTML
-			let div = document.createElement('div'),
-				link = document.createElement('a'),
-				icon = document.createElement('i');
-			div.className = 'dropdown__item';
-			link.className = 'hyper-button';
-			link.id = `sort:${key}`;
-			link.textContent = info['label'];
-			icon.className = 'hyper-button__icon fa-solid fa-sort-asc o-hidden';
-
-			link.appendChild(icon);
-			div.appendChild(link);
-			this.sortContainer.appendChild(div);
-
-			this.sorts[key]['btn'] = link;
-			this.sorts[key]['icon'] = icon;
-
-			link.addEventListener('click', () => {
-				this.sort(key);
+		if( this.clearBtn ){
+			this.clearBtn.classList.remove('o-hidden');
+			this.clearBtn.addEventListener('click', () => {
+				this.reset();
 			});
 		}
-	}
-
-	renderSearch( ){
-		this.searchBar.classList.remove('o-hidden');
-		this.searchBar.addEventListener('input', () => { this.search(this.searchBar.value); } );
 	}
 
 	renderTags( tags ){
@@ -496,7 +423,6 @@ class filters {
 	}
 
 	reset( ){
-		this.resetSearch();
 		this.resetTags();
 	}
 	resetTags( ){
@@ -514,125 +440,10 @@ class filters {
 		this.selectedButtons = [];
 		this.selectedTags = [];
 	}
-	resetSearch( ){
-		query.remove('search');
-		
-		for( let item of this.items ){
-			item.classList.remove(this.itemSearchCls);
-		}
-	}
 
 	// ID Formatting
 	formatId( id ) {
 		return this.selector.replace('ID', id);
-	}
-
-	// Search
-	search( input ){
-		if( input.length > 0 ){
-			query.set('search', input);
-		}
-		else {
-			query.remove('search');
-		}
-
-		for( let item of this.items ){
-			let match = false;
-			for( let attr of this.searchAttributes ){
-				let attrValue = item.getAttribute(attr);
-
-				if( attrValue && attrValue.toLowerCase().includes( input.toLowerCase() ) ){
-					match = true;
-					break;
-				}
-			}
-			if( match ){
-				item.classList.remove(this.itemSearchCls);
-			}
-			else {
-				item.classList.add(this.itemSearchCls);
-			}
-		}
-	}
-
-	sort( key, forceOrder, updateQuery = true ) {
-		let info = this.sorts[key];
-		// returns false if sort key is invalid
-		if(!info) {
-			return false;
-		}
-
-		let attributes = [],
-			order = forceOrder ? forceOrder : info['default'];
-
-		// check if already sorted
-		if( this.activeSort.length > 0 ){
-			if( !(this.activeSort[0] === key) ) {
-				this.sorts[this.activeSort[0]]['btn'].classList.remove('is-active');
-				this.sorts[this.activeSort[0]]['icon'].classList.add('o-hidden');
-			}
-			else if( this.activeSort[1] === order ){
-				order = (order === 'ascending') ? 'descending' : 'ascending';
-			}
-		}
-
-		// update button
-		info['btn'].classList.add('is-active');
-		info['icon'].classList.remove('o-hidden', 'fa-sort-asc', 'fa-sort-desc');
-		if( order === 'ascending' ){
-			info['icon'].classList.add('fa-sort-asc');
-		}
-		else {
-			info['icon'].classList.add('fa-sort-desc');
-		}
-
-		// calculate sort
-		for( let item of this.items ) {
-			let value = item.getAttribute(info['attr']),
-				id = item.id;
-			attributes.push([value, id]);
-		}
-
-		if( key === 'random' ){
-			let currentIndex = attributes.length, randomIndex;
-
-			// While there remain elements to shuffle.
-			while (currentIndex != 0) {
-
-				// Pick a remaining element.
-				randomIndex = Math.floor(Math.random() * currentIndex);
-				currentIndex--;
-
-				// And swap it with the current element.
-				[attributes[currentIndex], attributes[randomIndex]] = [
-				attributes[randomIndex], attributes[currentIndex]];
-			}
-		}
-		else {
-			attributes.sort((attrOne,attrTwo) => {
-				let a = attrOne[0].toLowerCase();
-				let b = attrTwo[0].toLowerCase();
-				if(a < b && order === 'ascending' || a > b && order === 'descending') { return -1; }
-				if(a > b && order === 'ascending' || a < b && order === 'descending') { return 1; }
-				return 0;
-			});
-		}
-
-		// Apply sort, set URL query, update variables
-
-		for( i = 0; i < attributes.length; i++ ){
-			let id = attributes[i][1];
-			document.getElementById(id).style.order = i;
-		}
-
-		if(updateQuery) {
-			query.set('sort', key);
-			query.set('sortdir', order);
-		}
-
-		this.activeSort = [key, order];
-		
-		return true;
 	}
 
 	// On button click
@@ -755,8 +566,6 @@ const query = new class ActiveURLParams {
 	}
 
 	updateUrl( ){
-		console.log('updating url');
-		console.log(this);
 		history.replaceState(null, '', this.url.href);
 	}
 	gotoUrl( ){

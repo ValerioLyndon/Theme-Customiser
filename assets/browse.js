@@ -1,3 +1,211 @@
+// ================
+// COMMON FUNCTIONS
+// ================
+
+// An extended filter class with search & sorting
+class ExtendedFilters extends BaseFilters {
+	constructor( items, selector = 'ID' ){
+		super( items, selector );
+
+		// Search Variables
+		this.searchBar = document.getElementById('js-search');
+		this.searchAttributes = ['data-title'];
+		this.itemSearchCls = 'is-hidden-by-search';
+
+		// Sort Variables
+		this.sortContainer = document.getElementById('js-sorts');
+		this.activeSort = [];
+		this.sorts = {
+			'title': {
+				'attr': 'data-title',
+				'default': 'ascending',
+				'label': 'Title'
+			},
+			'author': {
+				'attr': 'data-author',
+				'default': 'ascending',
+				'label': 'Author'
+			},
+			'date': {
+				'attr': 'data-date',
+				'default': 'descending',
+				'label': 'Release Date'
+			},
+			'random': {
+				'attr': 'random',
+				'label': 'Random'
+			}
+		}
+	}
+
+	renderSorts( ){
+		for( let [key, info] of Object.entries(this.sorts) ){
+			// Check that sort is valid and delete if not
+			let valid = false;
+			if(info['attr'] !== 'random') {
+				for( let item of this.items ){
+					if( item.hasAttribute(info['attr']) ){
+						valid = true;
+						break;
+					}
+				}
+				if(!valid) {
+					delete this.sorts[key];
+					continue;
+				}
+			}
+
+			// Render HTML
+			let div = document.createElement('div'),
+				link = document.createElement('a'),
+				icon = document.createElement('i');
+			div.className = 'dropdown__item';
+			link.className = 'hyper-button';
+			link.id = `sort:${key}`;
+			link.textContent = `${info['label']} `;
+			icon.className = 'hyper-button__icon fa-solid fa-sort-asc o-hidden';
+
+			link.appendChild(icon);
+			div.appendChild(link);
+			this.sortContainer.appendChild(div);
+
+			this.sorts[key]['btn'] = link;
+			this.sorts[key]['icon'] = icon;
+
+			link.addEventListener('click', () => {
+				this.sort(key);
+			});
+		}
+	}
+
+	renderSearch( ){
+		this.searchBar.classList.remove('o-hidden');
+		this.searchBar.addEventListener('input', () => { this.search(this.searchBar.value); } );
+	}
+
+	reset( ){
+		this.resetTags();
+		this.resetSearch();
+	}
+	resetSearch( ){
+		query.remove('search');
+		
+		for( let item of this.items ){
+			item.classList.remove(this.itemSearchCls);
+		}
+	}
+
+	// Search
+	search( input ){
+		if( input.length > 0 ){
+			query.set('search', input);
+		}
+		else {
+			query.remove('search');
+		}
+
+		for( let item of this.items ){
+			let match = false;
+			for( let attr of this.searchAttributes ){
+				let attrValue = item.getAttribute(attr);
+
+				if( attrValue && attrValue.toLowerCase().includes( input.toLowerCase() ) ){
+					match = true;
+					break;
+				}
+			}
+			if( match ){
+				item.classList.remove(this.itemSearchCls);
+			}
+			else {
+				item.classList.add(this.itemSearchCls);
+			}
+		}
+	}
+
+	sort( key, forceOrder, updateQuery = true ) {
+		let info = this.sorts[key];
+		// returns false if sort key is invalid
+		if(!info) {
+			return false;
+		}
+
+		let attributes = [],
+			order = forceOrder ? forceOrder : info['default'];
+
+		// check if already sorted
+		if( this.activeSort.length > 0 ){
+			if( !(this.activeSort[0] === key) ) {
+				this.sorts[this.activeSort[0]]['btn'].classList.remove('is-active');
+				this.sorts[this.activeSort[0]]['icon'].classList.add('o-hidden');
+			}
+			else if( this.activeSort[1] === order ){
+				order = (order === 'ascending') ? 'descending' : 'ascending';
+			}
+		}
+
+		// update button
+		info['btn'].classList.add('is-active');
+		if( key !== 'random' ) {
+			info['icon'].classList.remove('o-hidden', 'fa-sort-asc', 'fa-sort-desc');
+			if( order === 'ascending' ){
+				info['icon'].classList.add('fa-sort-asc');
+			}
+			else {
+				info['icon'].classList.add('fa-sort-desc');
+			}
+		}
+
+		// calculate sort
+		for( let item of this.items ) {
+			let value = item.getAttribute(info['attr']),
+				id = item.id;
+			attributes.push([value, id]);
+		}
+
+		if( key === 'random' ){
+			let currentIndex = attributes.length, randomIndex;
+
+			// While there remain elements to shuffle.
+			while (currentIndex != 0) {
+
+				// Pick a remaining element.
+				randomIndex = Math.floor(Math.random() * currentIndex);
+				currentIndex--;
+
+				// And swap it with the current element.
+				[attributes[currentIndex], attributes[randomIndex]] = [
+				attributes[randomIndex], attributes[currentIndex]];
+			}
+		}
+		else {
+			attributes.sort((attrOne,attrTwo) => {
+				let a = attrOne[0].toLowerCase();
+				let b = attrTwo[0].toLowerCase();
+				if(a < b && order === 'ascending' || a > b && order === 'descending') { return -1; }
+				if(a > b && order === 'ascending' || a < b && order === 'descending') { return 1; }
+				return 0;
+			});
+		}
+
+		// Apply sort, set URL query, update variables
+
+		for( i = 0; i < attributes.length; i++ ){
+			let id = attributes[i][1];
+			document.getElementById(id).style.order = i;
+		}
+
+		if(updateQuery) {
+			query.set('sort', key);
+			query.set('sortdir', order);
+		}
+
+		this.activeSort = [key, order];
+
+		return true;
+	}
+}
+
 // ==================
 // ONE-TIME FUNCTIONS
 // ==================
@@ -218,7 +426,7 @@ fetchAllFiles(megaUrls)
 
 			// Create and load filters.
 			if(itemCount > 5) {
-				var filter = new filters(cards, 'card:ID');
+				var filter = new ExtendedFilters(cards, 'card:ID');
 
 				let hasTags = false;
 				for(let categoryTags of Object.values(tags)) {

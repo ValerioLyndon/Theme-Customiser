@@ -1201,7 +1201,7 @@ function pageSetup() {
 
 	// Tag links
 	if(Object.entries(tags).length > 0 && Object.entries(theme['mods']).length > 3) {
-		var filter = new filters(mods, 'mod-parent:ID');
+		var filter = new BaseFilters(mods, 'mod-parent:ID');
 		filter.renderTags(tags);
 	}
 
