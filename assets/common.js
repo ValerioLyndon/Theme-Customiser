@@ -319,16 +319,16 @@ function importPreviousSettings(opts = undefined) {
 function toggleEle(selector, btn = false, set = undefined) {
 	let ele = document.querySelector(selector),
 		cls = 'is-hidden',
-		btnCls = 'is-active';
+		btnSelCls = 'is-active';
 	if(set === true) {
 		ele.classList.add(cls);
-		if(btn) { btn.classList.add(btnCls); }
+		if(btn) { btn.classList.add(btnSelCls); }
 	} else if(set === false) {
 		ele.classList.remove(cls);
-		if(btn) { btn.classList.remove(btnCls); }
+		if(btn) { btn.classList.remove(btnSelCls); }
 	} else {
 		ele.classList.toggle(cls);
-		if(btn) { btn.classList.toggle(btnCls); }
+		if(btn) { btn.classList.toggle(btnSelCls); }
 	}
 }
 
@@ -416,7 +416,8 @@ class BaseFilters {
 		this.buttons = [];
 		this.selectedButtons = [];
 		this.selectedTags = {};
-		this.btnCls = 'is-selected';
+		this.btnSelCls = 'is-selected';
+		this.btnHideCls = 'is-disabled';
 		this.itemTagCls = 'is-hidden-by-tag';
 
 		// Other Variables
@@ -532,7 +533,7 @@ class BaseFilters {
 
 		this.toggle.classList.remove(this.toggleCls);
 		for( let btn of this.buttons ){
-			btn['btn'].classList.remove('is-disabled', 'is-selected');
+			btn['btn'].classList.remove(this.btnHideCls, this.btnSelCls);
 			btn['count'].textContent = btn['total'];
 		}
 		this.selectedButtons = [];
@@ -553,7 +554,7 @@ class BaseFilters {
 		
 		let selected = this.selectedButtons.indexOf(button);
 		if( selected !== -1 ){
-			button.classList.remove(this.btnCls);
+			button.classList.remove(this.btnSelCls);
 			this.selectedButtons.splice(selected, 1);
 			delete this.selectedTags[itemName];
 
@@ -565,7 +566,7 @@ class BaseFilters {
 		}
 		else {
 			this.toggle.classList.add(this.toggleCls);
-			button.classList.add(this.btnCls);
+			button.classList.add(this.btnSelCls);
 			this.selectedButtons.push(button);
 			this.selectedTags[itemName] = itemIds;
 
@@ -622,7 +623,10 @@ class BaseFilters {
 			}
 			btn['count'].textContent = crossover;
 			if( crossover === 0 ){
-				btn['btn'].classList.add('is-disabled');
+				btn['btn'].classList.add(this.btnHideCls);
+			}
+			else {
+				btn['btn'].classList.remove(this.btnHideCls);
 			}
 		}
 	}
