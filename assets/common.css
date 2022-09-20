@@ -472,6 +472,9 @@ body {
 .messenger__message--warning {
 	--message-accent: var(--accent--warn);
 }
+.messenger__message.is-visible {
+	opacity: 1;
+}
 @keyframes pop-in {
 	from {
 		transform: translateY(30px);
@@ -479,14 +482,6 @@ body {
 	to {
 		transform: translateY(0);
 		opacity: 1;
-	}
-}
-@keyframes pop-out {
-	from {
-		opacity: 1;
-	}
-	to {
-		opacity: 0;
 	}
 }
 

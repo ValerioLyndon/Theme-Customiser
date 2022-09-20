@@ -39,39 +39,53 @@ class loadingScreen {
 }
 
 class messageHandler {
-	constructor() {
-		this.parent = document.getElementById('js-messenger');
+	constructor( ){
+		this.parent = document.createElement('div');
+		this.parent.className = 'messenger is-hidden';
+		document.body.appendChild(this.parent);
+		this.messages = document.createElement('div');
+		this.messages.className = 'messenger__container';
+		this.parent.appendChild(this.messages);
+		this.button = document.createElement('div');
+		this.button.className = 'messenger__show-button';
+		this.parent.appendChild(this.button);
 	}
 
-	send(text, type = 'notice', subtext = null, destruct = -1) {
+	send( text, type = 'notice', subtext = null, destruct = -1 ){
 		this.parent.classList.remove('is-hidden');
 
 		let msg = document.createElement('div'),
 			head = document.createElement('b');
 
-		msg.className = 'messenger__message js-message';
+		msg.className = 'messenger__message is-visible';
 		msg.innerHTML = text;
 		head.className = 'messenger__message-header';
 		head.textContent = type.toUpperCase();
 		msg.prepend(head);
 
-		if(type === 'error') {
+		if( type === 'error' ){
 			msg.classList.add('messenger__message--error');
 		}
-		else if(type === 'warning') {
+		else if( type === 'warning' ){
 			msg.classList.add('messenger__message--warning');
 		}
 
-		if(subtext) {
+		if( subtext ){
 			let sub = document.createElement('i');
 			sub.className = 'messenger__message-subtext';
 			sub.textContent = subtext;
 			msg.appendChild(sub);
 		}
 
-		this.parent.appendChild(msg);
+		this.messages.appendChild(msg);
 
-		if(destruct > -1) {
+		// add animation
+		setTimeout(() => {
+			msg.classList.remove('is-visible');
+		}, 9700);
+
+		// self destruct message
+		if( destruct > -1 ){
 			setTimeout(() => {
 				msg.remove();
 				this.hideIfEmpty();
@@ -79,40 +93,40 @@ class messageHandler {
 		}
 	}
 
-	warn(msg, code = null) {
+	warn( msg, code = null ){
 		if(code) {
 			code = `Code: ${code}`;
 		}
 		this.send(msg, 'warning', code);
 	}
 
-	error(msg, code = null) {
+	error( msg, code = null ){
 		if(code) {
 			code = `Code: ${code}`;
 		}
 		this.send(msg, 'error', code);
 	}
 
-	timeout(msg, destruct = 0) {
+	timeout( msg, destruct = 0 ){
 		this.send(msg, 'notice', null, destruct);
 	}
 
-	clear(amount = 0) {
-		let msgs = this.parent.getElementsByClassName('js-message');
-		if(amount > 0) {
-			for(let i = 0; i < msgs.length && i < amount; i++) {
-				msgs[i].remove();
-			}
-		} else {
-			for(let msg of msgs) {
-				msg.remove();
+	clear( amount = 0 ){
+		if( amount > 0 ){	
+			while( amount > 0 && this.messages.firstChild ){
+				this.messages.removeChild( this.messages.lastChild );
+				amount--;
 			}
 		}
+		else {
+			this.messages.replaceChildren();
+		}
+
 		this.hideIfEmpty();
 	}
 
-	hideIfEmpty() {
-		let msgs = this.parent.getElementsByClassName('js-message');
+	hideIfEmpty( ){
+		let msgs = this.messages.childNodes;
 		if(msgs.length === 0) {
 			this.parent.classList.add('is-hidden');
 		}
