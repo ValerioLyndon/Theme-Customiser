@@ -38,7 +38,11 @@ class ExtendedFilters extends BaseFilters {
 		}
 	}
 
-	renderSorts( ){
+	initaliseSort( display = true ){
+		if( display ){
+			document.getElementById('js-sorts-parent').classList.remove('o-hidden');
+		}
+
 		for( let [key, info] of Object.entries(this.sorts) ){
 			// Check that sort is valid and delete if not
 			let valid = false;
@@ -78,7 +82,7 @@ class ExtendedFilters extends BaseFilters {
 		}
 	}
 
-	renderSearch( ){
+	initaliseSearch( ){
 		this.searchBar.classList.remove('o-hidden');
 		this.searchBar.addEventListener('input', () => { this.search(this.searchBar.value); } );
 	}
@@ -430,10 +434,17 @@ fetchAllFiles(megaUrls)
 			}
 
 			loader.text('Filtering items...');
-
+			
 			// Create and load filters.
-			if(itemCount > 5) {
-				var filter = new ExtendedFilters(cards, 'card:ID');
+			var filter = new ExtendedFilters(cards, 'card:ID');
+
+			if( itemCount <= 5 ){
+				filter.initaliseSort(false);
+			}
+
+			else if( itemCount > 5 ){
+				filter.initaliseSort(true);
+				filter.initaliseSearch();
 
 				let hasTags = false;
 				for(let categoryTags of Object.values(tags)) {
@@ -443,14 +454,8 @@ fetchAllFiles(megaUrls)
 					}
 				}
 				if( hasTags ){
-					filter.renderTags(tags);
+					filter.initaliseTags(tags);
 				}
-
-				// Add sort functionality
-				filter.renderSorts();
-
-				// Add search functionality
-				filter.renderSearch();
 
 				let tSearch = query.get('search'),
 					tTags = query.get('tags');

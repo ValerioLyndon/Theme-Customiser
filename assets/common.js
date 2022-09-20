@@ -366,15 +366,17 @@ class BaseFilters {
 
 		// Create Meta Buttons
 		if( this.clearBtn ){
-			this.clearBtn.classList.remove('o-hidden');
 			this.clearBtn.addEventListener('click', () => {
 				this.reset();
 			});
 		}
 	}
 
-	renderTags( tags ){
+	initaliseTags( tags ){
 		this.toggle.classList.remove('o-hidden');
+		if( this.clearBtn ){
+			this.clearBtn.classList.remove('o-hidden');
+		}
 
 		let tagCategories = Object.entries(tags);
 		for( let [category, tags] of tagCategories ){
