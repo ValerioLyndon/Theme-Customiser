@@ -417,6 +417,13 @@ fetchAllFiles(megaUrls)
 		// Render & Sort Cards
 		Promise.allSettled(processing)
 		.then((allJson) => {
+			if(failures >= files.length) {
+				loader.failed(['Encountered a problem while parsing theme information.', 'json.parse']);
+				throw new Error('too many failures');
+			} else if(failures > 0) {
+				messenger.error('Encountered a problem while parsing theme information. Some themes may not have loaded.', 'json.parse');
+			}
+
 			for(let response of allJson) {
 				let json = response['value'];
 				renderCards(json['themes']);
@@ -473,13 +480,6 @@ fetchAllFiles(megaUrls)
 			}
 			if( attemptedSort === false ){
 				filter.sort('random', undefined, false);
-			}
-
-			if(failures >= files.length) {
-				loader.failed(['Encountered a problem while parsing theme information.', 'json.parse']);
-				throw new Error('too many failures');
-			} else if(failures > 0) {
-				messenger.error('Encountered a problem while parsing theme information. Some themes may not have loaded.', 'json.parse');
 			}
 
 			loader.loaded();
