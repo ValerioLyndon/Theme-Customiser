@@ -61,7 +61,7 @@ body {
 	border: 2px solid var(--border-light);
 	border-radius: 6px;
 	margin: 0 6px 6px 0;
-	color: var(--text);
+	color: inherit;
 	font: inherit;
 	vertical-align: middle;
 	text-decoration: none;
@@ -400,8 +400,57 @@ body {
 	font-style: italic;
 }
 
-.loading-screen__hyperlink {
-	margin-top: 8px;
+.loading-screen__console {
+	margin-top: 16px;
+	width: 500px;
+	background: #404051;
+	border-radius: 10px;
+	color: #eee;
+	overflow: hidden;
+}
+
+.loading-screen__console-header {
+	display: flex;
+	padding: 3px 10px;
+	background: var(--invert-background);
+	justify-content: space-between;
+	align-items: center;
+	color: var(--background);
+}
+.loading-screen__console-button {
+	margin: 0;
+}
+
+.loading-screen__message-boxes {
+	max-height: 300px;
+	padding: 10px;
+	font: 10px/1.3 monospace;
+	overflow-y: auto;
+}
+
+.loading-screen__message ~ .loading-screen__message {
+	padding-top: 3px;
+	border-top: 1px dotted var(--border-heavy);
+	margin-top: 3px;
+}
+
+
+
+/* Table */
+
+.table {
+	border-collapse: collapse;
+	margin: 6px 0;
+}
+
+.table td {
+	padding: 2px;
+	border: 1px solid var(--border-heavy);
+}
+
+.table__label-cell {
+	font-weight: bold;
+	white-space: nowrap;
 }
 
 
@@ -614,4 +663,8 @@ body {
 
 .o-clear {
 	clear: both;
+}
+
+.o-pre-wrap {
+	white-space: pre-wrap;
 }

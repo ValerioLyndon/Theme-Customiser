@@ -1773,7 +1773,7 @@ function pageSetup() {
 		}
 		else {
 			loader.text('Loading preview...');
-			console.log('[info] Awaiting iframe before completing page load.');
+			loader.log('[info] Awaiting iframe before completing page load.');
 		}
 	});
 }
@@ -1857,7 +1857,7 @@ fetchData.then((json) => {
 	try {
 		json = JSON.parse(json);
 	} catch(e) {
-		console.log(`[ERROR] Failed to parse theme JSON: ${e}`);
+		loader.logJsonError(`[ERROR] Failed to parse theme JSON.`, json, e, fetchUrl);
 		loader.failed(['Encountered a problem while parsing theme information.', 'json.parse']);
 		throw new Error('json.parse');
 	}

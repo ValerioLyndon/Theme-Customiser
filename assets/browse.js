@@ -221,7 +221,7 @@ function renderCards(cardData) {
 			themeAuthor = theme['author'] ? theme['author'] : 'Untitled',
 			thisId = itemCount;
 		if(!('url' in theme)) {
-			console.log(`[ERROR] Skipping theme ${themeName} due to missing "url" key.`);
+			loader.log(`[ERROR] Skipping theme ${themeName} due to missing "url" key.`);
 			continue;
 		}
 
@@ -377,18 +377,18 @@ fetchAllFiles(megaUrls)
 		try {
 			tempData = JSON.parse(files[i]['value']);
 		} catch(e) {
-			console.log(`[ERROR] Failed to parse mega collection JSON: ${e}`);
+			loader.logJsonError(`[ERROR] Failed to parse mega collection JSON.`, files[i]['value'], e, megaUrls[i]);
 			failures++;
 			continue;
 		}
 
 		if(!('collections' in tempData)) {
-			console.log('[ERROR] Mega collection does not use correct format.');
+			loader.log(`[ERROR] Mega collection "${megaUrls[i]}" does not use correct format.`);
 			continue;
 		}
 
 		if(tempData['collections'].length === 0) {
-			console.log('[warn] Mega collection has no URLs!');
+			loader.log(`[warn] Mega collection "${megaUrls[i]}" has no URLs!`);
 			continue;
 		}
 
@@ -410,7 +410,7 @@ fetchAllFiles(megaUrls)
 			try {
 				tempData = JSON.parse(files[i]['value']);
 			} catch(e) {
-				console.log(`[ERROR] Failed to parse collection JSON: ${e}`);
+				loader.logJsonError('[ERROR] Failed to parse collection JSON', files[i]['value'], e, allCollectionUrls[i]);
 				failures++;
 				continue;
 			}
@@ -441,7 +441,6 @@ fetchAllFiles(megaUrls)
 			if( itemCount <= 5 ){
 				filter.initaliseSort(false);
 			}
-
 			else if( itemCount > 5 ){
 				filter.initaliseSort(true);
 				filter.initaliseSearch();

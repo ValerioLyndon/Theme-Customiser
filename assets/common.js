@@ -1,4 +1,4 @@
-class loadingScreen {
+class LoadingScreen {
 	constructor() {
 		this.pageContent = document.getElementById('js-content');
 		this.parent = document.getElementById('js-loader');
@@ -6,12 +6,69 @@ class loadingScreen {
 		this.titleText = document.getElementById('js-loader-text');
 		this.subText = document.getElementById('js-loader-subtext');
 		this.subText2 = document.getElementById('js-loader-subsubtext');
+		this.console = document.getElementById('js-loader-console');
+		this.messages = document.getElementById('js-loader-console-messages');
 		this.home = document.getElementById('js-loader-home');
 		this.stop = false;
 	}
 
 	text(txt) {
 		this.titleText.textContent = txt;
+		this.log(txt, false);
+	}
+
+	log( msg, toBrowser = true, html = false){
+		let paragraph = document.createElement('div');
+		if( html ){
+			paragraph.className = 'loading-screen__message';
+			paragraph.innerHTML = msg;
+		}
+		else {
+			paragraph.className = 'loading-screen__message o-pre-wrap';
+			paragraph.textContent = msg;
+		}
+		this.messages.appendChild(paragraph);
+		if( toBrowser ){
+			console.log(msg);
+		}
+	}
+
+	logJsonError( msg, json, error, url = 'unknown' ){
+		console.log(error);
+		let eStr = error.toString();
+		try {
+			let lines = json.split('\n'),
+				errorReason = eStr.match(/JSON\.parse:(.*?)at line [0-9]/)[1].trim(),
+				errorInfo = eStr.match(/line ([0-9]*) column ([0-9]*)/),
+				errorLine = errorInfo[1] - 2,
+				errorChar = errorInfo[2] - 2;
+
+			this.log(`${msg}
+			<table class="table">
+				<tbody>
+					<tr>
+						<td class="table__label-cell">Faulty Collection URL: </td>
+						<td>${url}</td>
+					</tr>
+					<tr>
+						<td class="table__label-cell">Reason for error: </td>
+						<td>${errorReason}</td>
+					</tr>
+					<tr>
+						<td class="table__label-cell">Location of error: </td>
+						<td>${errorInfo[0]}</td>
+					</tr>
+					<tr>
+						<td class="table__label-cell">Line in question: </td>
+						<td class="o-pre-wrap">${lines[errorLine]}</td>
+					</tr>
+				</tbody>
+			</table>
+			`, false, true);
+		}
+		catch {
+			this.log(`[ERROR] Failed to parse JSON of collection URL: "${url}"\n\tError text: ${error}`);
+		}
 	}
 
 	loaded() {
@@ -31,6 +88,7 @@ class loadingScreen {
 			this.subText.textContent = reason_array[0];
 			this.subText2.classList.remove('o-hidden');
 			this.subText2.textContent = `Code: ${reason_array[1]}`;
+			this.console.classList.remove('o-hidden');
 			this.home.classList.remove('o-hidden');
 			this.stop = true;
 			return new Error(reason_array[1]);
@@ -610,9 +668,11 @@ const
 	megaUrls = query.getAll('m'),
 	collectionUrls = query.getAll('c'),
 	themeUrls = query.getAll('t'),
-	loader = new loadingScreen(),
+	loader = new LoadingScreen(),
 	messenger = new messageHandler(),
 	jsonVersion = 0.3;
+
+loader.log('Page initialised.', false);
 
 
 
