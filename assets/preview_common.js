@@ -60,9 +60,10 @@ function previewCss(css) {
 		// fontawesome tweaks
 		[/"?fontawesome(?!\s?4)(?:\s?6\s?(?:free|pro))?"?/gi, '<<<FA_REPLACE>>>'],
 		[/<<<FA_REPLACE>>>/gi, '"FontAwesome","FontAwesome 4.7.0"'],
-		['\\e29e', '\\f017'],
-		['\\e3d6', '\\f149'],
-		['\\e211', '\\f044']
+		['\\e29e', '\\f017'], // timer
+		['\\e3d6', '\\f149'], // arrow-turn-down-right
+		['\\e211', '\\f044'], // edit-field
+		['\\e0c0', '\\f518'] // book-open-cover
 	]
 	for(let [match, replace] of replacements) {
 		css = css.replaceAll(match, replace);

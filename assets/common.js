@@ -1,4 +1,4 @@
-class loadingScreen {
+class LoadingScreen {
 	constructor() {
 		this.pageContent = document.getElementById('js-content');
 		this.parent = document.getElementById('js-loader');
@@ -6,12 +6,69 @@ class loadingScreen {
 		this.titleText = document.getElementById('js-loader-text');
 		this.subText = document.getElementById('js-loader-subtext');
 		this.subText2 = document.getElementById('js-loader-subsubtext');
+		this.console = document.getElementById('js-loader-console');
+		this.messages = document.getElementById('js-loader-console-messages');
 		this.home = document.getElementById('js-loader-home');
 		this.stop = false;
 	}
 
 	text(txt) {
 		this.titleText.textContent = txt;
+		this.log(txt, false);
+	}
+
+	log( msg, toBrowser = true, html = false){
+		let paragraph = document.createElement('div');
+		if( html ){
+			paragraph.className = 'loading-screen__message';
+			paragraph.innerHTML = msg;
+		}
+		else {
+			paragraph.className = 'loading-screen__message o-pre-wrap';
+			paragraph.textContent = msg;
+		}
+		this.messages.appendChild(paragraph);
+		if( toBrowser ){
+			console.log(msg);
+		}
+	}
+
+	logJsonError( msg, json, error, url = 'unknown' ){
+		console.log(error);
+		let eStr = error.toString();
+		try {
+			let lines = json.split('\n'),
+				errorReason = eStr.match(/JSON\.parse:(.*?)at line [0-9]/)[1].trim(),
+				errorInfo = eStr.match(/line ([0-9]*) column ([0-9]*)/),
+				errorLine = errorInfo[1] - 2,
+				errorChar = errorInfo[2] - 2;
+
+			this.log(`${msg}
+			<table class="table">
+				<tbody>
+					<tr>
+						<td class="table__label-cell">Faulty Collection URL: </td>
+						<td>${url}</td>
+					</tr>
+					<tr>
+						<td class="table__label-cell">Reason for error: </td>
+						<td>${errorReason}</td>
+					</tr>
+					<tr>
+						<td class="table__label-cell">Location of error: </td>
+						<td>${errorInfo[0]}</td>
+					</tr>
+					<tr>
+						<td class="table__label-cell">Line in question: </td>
+						<td class="o-pre-wrap">${lines[errorLine]}</td>
+					</tr>
+				</tbody>
+			</table>
+			`, false, true);
+		}
+		catch {
+			this.log(`[ERROR] Failed to parse JSON of collection URL: "${url}"\n\tError text: ${error}`);
+		}
 	}
 
 	loaded() {
@@ -31,6 +88,7 @@ class loadingScreen {
 			this.subText.textContent = reason_array[0];
 			this.subText2.classList.remove('o-hidden');
 			this.subText2.textContent = `Code: ${reason_array[1]}`;
+			this.console.classList.remove('o-hidden');
 			this.home.classList.remove('o-hidden');
 			this.stop = true;
 			return new Error(reason_array[1]);
@@ -38,40 +96,54 @@ class loadingScreen {
 	}
 }
 
-class messageHandler {
-	constructor() {
-		this.parent = document.getElementById('js-messenger');
+class MessageHandler {
+	constructor( ){
+		this.parent = document.createElement('div');
+		this.parent.className = 'messenger is-hidden';
+		document.body.appendChild(this.parent);
+		this.messages = document.createElement('div');
+		this.messages.className = 'messenger__container';
+		this.parent.appendChild(this.messages);
+		this.button = document.createElement('div');
+		this.button.className = 'messenger__show-button';
+		this.parent.appendChild(this.button);
 	}
 
-	send(text, type = 'notice', subtext = null, destruct = -1) {
+	send( text, type = 'notice', subtext = null, destruct = -1 ){
 		this.parent.classList.remove('is-hidden');
 
 		let msg = document.createElement('div'),
 			head = document.createElement('b');
 
-		msg.className = 'messenger__message js-message';
+		msg.className = 'messenger__message is-visible';
 		msg.innerHTML = text;
 		head.className = 'messenger__message-header';
 		head.textContent = type.toUpperCase();
 		msg.prepend(head);
 
-		if(type === 'error') {
+		if( type === 'error' ){
 			msg.classList.add('messenger__message--error');
 		}
-		else if(type === 'warning') {
+		else if( type === 'warning' ){
 			msg.classList.add('messenger__message--warning');
 		}
 
-		if(subtext) {
+		if( subtext ){
 			let sub = document.createElement('i');
 			sub.className = 'messenger__message-subtext';
 			sub.textContent = subtext;
 			msg.appendChild(sub);
 		}
 
-		this.parent.appendChild(msg);
+		this.messages.appendChild(msg);
 
-		if(destruct > -1) {
+		// add animation
+		setTimeout(() => {
+			msg.classList.remove('is-visible');
+		}, 9700);
+
+		// self destruct message
+		if( destruct > -1 ){
 			setTimeout(() => {
 				msg.remove();
 				this.hideIfEmpty();
@@ -79,40 +151,40 @@ class messageHandler {
 		}
 	}
 
-	warn(msg, code = null) {
+	warn( msg, code = null ){
 		if(code) {
 			code = `Code: ${code}`;
 		}
 		this.send(msg, 'warning', code);
 	}
 
-	error(msg, code = null) {
+	error( msg, code = null ){
 		if(code) {
 			code = `Code: ${code}`;
 		}
 		this.send(msg, 'error', code);
 	}
 
-	timeout(msg, destruct = 0) {
+	timeout( msg, destruct = 0 ){
 		this.send(msg, 'notice', null, destruct);
 	}
 
-	clear(amount = 0) {
-		let msgs = this.parent.getElementsByClassName('js-message');
-		if(amount > 0) {
-			for(let i = 0; i < msgs.length && i < amount; i++) {
-				msgs[i].remove();
-			}
-		} else {
-			for(let msg of msgs) {
-				msg.remove();
+	clear( amount = 0 ){
+		if( amount > 0 ){	
+			while( amount > 0 && this.messages.firstChild ){
+				this.messages.removeChild( this.messages.lastChild );
+				amount--;
 			}
 		}
+		else {
+			this.messages.replaceChildren();
+		}
+
 		this.hideIfEmpty();
 	}
 
-	hideIfEmpty() {
-		let msgs = this.parent.getElementsByClassName('js-message');
+	hideIfEmpty( ){
+		let msgs = this.messages.childNodes;
 		if(msgs.length === 0) {
 			this.parent.classList.add('is-hidden');
 		}
@@ -208,8 +280,8 @@ function importPreviousSettings(opts = undefined) {
 		window.location = `./theme?q=${previousSettings['theme']}&t=${previousSettings['data']}`;
 	}
 
-	// Do nothing if userSettings are the same.
-	if(userSettings === previousSettings) {
+	// Do nothing if on theme page & userSettings are the same.
+	if(userSettings & userSettings === previousSettings) {
 		messenger.warn('Nothing imported. Settings exactly match the current page.');
 		return null;
 	}
@@ -247,109 +319,373 @@ function importPreviousSettings(opts = undefined) {
 function toggleEle(selector, btn = false, set = undefined) {
 	let ele = document.querySelector(selector),
 		cls = 'is-hidden',
-		btnCls = 'is-active';
+		btnSelCls = 'is-active';
 	if(set === true) {
 		ele.classList.add(cls);
-		if(btn) { btn.classList.add(btnCls); }
+		if(btn) { btn.classList.add(btnSelCls); }
 	} else if(set === false) {
 		ele.classList.remove(cls);
-		if(btn) { btn.classList.remove(btnCls); }
+		if(btn) { btn.classList.remove(btnSelCls); }
 	} else {
 		ele.classList.toggle(cls);
-		if(btn) { btn.classList.toggle(btnCls); }
+		if(btn) { btn.classList.toggle(btnSelCls); }
 	}
+}
+
+// Capitalises the first letter of every word. To capitalise sentences, set the divider to ".".
+function capitalise(str, divider = ' ') {
+	let words = str.split(divider);
+	
+	for(i = 0; i < words.length; i++) {
+		let first = words[i].substring(0,1).toUpperCase(),
+			theRest = words[i].substring(1);
+		words[i] = first + theRest;
+	}
+	
+	str = words.join(divider);
+	return str;
+}
+
+// sorts a dictionary by key
+function sortKeys(dict) {
+	let keys = Object.keys(dict);
+	keys.sort((a,b) => {
+		return a.toLowerCase().localeCompare(b.toLowerCase());
+	});
+
+	let sorted = {};
+	for(let k of keys) {
+		sorted[k] = dict[k];
+	}
+
+	return sorted;
 }
 
 // Tag Functionality & Renderer
 
-let tagsBtn = document.getElementById('js-tags__button');
+// Tag variables
 
-/* Adds functional tags to the HTML. Accepts three values:
- * tags
-   - A dictionary containing tag keys and their id arrays
-   e.x { "my tag": ["item id", 0, "three"] }
- * allIds
-   - an array of all ID values to show/hide when selecting tags.
-   e.x ["my mod", "mod 2", "image mod"]
- * selector
-   - a CSS ID to target the correct items using IDs from allIds.
-   - will replace the "ID" text during runtime.
-   e.x "card:ID"
- */
-function renderTags(tags, allIds, selector) {
-	tagsBtn.classList.remove('o-hidden');
+var tags = {};
 
-	let cloudEle = document.getElementById('js-tags__cloud');
-
-	for(let [tag, itemIds] of Object.entries(tags)) {
-		let tagEle = document.createElement('button'),
-			countEle = document.createElement('span'),
-			count = itemIds.length;
-
-		tagEle.textContent = tag;
-		tagEle.className = 'tag-cloud__tag js-tag';
-		tagEle.setAttribute('data-items', itemIds);
-
-		countEle.textContent = count;
-		countEle.className = 'tag-cloud__count';
-		tagEle.appendChild(countEle);
-		cloudEle.appendChild(tagEle);
-
-		// Add tag button functions
-		tagEle.addEventListener('click', () => { selectTag(tagEle, allIds, selector); });
+function formatFilters( filters ){
+	if( filters instanceof Array ){
+		return {'other': filters};
 	}
+	if( filters instanceof Object ){
+		return filters;
+	}
+	return {};
 }
 
-function selectTag(tagEle, allIds, selector) {
-	// Clear previous selection
-	let hidden = document.querySelectorAll('.is-hidden-by-tag'),
-		isSelected = tagEle.className.includes('is-selected');
-	for(let ele of hidden) {
-		ele.classList.remove('is-hidden-by-tag');
+function pushFilter(thisId, tag, category = 'other') {
+	if( !tags[category] ){
+		tags[category] = {};
 	}
-
-	// Remove other tags' styling & set our own
-	tagsBtn.classList.remove('has-selected');
-	let selectedTags = document.querySelectorAll('.js-tag.is-selected');
-
-	for(let tag of selectedTags) {
-		tag.classList.remove('is-selected');
+	if( !tags[category][tag] ){
+		tags[category][tag] = [];
 	}
+	tags[category][tag].push(thisId);
+}
 
-	// Select new tags
-	if(!isSelected) {
-		tagsBtn.classList.add('has-selected');
-		let itemsToKeep = tagEle.getAttribute('data-items').split(',');
+/* Adds functional tags to the HTML.
+ | 
+ | Constructor must be fed:
+ | • a NodeList or array of Nodes
+ | • a dictionary of filter/ID pairs. Example:
+ |   {
+ |     "My Tag": [0, 3, 12, 32],
+ |     …
+ |   }
+ | • a string selector with "ID" in place of tag ID. E.x:
+ |   "card:ID" or "mod:ID"
+ |
+ | Also requires two elements in the HTML:
+ | • A button with ID 'js-tags__button'
+ | • A div with ID 'js-tags__cloud'
+ */
+class BaseFilters {
+	constructor( items, selector = 'ID' ){
+		// Variables for all
+		this.toggle = document.getElementById('js-tags__button');
+		this.toggleCls = 'has-selected';
+		this.clearBtn = document.getElementById('js-tags__clear');
+		this.items = [...items];
 
-		for(let i = 0; i < itemsToKeep.length; i++) {
-			itemsToKeep[i] = String(itemsToKeep[i]);
+		// Tag Variables
+		this.tagContainer = document.getElementById('js-tags__cloud');
+		this.buttons = [];
+		this.selectedButtons = [];
+		this.selectedTags = {};
+		this.btnSelCls = 'is-selected';
+		this.btnHideCls = 'is-disabled';
+		this.itemTagCls = 'is-hidden-by-tag';
+
+		// Other Variables
+		this.selector = selector;
+
+		// Create Meta Buttons
+		if( this.clearBtn ){
+			this.clearBtn.addEventListener('click', () => {
+				this.reset();
+			});
 		}
-		
-		for(let id of allIds) {
-			id = String(id);
-			
-			if(itemsToKeep.includes(id)) {
-				continue;
-			} else {
-				document.getElementById(selector.replace('ID', id)).classList.add('is-hidden-by-tag');
+	}
+
+	initialiseTags( tags ){
+		this.toggle.classList.remove('o-hidden');
+		if( this.clearBtn ){
+			this.clearBtn.classList.remove('o-hidden');
+		}
+
+		let tagCategories = Object.entries(tags);
+		for( let [category, tags] of tagCategories ){
+			let totalInCategory = 0;
+
+			let group = document.createElement('div');
+			group.className = 'tag-cloud__group';
+
+			if( category === 'other' ){
+				group.style.order = 100;
+			}
+			else if( category === 'list type' ){
+				group.style.order = 1;
+				group.classList.add('tag-cloud__group--column');
+			}
+			else if( category === 'release state' ){
+				group.style.order = 3;
+				group.classList.add('tag-cloud__group--column');
+			}
+			else if( category === 'layout' ){
+				group.style.order = 2;
+				group.classList.add('tag-cloud__group--column');
+			}
+			else {
+				group.style.order = 50;
+			}
+
+			this.tagContainer.appendChild(group);
+
+			let header = document.createElement('div');
+			if( tagCategories.length > 1 ){
+				header.textContent = capitalise(category);
+				header.className = 'tag-cloud__header';
+				group.appendChild(header);
+			}
+
+			// Sort filters ascending
+			tags = sortKeys(tags);
+
+			// Create Filter Buttons
+			for(let [tag, itemIds] of Object.entries(tags)) {
+				let button = document.createElement('button'),
+					countEle = document.createElement('span'),
+					count = itemIds.length;
+
+				// skip rendering tag if all items match, thus making it useless
+				if( count === this.items.length ){
+					continue;
+				} else {
+					totalInCategory++;
+				}
+
+				button.textContent = tag;
+				button.className = 'tag-cloud__tag';
+				button.id = `tag:${tag}`;
+
+				// count of items
+				countEle.textContent = count;
+				countEle.className = 'tag-cloud__count';
+				button.appendChild(countEle);
+				group.appendChild(button);
+
+				// format Ids
+				for( let i = 0; i < itemIds.length; i++ ) {
+					itemIds[i] = this.formatId(itemIds[i]);
+				}
+
+				this.buttons.push({
+					'btn': button,
+					'count': countEle,
+					'ids': itemIds,
+					'total': count
+				});
+
+				// Add tag button functions
+				button.addEventListener('click', () => { this.activateTag(button, tag, itemIds); });
+			}
+
+			// If category is empty, skip
+			if( totalInCategory === 0 ){
+				group.remove();
 			}
 		}
-		tagEle.classList.add('is-selected');
+	}
+
+	reset( ){
+		this.resetTags();
+	}
+	resetTags( ){
+		query.remove('tags');
+
+		for( let item of this.items ){
+			item.classList.remove(this.itemTagCls);
+		}
+
+		this.toggle.classList.remove(this.toggleCls);
+		for( let btn of this.buttons ){
+			btn['btn'].classList.remove(this.btnHideCls, this.btnSelCls);
+			btn['count'].textContent = btn['total'];
+		}
+		this.selectedButtons = [];
+		this.selectedTags = [];
+	}
+
+	// ID Formatting
+	formatId( id ) {
+		return this.selector.replace('ID', id);
+	}
+
+	// On button click
+	activateTag( button, itemName, itemIds ){
+		// Check if already selected and select button if not
+		let tagQ = query.get('tags'),
+			tagSplit = tagQ ? tagQ.split('&&') : [],
+			tagIndex = tagSplit.indexOf(itemName);
+		
+		let selected = this.selectedButtons.indexOf(button);
+		if( selected !== -1 ){
+			button.classList.remove(this.btnSelCls);
+			this.selectedButtons.splice(selected, 1);
+			delete this.selectedTags[itemName];
+
+			// Remove from URL
+			if( tagIndex !== -1 ) {
+				tagSplit.splice(tagIndex, 1);
+				query.set('tags', tagSplit.join('&&'));
+			}
+		}
+		else {
+			this.toggle.classList.add(this.toggleCls);
+			button.classList.add(this.btnSelCls);
+			this.selectedButtons.push(button);
+			this.selectedTags[itemName] = itemIds;
+
+			// Add to URL
+			if( tagIndex === -1 ) {
+				tagSplit.push(itemName);
+				query.set('tags', tagSplit.join('&&'));
+			}
+		}
+
+		// If nothing is selected anymore, clear all.
+		if( this.selectedButtons.length === 0 ){
+			this.resetTags();
+			return;
+		}
+		
+		// Calculate new filter based on selected buttons
+		let filterCount = {};
+		for( let filter of Object.values(this.selectedTags) ){
+			for( let id of filter ){
+				if( !Object.keys(filterCount).includes(id) ){
+					filterCount[id] = 1;
+				} else {
+					filterCount[id] += 1;
+				}
+			}
+		}
+		let orFilters = Object.keys(filterCount),
+			andFilters = [];
+		// create AND filter by only adding filters that match all of the selected filters
+		for( let [id, count] of Object.entries(filterCount) ){
+			if( count === Object.keys(this.selectedTags).length ){
+				andFilters.push(id);
+			}
+		}
+
+		// Show matching items
+		for( let item of this.items ){
+			if( andFilters.includes(item.id) ) {
+				item.classList.remove(this.itemTagCls);
+			}
+			else {
+				item.classList.add(this.itemTagCls);
+			}
+		}
+
+		// Update buttons
+		for( let btn of this.buttons ){
+			let crossover = 0;
+			for( let id of andFilters ){
+				if( btn['ids'].includes(id) ){
+					crossover++;
+				}
+			}
+			btn['count'].textContent = crossover;
+			if( crossover === 0 ){
+				btn['btn'].classList.add(this.btnHideCls);
+			}
+			else {
+				btn['btn'].classList.remove(this.btnHideCls);
+			}
+		}
 	}
 }
 
+// URL class for easy setting and changing of current location.
+const query = new class ActiveURLParams {
+	constructor( ){
+		this.url = new URL(document.location);
+		this.params = this.url.searchParams;
+		// aliases
+		this.remove = this.delete;
+		this.add = this.set;
+	}
 
+	has( ){
+		return this.params.has(...arguments);
+	}
+	get( ){
+		return this.params.get(...arguments);
+	}
+	getAll( ){
+		return this.params.getAll(...arguments);
+	}
+	entries( ){
+		return this.params.entries(...arguments);
+	}
+	append( ){
+		this.params.append(...arguments);
+		this.updateUrl();
+	}
+	set( ){
+		this.params.set(...arguments);
+		this.updateUrl();
+	}
+	delete( ){
+		this.params.delete(...arguments);
+		this.updateUrl();
+	}
+
+	updateUrl( ){
+		history.replaceState(null, '', this.url.href);
+	}
+	gotoUrl( ){
+		window.location = this.url.href;
+	}
+};
 
 // VARIABLES
 
 const
-	query = (new URL(document.location)).searchParams,
 	megaUrls = query.getAll('m'),
 	collectionUrls = query.getAll('c'),
 	themeUrls = query.getAll('t'),
-	loader = new loadingScreen(),
-	messenger = new messageHandler(),
-	jsonVersion = 0.2;
+	loader = new LoadingScreen(),
+	messenger = new MessageHandler(),
+	jsonVersion = 0.3;
+
+loader.log('Page initialised.', false);
 
 
 
@@ -372,7 +708,8 @@ async function processJson(json, url, toReturn) {
 
 	// Else, continue to process.
 	if(ver > jsonVersion) {
-		console.log('Detected JSON version ahead of current release. Processing as normal.');
+		messenger.send('Detected JSON version beyond what is supported by this instance. Attempting to process as normal. If any bugs or failures occur, try using the main instance at valeriolyndon.github.io.');
+		console.log('Detected JSON version beyond what is supported by this instance. Attempting to process as normal. If any bugs or failures occur, try updating your fork from the main instance at valeriolyndon.github.io.');
 	}
 
 	else if(ver < jsonVersion) {
@@ -387,7 +724,7 @@ async function processJson(json, url, toReturn) {
 	
 	// Process as collection or fetch correct theme from collection
 	if(toReturn === 'collection' && 'themes' in json
-	|| toReturn === 'theme' && 'data' in json) {
+	|| 'data' in json) {
 		// Convert legacy dictionary to array
 		if('themes' in json && !Array.isArray(json['themes'])) {
 			let arrayThemes = [];
@@ -398,8 +735,15 @@ async function processJson(json, url, toReturn) {
 		}
 		return json;
 	}
-	else if('themes' in json && toReturn in json['themes']) {
-		let themeUrl = json['themes'][toReturn]['url'];
+	// If a collection is linked under a theme query, check for valid values
+	else if('themes' in json && Object.values(json['themes']).length > 0) {
+		let themeUrl = false;
+		if(toReturn in json['themes']) {
+			themeUrl = json['themes'][toReturn]['url'];
+		} else {
+			themeUrl = Object.values(json['themes'])[0]['url'];
+		}
+
 		if(themeUrl) {
 			return fetchFile(themeUrl)
 			.then((result) => {
@@ -417,7 +761,7 @@ async function processJson(json, url, toReturn) {
 		}
 	}
 	else {
-		return 'The linked theme lacks a "data" or a "themes" entry.';
+		return 'The linked theme could not be parsed.';
 	}
 }
 

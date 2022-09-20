@@ -66,7 +66,7 @@ class InfoPopup {
 	}
 
 	// target should either be an HTML element or an array of [x, y] coords.
-	show(target, text = '', alignment) {
+	show(target, text = '', alignment = 'left') {
 		// setup variables
 		let x = 0,
 			y = 0,
@@ -79,9 +79,11 @@ class InfoPopup {
 			y = bounds.top;
 			w = target['offsetWidth'];
 			h = target['offsetHeight'];
-		} else {
+		} else if(target instanceof Array) {
 			x = target[0];
 			y = target[1];
+		} else {
+			return false;
 		}
 
 		// calculate position
@@ -334,11 +336,11 @@ function updateMod(modId, funcConfig = {}) {
 					if(val) {
 						requiredToggle.classList.add('is-forced', 'has-info');
 						requiredToggle.addEventListener('mouseover', infoOn);
-						requiredToggle.addEventListener('mouseout', infoOff);
+						requiredToggle.addEventListener('mouseleave', infoOff);
 						requiredToggle.setAttribute('data-info', 'This must be enabled for other options to work.');
 					} else {
 						requiredToggle.removeEventListener('mouseover', infoOn);
-						requiredToggle.removeEventListener('mouseout', infoOff);
+						requiredToggle.removeEventListener('mouseleave', infoOff);
 						requiredToggle.classList.remove('is-forced', 'has-info');
 					}
 				}
@@ -361,11 +363,11 @@ function updateMod(modId, funcConfig = {}) {
 					if(val) {
 						conflictToggle.classList.add('is-disabled', 'has-info');
 						conflictToggle.addEventListener('mouseover', infoOn);
-						conflictToggle.addEventListener('mouseout', infoOff);
+						conflictToggle.addEventListener('mouseleave', infoOff);
 						conflictToggle.setAttribute('data-info', `This mod is incompatible with one of your choices. To use, disable "${mod['name']}".`);
 					} else {
 						conflictToggle.removeEventListener('mouseover', infoOn);
-						conflictToggle.removeEventListener('mouseout', infoOff);
+						conflictToggle.removeEventListener('mouseleave', infoOff);
 						conflictToggle.classList.remove('is-disabled', 'has-info');
 					}
 				}
@@ -375,18 +377,10 @@ function updateMod(modId, funcConfig = {}) {
 			}
 		}
 
-		// Add some CSS style rules
+		// Mod enabled
 		if(val === true) {
 			document.getElementById(`mod-parent:${modId}`).classList.add('is-enabled');
-		} else {
-			document.getElementById(`mod-parent:${modId}`).classList.remove('is-enabled');
-		}
 
-		// Add to userSettings unless matches default value (i.e disabled)
-		if(val === false) {
-			delete userSettings['mods'][modId];
-		}
-		else {
 			// Update HTML if necessary
 			if(funcConfig['forceValue'] !== undefined) {
 				toggle.checked = val;
@@ -402,6 +396,14 @@ function updateMod(modId, funcConfig = {}) {
 			}
 		}
 
+		// Mod disabled
+		else {
+			document.getElementById(`mod-parent:${modId}`).classList.remove('is-enabled');
+			
+			// Remove from userSettings
+			delete userSettings['mods'][modId];
+		}
+
 		return true;
 	}
 	catch(e) {
@@ -415,7 +417,15 @@ function updateMod(modId, funcConfig = {}) {
 function applySettings(settings = false) {
 	// resets all HTML before applying new settings.
 	document.getElementById('js-theme').reset();
-	
+	for(let entry of document.querySelectorAll('.entry.is-enabled')) {
+		entry.classList.remove('is-enabled');
+	}
+	for(let swatch of document.getElementsByClassName('entry__colour')) {
+		swatch.style.backgroundColor = '';
+		swatch.style.backgroundColor = swatch.getAttribute('value');
+	}
+
+	// Updates variables to match new settings
 	if(settings) {
 		if(settings['options']) {
 			userSettings['options'] = settings['options'];
@@ -439,6 +449,9 @@ function applySettings(settings = false) {
 		else if(theme['options'][optId]['type'] === 'range') {
 			document.getElementById(`opt:${optId}-range`).value = val;
 		}
+		else if(theme['options'][optId]['type'] === 'color') {
+			document.getElementById(`opt:${optId}-colour`).style.backgroundColor = val;
+		}
 	}
 	for(let [modId, modOpts] of Object.entries(userSettings['mods'])) {
 		if(!updateMod(modId, {'forceValue': true, 'skipOptions': true})) {
@@ -453,7 +466,10 @@ function applySettings(settings = false) {
 				errors.push(`opt:<b>${optId}</b><i> of mod:${modId}</i>`);
 			}
 			else if(theme['mods'][modId]['options'][optId]['type'] === 'range') {
-				document.getElementById(`mod:${modId}:${optId}-range`).value = val;
+				document.getElementById(`mod:${modId}:${optId}-range`).value = optVal;
+			}
+			else if(theme['mods'][modId]['options'][optId]['type'] === 'color') {
+				document.getElementById(`mod:${modId}:${optId}-colour`).style.backgroundColor = optVal;
 			}
 		}
 	}
@@ -488,6 +504,27 @@ async function updateCss() {
 		}
 	}
 
+	var userInserts = {};
+
+	function replacementString(length = 5) {
+		let result = '';
+		const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
+		      charactersLength = characters.length;
+		for(let i = 0; i < length; i++) {
+			if(i % 2 === 0) {
+				result += '~';
+			}
+			result += characters.charAt(Math.random() * 
+		charactersLength);
+		}
+		result += '~';
+		// Start over if string already exists
+		if(userInserts[replacementString] !== undefined) {
+			result = replacementString(length);
+		}
+		return result;
+	}
+
 	async function applyOptionToCss(css, optData, insert) {
 		let type = optData['type'],
 			qualifier = optData['type'].split('/')[1];
@@ -504,6 +541,9 @@ async function updateCss() {
 				insert = `url(${insert})`;
 			}
 		}
+		else if(qualifier === 'url_fragment') {
+			insert = encodeURIComponent(insert.trim());
+		}
 
 		if(type === 'select') {
 			var replacements = optData['selections'][insert]['replacements'];
@@ -519,9 +559,13 @@ async function updateCss() {
 			// Fetch external CSS if necessary
 			replace = await returnCss(replace);
 
-			// Find {{{insert}}} texts and replace them with user input
+			// Add a random string to CSS and user input to dictionary.
+			// String will be replaced by user input later.
+			// This prevents input accidentally getting over-ridden by other replacements
 			if(type !== 'select' && type !== 'toggle') {
-				replace = replace.replaceAll('{{{insert}}}', insert);
+				let str = replacementString(10);
+				userInserts[str] = insert;
+				replace = replace.replaceAll('{{{insert}}}', str);
 			}
 
 			// Use RegExp if called for
@@ -574,6 +618,13 @@ async function updateCss() {
 		}
 	}
 
+	// Process user inserts after all other code has been added.
+	// This prevents unexpected behaviour with user inserts that match other replacements.
+
+	for(let [find, replace] of Object.entries(userInserts)) {
+		newCss = newCss.replaceAll(find,replace);
+	}
+
 	// Encode options & sanitise any CSS character
 
 	let tempSettings = structuredClone(userSettings);
@@ -619,16 +670,13 @@ async function updateCss() {
 // "type" is the full option type string: "type/qualifier/subqualifier" 
 // Also accepts an HTML DOM element with the bind function for certain features: validateInput.bind(DOMElement)
 function validateInput(htmlId, type) {
-	console.log(`validate ${htmlId}`);
 	let notice = document.getElementById(`${htmlId}-notice`),
 		noticeHTML = '',
-		val = document.getElementById(`${htmlId}`).value.toLowerCase(),
+		val = document.getElementById(htmlId).value.toLowerCase(),
 		problems = 0,
 		qualifier = type.split('/')[1];
 	
-	console.log(val, type, qualifier);
 	if(val.length === 0) {
-		console.log('skipping');
 		notice.classList.add('o-hidden');
 		return undefined;
 	}
@@ -657,17 +705,16 @@ function validateInput(htmlId, type) {
 				problem('SVG images will not display on your list while logged out or for other users. Host your CSS on an external website to bypass this.');
 			}
 		}
-		
 	}
 
 	else if(type === 'color') {
-		this.style.color = '';
-		this.style.color = val;
-		if(this.style.color.length === 0) {
+		let swatch = document.getElementById(`${htmlId}-colour`);
+		// reset colour before applying new one to be sure it gets reset
+		swatch.style.backgroundColor = '';
+		swatch.style.backgroundColor = val;
+		if(swatch.style.backgroundColor.length === 0) {
 			problems += 1;
 			noticeHTML = 'Your colour appears to be invalid. For help creating valid CSS colours, see <a class="hyperlink" href="https://css-tricks.com/almanac/properties/c/color/">this guide</a>.';
-		} else {
-			this.style.backgroundColor = val;
 		}
 	}
 
@@ -687,7 +734,6 @@ function validateInput(htmlId, type) {
 		}
 	}
 	
-	console.log(problems);
 	if(problems > 0) {
 		notice.innerHTML = noticeHTML;
 		notice.classList.remove('o-hidden');
@@ -711,18 +757,12 @@ function resetSettings() {
 }
 
 function clearCache() {
-	confirm('Clear all cached data? This can be useful if the customiser is pulling out-of-date CSS or something seems broken, but normally this should never be needed.', {'Yes': {'value': true, 'type': 'danger'}, 'No': {'value': false}})
+	confirm('Clear all cached data? This can be useful if the customiser is pulling out-of-date CSS or something seems broken, but normally this should never be needed.')
 	.then((choice) => {
 		if(choice) {
 			sessionStorage.clear();
 			localStorage.removeItem('tcImport');
-			messenger.timeout('Cache cleared.');
-			confirm('Cache cleared! Reload the current page? This will load the customiser with a fresh slate.')
-			.then((choice) => {
-				if(choice) {
-					location.reload();
-				}
-			});
+			messenger.send('Customiser cache cleared. There may still be issues with the browser cache. To avoid any such issues, please force-reload the page by using Ctrl+F5, Ctrl+Shift+R, or hold Ctrl while clicking the reload button.');
 		}
 	});
 }
@@ -766,7 +806,13 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 	// Option & Mod Specific HTML
 
 	if(entryType === 'option') {
+		div.classList.add('entry__option');
+
 		let htmlId = parentId ? `mod:${parentId}:${entryId}` : `opt:${entryId}`;
+
+		let inputRow = document.createElement('div');
+		inputRow.className = 'entry__inputs';
+		div.appendChild(inputRow);
 
 		// Validate JSON
 
@@ -807,7 +853,6 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 		let helpLink = document.createElement('a');
 		helpLink.className = 'entry__help hyperlink';
 		helpLink.target = "_blank";
-		div.classList.add('has-help');
 		head.appendChild(helpLink);
 
 		// Type-specific Option HTML & Functions
@@ -831,14 +876,17 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 				interface.placeholder = 'Your colour here. e.x rgba(0, 135, 255, 1.0)';
 
 				// Add a colour preview
-				let display = document.createElement('div');
-				display.className = 'entry__colour';
-				div.appendChild(display);
+				let swatch = document.createElement('div');
+				swatch.className = 'entry__colour';
+				swatch.id = `${htmlId}-colour`;
+				swatch.style.backgroundColor = defaultValue;
+				swatch.setAttribute('value', defaultValue);
+				inputRow.appendChild(swatch);
 
 				helpLink.textContent = 'Colour Picker';
 				helpLink.href = 'https://mdn.github.io/css-examples/tools/color-picker/';
 
-				interface.addEventListener('input', validateInput.bind(display, htmlId, entryData['type']) );
+				interface.addEventListener('input', () => { validateInput(htmlId, entryData['type']); });
 			}
 			else {
 				if(type === 'textarea') {
@@ -881,9 +929,6 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 				range.value = interface.value;
 			});
 			interface.placeholder = '#';
-
-			let rangeParent = document.createElement('label');
-			rangeParent.className = 'entry__range';
 			
 			let range = document.createElement('input');
 			range.type = 'range';
@@ -896,9 +941,7 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 				updateCss();
 			});
 
-			rangeParent.appendChild(range);
-			rangeParent.appendChild(interface);
-			div.appendChild(rangeParent);
+			inputRow.appendChild(range);
 
 			let difference = 100,
 				min = 0,
@@ -975,8 +1018,25 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 		interface.id = htmlId;
 		if(type === 'toggle') {
 			headRight.prepend(interface);
-		} else if(type !== 'range') {
-			div.appendChild(interface);
+		} else {
+			inputRow.appendChild(interface);
+		}
+
+		// Add reset button
+
+		if(type !== 'select' && type !== 'toggle') {
+			let reset = document.createElement('button');
+			reset.type = 'button';
+			reset.className = 'button entry__reset has-info';
+			reset.innerHTML = '<i class="fa-solid fa-rotate-right"></i>';
+			inputRow.appendChild(reset);
+			
+			reset.addEventListener('click', () => {
+				interface.value = interface.getAttribute('value');
+				interface.dispatchEvent(new Event('input'));
+			});
+			reset.addEventListener('mouseover', () => { info.show(reset, 'Reset this option to default.', 'top'); });
+			reset.addEventListener('mouseleave', () => { info.hide(); });
 		}
 
 		// Add notice
@@ -1001,7 +1061,7 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 			link.className = 'entry__external-link js-info';
 			link.setAttribute('data-info', 'This mod has linked an external resource or guide for you to install. Unless otherwise instructed, these should be installed <b>after</b> you install the main theme.')
 			link.addEventListener('mouseover', () => { infoOn(link); });
-			link.addEventListener('mouseout', infoOff);
+			link.addEventListener('mouseleave', infoOff);
 			link.href = entryData['url'];
 			link.target = "_blank";
 			link.innerHTML = `
@@ -1034,11 +1094,11 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 
 		// Add mod tag to list of tags
 		if('tags' in entryData) {
-			for(let tag of entryData['tags']) {
-				if(modTags[tag]) {
-					modTags[tag].push(entryId);
-				} else {
-					modTags[tag] = [entryId];
+			tempTags = formatFilters(entryData['tags']);
+
+			for( let [category, tags] of Object.entries(tempTags) ){
+				for( let tag of tags ){
+					pushFilter(entryId, tag, category);
 				}
 			}
 		}
@@ -1117,6 +1177,7 @@ function pageSetup() {
 		optionsEle.parentNode.remove();
 	}
 
+	let mods = [];
 	let modsEle = document.getElementById('js-mods');
 	if('mods' in theme) {
 		for (const mod of Object.entries(theme['mods'])) {
@@ -1124,6 +1185,7 @@ function pageSetup() {
 			if(typeof renderedMod === 'string') {
 				console.log(`[ERROR] Skipped mod "${modId}": ${renderedMod}`);
 			} else {
+				mods.push(renderedMod);
 				modsEle.appendChild(renderedMod);
 			}
 		}
@@ -1132,8 +1194,9 @@ function pageSetup() {
 	}
 
 	// Tag links
-	if(Object.entries(modTags).length > 0 && Object.entries(theme['mods']).length > 3) {
-		renderTags(modTags, Object.keys(theme['mods']), 'mod-parent:ID');
+	if(Object.entries(tags).length > 0 && Object.entries(theme['mods']).length > 3) {
+		var filter = new BaseFilters(mods, 'mod-parent:ID');
+		filter.initialiseTags(tags);
 	}
 
 	// Back link
@@ -1357,7 +1420,8 @@ function pageSetup() {
 	// Set recommended installation steps
 
 	let coverHtml = document.getElementById('js-install-cover'),
-		backgroundHtml = document.getElementById('js-install-background');
+		backgroundHtml = document.getElementById('js-install-background'),
+		coverCheck = document.getElementById('js-preview__cover');
 
 	if(theme['type'] === 'classic') {
 		coverHtml.remove();
@@ -1409,7 +1473,27 @@ function pageSetup() {
 			`;
 		}
 
-		if('cover' in theme) {
+		if(theme['type'] === 'classic') {
+			document.getElementById('js-preview-options__cover').remove();
+		}
+		else if('cover' in theme) {
+			// toggle button
+			let toggle = check.nextElementSibling,
+				val = true;
+
+			if(!theme['cover']) {
+				val = false;
+				toggle.classList.add('is-disabled', 'has-info');
+			} else {
+				toggle.classList.add('is-forced', 'has-info');
+			}
+			coverCheck.checked = val;
+			coverCheck.disabled = true;
+			toggle.removeAttribute('onclick');
+			toggle.addEventListener('mouseover', function(e) { infoOn(toggle, 'top') });
+			toggle.addEventListener('mouseleave', infoOff);
+
+			// installation steps
 			hasCustomInstall = true;
 
 			let choice = theme['cover'] === true ? 'Yes' : 'No',
@@ -1486,25 +1570,12 @@ function pageSetup() {
 	}
 
 	// Cover
-	if(theme['type'] === 'classic') {
-		document.getElementById('js-preview-options__cover').remove();
-	}
-	else if('cover' in theme['preview']) {
-		let check = document.getElementById('js-preview__cover'),
-			toggle = check.nextElementSibling,
-			val = true;
-
-		if(!theme['preview']['cover']) {
-			val = false;
-			toggle.classList.add('is-disabled', 'has-info');
-		} else {
-			toggle.classList.add('is-forced', 'has-info');
+	if('cover' in theme['preview']) {
+		let val = theme['preview']['cover'];
+		// change toggle value unless it was already changed by regular settings
+		if(coverCheck.disabled === false) {
+			coverCheck.checked = val;
 		}
-		check.checked = val;
-		check.disabled = true;
-		toggle.removeAttribute('onclick');
-		toggle.addEventListener('mouseover', function(e) { infoOn(toggle, 'top') });
-		toggle.addEventListener('mouseout', infoOff);
 		postToIframe(['cover', val]);
 	}
 
@@ -1702,7 +1773,7 @@ function pageSetup() {
 		}
 		else {
 			loader.text('Loading preview...');
-			console.log('[info] Awaiting iframe before completing page load.');
+			loader.log('[info] Awaiting iframe before completing page load.');
 		}
 	});
 }
@@ -1748,7 +1819,7 @@ function postToIframe(msg) {
 var theme = '',
 	json = null,
 	baseCss = '',
-	modTags = {};
+	tags = {};
 
 var userSettings = {
 	'data': themeUrls[0],
@@ -1760,7 +1831,7 @@ var userSettings = {
 // Get data for all themes and call other functions
 
 let fetchUrl = themeUrls[0],
-	selectedTheme = query.get('q') || query.get('theme');
+	selectedTheme = query.get('q') || query.get('theme') || 'theme';
 
 // Legacy processing for json 0.1 > 0.2
 if(themeUrls.length === 0 && collectionUrls.length > 0) {
@@ -1786,15 +1857,11 @@ fetchData.then((json) => {
 	try {
 		json = JSON.parse(json);
 	} catch(e) {
-		console.log(`[ERROR] Failed to parse theme JSON: ${e}`);
+		loader.logJsonError(`[ERROR] Failed to parse theme JSON.`, json, e, fetchUrl);
 		loader.failed(['Encountered a problem while parsing theme information.', 'json.parse']);
 		throw new Error('json.parse');
 	}
 
-	// Check for legacy json
-	if(themeUrls.length > 0 && collectionUrls.includes(themeUrls[0]) && !selectedTheme) {
-		selectedTheme = 'theme';
-	}
 	processJson(json, themeUrls[0], selectedTheme ? selectedTheme : 'theme')
 	.then((processedJson) => {
 
@@ -1806,7 +1873,7 @@ fetchData.then((json) => {
 			jsonfail(processedJson);
 		} else {
 			theme = processedJson['data'];
-			userSettings['theme'] = selectedTheme ? selectedTheme : theme['name'];
+			userSettings['theme'] = selectedTheme === 'theme' ? theme['name'] : selectedTheme;
 		}
 
 		// Set preview to correct type and add iframe to page

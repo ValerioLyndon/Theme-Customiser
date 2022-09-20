@@ -129,7 +129,7 @@ function toggleOverlay(set = undefined) {
 	}
 }
 
-let listMenuInner = `<a class="icon-menu profile" href="https://myanimelist.net/profile/Example" style="background-image: url(https://cdn.myanimelist.net/images/userimages/7541105.webp?t=1656562200);" onclick="return false;">
+let listMenuInner = `<a class="icon-menu profile" href="https://myanimelist.net/profile/Example" style="background-image: url(../../images/avatar.jpg);" onclick="return false;">
         </a>
         <a class="icon-menu quick-add List_LightBox" href="https://myanimelist.net/addtolist.php?hidenav=1" onclick="return false;">
           <svg class="icon icon-quick-add" width="22px" height="20px" viewBox="0 0 22 20" version="1.1">

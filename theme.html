@@ -49,7 +49,7 @@ permalink: /theme
 							Preview will differ from the final outcome.
 						</div>
 						<div class="discrepancy-notice__body">
-							While this preview provides a very close approximation of how list designs will appear, there can be differences once you apply the CSS to your list. Certain elements may display differently, especially icons. Please install and test the layout even if there are errors in the preview.
+							This preview provides a close approximation of the actual MyAnimeList page. However, due to limitations, certain elements may display differently. Please install and test the layout even if there are errors in the preview.
 						</div>
 					</div>
 
@@ -107,13 +107,13 @@ permalink: /theme
 								Choose theme modifications
 								<div class="sidebar__header-aside">
 									<button type="button" class="button o-hidden" id="js-tags__button" onclick="toggleEle('#js-tags__cloud', this)">
-										<i class="fa-solid fa-tags"></i> Tags
+										<i class="fa-solid fa-tags"></i> Filters
 									</button>
 								</div>
 							</h3>
 
 							<div class="tag-cloud is-hidden" id="js-tags__cloud">
-								<small class="tag-cloud__blurb">Select a tag that interests you to narrow results.</small>
+								<small class="tag-cloud__blurb">Select a subject that interests you to narrow results.</small>
 							</div>
 							
 							<!-- mods gets put here by customiser.js -->
@@ -334,10 +334,21 @@ permalink: /theme
 			<div class="loading-screen__subtext" id="js-loader-subtext">JavaScript must be enabled.</div>
 			<div class="loading-screen__subtext o-hidden" id="js-loader-subsubtext">JavaScript must be enabled.</div>
 			<a class="loading-screen__hyperlink hyperlink o-hidden" id="js-loader-home" href="https://github.com/ValerioLyndon/Theme-Customiser">Go to project page.</a>
-		</div>
-
-		<div class="messenger is-hidden" id="js-messenger">
-			<div class="messenger__show-button"></div>
+			<div class="loading-screen__console o-hidden" id="js-loader-console">
+				<div class="loading-screen__console-header">
+					Timeline
+					<button type="button" class=" loading-screen__console-button button js-swappable-text" id="js-copy-output" onclick="navigator.clipboard.writeText(document.getElementById('js-loader-console-messages').outerText);">
+						<div class="swappable-text">
+							<div class="swappable-text__text">
+								Copy Logs
+								<br />
+								Copied.
+							</div>
+						</div>
+					</button>
+				</div>
+				<div class="loading-screen__message-boxes" id="js-loader-console-messages"></div>
+			</div>
 		</div>
 	</body>
 

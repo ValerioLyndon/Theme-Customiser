@@ -100,6 +100,7 @@
 .filter__row {
 	display: flex;
 	margin-bottom: 4px;
+	align-items: flex-start;
 }
 .filter__row--center {
 	justify-content: center;
@@ -158,7 +159,8 @@
 .is-table .browser__card {
 	margin: 7px 0;
 }
-.browser__card.is-hidden-by-tag {
+.browser__card.is-hidden-by-tag,
+.browser__card.is-hidden-by-search {
 	display: none;
 }
 
