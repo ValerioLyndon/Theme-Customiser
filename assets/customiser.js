@@ -1196,7 +1196,7 @@ function pageSetup() {
 	// Tag links
 	if(Object.entries(tags).length > 0 && Object.entries(theme['mods']).length > 3) {
 		var filter = new BaseFilters(mods, 'mod-parent:ID');
-		filter.initaliseTags(tags);
+		filter.initialiseTags(tags);
 	}
 
 	// Back link

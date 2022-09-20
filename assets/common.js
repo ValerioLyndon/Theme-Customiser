@@ -96,7 +96,7 @@ class LoadingScreen {
 	}
 }
 
-class messageHandler {
+class MessageHandler {
 	constructor( ){
 		this.parent = document.createElement('div');
 		this.parent.className = 'messenger is-hidden';
@@ -379,7 +379,7 @@ function formatFilters( filters ){
 
 function pushFilter(thisId, tag, category = 'other') {
 	if( !tags[category] ){
-		tags[category] = [];
+		tags[category] = {};
 	}
 	if( !tags[category][tag] ){
 		tags[category][tag] = [];
@@ -430,7 +430,7 @@ class BaseFilters {
 		}
 	}
 
-	initaliseTags( tags ){
+	initialiseTags( tags ){
 		this.toggle.classList.remove('o-hidden');
 		if( this.clearBtn ){
 			this.clearBtn.classList.remove('o-hidden');
@@ -442,17 +442,26 @@ class BaseFilters {
 
 			let group = document.createElement('div');
 			group.className = 'tag-cloud__group';
-			if(category === 'other') {
+
+			if( category === 'other' ){
 				group.style.order = 100;
-			} else if(category === 'list type') {
+			}
+			else if( category === 'list type' ){
 				group.style.order = 1;
 				group.classList.add('tag-cloud__group--column');
-			} else if(category === 'layout') {
+			}
+			else if( category === 'release state' ){
+				group.style.order = 3;
+				group.classList.add('tag-cloud__group--column');
+			}
+			else if( category === 'layout' ){
 				group.style.order = 2;
 				group.classList.add('tag-cloud__group--column');
-			} else {
+			}
+			else {
 				group.style.order = 50;
 			}
+
 			this.tagContainer.appendChild(group);
 
 			let header = document.createElement('div');
@@ -669,7 +678,7 @@ const
 	collectionUrls = query.getAll('c'),
 	themeUrls = query.getAll('t'),
 	loader = new LoadingScreen(),
-	messenger = new messageHandler(),
+	messenger = new MessageHandler(),
 	jsonVersion = 0.3;
 
 loader.log('Page initialised.', false);

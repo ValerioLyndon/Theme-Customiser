@@ -249,6 +249,7 @@ body {
 }
 .tag-cloud__group--column {
 	flex-flow: column wrap;
+	align-items: flex-start;
 }
 
 .tag-cloud__blurb {

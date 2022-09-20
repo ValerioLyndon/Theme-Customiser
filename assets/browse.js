@@ -38,7 +38,7 @@ class ExtendedFilters extends BaseFilters {
 		}
 	}
 
-	initaliseSort( display = true ){
+	initialiseSort( display = true ){
 		if( display ){
 			document.getElementById('js-sorts-parent').classList.remove('o-hidden');
 		}
@@ -82,7 +82,7 @@ class ExtendedFilters extends BaseFilters {
 		}
 	}
 
-	initaliseSearch( ){
+	initialiseSearch( ){
 		this.searchBar.classList.remove('o-hidden');
 		this.searchBar.addEventListener('input', () => { this.search(this.searchBar.value); } );
 	}
@@ -297,12 +297,15 @@ function renderCards(cardData) {
 			addTag(typeName, '#72d3ea');
 		}
 
+		let releaseState = 'released';
 		if('flags' in theme) {
 			if(theme['flags'].includes('beta')) {
 				addTag('Beta', '#e37837');
+				releaseState = 'beta';
 			}
 			else if(theme['flags'].includes('alpha')) {
 				addTag('Alpha', '#cecc47');
+				releaseState = 'alpha';
 			}
 		}
 
@@ -325,8 +328,9 @@ function renderCards(cardData) {
 
 		// Add tags to sortable list
 		tempTags = formatFilters(theme['tags']);
-		tempTags['list type'] = [theme['type']];
-		tempTags['author'] = [themeAuthor];
+		pushFilter(thisId, theme['type'], 'list type');
+		pushFilter(thisId, themeAuthor, 'author');
+		pushFilter(thisId, releaseState, 'release state');
 
 		for( let [category, tags] of Object.entries(tempTags) ){
 			for( let tag of tags ){
@@ -439,11 +443,11 @@ fetchAllFiles(megaUrls)
 			var filter = new ExtendedFilters(cards, 'card:ID');
 
 			if( itemCount <= 5 ){
-				filter.initaliseSort(false);
+				filter.initialiseSort(false);
 			}
 			else if( itemCount > 5 ){
-				filter.initaliseSort(true);
-				filter.initaliseSearch();
+				filter.initialiseSort(true);
+				filter.initialiseSearch();
 
 				let hasTags = false;
 				for(let categoryTags of Object.values(tags)) {
@@ -453,7 +457,7 @@ fetchAllFiles(megaUrls)
 					}
 				}
 				if( hasTags ){
-					filter.initaliseTags(tags);
+					filter.initialiseTags(tags);
 				}
 
 				let tSearch = query.get('search'),
