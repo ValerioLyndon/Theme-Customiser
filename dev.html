@@ -17,7 +17,7 @@
 		<link rel="icon" type="image/png" href="./assets/favicon_256.png" sizes="256x256">
 	</head>
 	<body>
-		<main class="content content__customiser" id="js-content">
+		<main class="content content__dev" id="js-content">
 			<div class="topbar">
 				<div class="topbar__section">
 					<nav class="top-nav">
@@ -35,7 +35,7 @@
 						</a>
 					</nav>
 				</div>
-				<div class="topbar__section">
+				<div class="topbar__section o-hidden">
 					<nav class="top-nav">
 						<a class="top-nav__link">
 							<i class="top-nav__icon fa-solid fa-arrow-rotate-right"></i>
@@ -45,22 +45,29 @@
 				</div>
 			</div>
 
-			<div class="preview preview--left">
+			<div class="preview">
 				<div class="rounds rounds--right"></div>
 
-				<div class="preview__window-wrapper" id="js-preview"></div>
+				<div class="dynamic-render" id="js-renderer"></div>
 			</div>
 	
 			<div class="sidebar sidebar--right" id="js-sidebar">
-				<form class="sidebar__inner">
+				<div class="sidebar__inner">
 					<div class="rounds rounds--left"></div>
 
 					<div class="sidebar__section sidebar__section--top">
-						<h1 class="sub-title">Customise your theme</h1>
-						<h2 class="title o-clear"><span id="js-title">Loading theme...</span> <span class="theme-tag o-hidden" id="js-theme-tag"></span></h2>
-						<h3 class="sub-sub-title">By <span id="js-author">unknown author</span></h3>
+						<h1 class="title o-clear">Create JSON</h1>
+						<h2 class="sub-title">Validate & test your files.</h2>
 					</div>
-				</form>
+
+					<div class="sidebar__section">
+						<textarea class="json-input" id="js-json" wrap="off">{
+	"json_version": 0.3
+}</textarea>
+
+						<p class="info-box info-box--indented info-box--error o-hidden" id="js-json-notice"></p>
+					</div>
+				</div>
 			</div>
 		</main>
 
@@ -84,6 +91,28 @@
 					</button>
 				</div>
 				<div class="loading-screen__message-boxes" id="js-loader-console-messages"></div>
+			</div>
+		</div>
+
+		<div class="popup is-hidden" id="js-pp-update-json">
+			<div class="popup__inner">
+				<div class="popup__invisibutton" onclick="toggleEle('#js-pp-update-json')"></div>
+				<div class="popup__content" id="js-theme-config">
+					<h4 class="popup__header">Update JSON</h4>
+
+					<p class="popup__paragraph">Not yet implemented.</p>
+				</div>
+			</div>
+		</div>
+
+		<div class="popup is-hidden" id="js-pp-format-css">
+			<div class="popup__inner">
+				<div class="popup__invisibutton" onclick="toggleEle('#js-pp-format-css')"></div>
+				<div class="popup__content" id="js-theme-config">
+					<h4 class="popup__header">Format CSS for use in JSON</h4>
+
+					<p class="popup__paragraph">Not yet implemented.</p>
+				</div>
 			</div>
 		</div>
 	</body>
