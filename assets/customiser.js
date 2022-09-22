@@ -767,7 +767,7 @@ function clearCache() {
 	});
 }
 
-// Render mods and options. Used inside renderHtml()
+// Render mods and options. Used inside pageSetup()
 function renderCustomisation(entryType, entry, parentEntry = [undefined, undefined]) {
 	let entryId = entry[0],
 		entryData = entry[1],
@@ -1130,14 +1130,7 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 
 // ONE-TIME FUNCTIONS
 
-// This function:
-// Sets up basic HTML structure
-// Adds functionality to page elements
-// Updates preview CSS
-// Removes loader
-function pageSetup() {
-	loader.text('Rendering page...');
-
+function renderTheme( ){
 	// Basic variables
 	document.getElementById('js-title').textContent = theme['name'] ? theme['name'] : 'Untitled';
 	document.getElementById('js-author').textContent = theme['author'] ? theme['author'] : 'Unknown Author';
@@ -1160,8 +1153,6 @@ function pageSetup() {
 			themeTag.classList.remove('o-hidden');
 		}
 	}
-
-	// Options & Mods
 
 	let optionsEle = document.getElementById('js-options');
 	if('options' in theme) {
@@ -1198,6 +1189,17 @@ function pageSetup() {
 		var filter = new BaseFilters(mods, 'mod-parent:ID');
 		filter.initialiseTags(tags);
 	}
+}
+
+// This function:
+// Sets up basic HTML structure
+// Adds functionality to page elements
+// Updates preview CSS
+// Removes loader
+function pageSetup() {
+	loader.text('Rendering page...');
+
+	renderTheme(theme);
 
 	// Back link
 	let back = document.getElementById('js-back'),
@@ -1827,90 +1829,90 @@ var userSettings = {
 	'mods': {}
 };
 
+if( query.url.pathname === '/theme' ){
+	// Get data for all themes and call other functions
+	let fetchUrl = themeUrls[0],
+		selectedTheme = query.get('q') || query.get('theme') || 'theme';
 
-// Get data for all themes and call other functions
-
-let fetchUrl = themeUrls[0],
-	selectedTheme = query.get('q') || query.get('theme') || 'theme';
-
-// Legacy processing for json 0.1 > 0.2
-if(themeUrls.length === 0 && collectionUrls.length > 0) {
-	fetchUrl = collectionUrls[0];
-}
-// Generic failure
-else if(themeUrls.length === 0) {
-	loader.failed(['No theme was specified in the URL. Did you follow a broken link?', 'select']);
-	throw new Error('select');
-}
-
-loader.text('Fetching theme...');
-
-function jsonfail(msg) {
-	loader.failed([msg, 'invalid.json']);
-	throw new Error('invalid json format');
-}
-
-let fetchData = fetchFile(fetchUrl, false);
-
-fetchData.then((json) => {
-	// Attempt to parse provided data.
-	try {
-		json = JSON.parse(json);
-	} catch(e) {
-		loader.logJsonError(`[ERROR] Failed to parse theme JSON.`, json, e, fetchUrl);
-		loader.failed(['Encountered a problem while parsing theme information.', 'json.parse']);
-		throw new Error('json.parse');
+	// Legacy processing for json 0.1 > 0.2
+	if(themeUrls.length === 0 && collectionUrls.length > 0) {
+		fetchUrl = collectionUrls[0];
+	}
+	// Generic failure
+	else if(themeUrls.length === 0) {
+		loader.failed(['No theme was specified in the URL. Did you follow a broken link?', 'select']);
+		throw new Error('select');
 	}
 
-	processJson(json, themeUrls[0], selectedTheme ? selectedTheme : 'theme')
-	.then((processedJson) => {
+	loader.text('Fetching theme...');
 
-		// Get theme info from URL & take action if problematic
-		if(processedJson === false) {
-			loader.failed(['Encountered a problem while parsing theme information.', 'invalid.name']);
-			throw new Error('invalid theme name');
-		} else if(typeof processedJson === 'string') {
-			jsonfail(processedJson);
-		} else {
-			theme = processedJson['data'];
-			userSettings['theme'] = selectedTheme === 'theme' ? theme['name'] : selectedTheme;
+	function jsonfail(msg) {
+		loader.failed([msg, 'invalid.json']);
+		throw new Error('invalid json format');
+	}
+
+	let fetchData = fetchFile(fetchUrl, false);
+
+	fetchData.then((json) => {
+		// Attempt to parse provided data.
+		try {
+			json = JSON.parse(json);
+		} catch(e) {
+			loader.logJsonError(`[ERROR] Failed to parse theme JSON.`, json, e, fetchUrl);
+			loader.failed(['Encountered a problem while parsing theme information.', 'json.parse']);
+			throw new Error('json.parse');
 		}
 
-		// Set preview to correct type and add iframe to page
-		let framePath = './preview/';
-		if(theme['type'] === 'classic') {
-			framePath += 'classic/';
-		} else {
-			framePath += 'modern/';
-		}
-		if(theme['supports'] === ['mangalist']) {
-			//framePath += 'mangalist.html';
-			console.log('[info] Detected mangalist only, but this feature is not yet supported.');
-			framePath += 'animelist.html';
-		} else {
-			framePath += 'animelist.html';
-		}
-		iframe.src = framePath;
-		preview.appendChild(iframe);
+		processJson(json, themeUrls[0], selectedTheme ? selectedTheme : 'theme')
+		.then((processedJson) => {
 
-		// Test for basic JSON values to assist list designers debug.
-		if(!('css' in theme)) {
-			console.log('[warn] Theme did not define any CSS.');
-			theme['css'] = '';
-		}
-		if(!('type' in theme)) {
-			console.log('[warn] Theme did not define a list type, assuming "modern".');
-			theme['type'] = 'modern';
-		}
+			// Get theme info from URL & take action if problematic
+			if(processedJson === false) {
+				loader.failed(['Encountered a problem while parsing theme information.', 'invalid.name']);
+				throw new Error('invalid theme name');
+			} else if(typeof processedJson === 'string') {
+				jsonfail(processedJson);
+			} else {
+				theme = processedJson['data'];
+				userSettings['theme'] = selectedTheme === 'theme' ? theme['name'] : selectedTheme;
+			}
 
-		// Set page title
-		document.getElementsByTagName('title')[0].textContent = `Theme Customiser - ${theme['name']}`;
+			// Set preview to correct type and add iframe to page
+			let framePath = './preview/';
+			if(theme['type'] === 'classic') {
+				framePath += 'classic/';
+			} else {
+				framePath += 'modern/';
+			}
+			if(theme['supports'] === ['mangalist']) {
+				//framePath += 'mangalist.html';
+				console.log('[info] Detected mangalist only, but this feature is not yet supported.');
+				framePath += 'animelist.html';
+			} else {
+				framePath += 'animelist.html';
+			}
+			iframe.src = framePath;
+			preview.appendChild(iframe);
 
-		pageSetup();
-	})
-});
+			// Test for basic JSON values to assist list designers debug.
+			if(!('css' in theme)) {
+				console.log('[warn] Theme did not define any CSS.');
+				theme['css'] = '';
+			}
+			if(!('type' in theme)) {
+				console.log('[warn] Theme did not define a list type, assuming "modern".');
+				theme['type'] = 'modern';
+			}
 
-fetchData.catch((reason) => {
-	loader.failed(reason);
-	throw new Error(reason);
-});
+			// Set page title
+			document.getElementsByTagName('title')[0].textContent = `Theme Customiser - ${theme['name']}`;
+
+			pageSetup();
+		})
+	});
+
+	fetchData.catch((reason) => {
+		loader.failed(reason);
+		throw new Error(reason);
+	});
+}

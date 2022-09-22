@@ -351,13 +351,6 @@ var itemCount = 0,
 	sorts = ['data-title'],
 	cards = [];
 
-// Get data for all collections and call other functions
-
-loader.text('Fetching data files...');
-
-if(collectionUrls.length === 0 && megaUrls.length === 0) {
-	megaUrls.push('json/default.json');
-}
 
 // Accepts array of URLs to fetch then returns a promise once they have all loaded.
 function fetchAllFiles(arrayOfUrls) {
@@ -368,129 +361,138 @@ function fetchAllFiles(arrayOfUrls) {
 	return Promise.allSettled(files);
 }
 
-// Fetch mega collections and add any collection URLs to the list.
-// Then, load each collection URL and render cards. 
-fetchAllFiles(megaUrls)
-.then((files) => {
-	let failures = 0,
-		allCollectionUrls = structuredClone(collectionUrls);
+if( query.url.pathname === '/' ){
+	// Get data for all collections and call other functions
+	loader.text('Fetching data files...');
 
-	for(let i = 0; i < files.length; i++) {
-		let tempData = {};
-		// Attempt to parse provided data.
-		try {
-			tempData = JSON.parse(files[i]['value']);
-		} catch(e) {
-			loader.logJsonError(`[ERROR] Failed to parse mega collection JSON.`, files[i]['value'], e, megaUrls[i]);
-			failures++;
-			continue;
-		}
-
-		if(!('collections' in tempData)) {
-			loader.log(`[ERROR] Mega collection "${megaUrls[i]}" does not use correct format.`);
-			continue;
-		}
-
-		if(tempData['collections'].length === 0) {
-			loader.log(`[warn] Mega collection "${megaUrls[i]}" has no URLs!`);
-			continue;
-		}
-
-		for(let url of tempData['collections']) {
-			allCollectionUrls.push(url);
-		}
+	if(collectionUrls.length === 0 && megaUrls.length === 0) {
+		megaUrls.push('json/default.json');
 	}
 
-	fetchAllFiles(allCollectionUrls)
+	// Fetch mega collections and add any collection URLs to the list.
+	// Then, load each collection URL and render cards. 
+	fetchAllFiles(megaUrls)
 	.then((files) => {
-		loader.text('Rendering page...');
+		let failures = 0,
+			allCollectionUrls = structuredClone(collectionUrls);
 
-		let processing = [];
-
-		// Process all files
 		for(let i = 0; i < files.length; i++) {
 			let tempData = {};
 			// Attempt to parse provided data.
 			try {
 				tempData = JSON.parse(files[i]['value']);
 			} catch(e) {
-				loader.logJsonError('[ERROR] Failed to parse collection JSON', files[i]['value'], e, allCollectionUrls[i]);
+				loader.logJsonError(`[ERROR] Failed to parse mega collection JSON.`, files[i]['value'], e, megaUrls[i]);
 				failures++;
 				continue;
 			}
 
-			processing.push(processJson(tempData, allCollectionUrls[i], 'collection'));
+			if(!('collections' in tempData)) {
+				loader.log(`[ERROR] Mega collection "${megaUrls[i]}" does not use correct format.`);
+				continue;
+			}
+
+			if(tempData['collections'].length === 0) {
+				loader.log(`[warn] Mega collection "${megaUrls[i]}" has no URLs!`);
+				continue;
+			}
+
+			for(let url of tempData['collections']) {
+				allCollectionUrls.push(url);
+			}
 		}
 
-		// Render & Sort Cards
-		Promise.allSettled(processing)
-		.then((allJson) => {
-			if(failures >= files.length) {
-				loader.failed(['Encountered a problem while parsing theme information.', 'json.parse']);
-				throw new Error('too many failures');
-			} else if(failures > 0) {
-				messenger.error('Encountered a problem while parsing theme information. Some themes may not have loaded.', 'json.parse');
-			}
+		fetchAllFiles(allCollectionUrls)
+		.then((files) => {
+			loader.text('Rendering page...');
 
-			for(let response of allJson) {
-				let json = response['value'];
-				renderCards(json['themes']);
-			}
+			let processing = [];
 
-			loader.text('Filtering items...');
-			
-			// Create and load filters.
-			var filter = new ExtendedFilters(cards, 'card:ID');
-
-			if( itemCount <= 5 ){
-				filter.initialiseSort(false);
-			}
-			else if( itemCount > 5 ){
-				filter.initialiseSort(true);
-				filter.initialiseSearch();
-
-				let hasTags = false;
-				for(let categoryTags of Object.values(tags)) {
-					if(Object.keys(categoryTags).length > 0) {
-						hasTags = true;
-						break;
-					}
-				}
-				if( hasTags ){
-					filter.initialiseTags(tags);
+			// Process all files
+			for(let i = 0; i < files.length; i++) {
+				let tempData = {};
+				// Attempt to parse provided data.
+				try {
+					tempData = JSON.parse(files[i]['value']);
+				} catch(e) {
+					loader.logJsonError('[ERROR] Failed to parse collection JSON', files[i]['value'], e, allCollectionUrls[i]);
+					failures++;
+					continue;
 				}
 
-				let tSearch = query.get('search'),
-					tTags = query.get('tags');
+				processing.push(processJson(tempData, allCollectionUrls[i], 'collection'));
+			}
+
+			// Render & Sort Cards
+			Promise.allSettled(processing)
+			.then((allJson) => {
+				if(failures >= files.length) {
+					loader.failed(['Encountered a problem while parsing theme information.', 'json.parse']);
+					throw new Error('too many failures');
+				} else if(failures > 0) {
+					messenger.error('Encountered a problem while parsing theme information. Some themes may not have loaded.', 'json.parse');
+				}
+
+				for(let response of allJson) {
+					let json = response['value'];
+					renderCards(json['themes']);
+				}
+
+				loader.text('Filtering items...');
 				
-				if( tSearch ){
-					filter.search( tSearch );
-					filter.searchBar.value = tSearch;
+				// Create and load filters.
+				var filter = new ExtendedFilters(cards, 'card:ID');
+
+				if( itemCount <= 5 ){
+					filter.initialiseSort(false);
 				}
-				if( tTags ){
-					let splitTags = tTags.split('&&');
-					for( let tag of splitTags ){
-						document.getElementById(`tag:${tag}`).dispatchEvent( new Event('click') );
+				else if( itemCount > 5 ){
+					filter.initialiseSort(true);
+					filter.initialiseSearch();
+
+					let hasTags = false;
+					for(let categoryTags of Object.values(tags)) {
+						if(Object.keys(categoryTags).length > 0) {
+							hasTags = true;
+							break;
+						}
+					}
+					if( hasTags ){
+						filter.initialiseTags(tags);
+					}
+
+					let tSearch = query.get('search'),
+						tTags = query.get('tags');
+					
+					if( tSearch ){
+						filter.search( tSearch );
+						filter.searchBar.value = tSearch;
+					}
+					if( tTags ){
+						let splitTags = tTags.split('&&');
+						for( let tag of splitTags ){
+							document.getElementById(`tag:${tag}`).dispatchEvent( new Event('click') );
+						}
 					}
 				}
-			}
 
-			// Add sort dropdown items and apply default sort
-			let attemptedSort = false,
-				tSort = query.get('sort'),
-				tSortDir = query.get('sortdir') ? query.get('sortdir') : 'ascending';
-			
-			if( tSort ){
-				attemptedSort = filter.sort(tSort, tSortDir, false);
-			}
-			else {
-				attemptedSort = filter.sort('date', undefined, false)
-			}
-			if( attemptedSort === false ){
-				filter.sort('random', undefined, false);
-			}
+				// Add sort dropdown items and apply default sort
+				let attemptedSort = false,
+					tSort = query.get('sort'),
+					tSortDir = query.get('sortdir') ? query.get('sortdir') : 'ascending';
+				
+				if( tSort ){
+					attemptedSort = filter.sort(tSort, tSortDir, false);
+				}
+				else {
+					attemptedSort = filter.sort('date', undefined, false)
+				}
+				if( attemptedSort === false ){
+					filter.sort('random', undefined, false);
+				}
 
-			loader.loaded();
+				loader.loaded();
+			});
 		});
 	});
-});
+}

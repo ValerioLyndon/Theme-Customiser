@@ -126,7 +126,68 @@ function validate( ){
 }
 
 function renderPreview( type, json ){
-	console.log(json);
+	if( type === 'theme' ){
+		renderer.innerHTML = `
+					<div class="sidebar__section sidebar__section--top">
+						<h1 class="title">Parsed Information</h1>
+						<div>Theme Name: <span id="js-title">Loading theme...</span> <span class="theme-tag o-hidden" id="js-theme-tag"></span></div>
+						<div>Theme Author: <span id="js-author">unknown author</span></div>
+					</div>
+					
+					<div class="sidebar__section">
+						<div id="js-options">
+							<h3 class="sidebar__header">Theme options</h3>
+
+							<!-- options gets put here by customiser.js -->
+						</div>
+					</div>
+
+					<div class="sidebar__section">
+						<div id="js-mods">
+							<h3 class="sidebar__header">
+								Theme modifications
+								<div class="sidebar__header-aside">
+									<button type="button" class="button o-hidden" id="js-tags__button" onclick="toggleEle('#js-tags__cloud', this)">
+										<i class="fa-solid fa-tags"></i> Filters
+									</button>
+								</div>
+							</h3>
+
+							<div class="tag-cloud is-hidden" id="js-tags__cloud">
+								<small class="tag-cloud__blurb">Select a subject that interests you to narrow results.</small>
+							</div>
+							
+							<!-- mods gets put here by customiser.js -->
+						</div>
+					</div>
+
+					<span class="o-hidden" id="js-theme-credit"></span>
+			`;
+
+		theme = json['data'];
+		tags = {};
+		renderTheme();
+	}
+	else {
+		renderer.innerHTML = `<div class="browser" id="js-theme-list"></div>`;
+
+		itemCount = 0;
+		cards = [];
+
+		if( type === 'mega' ){
+			let collections = json['collections'];
+			fetchAllFiles(collections)
+			.then((files) => {
+				for( let file of files ){
+					let json = JSON.parse(file['value']);
+					renderCards(Object.values(json['themes']));
+				}
+			})
+		}
+		else if( type === 'collection' ){
+			renderCards(Object.values(json['themes']));
+		}
+	}
 }
 
 
