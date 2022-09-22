@@ -361,7 +361,7 @@ function fetchAllFiles(arrayOfUrls) {
 	return Promise.allSettled(files);
 }
 
-if( query.url.pathname === '/' ){
+if( query.url.pathname === '/Theme-Customiser/' || query.url.pathname === '/' ){
 	// Get data for all collections and call other functions
 	loader.text('Fetching data files...');
 
