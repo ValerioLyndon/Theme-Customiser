@@ -204,3 +204,6 @@ if( previousSettings ){
 	input.value = data['editor'];
 	validate(data['editor']);
 }
+else {
+	validate(input.value);
+}
