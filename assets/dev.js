@@ -330,6 +330,8 @@ function updatePopupJson( ){
 		output = document.getElementById('js-update-json__out'),
 		json = false;
 
+	output.value = '';
+
 	try {
 		json = JSON.parse(text);
 	}
@@ -339,17 +341,14 @@ function updatePopupJson( ){
 	}
 
 	let toReturn = 'theme';
-	if( !('themes' in json) && !('data' in json) && !('collections' in json) ){
-		messenger.error('Input JSON appears to be invalid. Please validate it using the primary editor, fix any issues, and try again.', 'lacking.key')
-	}
-	else if( 'themes' in json ){
+	if( 'themes' in json ){
 		toReturn = 'collection';
-	} 
-	else if( 'data' in json ){
-		toReturn = 'theme';
 	}
 	else if( 'collections' in json ){
 		toReturn = 'mega';
+	}
+	else {
+		toReturn = 'theme';
 	}
 
 	processJson( json, '', toReturn )

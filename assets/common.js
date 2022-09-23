@@ -716,6 +716,9 @@ async function processJson(json, url, toReturn) {
 		console.log('The loaded JSON has been processed as legacy JSON. This can cause slowdowns or errors. If you are the JSON author, please see the GitHub page for assistance updating.');
 		if(ver === 0.1) {
 			json = updateToBeta2(json, url, toReturn);
+			if( !json ){
+				return false;
+			}
 			ver = 0.2;
 		}
 		if( ver === 0.2 ){
@@ -723,6 +726,7 @@ async function processJson(json, url, toReturn) {
 			ver = 0.3;
 		}
 	}
+	console.log(json);
 
 	// Process as normal once format has been updated
 	
@@ -808,9 +812,16 @@ function updateToBeta2(json, url, toReturn) {
 		return newJson;
 	}
 	else {
-		if(toReturn in json) {
+		if( toReturn in json ){
 			return { 'data': json[toReturn] };
-		} else {
+		}
+		if( Object.keys(json).length > 0 ){
+			return {
+				'json_version': 0.2,
+				'data': Object.values(json)[0]
+			};
+		}
+		else {
 			return false;
 		}
 	}
