@@ -123,7 +123,22 @@
 				<div class="popup__content" id="js-theme-config">
 					<h4 class="popup__header">Format CSS for use in JSON</h4>
 
-					<p class="popup__paragraph">Not yet implemented.</p>
+					<p class="popup-paragraph">
+						Formatting CSS for use with JSON can be kind of a pain, so this tool can do it for you. It will escape all the necessary characters and give you CSS ready for copy-pasting into the JSON.
+					</p>
+
+					<div class="l-split">
+						<div class="l-split__left">
+							<h6 class="popup__sub-header">Input</h6>
+							<textarea id="js-format-css__in" class="input input--textarea-tall"></textarea>
+							<button type="button" class="button button--highlighted" onclick="formatPopupCss()">Format CSS</button>
+						</div>
+						<div class="l-split__right">
+							<h6 class="popup__sub-header">Output</h6>
+							<textarea id="js-format-css__out" class="input input--textarea-tall" readonly="readonly"></textarea>
+							<button type="button" class="button button--highlighted" onclick="navigator.clipboard.writeText(document.getElementById('js-format-css__out').value);">Copy Output</button>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>

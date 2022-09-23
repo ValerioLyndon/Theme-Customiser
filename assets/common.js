@@ -726,7 +726,6 @@ async function processJson(json, url, toReturn) {
 			ver = 0.3;
 		}
 	}
-	console.log(json);
 
 	// Process as normal once format has been updated
 	

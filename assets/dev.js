@@ -364,3 +364,10 @@ function updatePopupJson( ){
 		}
 	});
 }
+
+function formatPopupCss( ){
+	let css = document.getElementById('js-format-css__in').value,
+		output = document.getElementById('js-format-css__out');
+
+	output.value = JSON.stringify(css);
+}
