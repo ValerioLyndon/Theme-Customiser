@@ -10,9 +10,15 @@ class AdvancedEditor {
 		this.rawText = document.createElement('textarea');
 		this.rawText.className = 'ae-raw';
 		this.rawText.wrap = 'off';
+		this.scrollSync = document.createElement('div');
 		this.visibleText = document.createElement('div');
 		this.visibleText.className = 'ae-vis';
-		this.container.appendChild(this.visibleText);
+		this.lineContainer = document.createElement('div');
+		this.lineContainer = document.createElement('div');
+		this.lineContainer.className = 'ae-lines';
+		this.scrollSync.appendChild(this.lineContainer);
+		this.scrollSync.appendChild(this.visibleText);
+		this.container.appendChild(this.scrollSync);
 		this.container.appendChild(this.rawText);
 		parent.prepend(this.container);
 
@@ -37,7 +43,7 @@ class AdvancedEditor {
 			}
 		});
 		this.rawText.addEventListener('scroll', () => {
-			this.visibleText.style.transform = `translate(${-this.rawText.scrollLeft}px, ${-this.rawText.scrollTop}px)`;
+			this.scrollSync.style.transform = `translate(${-this.rawText.scrollLeft}px, ${-this.rawText.scrollTop}px)`;
 		});
 	}
 
@@ -46,6 +52,25 @@ class AdvancedEditor {
 		// 	.replaceAll(/([[{,][^[{]*?)(\"[^"]*\"[^":,]*)(:)/g, '$1<span style="color:#75bfff">$2</span>$3');
 
 		this.visibleText.textContent = this.rawText.value;
+		let lines = this.rawText.value.split('\n');
+		for( let i = 0; i < lines.length; i++ ){
+			let line = document.createElement('div');
+			line.className = 'ae-line';
+			line.textContent = i+1;
+			this.lineContainer.appendChild(line);
+		}
+		
+		let w = 18;
+		if( lines.length < 100 ){
+			w = 18;
+		}
+		if( lines.length > 100 ){
+			w = 24;
+		}
+		else if( lines.length > 1000 ){
+			w = 30;
+		}
+		this.container.style.cssText = `--ae-line-width: ${w}px`;
 	}
 
 	showError( line, column ){
