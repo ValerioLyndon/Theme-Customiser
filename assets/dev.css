@@ -82,6 +82,31 @@ html {
 }
 .ae-err-char {
 	background: red;
+	border-radius: 2px;
+}
+
+.ae-tab {
+	position: relative;
+}
+.ae-tab::after {
+	content: "→";
+	position: absolute;
+	right: 3px;
+	top: 50%;
+	color: #585874;
+	transform: translateY(-50%);
+}
+
+.ae-trailing {
+	position: relative;
+}
+.ae-trailing::after {
+	content: "•";
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	color: #585874;
+	transform: translate(-50%,-50%);
 }
 
 .code {

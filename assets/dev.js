@@ -1,5 +1,11 @@
 loader.text('Setting up developer tools...');
 
+function sanitiseForHtml( text ){
+	let dummy = document.createElement('div');
+	dummy.textContent = text;
+	return dummy.innerHTML;
+}
+
 // Common functions
 
 class AdvancedEditor {
@@ -55,7 +61,8 @@ class AdvancedEditor {
 
 		let lines = this.rawText.value.split('\n');
 		for( let i = 0; i < lines.length; i++ ){
-			let num = document.createElement('div');
+			let num = document.createElement('div'),
+				text = lines[i];
 			num.className = 'ae-line-num';
 			num.textContent = i+1;
 			this.lineContainer.appendChild(num);
@@ -63,7 +70,23 @@ class AdvancedEditor {
 			let line = document.createElement('div');
 			line.className = 'ae-line';
 			line.id = `ae-${i+1}`;
-			line.textContent = lines[i];
+
+			// tabs
+			text = sanitiseForHtml(text);
+			text = text.replaceAll('\t', '<span class="ae-tab">\t</span>');
+			// trailing space
+			if( text.endsWith(' ') ){
+				text = text.replace(/( +)$/, (match) => {
+					let str = '';
+					for( let char of match ){
+						str += '<span class="ae-trailing"> </span>';
+					}
+					return str;
+				});
+			}
+			
+			// commit line
+			line.innerHTML = text;
 			this.visibleText.appendChild(line);
 		}
 		
@@ -83,14 +106,15 @@ class AdvancedEditor {
 	showError( line, column ){
 		this.setVisible();
 		let errorLine = document.getElementById(`ae-${line}`),
-			errorLineTxt = errorLine.textContent;
-		errorLine.innerHTML =
+			errorLineTxt = sanitiseForHtml(errorLine.textContent);
+		
+		errorLine.innerHTML = 
 			'<div class="ae-err-line">'
-			+ errorLineTxt.substring(0, column-2)
+			+ errorLineTxt.substring(0, column-1)
 			+ '<span class="ae-err-char">'
-			+ errorLineTxt.substring(column-2, column)
+			+ errorLineTxt.substring(column-1, column)
 			+ '</span>'
-			+ errorLineTxt.substring(column, errorLine.length)
+			+ errorLineTxt.substring(column, errorLineTxt.length)
 			+ '</div>';
 	}
 
