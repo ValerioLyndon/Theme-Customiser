@@ -2,8 +2,8 @@
 	display: grid;
 	height: 100vh;
 	grid-template-rows: auto 1fr;
-	grid-template-columns: 1fr auto;
-	grid-template-areas: "top top" "main sidebar";
+	grid-template-columns: 1fr 1fr;
+	grid-template-areas: "top top" "sidebar main";
 }
 
 .ae {
