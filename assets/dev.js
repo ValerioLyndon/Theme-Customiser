@@ -2,38 +2,112 @@ loader.loaded();
 
 // Common functions
 
-// yes i took this from StackOverflow https://stackoverflow.com/questions/11076975/how-to-insert-text-into-the-textarea-at-the-current-cursor-position
-function insertAtCursor( myField, myValue ){
-	if( myField.selectionStart || myField.selectionStart == '0' ){
-		let startPos = myField.selectionStart;
-		let endPos = myField.selectionEnd;
-		// insert text
-		myField.value = myField.value.substring(0, startPos)
-			+ myValue
-			+ myField.value.substring(endPos, myField.value.length);
-		// fix selection
-		myField.selectionStart = startPos + myValue.length;
-		myField.selectionEnd = startPos + myValue.length;
+class AdvancedEditor {
+	constructor( parent = document.body ){
+		// setup HTML
+		this.container = document.createElement('div');
+		this.container.className = 'ae';
+		this.rawText = document.createElement('textarea');
+		this.rawText.className = 'ae-raw';
+		this.rawText.wrap = 'off';
+		this.visibleText = document.createElement('div');
+		this.visibleText.className = 'ae-vis';
+		this.container.appendChild(this.visibleText);
+		this.container.appendChild(this.rawText);
+		parent.prepend(this.container);
+
+		// setup passthrough variables
+		this.selectionStart = this.rawText.selectionStart;
+		this.selectionEnd = this.rawText.selectionEnd;
+
+		// add basic functions
+		this.rawText.addEventListener('input', () => {
+			try {
+				JSON.parse(this.rawText.value);
+				this.setVisible();
+			}
+			catch( e ){
+				try {
+					let match = e.toString().match(/line ([0-9]*) column ([0-9]*)/);
+					this.showError( match[1], match[2] );
+				}
+				catch{
+					this.setVisible();
+				}
+			}
+		});
+		this.rawText.addEventListener('scroll', () => {
+			this.visibleText.style.transform = `translate(${-this.rawText.scrollLeft}px, ${-this.rawText.scrollTop}px)`;
+		});
 	}
-	else {
-		myField.value += myValue;
+
+	setVisible( ){
+		// let linted = this.rawText.value
+		// 	.replaceAll(/([[{,][^[{]*?)(\"[^"]*\"[^":,]*)(:)/g, '$1<span style="color:#75bfff">$2</span>$3');
+
+		this.visibleText.textContent = this.rawText.value;
+	}
+
+	showError( line, column ){
+		let lines = this.rawText.value.split('\n');
+		let errorLine = lines[line-1];
+		lines[line-1] = errorLine.substring(0, column-2)
+		            + '<span class="ae-t-error">'
+					+ errorLine.substring(column-2, column)
+					+ '</span>'
+					+ errorLine.substring(column, errorLine.length);
+					console.log(errorLine.substring(0, column-1),
+					errorLine.substring(column-1, 1),
+					errorLine.substring(column, errorLine.length))
+		let highlighted = lines.join('\n');
+		this.visibleText.innerHTML = highlighted;
+	}
+
+	value( text ){
+		if( text !== 'undefined' && typeof text === 'string' ){
+			this.rawText.value = text;
+			this.setVisible();
+		}
+
+		return this.rawText.value;
+	}
+
+	// yes i took this from StackOverflow https://stackoverflow.com/questions/11076975/how-to-insert-text-into-the-textarea-at-the-current-cursor-position
+	insertAtCursor( myValue ){
+		if( this.rawText.selectionStart || this.rawText.selectionStart == '0' ){
+			let startPos = this.rawText.selectionStart;
+			let endPos = this.rawText.selectionEnd;
+			// insert text
+			this.value(
+				this.rawText.value.substring(0, startPos)
+				+ myValue
+				+ this.rawText.value.substring(endPos, this.rawText.value.length)
+			);
+			// fix selection
+			this.rawText.selectionStart = startPos + myValue.length;
+			this.rawText.selectionEnd = startPos + myValue.length;
+		}
+		else {
+			this.value(myValue);
+		}
 	}
 }
 
 
+
 // JSON textarea
 
-var input = document.getElementById('js-json'),
+var editor = new AdvancedEditor( document.getElementById('js-json') ),
 	notice = document.getElementById('js-json-notice'),
 	renderer = document.getElementById('js-renderer');
 
-input.addEventListener('focusin', () => {
-	input.addEventListener('keydown', onKeyPress);
+editor.rawText.addEventListener('focusin', () => {
+	editor.rawText.addEventListener('keydown', onKeyPress);
 });
-input.addEventListener('focusout', () => {
-	input.removeEventListener('keydown', onKeyPress);
+editor.rawText.addEventListener('focusout', () => {
+	editor.rawText.removeEventListener('keydown', onKeyPress);
 });
-input.addEventListener('input', validate);
+editor.rawText.addEventListener('input', validate);
 
 function onKeyPress( keyPress ){
 	let key = keyPress['key'];
@@ -41,24 +115,24 @@ function onKeyPress( keyPress ){
 	// handle 
 	if( key === 'Tab' ) {
 		keyPress.preventDefault();
-		insertAtCursor( input, '\t' );
-		input.dispatchEvent(new Event('input'));
+		editor.insertAtCursor( '\t' );
+		validate();
 	}
 	if( key === 'Enter' ){
 		keyPress.preventDefault();
 
-		let cursorPos = input.selectionStart,
-			currentLine = input.value.substr( 0, cursorPos ).match(/\n([^\n]*)$/),
+		let cursorPos = editor.rawText.selectionStart,
+			currentLine = editor.value().substr( 0, cursorPos ).match(/\n([^\n]*)$/),
 			startingWhitespace = currentLine && currentLine[1] ? currentLine[1].match(/^\s*/) : false;
-		
+		console.log(currentLine, startingWhitespace)
 		if( startingWhitespace ){
-			insertAtCursor( input, '\n' + startingWhitespace );
+			editor.insertAtCursor( '\n' + startingWhitespace );
 		}
 		else {
-			insertAtCursor( input, '\n' );
+			editor.insertAtCursor( '\n' );
 		}
 
-		input.dispatchEvent(new Event('input'));
+		validate();
 	}
 }
 
@@ -87,12 +161,12 @@ function good( json ){
 	renderPreview( type, json );
 	
 	// save text to storage
-	let storageString = {'date': Date.now(), 'editor': input.value};
+	let storageString = {'date': Date.now(), 'editor': editor.value()};
 	localStorage.setItem(`developer`, JSON.stringify(storageString));
 }
 
 function validate( ){
-	let json = input.value;
+	let json = editor.value();
 
 	// attempt parsing
 	try {
@@ -201,9 +275,16 @@ if( previousSettings ){
 	if(Date.now() - data['date'] > 14400000) {
 		localStorage.removeItem('developer');
 	}
-	input.value = data['editor'];
+	editor.value(data['editor']);
 	validate(data['editor']);
 }
 else {
-	validate(input.value);
+	editor.value(`{
+	"json_version": 0.3,
+	"data": {
+		"name": "Your Theme Name",
+		"author": "Your Name"
+	}
+}`);
+	validate(editor.value());
 }
