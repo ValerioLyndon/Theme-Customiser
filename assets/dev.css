@@ -1,3 +1,7 @@
+html {
+	tab-size: 4;
+}
+
 .content__dev {
 	display: grid;
 	height: 100vh;
