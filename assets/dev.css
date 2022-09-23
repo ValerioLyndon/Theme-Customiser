@@ -100,3 +100,18 @@
 	height: 100%;
 	overflow-y: auto;
 }
+
+/* Layout */
+
+.l-split {
+	display: flex;
+}
+.l-split__left {
+	width: 50%;
+	flex: 1 1 auto;
+}
+.l-split__right {
+	width: 50%;
+	flex: 1 1 auto;
+	margin-left: 8px;
+}

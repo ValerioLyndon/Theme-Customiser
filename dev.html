@@ -94,10 +94,25 @@
 		<div class="popup is-hidden" id="js-pp-update-json">
 			<div class="popup__inner">
 				<div class="popup__invisibutton" onclick="toggleEle('#js-pp-update-json')"></div>
-				<div class="popup__content" id="js-theme-config">
+				<div class="popup__content popup__content--wide" id="js-theme-config">
 					<h4 class="popup__header">Update JSON</h4>
 
-					<p class="popup__paragraph">Not yet implemented.</p>
+					<p class="popup-paragraph">
+						Place your JSON into the left text field and click to update it. The output will be placed in the right text field for easy copying. While this tool does check for valid JSON, it will not provide detailed reports. For detailed validation, use the main JSON editor.
+					</p>
+
+					<div class="l-split">
+						<div class="l-split__left">
+							<h6 class="popup__sub-header">Input</h6>
+							<textarea id="js-update-json__in" class="input input--textarea-tall"></textarea>
+							<button type="button" class="button button--highlighted" onclick="updatePopupJson()">Update JSON</button>
+						</div>
+						<div class="l-split__right">
+							<h6 class="popup__sub-header">Output</h6>
+							<textarea id="js-update-json__out" class="input input--textarea-tall" readonly="readonly"></textarea>
+							<button type="button" class="button button--highlighted" onclick="navigator.clipboard.writeText(document.getElementById('js-update-json__out').value);">Copy Output</button>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>

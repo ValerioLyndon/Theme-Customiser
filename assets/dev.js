@@ -1,4 +1,4 @@
-loader.loaded();
+loader.text('Setting up developer tools...');
 
 // Common functions
 
@@ -123,7 +123,6 @@ class AdvancedEditor {
 		}
 	}
 }
-
 
 
 // JSON textarea
@@ -318,4 +317,51 @@ else {
 	}
 }`);
 	validate(editor.value());
+}
+
+loader.loaded();
+
+
+
+// Tools
+
+function updatePopupJson( ){
+	let text = document.getElementById('js-update-json__in').value,
+		output = document.getElementById('js-update-json__out'),
+		json = false;
+
+	try {
+		json = JSON.parse(text);
+	}
+	catch {
+		messenger.error('Input JSON appears to be invalid. Please validate it using the primary editor, fix any issues, and try again.', 'json.parse');
+		return false;
+	}
+
+	let toReturn = 'theme';
+	if( !('themes' in json) && !('data' in json) && !('collections' in json) ){
+		messenger.error('Input JSON appears to be invalid. Please validate it using the primary editor, fix any issues, and try again.', 'lacking.key')
+	}
+	else if( 'themes' in json ){
+		toReturn = 'collection';
+	} 
+	else if( 'data' in json ){
+		toReturn = 'theme';
+	}
+	else if( 'collections' in json ){
+		toReturn = 'mega';
+	}
+
+	processJson( json, '', toReturn )
+	.then( (processedJson) => {
+		if( processedJson === false ){
+			messenger.error('Failed to update the JSON.', 'process.generic');
+		}
+		else if( typeof processedJson === 'string' ){
+			messenger.error(processedJson, 'process.caught');
+		}
+		else {
+			output.value = JSON.stringify(processedJson, undefined, '\t');
+		}
+	});
 }

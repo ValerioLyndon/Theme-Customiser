@@ -123,6 +123,12 @@ body {
 	max-height: 70vh;
 	resize: vertical;
 }
+.input--textarea-tall {
+	height: 50vh;
+	min-height: 50px;
+	max-height: 80vh;
+	resize: vertical;
+}
 .input--code {
 	width: calc(100% - 16px);
 	padding: 6px;

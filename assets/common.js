@@ -718,6 +718,10 @@ async function processJson(json, url, toReturn) {
 			json = updateToBeta2(json, url, toReturn);
 			ver = 0.2;
 		}
+		if( ver === 0.2 ){
+			json['json_version'] = 0.3;
+			ver = 0.3;
+		}
 	}
 
 	// Process as normal once format has been updated
