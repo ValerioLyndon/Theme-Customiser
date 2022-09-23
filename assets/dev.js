@@ -366,8 +366,8 @@ function updatePopupJson( ){
 }
 
 function formatPopupCss( ){
-	let css = document.getElementById('js-format-css__in').value,
-		output = document.getElementById('js-format-css__out');
+	let css = document.getElementById('js-format-text__in').value,
+		output = document.getElementById('js-format-text__out');
 
 	output.value = JSON.stringify(css);
 }

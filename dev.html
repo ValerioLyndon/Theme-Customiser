@@ -29,9 +29,9 @@
 							<i class="top-nav__icon fa-solid fa-wrench"></i>
 							<span class="top-nav__text">Update Json</span>
 						</a>
-						<a class="top-nav__link" onclick="toggleEle('#js-pp-format-css')">
+						<a class="top-nav__link" onclick="toggleEle('#js-pp-format-text')">
 							<i class="top-nav__icon fa-solid fa-wrench"></i>
-							<span class="top-nav__text">Format CSS</span>
+							<span class="top-nav__text">Format Text</span>
 						</a>
 					</nav>
 				</div>
@@ -117,26 +117,26 @@
 			</div>
 		</div>
 
-		<div class="popup is-hidden" id="js-pp-format-css">
+		<div class="popup is-hidden" id="js-pp-format-text">
 			<div class="popup__inner">
-				<div class="popup__invisibutton" onclick="toggleEle('#js-pp-format-css')"></div>
+				<div class="popup__invisibutton" onclick="toggleEle('#js-pp-format-text')"></div>
 				<div class="popup__content" id="js-theme-config">
-					<h4 class="popup__header">Format CSS for use in JSON</h4>
+					<h4 class="popup__header">Format text for use in JSON</h4>
 
 					<p class="popup-paragraph">
-						Formatting CSS for use with JSON can be kind of a pain, so this tool can do it for you. It will escape all the necessary characters and give you CSS ready for copy-pasting into the JSON.
+						Formatting text for use with JSON can be kind of a pain, so this tool can do it for you. This should work for all strings such as CSS, Regular Expressions, and anything else you may want to input.
 					</p>
 
 					<div class="l-split">
 						<div class="l-split__left">
 							<h6 class="popup__sub-header">Input</h6>
-							<textarea id="js-format-css__in" class="input input--textarea-tall"></textarea>
+							<textarea id="js-format-text__in" class="input input--textarea-tall"></textarea>
 							<button type="button" class="button button--highlighted" onclick="formatPopupCss()">Format CSS</button>
 						</div>
 						<div class="l-split__right">
 							<h6 class="popup__sub-header">Output</h6>
-							<textarea id="js-format-css__out" class="input input--textarea-tall" readonly="readonly"></textarea>
-							<button type="button" class="button button--highlighted" onclick="navigator.clipboard.writeText(document.getElementById('js-format-css__out').value);">Copy Output</button>
+							<textarea id="js-format-text__out" class="input input--textarea-tall" readonly="readonly"></textarea>
+							<button type="button" class="button button--highlighted" onclick="navigator.clipboard.writeText(document.getElementById('js-format-text__out').value);">Copy Output</button>
 						</div>
 					</div>
 				</div>
