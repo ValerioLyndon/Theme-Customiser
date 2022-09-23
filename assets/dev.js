@@ -50,14 +50,21 @@ class AdvancedEditor {
 	setVisible( ){
 		// let linted = this.rawText.value
 		// 	.replaceAll(/([[{,][^[{]*?)(\"[^"]*\"[^":,]*)(:)/g, '$1<span style="color:#75bfff">$2</span>$3');
+		this.lineContainer.replaceChildren();
+		this.visibleText.replaceChildren();
 
-		this.visibleText.textContent = this.rawText.value;
 		let lines = this.rawText.value.split('\n');
 		for( let i = 0; i < lines.length; i++ ){
+			let num = document.createElement('div');
+			num.className = 'ae-line-num';
+			num.textContent = i+1;
+			this.lineContainer.appendChild(num);
+
 			let line = document.createElement('div');
 			line.className = 'ae-line';
-			line.textContent = i+1;
-			this.lineContainer.appendChild(line);
+			line.id = `ae-${i+1}`;
+			line.textContent = lines[i];
+			this.visibleText.appendChild(line);
 		}
 		
 		let w = 18;
@@ -74,18 +81,17 @@ class AdvancedEditor {
 	}
 
 	showError( line, column ){
-		let lines = this.rawText.value.split('\n');
-		let errorLine = lines[line-1];
-		lines[line-1] = errorLine.substring(0, column-2)
-		            + '<span class="ae-t-error">'
-					+ errorLine.substring(column-2, column)
-					+ '</span>'
-					+ errorLine.substring(column, errorLine.length);
-					console.log(errorLine.substring(0, column-1),
-					errorLine.substring(column-1, 1),
-					errorLine.substring(column, errorLine.length))
-		let highlighted = lines.join('\n');
-		this.visibleText.innerHTML = highlighted;
+		this.setVisible();
+		let errorLine = document.getElementById(`ae-${line}`),
+			errorLineTxt = errorLine.textContent;
+		errorLine.innerHTML =
+			'<div class="ae-err-line">'
+			+ errorLineTxt.substring(0, column-2)
+			+ '<span class="ae-err-char">'
+			+ errorLineTxt.substring(column-2, column)
+			+ '</span>'
+			+ errorLineTxt.substring(column, errorLine.length)
+			+ '</div>';
 	}
 
 	value( text ){
