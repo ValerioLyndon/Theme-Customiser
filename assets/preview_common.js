@@ -58,7 +58,7 @@ function previewCss(css) {
 		// relative paths to absolute
 		['url(/', 'url(https://myanimelist.net/'],
 		// fontawesome tweaks
-		[/"?fontawesome(?!\s?4)(?:\s?6\s?(?:free|pro))?"?/gi, '<<<FA_REPLACE>>>'],
+		[/["']?fontawesome(?!\s?4)(?:\s?6\s?(?:free|pro))?["']?/gi, '<<<FA_REPLACE>>>'],
 		[/<<<FA_REPLACE>>>/gi, '"FontAwesome","FontAwesome 4.7.0"'],
 		['\\e29e', '\\f017'], // timer
 		['\\e3d6', '\\f149'], // arrow-turn-down-right
