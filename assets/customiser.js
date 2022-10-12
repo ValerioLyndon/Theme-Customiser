@@ -1056,7 +1056,7 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 				}
 			});
 
-			if( subQualifier.includes('strip_alpha') ){
+			if( subQualifier && subQualifier.includes('strip_alpha') ){
 				swatch.classList.add('entry__colour--strip-alpha')
 				let icon = document.createElement('small');
 				icon.className = 'entry__info';
