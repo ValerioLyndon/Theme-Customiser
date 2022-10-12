@@ -694,7 +694,7 @@ async function updateCss() {
 	document.getElementById('js-output').textContent = newCss;
 
 	// Update iframe
-	postToIframe(['css', newCss]);
+	postToPreview(['css', newCss]);
 }
 
 // "htmlId" should be a valid HTML ID to select the option with.
@@ -1190,7 +1190,7 @@ window.addEventListener(
 				}
 			}
 			else {
-				console.log('[ERROR] Malformed request received from iframe. No action taken.');
+				console.log('[ERROR] Malformed request received from colour picker. No action taken.')
 			}
 		}
 	},
@@ -1647,17 +1647,17 @@ function pageSetup() {
 		if(coverCheck.disabled === false) {
 			coverCheck.checked = val;
 		}
-		postToIframe(['cover', val]);
+		postToPreview(['cover', val]);
 	}
 
 	// Category
 	if('category' in theme['preview']) {
-		postToIframe(['category', theme['preview']['category']])
+		postToPreview(['category', theme['preview']['category']])
 	}
 	
 	// Style
 	if('style' in theme['preview']) {
-		postToIframe(['style', theme['preview']['style'][0]]);
+		postToPreview(['style', theme['preview']['style'][0]]);
 	}
 
 	// Columns
@@ -1698,7 +1698,7 @@ function pageSetup() {
 
 	// process columns and update iframe
 	columns = processColumns(mode, tempcolumns[tempListType], tempListType);
-	postToIframe(['columns', columns]);
+	postToPreview(['columns', columns]);
 
 	// Add classic list functions
 
@@ -1844,7 +1844,7 @@ function pageSetup() {
 		}
 		else {
 			loader.text('Loading preview...');
-			loader.log('[info] Awaiting iframe before completing page load.');
+			console.log('[info] Awaiting preview before completing page load.');
 		}
 	});
 }
@@ -1868,7 +1868,7 @@ iframe.addEventListener('load', () => {
 	if(toPost.length > 0) {
 		console.log(`[info] Posting ${toPost.length} backlogged messages.`);
 		for(msg of toPost) {
-			postToIframe(msg);
+			postToPreview(msg);
 		}
 	}
 	if(pageLoaded === true) {
@@ -1878,7 +1878,7 @@ iframe.addEventListener('load', () => {
 
 iframe.className = 'preview__window';
 
-function postToIframe(msg) {
+function postToPreview(msg) {
 	if(iframeLoaded) {
 		iframe.contentWindow.postMessage(msg);
 		return true;
