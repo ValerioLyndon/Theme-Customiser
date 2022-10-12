@@ -939,7 +939,7 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 			// Add a colour preview
 			let display = document.createElement('div');
 			display.className = 'entry__colour';
-			div.appendChild(display);
+			inputRow.appendChild(display);
 			if('default' in entryData) {
 				display.style.backgroundColor = entryData['default'];
 			}

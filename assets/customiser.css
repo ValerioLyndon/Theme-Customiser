@@ -575,7 +575,7 @@ input:checked + .toggle.is-forced::after {
 	background: none;
 	border-color: transparent;
 	flex: 0 0 auto;
-	margin: 0 0 8px;
+	margin: 0 0 8px auto;
 	order: 3;
 	opacity: 0.1;
 	transition: opacity 0.2s ease;
