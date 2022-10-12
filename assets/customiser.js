@@ -173,8 +173,8 @@ class PickerPopup extends DynamicPopup {
 		this.focusedSelector = '';
 	}
 
-	post( color ){
-		this.frame.contentWindow.postMessage(['color', color]);
+	post( msg ){
+		this.frame.contentWindow.postMessage(msg);
 	}
 
 	focus( selector ){
@@ -546,7 +546,7 @@ function applySettings(settings = false) {
 		else if(theme['options'][optId]['type'] === 'range') {
 			document.getElementById(`opt:${optId}-range`).value = val;
 		}
-		else if(theme['options'][optId]['type'] === 'color') {
+		else if(theme['options'][optId]['type'].startsWith('color')) {
 			document.getElementById(`opt:${optId}-colour`).style.backgroundColor = val;
 		}
 	}
@@ -565,7 +565,7 @@ function applySettings(settings = false) {
 			else if(theme['mods'][modId]['options'][optId]['type'] === 'range') {
 				document.getElementById(`mod:${modId}:${optId}-range`).value = optVal;
 			}
-			else if(theme['mods'][modId]['options'][optId]['type'] === 'color') {
+			else if(theme['mods'][modId]['options'][optId]['type'].startsWith('color')) {
 				document.getElementById(`mod:${modId}:${optId}-colour`).style.backgroundColor = optVal;
 			}
 		}
@@ -623,8 +623,10 @@ async function updateCss() {
 	}
 
 	async function applyOptionToCss(css, optData, insert) {
-		let type = optData['type'],
-			qualifier = optData['type'].split('/')[1];
+		let split = optData['type'].split('/');
+		let type = split[0];
+		let qualifier = split[1];
+		let subQualifier = split[2];
 
 		// Process user input as called for by the qualifier
 		if(qualifier === 'content') {
@@ -638,8 +640,22 @@ async function updateCss() {
 				insert = `url(${insert})`;
 			}
 		}
-		else if(qualifier === 'url_fragment') {
+		else if( qualifier === 'url_fragment' ){
 			insert = encodeURIComponent(insert.trim());
+		}
+		else if( type === 'color' && qualifier === 'insert' ){
+			try {
+				insert = insert.split('(')[1].split(')')[0];
+			} catch {
+				console.log('[WARN] Failed to process "insert" type due to missing parentheses.');
+			}
+			if( subQualifier.includes('strip_alpha') ){
+				let arr = insert.split(',');
+				if( arr.length > 3 ){
+					arr.pop();
+				}
+				insert = arr.join(',');
+			}
 		}
 
 		if(type === 'select') {
@@ -1016,6 +1032,14 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 			interface.value = defaultValue;
 			swatch.style.backgroundColor = defaultValue;
 
+			let toReturn = 'rgb';
+			if( subQualifier && subQualifier.includes('hsl') ){
+				toReturn = 'hsl';
+			}
+			else if( subQualifier && subQualifier.includes('hex') ){
+				toReturn = 'hex';
+			}
+
 			swatch.id = `${htmlId}-colour`;
 			swatch.addEventListener('click', () => {
 				colorToSet = {
@@ -1027,9 +1051,26 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 					picker.focus(false);
 				} else {
 					picker.focus(`${htmlId}-colour`);
-					picker.post(interface.value);
+					picker.post(['color', interface.value]);
+					picker.post(['return', toReturn])
 				}
 			});
+
+			if( subQualifier.includes('strip_alpha') ){
+				swatch.classList.add('entry__colour--strip-alpha')
+				let icon = document.createElement('small');
+				icon.className = 'entry__info';
+				icon.innerHTML = `
+					<i class="fa-solid fa-ban"></i>
+					Alpha
+				`;
+				inputRow.appendChild(icon);
+				icon.addEventListener('mouseover', () => {
+					info.text('This option does not support transparency. Changing it will have no effect.');
+					info.show(icon, 'left');
+				});
+				icon.addEventListener('mouseleave', () => { info.hide(); });
+			}
 		}
 
 		// Range Options
@@ -1150,7 +1191,7 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 				if( type === 'color' ){
 					swatch.style.backgroundColor = resetVal;
 					if( picker.focus() === htmlId ){
-						picker.post(resetVal);
+						picker.post(['color', resetVal]);
 					}
 				}
 			});

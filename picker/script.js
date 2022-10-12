@@ -776,7 +776,11 @@ var UIColorPicker = (function UIColorPicker() {
 			this.subscribers[topic](value);
 		}
 
-		currentColor = this.color.getRGBA();
+		currentColor = {
+			'rgb': this.color.getRGBA(),
+			'hsl': this.color.getHSLA(),
+			'hex': this.color.getHexa()
+		};
 	};
 
 	/*************************************************************************/
@@ -1845,26 +1849,30 @@ window.addEventListener(
 			if( type === 'color' ){
 				let color = new UIColorPicker.Color;
 				
-				if(content.startsWith('#')) {
+				if( content.startsWith('#') ){
 					color.setHexa(content);
 				} else {
 					let array = content.split('(')[1].split(')')[0].split(',');
 					for( let i = 0; i < array.length; i++ ){
 						array[i] = parseFloat(array[i].trim());
 					}
-					if( array.length < 4 ){
-						array.push(1);
+					let alpha = 1;
+					if( array.length > 3 ){
+						alpha = array.pop();
 					}
 
 					if(content.startsWith('rgb')) {
-						color.setRGBA(...array);
+						color.setRGB(...array);
 					}
 					else if(content.startsWith('hsl')) {
-						color.setHSLA(...array);
+						color.setHSL(...array);
 					}
-					color.a = array[3];
+					color.a = alpha;
 				}
 				UIColorPicker.setColor('picker', color);
+			}
+			else if( type === 'return' ){
+				currentMode = content;
 			}
 			else {
 				console.log('[ERROR] Malformed request posted to colour picker. No action taken.')
@@ -1874,12 +1882,17 @@ window.addEventListener(
 	false
 );
 
-var currentColor = 'rgba(0,0,0,0)';
+var currentMode = 'rgb';
+var currentColor = {
+	'rgb': 'rgba(0,0,0,0)',
+	'hsl': 'hsla(0,0%,0%,0)',
+	'hex': '#000'
+};
 
 function post() {
 	// Update customiser.js
 	if( window !== window.parent ){
-		window.parent.postMessage(['color', currentColor]);
+		window.parent.postMessage(['color', currentColor[currentMode]]);
 	}
 }
 

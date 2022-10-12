@@ -473,7 +473,7 @@ input:checked + .toggle.is-forced::after {
 	overflow: hidden;
 }
 
-.entry__colour::before {
+.entry__colour:not(.entry__colour--strip-alpha)::before {
 	content: "";
 	position: absolute;
 	right: 0;
@@ -492,6 +492,12 @@ input:checked + .toggle.is-forced::after {
 	right: 0;
 	bottom: 0;
 	background-color: inherit;
+}
+
+.entry__info {
+	color: var(--text-light);
+	font-size: 9px;
+	margin: 0 0 8px 8px;
 }
 
 .entry__reset {
@@ -849,6 +855,7 @@ input:checked + .toggle.is-forced::after {
 	position: absolute;
 	border-style: solid;
 	border-color: transparent;
+	pointer-events: none;
 }
 .dynamic-popup::before {
 	border-width: 10px;
