@@ -66,7 +66,8 @@ class DynamicPopup {
 
 	// target should either be an HTML element or an array of [x, y] coords.
 	show(target, alignment = 'left') {
-		// setup variables
+		// Setup variables
+
 		let x = 0;
 		let y = 0;
 		let targetW = 0;
@@ -90,7 +91,8 @@ class DynamicPopup {
 			return false;
 		}
 
-		// calculate position
+		// Calculate position
+
 		if(alignment === 'left') {
 			x = x + targetW + 12;
 			y = y + targetH/2 - popH/2;
@@ -117,26 +119,26 @@ class DynamicPopup {
 			this.element.classList.remove('top', 'left', 'right');
 		}
 
+		// Stay within window bounds
+
 		if( x + popW > maxW ){
 			x = maxW - popW;
 		}
 		else if( x < 0 ){
 			x = 0;
 		}
-		console.log(y)
+
 		if( y + popH > maxH ){
 			y = maxH - popH;
-			console.log('ye')
 		}
 		else if( y < 0 ){
 			y = 0;
 		}
 
-		// set pos
+		// Set attributes
+
 		this.element.style.left = `${x}px`;
 		this.element.style.top = `${y}px`;
-
-		// set visible
 		this.element.classList.add('is-visible');
 	}
 

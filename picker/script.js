@@ -1864,7 +1864,6 @@ window.addEventListener(
 					}
 					color.a = array[3];
 				}
-				console.log(color);
 				UIColorPicker.setColor('picker', color);
 			}
 			else {
