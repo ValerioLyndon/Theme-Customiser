@@ -943,7 +943,7 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 			if('default' in entryData) {
 				display.style.backgroundColor = entryData['default'];
 			}
-			display.id = `${htmlId}:colour`;
+			display.id = `${htmlId}-colour`;
 			display.addEventListener('click', () => {
 				colorToSet = {
 					'html': display,
@@ -1185,10 +1185,12 @@ window.addEventListener(
 					colorToSet['input'].value = content;
 					colorToSet['input'].dispatchEvent(new Event('input'));
 				}
-				console.log('[WARN] Received request to change colour, but no option is currently selected.')
+				else {
+					console.log('[WARN] Received request to change colour, but no option is currently selected.');
+				}
 			}
 			else {
-				console.log('[ERROR] Malformed request received from iframe. No action taken.')
+				console.log('[ERROR] Malformed request received from iframe. No action taken.');
 			}
 		}
 	},
