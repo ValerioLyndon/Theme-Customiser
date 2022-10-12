@@ -57,28 +57,32 @@ function confirm(msg, options = {'Yes': {'value': true, 'type': 'suggested'}, 'N
 }
 
 // Information popup that can be positioned anywhere on the page. Useful for a variety of circumstances.
-class InfoPopup {
+class DynamicPopup {
 	constructor() {
 		this.element = document.createElement('div');
-		this.element.className = 'info-popup';
-		this.width = 270;
+		this.element.className = 'dynamic-popup';
 		document.body.appendChild(this.element);
 	}
 
 	// target should either be an HTML element or an array of [x, y] coords.
-	show(target, text = '', alignment = 'left') {
+	show(target, alignment = 'left') {
 		// setup variables
-		let x = 0,
-			y = 0,
-			w = 0,
-			h = 0;
+		let x = 0;
+		let y = 0;
+		let targetW = 0;
+		let targetH = 0;
+		let popW = this.element.getBoundingClientRect().width;
+		let popH = this.element.getBoundingClientRect().height;
+		let maxW = window.innerWidth;
+		let maxH = window.innerHeight;
 
 		if(target instanceof Element || target instanceof HTMLElement) {
 			let bounds = target.getBoundingClientRect();
 			x = bounds.left;
 			y = bounds.top;
-			w = target['offsetWidth'];
-			h = target['offsetHeight'];
+			targetW = bounds.width;
+			targetH = bounds.height;
+			
 		} else if(target instanceof Array) {
 			x = target[0];
 			y = target[1];
@@ -88,37 +92,49 @@ class InfoPopup {
 
 		// calculate position
 		if(alignment === 'left') {
-			x = x + w + 12;
-			y = y - 16;
+			x = x + targetW + 12;
+			y = y + targetH/2 - popH/2;
 			this.element.classList.add('left');
 			this.element.classList.remove('top', 'bottom', 'right');
 		}
 		else if(alignment === 'right') {
-			x = x + w + 8 - this.width;
-			y = y - 16;
+			x = x + targetW + 8 - popW;
+			y = y - popH / 2;
 			this.element.classList.add('right');
 			this.element.classList.remove('top', 'bottom', 'left');
 		}
 		else if(alignment === 'top') {
-			x = x + (w / 2) - (this.width / 2);
-			y = y + h + 12;
+			x = x + (targetW / 2) - (popW / 2);
+			y = y + targetH + 12;
 			this.element.classList.add('top');
 			this.element.classList.remove('left', 'bottom', 'right');
 		}
 		else if(alignment === 'bottom') {
-			x = x + (w / 2) - (this.width / 2);
+			x = x + (targetW / 2) - (popW / 2);
 			y = y - 100;
-			console.log('[warn] InfoPopup top alignment is not supported yet');
+			console.log('[warn] DynamicPopup top alignment is not supported yet');
 			this.element.classList.add('bottom');
 			this.element.classList.remove('top', 'left', 'right');
 		}
- 
+
+		if( x + popW > maxW ){
+			x = maxW - popW;
+		}
+		else if( x < 0 ){
+			x = 0;
+		}
+		console.log(y)
+		if( y + popH > maxH ){
+			y = maxH - popH;
+			console.log('ye')
+		}
+		else if( y < 0 ){
+			y = 0;
+		}
+
 		// set pos
 		this.element.style.left = `${x}px`;
 		this.element.style.top = `${y}px`;
-
-		// set text
-		this.element.innerHTML = text;
 
 		// set visible
 		this.element.classList.add('is-visible');
@@ -128,14 +144,62 @@ class InfoPopup {
 		this.element.classList.remove('is-visible');
 	}
 }
+
+class InfoPopup extends DynamicPopup {
+	constructor() {
+		super();
+		this.element.classList.add('dynamic-popup__info');
+	}
+
+	text( txt = '' ){
+		this.element.innerHTML = txt;
+	}
+}
 const info = new InfoPopup();
+
+class PickerPopup extends DynamicPopup {
+	constructor() {
+		super();
+		this.element.classList.add('dynamic-popup--picker');
+
+		this.frame = document.createElement('iframe');
+		this.frame.src = '/picker/index.html';
+		this.frame.className = 'dynamic-popup__frame';
+		this.element.appendChild(this.frame);
+
+		this.focusedElement = null;
+		this.focusedSelector = '';
+	}
+
+	post( color ){
+		this.frame.contentWindow.postMessage(['color', color]);
+	}
+
+	focus( selector ){
+		if( selector === undefined ){
+			return this.focusedSelector;
+		}
+		if( selector === false ){
+			this.focusedElement = null;
+			this.focusedSelector = '';
+			this.hide();
+		}
+		else {
+			this.focusedElement = document.getElementById(selector);
+			this.focusedSelector = selector;
+			this.show(this.focusedElement);
+		}
+	}
+}
+const picker = new PickerPopup();
 
 function infoOn(target, alignment = 'left') {
 	if(target instanceof Event) {
 		target = target['target'];
 	}
 	let text = target.getAttribute('data-info');
-	info.show(target, text, alignment);
+	info.text(text);
+	info.show(target, alignment);
 }
 function infoOff() {
 	info.hide();
@@ -956,13 +1020,11 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 					'input': interface
 				};
 
-				if(picker.getAttribute('data-focus') === htmlId) {
-					picker.classList.remove('is-active');
-					picker.removeAttribute('data-focus');
+				if(picker.focus() === `${htmlId}-colour`) {
+					picker.focus(false);
 				} else {
-					picker.classList.add('is-active');
-					picker.setAttribute('data-focus', htmlId);
-					picker.contentWindow.postMessage(['color', interface.value]);
+					picker.focus(`${htmlId}-colour`);
+					picker.post(interface.value);
 				}
 			});
 		}
@@ -1084,12 +1146,15 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 				interface.dispatchEvent(new Event('input'));
 				if( type === 'color' ){
 					display.style.backgroundColor = resetVal;
-					if( picker.getAttribute('data-focus') === htmlId ){
-						picker.contentWindow.postMessage(['color', resetVal]);
+					if( picker.focus() === htmlId ){
+						picker.post(resetVal);
 					}
 				}
 			});
-			reset.addEventListener('mouseover', () => { info.show(reset, 'Reset this option to default.', 'top'); });
+			reset.addEventListener('mouseover', () => {
+				info.text('Reset this option to default.');
+				info.show(reset, 'top');
+			});
 			reset.addEventListener('mouseleave', () => { info.hide(); });
 		}
 
@@ -1911,8 +1976,6 @@ var userSettings = {
 	'options': {},
 	'mods': {}
 };
-
-var picker = document.getElementById('js-picker');
 
 
 // Get data for all themes and call other functions
