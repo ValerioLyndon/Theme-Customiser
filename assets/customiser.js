@@ -870,6 +870,8 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 		let defaultValue = '';
 		if(entryData['default'] === undefined && entryData['type'] === 'toggle') {
 			defaultValue = false;
+		} if(entryData['default'] === undefined && entryData['type'] === 'color') {
+			defaultValue = '#d8d8d8';
 		} else if(entryData['default'] !== undefined) {
 			defaultValue = entryData['default'];
 		}
@@ -933,16 +935,20 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 			}
 		}
 
+		// Colour Options
+
 		else if(type === 'color') {
 			interface.classList.add('o-hidden');
 
 			// Add a colour preview
-			let display = document.createElement('div');
+			var display = document.createElement('div');
 			display.className = 'entry__colour';
 			inputRow.appendChild(display);
-			if('default' in entryData) {
-				display.style.backgroundColor = entryData['default'];
-			}
+
+			interface.setAttribute('value', defaultValue);
+			interface.value = defaultValue;
+			display.style.backgroundColor = defaultValue;
+
 			display.id = `${htmlId}-colour`;
 			display.addEventListener('click', () => {
 				colorToSet = {
@@ -956,10 +962,9 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 				} else {
 					picker.classList.add('is-active');
 					picker.setAttribute('data-focus', htmlId);
+					picker.contentWindow.postMessage(['color', interface.value]);
 				}
 			});
-
-			//interface.addEventListener('input', validateInput.bind(display, htmlId, type));
 		}
 
 		// Range Options
@@ -1074,8 +1079,15 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 			inputRow.appendChild(reset);
 			
 			reset.addEventListener('click', () => {
-				interface.value = interface.getAttribute('value');
+				let resetVal = interface.getAttribute('value');
+				interface.value = resetVal;
 				interface.dispatchEvent(new Event('input'));
+				if( type === 'color' ){
+					display.style.backgroundColor = resetVal;
+					if( picker.getAttribute('data-focus') === htmlId ){
+						picker.contentWindow.postMessage(['color', resetVal]);
+					}
+				}
 			});
 			reset.addEventListener('mouseover', () => { info.show(reset, 'Reset this option to default.', 'top'); });
 			reset.addEventListener('mouseleave', () => { info.hide(); });

@@ -772,11 +772,11 @@ var UIColorPicker = (function UIColorPicker() {
 	};
 
 	ColorPicker.prototype.notify = function notify(topic, value) {
-		if (this.subscribers[topic])
+		if (this.subscribers[topic]) {
 			this.subscribers[topic](value);
+		}
 
-		// Update customiser.js
-		window.parent.postMessage(['color', this.color.getRGBA()]);
+		currentColor = this.color.getRGBA();
 	};
 
 	/*************************************************************************/
@@ -1826,8 +1826,67 @@ var ColorPickerTool = (function ColorPickerTool() {
 		Tool.init();
 	};
 
+
 	return {
 		init : init
 	};
 
 })();
+
+// Listen for messages from customiser.js
+window.addEventListener(
+	"message",
+	(event) => {
+		if( event.origin === window.location.origin ){
+			var push = event.data || event.message,
+				type = push[0],
+				content = push[1];
+
+			if( type === 'color' ){
+				let color = new UIColorPicker.Color;
+				
+				if(content.startsWith('#')) {
+					color.setHexa(content);
+				} else {
+					let array = content.split('(')[1].split(')')[0].split(',');
+					for( let i = 0; i < array.length; i++ ){
+						array[i] = parseFloat(array[i].trim());
+					}
+					if( array.length < 4 ){
+						array.push(1);
+					}
+
+					if(content.startsWith('rgb')) {
+						color.setRGBA(...array);
+					}
+					else if(content.startsWith('hsl')) {
+						color.setHSLA(...array);
+					}
+					color.a = array[3];
+				}
+				console.log(color);
+				UIColorPicker.setColor('picker', color);
+			}
+			else {
+				console.log('[ERROR] Malformed request posted to colour picker. No action taken.')
+			}
+		}
+	},
+	false
+);
+
+var currentColor = 'rgba(0,0,0,0)';
+
+function post() {
+	// Update customiser.js
+	if( window !== window.parent ){
+		window.parent.postMessage(['color', currentColor]);
+	}
+}
+
+window.addEventListener('mouseup', post);
+window.addEventListener('keyup', (e) => {
+	if( e.key === 'Tab' || e.key === 'Space' ){
+		post();
+	}
+});
