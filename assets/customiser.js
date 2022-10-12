@@ -66,7 +66,7 @@ class InfoPopup {
 	}
 
 	// target should either be an HTML element or an array of [x, y] coords.
-	show(target, text = '', alignment) {
+	show(target, text = '', alignment = 'left') {
 		// setup variables
 		let x = 0,
 			y = 0,
@@ -79,9 +79,11 @@ class InfoPopup {
 			y = bounds.top;
 			w = target['offsetWidth'];
 			h = target['offsetHeight'];
-		} else {
+		} else if(target instanceof Array) {
 			x = target[0];
 			y = target[1];
+		} else {
+			return false;
 		}
 
 		// calculate position
@@ -268,7 +270,7 @@ function updateOption(optId, funcConfig = {}) {
 		}
 
 		// Add to userSettings unless matches default value
-		if(val === defaultValue) {
+		if(val === defaultValue || optData['type'] === 'range' && val === '') {
 			if(funcConfig['parentModId']) {
 				delete userSettings['mods'][funcConfig['parentModId']][optId];
 			} else {
@@ -319,27 +321,36 @@ function updateMod(modId, funcConfig = {}) {
 			for(let requirement of mod['requires']) {
 				if(requirement in theme['mods']) {
 					if(val) {
-						userSettings['mods'][requirement] = val;
-					} else {
-						delete userSettings['mods'][requirement];
+						if( !(requirement in requirements) ){
+							requirements[requirement] = {};
+						}
+						requirements[requirement][modId] = mod['name'];
+					}
+					else {
+						delete requirements[requirement][modId];
 					}
 
 					// todo: do this using js classes or something that won't fall apart the moment you change the DOM
 					let check = document.getElementById(`mod:${requirement}`),
 						requiredToggle = check.nextElementSibling;
 					
-					check.disabled = val;
-					check.checked = val;
-
-					if(val) {
+					if( Object.keys(requirements[requirement]).length === 0 ){
+						delete userSettings['mods'][requirement];
+						check.disabled = false;
+						check.checked = false;
+						requiredToggle.removeEventListener('mouseover', infoOn);
+						requiredToggle.removeEventListener('mouseleave', infoOff);
+						requiredToggle.classList.remove('is-forced', 'has-info');
+					}
+					else {
+						let names = Object.values(requirements[requirement]);
+						userSettings['mods'][requirement] = true;
+						check.disabled = true;
+						check.checked = true;
 						requiredToggle.classList.add('is-forced', 'has-info');
 						requiredToggle.addEventListener('mouseover', infoOn);
-						requiredToggle.addEventListener('mouseout', infoOff);
-						requiredToggle.setAttribute('data-info', 'This must be enabled for other options to work.');
-					} else {
-						requiredToggle.removeEventListener('mouseover', infoOn);
-						requiredToggle.removeEventListener('mouseout', infoOff);
-						requiredToggle.classList.remove('is-forced', 'has-info');
+						requiredToggle.addEventListener('mouseleave', infoOff);
+						requiredToggle.setAttribute('data-info', `This mod is required by one of your other choices. To change, disable "${names.join('" and "')}".`);
 					}
 				}
 				else {
@@ -352,21 +363,35 @@ function updateMod(modId, funcConfig = {}) {
 		if('conflicts' in mod) {
 			for(let conflict of mod['conflicts']) {
 				if(conflict in theme['mods']) {
+					if(val) {
+						if( !(conflict in conflicts) ){
+							conflicts[conflict] = {};
+						}
+						conflicts[conflict][modId] = mod['name'];
+					}
+					else {
+						delete conflicts[conflict][modId];
+					}
+
 					// todo: do this using js classes or something that won't fall apart the moment you change the DOM
 					let check = document.getElementById(`mod:${conflict}`),
 						conflictToggle = check.nextElementSibling;
-
-					check.disabled = val;
-
-					if(val) {
+					
+					if( Object.keys(conflicts[conflict]).length === 0 ){
+						check.disabled = false;
+						check.checked = false;
+						conflictToggle.removeEventListener('mouseover', infoOn);
+						conflictToggle.removeEventListener('mouseleave', infoOff);
+						conflictToggle.classList.remove('is-disabled', 'has-info');
+					}
+					else {
+						let names = Object.values(conflicts[conflict]);
+						check.disabled = true;
+						check.checked = false;
 						conflictToggle.classList.add('is-disabled', 'has-info');
 						conflictToggle.addEventListener('mouseover', infoOn);
-						conflictToggle.addEventListener('mouseout', infoOff);
-						conflictToggle.setAttribute('data-info', `This mod is incompatible with one of your choices. To use, disable "${mod['name']}".`);
-					} else {
-						conflictToggle.removeEventListener('mouseover', infoOn);
-						conflictToggle.removeEventListener('mouseout', infoOff);
-						conflictToggle.classList.remove('is-disabled', 'has-info');
+						conflictToggle.addEventListener('mouseleave', infoOff);
+						conflictToggle.setAttribute('data-info', `This mod is incompatible with one of your choices. To use, disable "${names.join('" and "')}".`);
 					}
 				}
 				else {
@@ -375,18 +400,10 @@ function updateMod(modId, funcConfig = {}) {
 			}
 		}
 
-		// Add some CSS style rules
+		// Mod enabled
 		if(val === true) {
 			document.getElementById(`mod-parent:${modId}`).classList.add('is-enabled');
-		} else {
-			document.getElementById(`mod-parent:${modId}`).classList.remove('is-enabled');
-		}
 
-		// Add to userSettings unless matches default value (i.e disabled)
-		if(val === false) {
-			delete userSettings['mods'][modId];
-		}
-		else {
 			// Update HTML if necessary
 			if(funcConfig['forceValue'] !== undefined) {
 				toggle.checked = val;
@@ -402,6 +419,14 @@ function updateMod(modId, funcConfig = {}) {
 			}
 		}
 
+		// Mod disabled
+		else {
+			document.getElementById(`mod-parent:${modId}`).classList.remove('is-enabled');
+			
+			// Remove from userSettings
+			delete userSettings['mods'][modId];
+		}
+
 		return true;
 	}
 	catch(e) {
@@ -413,6 +438,25 @@ function updateMod(modId, funcConfig = {}) {
 // Used to force a change in settings.
 // Confirms all settings are correct, applies them to the HTML, then calls updateCss()
 function applySettings(settings = false) {
+	// resets all HTML before applying new settings.
+	document.getElementById('js-theme').reset();
+	for(let entry of document.querySelectorAll('.entry.is-enabled')) {
+		entry.classList.remove('is-enabled');
+	}
+	for(let check of document.querySelectorAll('.entry input')) {
+		check.disabled = false;
+	}
+	for(let toggle of document.querySelectorAll('.toggle')) {
+		toggle.classList.remove('is-disabled', 'is-forced', 'has-info');
+	}
+	for(let swatch of document.getElementsByClassName('entry__colour')) {
+		swatch.style.backgroundColor = '';
+		swatch.style.backgroundColor = swatch.getAttribute('value');
+	}
+
+	// Updates variables to match new settings
+	requirements = {};
+	conflicts = {};
 	if(settings) {
 		if(settings['options']) {
 			userSettings['options'] = settings['options'];
@@ -433,8 +477,11 @@ function applySettings(settings = false) {
 			delete userSettings['options'][optId];
 			errors.push(`opt:<b>${optId}</b>`);
 		}
+		else if(theme['options'][optId]['type'] === 'range') {
+			document.getElementById(`opt:${optId}-range`).value = val;
+		}
 		else if(theme['options'][optId]['type'] === 'color') {
-			document.getElementById(`opt:${optId}:colour`).style.backgroundColor = val;
+			document.getElementById(`opt:${optId}-colour`).style.backgroundColor = val;
 		}
 	}
 	for(let [modId, modOpts] of Object.entries(userSettings['mods'])) {
@@ -449,8 +496,11 @@ function applySettings(settings = false) {
 				delete userSettings['mods'][modId][optId];
 				errors.push(`opt:<b>${optId}</b><i> of mod:${modId}</i>`);
 			}
+			else if(theme['mods'][modId]['options'][optId]['type'] === 'range') {
+				document.getElementById(`mod:${modId}:${optId}-range`).value = optVal;
+			}
 			else if(theme['mods'][modId]['options'][optId]['type'] === 'color') {
-				document.getElementById(`mod:${modId}:${optId}:colour`).style.backgroundColor = optVal;
+				document.getElementById(`mod:${modId}:${optId}-colour`).style.backgroundColor = optVal;
 			}
 		}
 	}
@@ -485,6 +535,27 @@ async function updateCss() {
 		}
 	}
 
+	var userInserts = {};
+
+	function replacementString(length = 5) {
+		let result = '';
+		const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
+		      charactersLength = characters.length;
+		for(let i = 0; i < length; i++) {
+			if(i % 2 === 0) {
+				result += '~';
+			}
+			result += characters.charAt(Math.random() * 
+		charactersLength);
+		}
+		result += '~';
+		// Start over if string already exists
+		if(userInserts[replacementString] !== undefined) {
+			result = replacementString(length);
+		}
+		return result;
+	}
+
 	async function applyOptionToCss(css, optData, insert) {
 		let type = optData['type'],
 			qualifier = optData['type'].split('/')[1];
@@ -501,6 +572,9 @@ async function updateCss() {
 				insert = `url(${insert})`;
 			}
 		}
+		else if(qualifier === 'url_fragment') {
+			insert = encodeURIComponent(insert.trim());
+		}
 
 		if(type === 'select') {
 			var replacements = optData['selections'][insert]['replacements'];
@@ -516,9 +590,13 @@ async function updateCss() {
 			// Fetch external CSS if necessary
 			replace = await returnCss(replace);
 
-			// Find {{{insert}}} texts and replace them with user input
+			// Add a random string to CSS and user input to dictionary.
+			// String will be replaced by user input later.
+			// This prevents input accidentally getting over-ridden by other replacements
 			if(type !== 'select' && type !== 'toggle') {
-				replace = replace.replaceAll('{{{insert}}}', insert);
+				let str = replacementString(10);
+				userInserts[str] = insert;
+				replace = replace.replaceAll('{{{insert}}}', str);
 			}
 
 			// Use RegExp if called for
@@ -571,6 +649,13 @@ async function updateCss() {
 		}
 	}
 
+	// Process user inserts after all other code has been added.
+	// This prevents unexpected behaviour with user inserts that match other replacements.
+
+	for(let [find, replace] of Object.entries(userInserts)) {
+		newCss = newCss.replaceAll(find,replace);
+	}
+
 	// Encode options & sanitise any CSS character
 
 	let tempSettings = structuredClone(userSettings);
@@ -618,7 +703,7 @@ async function updateCss() {
 function validateInput(htmlId, type) {
 	let notice = document.getElementById(`${htmlId}-notice`),
 		noticeHTML = '',
-		val = document.getElementById(`${htmlId}`).value.toLowerCase(),
+		val = document.getElementById(htmlId).value.toLowerCase(),
 		problems = 0,
 		qualifier = type.split('/')[1];
 	
@@ -626,8 +711,19 @@ function validateInput(htmlId, type) {
 		notice.classList.add('o-hidden');
 		return undefined;
 	}
+	
+	if(type === 'color') {
+		let swatch = document.getElementById(`${htmlId}-colour`);
+		// reset colour before applying new one to be sure it gets reset
+		swatch.style.backgroundColor = '';
+		swatch.style.backgroundColor = val;
+		if(swatch.style.backgroundColor.length === 0) {
+			problems += 1;
+			noticeHTML = 'Your colour appears to be invalid. For help creating valid CSS colours, see <a class="hyperlink" href="https://css-tricks.com/almanac/properties/c/color/">this guide</a>.';
+		}
+	}
 
-	if(qualifier === 'image_url') {
+	else if(qualifier === 'image_url') {
 		// Consider replacing this with a script that simply loads the image and tests if it loads. Since we're already doing that with the preview anyway it shouldn't be a problem.
 		noticeHTML = 'We detected some warnings. If your image does not display, fix these issues and try again.<ul class="info-box__list">';
 
@@ -651,7 +747,6 @@ function validateInput(htmlId, type) {
 				problem('SVG images will not display on your list while logged out or for other users. Host your CSS on an external website to bypass this.');
 			}
 		}
-		
 	}
 
 	else if(qualifier === 'size') {
@@ -693,18 +788,12 @@ function resetSettings() {
 }
 
 function clearCache() {
-	confirm('Clear all cached data? This can be useful if the customiser is pulling out-of-date CSS or something seems broken, but normally this should never be needed.', {'Yes': {'value': true, 'type': 'danger'}, 'No': {'value': false}})
+	confirm('Clear all cached data? This can be useful if the customiser is pulling out-of-date CSS or something seems broken, but normally this should never be needed.')
 	.then((choice) => {
 		if(choice) {
 			sessionStorage.clear();
 			localStorage.removeItem('tcImport');
-			messenger.timeout('Cache cleared.');
-			confirm('Cache cleared! Reload the current page? This will load the customiser with a fresh slate.')
-			.then((choice) => {
-				if(choice) {
-					location.reload();
-				}
-			});
+			messenger.send('Customiser cache cleared. There may still be issues with the browser cache. To avoid any such issues, please force-reload the page by using Ctrl+F5, Ctrl+Shift+R, or hold Ctrl while clicking the reload button.');
 		}
 	});
 }
@@ -748,7 +837,13 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 	// Option & Mod Specific HTML
 
 	if(entryType === 'option') {
+		div.classList.add('entry__option');
+
 		let htmlId = parentId ? `mod:${parentId}:${entryId}` : `opt:${entryId}`;
+
+		let inputRow = document.createElement('div');
+		inputRow.className = 'entry__inputs';
+		div.appendChild(inputRow);
 
 		// Validate JSON
 
@@ -789,7 +884,6 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 		let helpLink = document.createElement('a');
 		helpLink.className = 'entry__help hyperlink';
 		helpLink.target = "_blank";
-		div.classList.add('has-help');
 		head.appendChild(helpLink);
 
 		// Type-specific Option HTML & Functions
@@ -797,12 +891,23 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 		let interface = document.createElement('input');
 		interface.placeholder = 'Your text here.';
 		interface.className = 'input';
+		if(type === 'toggle' && defaultValue == true) {
+			interface.setAttribute('checked', 'checked');
+		} else if(!(type === 'toggle')) {
+			interface.setAttribute('value', defaultValue);
+		}
 
 		// Text-based Options
 
-		if(type === 'text') {
+		if(type.startsWith('text')) {
 			interface.type = 'text';
 			interface.value = entryData['default'];
+
+			if(type === 'textarea') {
+				interface = document.createElement('textarea');
+				interface.className = 'input entry__textarea input--textarea';
+				interface.value = entryData['default'];
+			}
 
 			if(qualifier === 'value') {
 				interface.placeholder = 'Your value here.';
@@ -815,7 +920,7 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 			}
 			else if(qualifier === 'size') {
 				interface.placeholder = 'Your size here. e.x 200px, 33%, 20vw, etc.';
-				interface.addEventListener('input', () => { validateInput(htmlId, type) });
+				interface.addEventListener('input', () => { validateInput(htmlId, entryData['type']); });
 			}
 			else if(qualifier === 'image_url') {
 				interface.type = 'url';
@@ -824,7 +929,7 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 				helpLink.innerHTML = 'Tips & Help <i class="fa-solid fa-circle-question"></i>';
 				helpLink.href = 'https://github.com/ValerioLyndon/MAL-Public-List-Designs/wiki/Image-Hosting-Tips';
 
-				interface.addEventListener('input', () => { validateInput(htmlId, type); });
+				interface.addEventListener('input', () => { validateInput(htmlId, entryData['type']); });
 			}
 		}
 
@@ -857,10 +962,63 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 			//interface.addEventListener('input', validateInput.bind(display, htmlId, type));
 		}
 
-		else if(type === 'textarea') {
-			interface = document.createElement('textarea');
-			interface.className = 'input entry__textarea input--textarea';
-			interface.value = entryData['default'];
+		// Range Options
+
+		else if(type === 'range') {
+			interface.classList.add('input--small');
+			interface.type = 'number';
+			interface.addEventListener('input', () => {
+				range.value = interface.value;
+			});
+			interface.placeholder = '#';
+			
+			let range = document.createElement('input');
+			range.type = 'range';
+			range.id = `${htmlId}-range`;
+			range.className = 'range';
+			range.setAttribute('value', defaultValue);
+			range.addEventListener('input', () => {
+				interface.value = range.value;
+				updateOption(entryId, {'parentModId': parentId});
+				updateCss();
+			});
+
+			inputRow.appendChild(range);
+
+			let difference = 100,
+				min = 0,
+				max = 100;
+
+			if('step' in entryData && entryData['step'] < 1) {
+				difference = 1;
+			}
+
+			if('min' in entryData && 'max' in entryData) {
+				min = entryData['min'];
+				max = entryData['max'];
+			}
+			else if('min' in entryData) {
+				min = entryData['min'];
+				max = entryData['min'] + difference;
+			}
+			else if('max' in entryData) {
+				max = entryData['max'];
+				min = entryData['max'] - difference;
+			}
+
+			interface.setAttribute('min', min);
+			range.setAttribute('min', min);
+			interface.setAttribute('max', max);
+			range.setAttribute('max', max);
+
+			if('step' in entryData) {
+				interface.setAttribute('step', entryData['step']);
+				range.setAttribute('step', entryData['step']);
+			}
+			else if(max - min <= 5) {
+				interface.setAttribute('step', 0.1);
+				range.setAttribute('step', 0.1);
+			}
 		}
 
 		// Toggle Options
@@ -869,9 +1027,6 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 			interface.type = 'checkbox';
 			interface.id = htmlId;
 			interface.className = 'o-hidden';
-			if(entryData['default'] == true) {
-				interface.checked = true;
-			}
 			headRight.innerHTML = `
 				<label class="toggle" for="${htmlId}"></label>
 			`;
@@ -906,7 +1061,24 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 		if(type === 'toggle') {
 			headRight.prepend(interface);
 		} else {
-			div.appendChild(interface);
+			inputRow.appendChild(interface);
+		}
+
+		// Add reset button
+
+		if(type !== 'select' && type !== 'toggle') {
+			let reset = document.createElement('button');
+			reset.type = 'button';
+			reset.className = 'button entry__reset has-info';
+			reset.innerHTML = '<i class="fa-solid fa-rotate-right"></i>';
+			inputRow.appendChild(reset);
+			
+			reset.addEventListener('click', () => {
+				interface.value = interface.getAttribute('value');
+				interface.dispatchEvent(new Event('input'));
+			});
+			reset.addEventListener('mouseover', () => { info.show(reset, 'Reset this option to default.', 'top'); });
+			reset.addEventListener('mouseleave', () => { info.hide(); });
 		}
 
 		// Add notice
@@ -931,7 +1103,7 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 			link.className = 'entry__external-link js-info';
 			link.setAttribute('data-info', 'This mod has linked an external resource or guide for you to install. Unless otherwise instructed, these should be installed <b>after</b> you install the main theme.')
 			link.addEventListener('mouseover', () => { infoOn(link); });
-			link.addEventListener('mouseout', infoOff);
+			link.addEventListener('mouseleave', infoOff);
 			link.href = entryData['url'];
 			link.target = "_blank";
 			link.innerHTML = `
@@ -964,11 +1136,11 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 
 		// Add mod tag to list of tags
 		if('tags' in entryData) {
-			for(let tag of entryData['tags']) {
-				if(modTags[tag]) {
-					modTags[tag].push(entryId);
-				} else {
-					modTags[tag] = [entryId];
+			tempTags = formatFilters(entryData['tags']);
+
+			for( let [category, tags] of Object.entries(tempTags) ){
+				for( let tag of tags ){
+					pushFilter(entryId, tag, category);
 				}
 			}
 		}
@@ -1074,6 +1246,7 @@ function pageSetup() {
 		optionsEle.parentNode.remove();
 	}
 
+	let mods = [];
 	let modsEle = document.getElementById('js-mods');
 	if('mods' in theme) {
 		for (const mod of Object.entries(theme['mods'])) {
@@ -1081,6 +1254,7 @@ function pageSetup() {
 			if(typeof renderedMod === 'string') {
 				console.log(`[ERROR] Skipped mod "${modId}": ${renderedMod}`);
 			} else {
+				mods.push(renderedMod);
 				modsEle.appendChild(renderedMod);
 			}
 		}
@@ -1089,8 +1263,9 @@ function pageSetup() {
 	}
 
 	// Tag links
-	if(Object.entries(modTags).length > 0 && Object.entries(theme['mods']).length > 3) {
-		renderTags(modTags, Object.keys(theme['mods']), 'mod-parent:ID');
+	if(Object.entries(tags).length > 0 && Object.entries(theme['mods']).length > 3) {
+		var filter = new BaseFilters(mods, 'mod-parent:ID');
+		filter.initialiseTags(tags);
 	}
 
 	// Back link
@@ -1129,78 +1304,21 @@ function pageSetup() {
 		}
 	}
 
-	let intendedConfig = document.getElementById('js-intended-config');
+	// Theme config - variables & functions
 
-	// Add support
-	if('supports' in theme && theme['supports'].length === 1) {
-		let type = theme['supports'][0];
-		if(['animelist','mangalist'].includes(type)) {
-			intendedConfig.classList.remove('o-hidden');
-			
-			let parent = document.getElementById('js-list-type'),
-				child = document.getElementById('js-list-type__text');
-			child.innerHTML = `This theme was designed only for <b>${type}s</b>. Use on ${type === 'animelist' ? 'mangalist' : 'animelist'}s may have unexpected results.`;
-			parent.classList.remove('o-hidden');
-		}
-		else {
-			messenger.warn('The supported list was ignored due to being invalid. The only accepted values are "animelist" and "mangalist".');
-		}
-	} else {
-		theme['supports'] = ['animelist','mangalist'];
-	}
+	let configList = document.getElementById('js-theme-config'),
+		configNotice = document.getElementById('js-intended-config');
 
-	// Add classic list functions
+	var listType = 'both';
 
-	let installBtn = document.getElementById('js-installation-btn');
-	if(theme['type'] === 'classic') {
-		installBtn.addEventListener('click', () => { toggleEle('#js-pp-installation-classic') });
-		installBtn.textContent = 'How do I install classic lists?';
-	} else {
-		installBtn.addEventListener('click', () => { toggleEle('#js-pp-installation-modern') });
-	}
-
-	// Set preview options
-
-	if('preview' in theme) {
-		// Cover
-		if(theme['type'] === 'classic') {
-			document.getElementById('js-preview-options__cover').remove();
-		}
-		else if('cover' in theme['preview']) {
-			let check = document.getElementById('js-preview__cover'),
-				toggle = check.nextElementSibling,
-				val = true;
-
-			if(!theme['preview']['cover']) {
-				val = false;
-				toggle.classList.add('is-disabled', 'has-info');
-			} else {
-				toggle.classList.add('is-forced', 'has-info');
-			}
-			check.checked = val;
-			check.disabled = true;
-			toggle.removeAttribute('onclick');
-			toggle.addEventListener('mouseover', function(e) { infoOn(toggle, 'top') });
-			toggle.addEventListener('mouseout', infoOff);
-			postToIframe(['cover', val]);
-		}
-
-		// Category
-		if('category' in theme['preview']) {
-			postToIframe(['category', theme['preview']['category']])
-		}
-	}
-
-	// Set theme columns and push to iframe
-
-	let baseColumns = {
+	var baseColumns = {
 			'animelist': ['Numbers', 'Score', 'Type', 'Episodes', 'Rating', 'Start/End Dates', 'Total Days Watched', 'Storage', 'Tags', 'Priority', 'Genre', 'Demographics', 'Image', 'Premiered', 'Aired Dates', 'Studios', 'Licensors', 'Notes'],
 			'mangalist': ['Numbers', 'Score', 'Type', 'Chapters', 'Volumes', 'Start/End Dates', 'Total Days Read', 'Retail Manga', 'Tags', 'Priority', 'Genres', 'Demographics', 'Image', 'Published Dates', 'Magazine', 'Notes']
-		},
-		columns = {};
+		};
 
-	function processColumns(base, mode, todo) {
-		let columns = {};
+	function processColumns(mode, todo, listType) {
+		let columns = {},
+			base = baseColumns[listType];
 
 		for(let col of base) {
 			if(Object.keys(todo).includes(col)) {
@@ -1220,10 +1338,71 @@ function pageSetup() {
 		return columns;
 	}
 
-	if('columns' in theme) {
-		intendedConfig.classList.remove('o-hidden');
+	// Check for listType support
 
-		function renderColumns(columns, listtype) {
+	if('supports' in theme && theme['supports'].length === 1) {
+		let type = theme['supports'][0];
+		if(['animelist','mangalist'].includes(type)) {
+			configNotice.classList.remove('o-hidden');
+			let typeHtml = document.createElement('div');
+			typeHtml.className = 'popup__section';
+			typeHtml.innerHTML = `
+				<h5 class="popup__sub-header">List type.</h5>
+				<p class="popup__paragraph">This theme was designed only for <b>${type}s</b>. Use on ${type === 'animelist' ? 'mangalist' : 'animelist'}s may have unexpected results.</p>
+			`;
+			configList.appendChild(typeHtml);
+		}
+		else {
+			messenger.warn('The supported list was ignored due to being invalid. The only accepted values are "animelist" and "mangalist".');
+		}
+	} else {
+		theme['supports'] = ['animelist','mangalist'];
+	}
+
+	// Set recommended category
+
+	if('category' in theme) {
+		configNotice.classList.remove('o-hidden');
+
+		let categoryDict = {
+			7: '"Show All"',
+			1: '"Watching" or "Reading"',
+			2: '"Completed"',
+			3: '"On-Hold"',
+			4: '"Dropped"',
+			6: '"Plan to Watch" or "Plan to Read"'
+		}
+
+		// recommended config
+		let categoryConfigHtml = document.createElement('div');
+		categoryConfigHtml.className = 'popup__section';
+		categoryConfigHtml.innerHTML = `
+			<h5 class="popup__sub-header">Starting category.</h5>
+			<p class="popup__paragraph">This theme recommends a specific starting category of ${categoryDict[theme['category']]}. You can set this in your <a class="hyperlink" href="https://myanimelist.net/editprofile.php?go=listpreferences" target="_blank">list preferences</a> by finding the "Default Status Selected" dropdown menus.</p>
+		`;
+		configList.appendChild(categoryConfigHtml);
+	}
+
+	// Set recommended theme columns
+
+	if('columns' in theme) {
+		configNotice.classList.remove('o-hidden');
+
+		let columnsHtml = document.createElement('div');
+		columnsHtml.className = 'popup__section';
+		columnsHtml.innerHTML = `
+			<h5 class="popup__sub-header">List columns.</h5>
+			<p class="popup__paragraph">You can set your list columns to match in your <a class="hyperlink" href="https://myanimelist.net/editprofile.php?go=listpreferences" target="_blank">list preferences</a>.</p>
+		`;
+		configList.appendChild(columnsHtml);
+
+		let mode = 'mode' in theme['columns'] ? theme['columns']['mode'] : 'whitelist';
+
+		// Do actual stuff here
+		var columnsContainer = document.createElement('div');
+		columnsContainer.className = 'columns';
+
+		function renderColumns(columns, listType) {
 			let typeWrapper = document.createElement('div'),
 				glue = document.createElement('div'),
 				classic = document.createElement('div'),
@@ -1234,7 +1413,7 @@ function pageSetup() {
 			classic.className = 'columns__split';
 			modern.className = 'columns__split';
 
-			typeWrapper.innerHTML = `<b class="columns__header">${listtype[0].toUpperCase()}${listtype.substr(1)} Columns</b>`;
+			typeWrapper.innerHTML = `<b class="columns__header">${listType[0].toUpperCase()}${listType.substr(1)} Columns</b>`;
 			typeWrapper.appendChild(glue);
 			glue.appendChild(classic);
 			if(theme['type'] === 'modern') {
@@ -1247,21 +1426,22 @@ function pageSetup() {
 				let col = document.createElement('div');
 				col.className = 'columns__item';
 				col.innerHTML = `
-					<input type="checkbox" disabled="disabled" style="display:none">
 					<label class="columns__check"></label>
 					<span class="columns__name">${name}</span>
 				`;
 				
-				let input = col.getElementsByTagName('input')[0];
+				let check = col.getElementsByTagName('label')[0];
 				
 				if(value === true) {
-					input.checked = true;
+					check.classList.add('columns__check--checked');
+					col.title = 'This column should be enabled.';
 				}
 				else if(value === false) {
-					input.checked = false;
+					col.title = 'This column should be disabled.';
 				}
 				else if(value === null) {
-					input.indeterminate = true;
+					check.classList.add('columns__check--optional');
+					col.title = 'This column is optional.';
 				}
 
 				if(['Image', 'Premiered', 'Aired Dates', 'Studios', 'Licensors', 'Published Dates', 'Magazine'].includes(name)) {
@@ -1273,31 +1453,224 @@ function pageSetup() {
 			columnsContainer.appendChild(typeWrapper);
 		}
 
-		// Get column info
-		let mode = 'mode' in theme['columns'] ? theme['columns']['mode'] : 'whitelist';
-
-		// Do actual stuff here
-		let parent = document.getElementById('js-columns');
-		parent.classList.remove('o-hidden');
-
-		var columnsContainer = document.createElement('div');
-		columnsContainer.className = 'columns';
-
-		for(let listtype of theme['supports']) {
-			if(listtype in theme['columns']) {
-				let tempcolumns = processColumns(baseColumns[listtype], mode, theme['columns'][listtype]);
-				
-				renderColumns(tempcolumns, listtype);
+		for(let listType of theme['supports']) {
+			if(listType in theme['columns']) {
+				let tempcolumns = processColumns(mode, theme['columns'][listType], listType);
+				renderColumns(tempcolumns, listType);
 			}
 		}
 
-		columns = processColumns(baseColumns[theme['supports'][0]], mode, theme['columns'][theme['supports'][0]])
+		// Add legend
 
-		parent.appendChild(columnsContainer);
+		let columnsLegend = document.createElement('div');
+		columnsLegend.className = 'columns__legend'
+		columnsLegend.innerHTML = `
+			<b class="columns__header">Legend</b>
+			<div class="columns__legend-list">
+				<div class="columns__item" title="This column should be enabled.">
+					<label class="columns__check columns__check--checked"></label>
+					<span class="columns__name">Enabled</span>
+				</div>
+				<div class="columns__item" title="This column is optional.">
+					<label class="columns__check columns__check--optional"></label>
+					<span class="columns__name">Optional</span>
+				</div>
+				<div class="columns__item" title="This column should be disabled.">
+					<label class="columns__check"></label>
+					<span class="columns__name">Disabled</span>
+				</div>
+			</div>
+		`;
+		columnsContainer.appendChild(columnsLegend);
+
+		columnsHtml.appendChild(columnsContainer);
 	}
-	// Set random columns if they aren't set
+
+	// Set recommended installation steps
+
+	let coverHtml = document.getElementById('js-install-cover'),
+		backgroundHtml = document.getElementById('js-install-background'),
+		coverCheck = document.getElementById('js-preview__cover');
+
+	if(theme['type'] === 'classic') {
+		coverHtml.remove();
+		backgroundHtml.remove();
+	}
 	else {
-		var tempcolumns = {
+		let hasCustomInstall = false,
+			customInstallTexts = [];
+
+		if('style' in theme) {
+			hasCustomInstall = true;
+
+			let styleDict = {
+					1: 'Default Theme',
+					2: 'White',
+					3: 'White Blue',
+					4: 'White Green',
+					5: 'White Red',
+					6: 'White Yellow',
+					7: 'Dark Blue',
+					8: 'Dark Green',
+					9: 'Dark Pink',
+					10: 'Dark Red'
+				},
+				styleNum = theme['style'][0],
+				styleName = styleDict[styleNum];
+			
+			customInstallTexts.push(`Use only with the "<b>${styleName}</b>" style.`);
+
+			// change install instructions to match
+			let installStep = document.getElementById('js-install-style');
+			installStep.innerHTML = `
+				<p class="popup__paragraph">Find and activate the ${styleName} style. Save your changes, then click on the style to open its page.</p>
+				<a class="dummy-theme-unit" target="_blank" href="https://myanimelist.net/ownlist/style/theme/${styleNum}">
+					<div class="dummy-theme-unit__name">${styleName}</div>
+					<img src="./images/style-${styleNum}.png" class="dummy-theme-unit__image" />
+					<div class="dummy-theme-unit__selection">
+						<label class="dummy-theme-unit__label">
+							<input type="radio" class="dummy-theme-unit__radio" checked="checked" />
+							Anime
+						</label>
+						<label class="dummy-theme-unit__label">
+							<input type="radio" class="dummy-theme-unit__radio" checked="checked" />
+							Manga
+						</label>
+					</div>
+				</a>
+				<p class="info-box">This theme requires the use of this specific style. Use of other styles may cause colour issues.</p>
+			`;
+		}
+
+		if(theme['type'] === 'classic') {
+			document.getElementById('js-preview-options__cover').remove();
+		}
+		else if('cover' in theme) {
+			// toggle button
+			let toggle = check.nextElementSibling,
+				val = true;
+
+			if(!theme['cover']) {
+				val = false;
+				toggle.classList.add('is-disabled', 'has-info');
+			} else {
+				toggle.classList.add('is-forced', 'has-info');
+			}
+			coverCheck.checked = val;
+			coverCheck.disabled = true;
+			toggle.removeAttribute('onclick');
+			toggle.addEventListener('mouseover', function(e) { infoOn(toggle, 'top') });
+			toggle.addEventListener('mouseleave', infoOff);
+
+			// installation steps
+			hasCustomInstall = true;
+
+			let choice = theme['cover'] === true ? 'Yes' : 'No',
+				extra = '';
+			if(choice === 'Yes') {
+				extra = `Be sure to upload an image by using the "Browse..." button.`;
+			}
+			
+			customInstallTexts.push(`Set the "Show cover image" option to "<b>${choice}</b>".`);
+			coverHtml.innerHTML = `
+				<p class="popup__paragraph">
+					In the sidebar, find the "Cover Image" area. Click to expand it if necessary. Set the "Show cover image" option to "<b>${choice}</b>". ${extra}
+				</p>
+			`;
+		} else {
+			coverHtml.remove();
+		}
+
+		if('background' in theme) {
+			hasCustomInstall = true;
+
+			let choice = theme['background'] === true ? 'Yes' : 'No',
+				extra = '';
+			if(choice === 'Yes') {
+				extra = `Be sure to upload an image by using the "Browse..." button.`;
+			}
+
+			customInstallTexts.push(`Set the "Show background image" option to "<b>${choice}</b>".`);
+			backgroundHtml.innerHTML = `
+				<p class="popup__paragraph">
+					In the sidebar, find the "Background Image" area. Click to expand it if necessary. Set the "Show background image" option to "<b>${choice}</b>". ${extra}
+				</p>
+			`;
+		} else {
+			backgroundHtml.remove();
+		}
+
+		if(hasCustomInstall) {
+			configNotice.classList.remove('o-hidden');
+			let installHtml = document.createElement('div');
+			installHtml.className = 'popup__section';
+			installHtml.innerHTML = `
+				<h5 class="popup__sub-header">Installation steps.</h5>
+				<p class="popup__paragraph">
+					This theme has extra installation specifications. Please take these actions during install:<br />
+					• ${customInstallTexts.join('<br />• ')}<br />
+					<br />
+					If you don't know how to apply these changes, please follow the <a class="hyperlink js-installation-btn">installation guide</a> for detailed instructions.</p>
+			`;
+			configList.appendChild(installHtml);
+		}
+	}
+
+	// Set preview options and post to preview iframe
+
+	if(!('preview' in theme)) {
+		theme['preview'] = {};
+	}
+	// Inherit settings from regular config.
+	if(!('cover' in theme['preview']) && 'cover' in theme) {
+		theme['preview']['cover'] = theme['cover'];
+	}
+	if(!('background' in theme['preview']) && 'background' in theme) {
+		theme['preview']['background'] = theme['background'];
+	}
+	if(!('columns' in theme['preview']) && 'columns' in theme) {
+		theme['preview']['columns'] = theme['columns'];
+	}
+	if(!('category' in theme['preview']) && 'category' in theme) {
+		theme['preview']['category'] = theme['category'];
+	}
+	if(!('style' in theme['preview']) && 'style' in theme) {
+		theme['preview']['style'] = theme['style'];
+	}
+
+	// Cover
+	if('cover' in theme['preview']) {
+		let val = theme['preview']['cover'];
+		// change toggle value unless it was already changed by regular settings
+		if(coverCheck.disabled === false) {
+			coverCheck.checked = val;
+		}
+		postToIframe(['cover', val]);
+	}
+
+	// Category
+	if('category' in theme['preview']) {
+		postToIframe(['category', theme['preview']['category']])
+	}
+	
+	// Style
+	if('style' in theme['preview']) {
+		postToIframe(['style', theme['preview']['style'][0]]);
+	}
+
+	// Columns
+	var tempcolumns = {};
+
+	// Set correct columns
+	let mode = 'whitelist',
+		tempListType = theme['supports'][0];
+	if('columns' in theme['preview']) {
+		mode = 'mode' in theme['preview']['columns'] ? theme['preview']['columns']['mode'] : 'whitelist';
+		tempcolumns = theme['preview']['columns'];
+	}
+	else {
+		// Set random columns if they aren't set
+		tempcolumns = {
 			'animelist': {
 				'Score': true,
 				'Episodes': true,
@@ -1310,21 +1683,32 @@ function pageSetup() {
 				'Image': true
 			}
 		};
-		let listtype = theme['supports'][0];
-		for(let col of baseColumns[listtype]) {
-			if(Object.keys(tempcolumns[listtype]).length > 8) {
+		for(let col of baseColumns[tempListType]) {
+			if(Object.keys(tempcolumns[tempListType]).length > 8) {
 				break;
 			}
 
-			if(!Object.keys(tempcolumns[listtype]).includes(col) && Math.round(Math.random()) === 1) {
-				tempcolumns[listtype][col] = true;
+			if(!Object.keys(tempcolumns[tempListType]).includes(col) && Math.round(Math.random()) === 1) {
+				tempcolumns[tempListType][col] = true;
 			}
 		}
-		columns = processColumns(baseColumns[listtype], 'whitelist', tempcolumns[listtype]);
 	}
 
-	// Update iframe
+	// process columns and update iframe
+	columns = processColumns(mode, tempcolumns[tempListType], tempListType);
 	postToIframe(['columns', columns]);
+
+	// Add classic list functions
+
+	let installBtns = document.getElementsByClassName('js-installation-btn');
+	for(let btn of installBtns) {
+		if(theme['type'] === 'classic') {
+			btn.addEventListener('click', () => { toggleEle('#js-pp-installation-classic') });
+			btn.textContent = 'How do I install classic lists?';
+		} else {
+			btn.addEventListener('click', () => { toggleEle('#js-pp-installation-modern') });
+		}
+	}
 
 	// Add expando functions
 
@@ -1458,7 +1842,7 @@ function pageSetup() {
 		}
 		else {
 			loader.text('Loading preview...');
-			console.log('[info] Awaiting iframe before completing page load.');
+			loader.log('[info] Awaiting iframe before completing page load.');
 		}
 	});
 }
@@ -1473,7 +1857,9 @@ var preview = document.getElementById('js-preview'),
 	iframe = document.createElement('iframe'),
 	iframeLoaded = false,
 	toPost = [],
-	pageLoaded = false;
+	pageLoaded = false,
+	requirements = {},
+	conflicts = {};
 
 iframe.addEventListener('load', () => {
 	iframeLoaded = true;
@@ -1504,7 +1890,7 @@ function postToIframe(msg) {
 var theme = '',
 	json = null,
 	baseCss = '',
-	modTags = {};
+	tags = {};
 
 var userSettings = {
 	'data': themeUrls[0],
@@ -1518,7 +1904,7 @@ var picker = document.getElementById('js-picker');
 // Get data for all themes and call other functions
 
 let fetchUrl = themeUrls[0],
-	selectedTheme = query.get('q') || query.get('theme');
+	selectedTheme = query.get('q') || query.get('theme') || 'theme';
 
 // Legacy processing for json 0.1 > 0.2
 if(themeUrls.length === 0 && collectionUrls.length > 0) {
@@ -1544,15 +1930,11 @@ fetchData.then((json) => {
 	try {
 		json = JSON.parse(json);
 	} catch(e) {
-		console.log(`[ERROR] Failed to parse theme JSON: ${e}`);
+		loader.logJsonError(`[ERROR] Failed to parse theme JSON.`, json, e, fetchUrl);
 		loader.failed(['Encountered a problem while parsing theme information.', 'json.parse']);
 		throw new Error('json.parse');
 	}
 
-	// Check for legacy json
-	if(themeUrls.length > 0 && collectionUrls.includes(themeUrls[0]) && !selectedTheme) {
-		selectedTheme = 'theme';
-	}
 	processJson(json, themeUrls[0], selectedTheme ? selectedTheme : 'theme')
 	.then((processedJson) => {
 
@@ -1564,7 +1946,7 @@ fetchData.then((json) => {
 			jsonfail(processedJson);
 		} else {
 			theme = processedJson['data'];
-			userSettings['theme'] = selectedTheme ? selectedTheme : theme['name'];
+			userSettings['theme'] = selectedTheme === 'theme' ? theme['name'] : selectedTheme;
 		}
 
 		// Set preview to correct type and add iframe to page

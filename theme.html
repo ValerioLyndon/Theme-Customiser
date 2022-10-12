@@ -19,7 +19,7 @@ permalink: /theme
 	<body>
 		<main class="content content__customiser" id="js-content">
 			<div class="topbar">
-				<div class="topbar__section topbar__section--left">
+				<div class="topbar__section">
 					<nav class="top-nav">
 						<a href="./" class="top-nav__link" id="js-back">
 							<i class="top-nav__icon fa fa-arrow-left"></i>
@@ -43,13 +43,13 @@ permalink: /theme
 						</a>
 					</nav>
 				</div>
-				<div class="topbar__section topbar__section--right">
+				<div class="topbar__section">
 					<div class="discrepancy-notice">
 						<div class="discrepancy-notice__title">
 							Preview will differ from the final outcome.
 						</div>
 						<div class="discrepancy-notice__body">
-							While this preview provides a very close approximation of how list designs will appear, there can be differences once you apply the CSS to your list. Certain elements may display differently, especially icons. Please install and test the layout even if there are errors in the preview.
+							This preview provides a close approximation of the actual MyAnimeList page. However, due to limitations, certain elements may display differently. Please install and test the layout even if there are errors in the preview.
 						</div>
 					</div>
 
@@ -80,7 +80,7 @@ permalink: /theme
 			</div>
 
 			<div class="sidebar" id="js-sidebar">
-				<div class="sidebar__inner">
+				<form class="sidebar__inner" id="js-theme" method="dialog" novalidate="novalidate" target="_self">
 					<div class="sidebar__decorative"></div>
 
 					<div class="sidebar__section">
@@ -91,7 +91,7 @@ permalink: /theme
 
 					<div class="sidebar__section">
 						<div class="expando js-expando" data-expando-limit="400" style="--margin: 16px" id="js-options">
-							<button class="expando__button js-expando-button">Expand</button>
+							<button type="button" class="expando__button js-expando-button">Expand</button>
 							
 							<h3 class="sidebar__header">Change theme options</h3>
 
@@ -101,19 +101,19 @@ permalink: /theme
 
 					<div class="sidebar__section">
 						<div class="expando js-expando" data-expando-limit="400" style="--margin: 16px" id="js-mods">
-							<button class="expando__button js-expando-button">Expand</button>
+							<button type="button" class="expando__button js-expando-button">Expand</button>
 							
 							<h3 class="sidebar__header">
 								Choose theme modifications
 								<div class="sidebar__header-aside">
-									<button class="button o-hidden" id="js-tags__button" onclick="toggleEle('#js-tags__cloud', this)">
-										<i class="fa-solid fa-tags"></i> Tags
+									<button type="button" class="button o-hidden" id="js-tags__button" onclick="toggleEle('#js-tags__cloud', this)">
+										<i class="fa-solid fa-tags"></i> Filters
 									</button>
 								</div>
 							</h3>
 
 							<div class="tag-cloud is-hidden" id="js-tags__cloud">
-								<small class="tag-cloud__blurb">Select a tag that interests you to narrow results.</small>
+								<small class="tag-cloud__blurb">Select a subject that interests you to narrow results.</small>
 							</div>
 							
 							<!-- mods gets put here by customiser.js -->
@@ -123,7 +123,7 @@ permalink: /theme
 					<div class="sidebar__section">
 						<h3 class="sidebar__header">Use your customised theme</h3>
 						
-						<button onclick="toggleEle('#js-pp-config')" class="alert-button o-hidden" id="js-intended-config">
+						<button type="button" onclick="toggleEle('#js-pp-config')" class="alert-button o-hidden" id="js-intended-config">
 							<div class="alert-button__icon">
 								<i class="fa-solid fa-circle-exclamation"></i>
 							</div>
@@ -142,7 +142,7 @@ permalink: /theme
 
 							<p class="info-box info-box--indented info-box--error o-hidden" id="js-output-notice"></p>
 						
-							<button class="button button--highlighted js-swappable-text" id="js-copy-output" onclick="navigator.clipboard.writeText(document.getElementById('js-output').textContent);">
+							<button type="button" class="button button--highlighted js-swappable-text" id="js-copy-output" onclick="navigator.clipboard.writeText(document.getElementById('js-output').textContent);">
 								<div class="swappable-text">
 									<div class="swappable-text__text">
 										Copy CSS
@@ -152,14 +152,14 @@ permalink: /theme
 								</div>
 							</button>
 
-							<a class="hyperlink" onclick="toggleEle('#js-pp-installation')" id="js-installation-btn">How do I install this?</a>
+							<a class="hyperlink js-installation-btn">How do I install this?</a>
 						</div>
 					</div>
 
 					<div class="sidebar__section">
-						<button class="button" onclick="toggleEle('#js-pp-export')">Export settings</button>
-						<button class="button" onclick="resetSettings()">Reset settings</button>
-						<button class="button" onclick="clearCache()">Clear cache</button>
+						<button type="button" class="button" onclick="toggleEle('#js-pp-export')">Export settings</button>
+						<button type="button" class="button" onclick="resetSettings()">Reset settings</button>
+						<button type="button" class="button" onclick="clearCache()">Clear cache</button>
 					</div>
 
 					<footer class="sidebar__section sidebar__section--no-border">
@@ -177,8 +177,8 @@ permalink: /theme
 							</div> 
 						</div>
 					</footer>
-				</div>
-
+				</form>
+			
 				<iframe src="/picker/index.html" class="colour-picker" id="js-picker"></iframe>
 			</div>
 
@@ -193,27 +193,17 @@ permalink: /theme
 
 				<div class="preview__window-wrapper" id="js-preview"></div>
 			</div>
-
-			<a href="https://github.com/ValerioLyndon/Theme-Customiser/issues/new/choose" class="beta">BETA</a>
 		</main>
 
 		<div class="popup is-hidden" id="js-pp-config">
 			<div class="popup__inner">
 				<div class="popup__invisibutton" onclick="toggleEle('#js-pp-config')"></div>
-				<div class="popup__content">
+				<div class="popup__content" id="js-theme-config">
 					<h4 class="popup__header">Recommended list configuration.</h4>
 
-					<p class="popup__paragraph">Using configurations not listed here may cause visual errors not intended by the designer. Sometimes extra configurations are supported through the use of mods.</p>
+					<p class="popup__paragraph">Using non-supported configurations may cause visual errors not intended by the designer. Sometimes extra configurations are supported through the use of mods.</p>
 
-					<div class="o-hidden" id="js-list-type">
-						<h5 class="popup__sub-header">List type.</h5>
-						<p class="popup__paragraph" id="js-list-type__text"></p>
-					</div>
-
-					<div class="o-hidden" id="js-columns">
-						<h5 class="popup__sub-header">List columns.</h5>
-						<p class="popup__paragraph">You can set your list columns to match in your <a class="hyperlink" href="https://myanimelist.net/editprofile.php?go=listpreferences" target="_blank">list preferences</a>.</p>
-					</div>
+					<!-- configuration options get placed here by customiser.js -->
 				</div>
 			</div>
 		</div>
@@ -230,10 +220,12 @@ permalink: /theme
 							<img src="./images/style-page.jpg" class="popup__image popup__image--thumb  popup__image--expand" />
 							<p class="info-box">If your page does not look like this, double check you have the "Modern" option selected. This option is found near the top, where it says "Switch Template".</p>
 						</li>
-						<li class="steps__step">
-							<p class="popup__paragraph">Open your currently selected style. The selected style will be highlighted on your page.</p>
+						<li class="steps__step" id="js-install-style">
+							<p class="popup__paragraph">Open your currently selected style by clicking on it. The selected style will be highlighted on your page.</p>
 							<img src="./images/selected-style.jpg" class="popup__image" />
 						</li>
+						<li class="steps__step" id="js-install-cover"></li>
+						<li class="steps__step" id="js-install-background"></li>
 						<li class="steps__step">
 							<p class="popup__paragraph">In the sidebar, navigate down to the "Add Custom CSS" area. Click to expand it if necessary.</p>
 							<img src="./images/custom-css.jpg" class="popup__image popup__image--thumb popup__image--expand" />
@@ -245,8 +237,9 @@ permalink: /theme
 						<li class="steps__step">
 							<p class="popup__paragraph">Click "Save" and your theme should be applied!</p>
 							<img src="./images/save.jpg" class="popup__image" />
-							<p class="info-box">If you encounter any issues with the theme colours or images, try toggling the cover and/or background images. Some themes do not play nicely with these while others may require them.</p>
-							<p class="info-box o-hidden js-help">
+						</li>
+						<li class="steps__step steps__step--blank o-hidden js-help">
+							<p class="info-box">
 								If this guide did not work for you or you have further questions, please check the theme-specific help page provided by the theme author.
 								<a class="hyperlink js-help-href">Get help</a>.
 							</p>
@@ -282,10 +275,12 @@ permalink: /theme
 						</li>
 						<li class="steps__step">
 							<p class="popup__paragraph">Go back to your <a class="hyperlink" href="https://myanimelist.net/ownlist/style">style settings</a>, then to <a href="https://myanimelist.net/editprofile.php?go=stylepref&do=changestyle" target="_blank" class="hyperlink">"Change My List Style"</a>.</p>
-							<p class="popup__paragraph">On this page, double check you have the same style number selected as the one you copied the CSS to. If they mistmatch, change it to the correct number and click "Submit".</p>
+							<p class="popup__paragraph">On this page, double check you have the same style number selected as the one you copied the CSS to. If they mismatch, change it to the correct number and click "Submit".</p>
 							<img src="./images/selected-style-classic.jpg" class="popup__image" />
 							<p class="popup__paragraph">And with that, you should be done! Check the changes on your anime or manga list.</p>
-							<p class="info-box o-hidden js-help">
+						</li>
+						<li class="steps__step steps__step--blank o-hidden js-help">
+							<p class="info-box">
 								If this guide did not work for you or you have further questions, please check the theme-specific help page provided by the theme author.
 								<a class="hyperlink js-help-href">Get help</a>.
 							</p>
@@ -306,7 +301,7 @@ permalink: /theme
 					</p>
 
 					<textarea id="js-pp-import-code" class="input input--textarea"></textarea>
-					<button class="button button--highlighted" onclick="importPreviousSettings()">Import Settings</button>
+					<button type="button" class="button button--highlighted" onclick="importPreviousSettings()">Import Settings</button>
 				</div>
 			</div>
 		</div>
@@ -322,7 +317,7 @@ permalink: /theme
 					</p>
 
 					<textarea id="js-export-code" class="input input--code" readonly="readonly"></textarea>
-					<button class="button button--highlighted js-swappable-text" onclick="navigator.clipboard.writeText(document.getElementById('js-export-code').textContent);">
+					<button type="button" class="button button--highlighted js-swappable-text" onclick="navigator.clipboard.writeText(document.getElementById('js-export-code').textContent);">
 						<div class="swappable-text">
 							<div class="swappable-text__text">
 								Copy settings
@@ -341,10 +336,21 @@ permalink: /theme
 			<div class="loading-screen__subtext" id="js-loader-subtext">JavaScript must be enabled.</div>
 			<div class="loading-screen__subtext o-hidden" id="js-loader-subsubtext">JavaScript must be enabled.</div>
 			<a class="loading-screen__hyperlink hyperlink o-hidden" id="js-loader-home" href="https://github.com/ValerioLyndon/Theme-Customiser">Go to project page.</a>
-		</div>
-
-		<div class="messenger is-hidden" id="js-messenger">
-			<div class="messenger__show-button"></div>
+			<div class="loading-screen__console o-hidden" id="js-loader-console">
+				<div class="loading-screen__console-header">
+					Timeline
+					<button type="button" class=" loading-screen__console-button button js-swappable-text" id="js-copy-output" onclick="navigator.clipboard.writeText(document.getElementById('js-loader-console-messages').outerText);">
+						<div class="swappable-text">
+							<div class="swappable-text__text">
+								Copy Logs
+								<br />
+								Copied.
+							</div>
+						</div>
+					</button>
+				</div>
+				<div class="loading-screen__message-boxes" id="js-loader-console-messages"></div>
+			</div>
 		</div>
 	</body>
 

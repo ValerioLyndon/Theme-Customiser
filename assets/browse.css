@@ -100,6 +100,7 @@
 .filter__row {
 	display: flex;
 	margin-bottom: 4px;
+	align-items: flex-start;
 }
 .filter__row--center {
 	justify-content: center;
@@ -148,20 +149,21 @@
 }
 
 .browser__card {
-	margin: 15px;
+	margin: 14px;
 	text-decoration: none;
 }
-.browser__card.is-hidden-by-tag {
+.browser__card.is-hidden-by-tag,
+.browser__card.is-hidden-by-search {
 	display: none;
 }
 
 .card {
 	display: flex;
 	flex-direction: column-reverse;
-	width: 240px;
-	border-top: 2px solid var(--accent);
+	width: 244px;
+	border: 2px solid var(--border-light);
 	border-radius: 6px;
-	box-shadow: 2px 3px 6px rgba(0,0,0,0.3);
+	box-shadow: 0 1px 3px rgba(255,255,255,.7), 0 2px 6px rgba(0,0,0,0.25);
 	overflow: hidden;
 	color: var(--text);
 	transition: transform 0.18s cubic-bezier(.3,.85,.63,1.2);
