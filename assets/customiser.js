@@ -57,28 +57,33 @@ function confirm(msg, options = {'Yes': {'value': true, 'type': 'suggested'}, 'N
 }
 
 // Information popup that can be positioned anywhere on the page. Useful for a variety of circumstances.
-class InfoPopup {
+class DynamicPopup {
 	constructor() {
 		this.element = document.createElement('div');
-		this.element.className = 'info-popup';
-		this.width = 270;
+		this.element.className = 'dynamic-popup';
 		document.body.appendChild(this.element);
 	}
 
 	// target should either be an HTML element or an array of [x, y] coords.
-	show(target, text = '', alignment = 'left') {
-		// setup variables
-		let x = 0,
-			y = 0,
-			w = 0,
-			h = 0;
+	show(target, alignment = 'left') {
+		// Setup variables
+
+		let x = 0;
+		let y = 0;
+		let targetW = 0;
+		let targetH = 0;
+		let popW = this.element.getBoundingClientRect().width;
+		let popH = this.element.getBoundingClientRect().height;
+		let maxW = window.innerWidth;
+		let maxH = window.innerHeight;
 
 		if(target instanceof Element || target instanceof HTMLElement) {
 			let bounds = target.getBoundingClientRect();
 			x = bounds.left;
 			y = bounds.top;
-			w = target['offsetWidth'];
-			h = target['offsetHeight'];
+			targetW = bounds.width;
+			targetH = bounds.height;
+			
 		} else if(target instanceof Array) {
 			x = target[0];
 			y = target[1];
@@ -86,41 +91,54 @@ class InfoPopup {
 			return false;
 		}
 
-		// calculate position
+		// Calculate position
+
 		if(alignment === 'left') {
-			x = x + w + 12;
-			y = y - 16;
+			x = x + targetW + 12;
+			y = y + targetH/2 - popH/2;
 			this.element.classList.add('left');
 			this.element.classList.remove('top', 'bottom', 'right');
 		}
 		else if(alignment === 'right') {
-			x = x + w + 8 - this.width;
-			y = y - 16;
+			x = x + targetW + 8 - popW;
+			y = y - popH / 2;
 			this.element.classList.add('right');
 			this.element.classList.remove('top', 'bottom', 'left');
 		}
 		else if(alignment === 'top') {
-			x = x + (w / 2) - (this.width / 2);
-			y = y + h + 12;
+			x = x + (targetW / 2) - (popW / 2);
+			y = y + targetH + 12;
 			this.element.classList.add('top');
 			this.element.classList.remove('left', 'bottom', 'right');
 		}
 		else if(alignment === 'bottom') {
-			x = x + (w / 2) - (this.width / 2);
+			x = x + (targetW / 2) - (popW / 2);
 			y = y - 100;
-			console.log('[warn] InfoPopup top alignment is not supported yet');
+			console.log('[warn] DynamicPopup top alignment is not supported yet');
 			this.element.classList.add('bottom');
 			this.element.classList.remove('top', 'left', 'right');
 		}
- 
-		// set pos
+
+		// Stay within window bounds
+
+		if( x + popW > maxW ){
+			x = maxW - popW;
+		}
+		else if( x < 0 ){
+			x = 0;
+		}
+
+		if( y + popH > maxH ){
+			y = maxH - popH;
+		}
+		else if( y < 0 ){
+			y = 0;
+		}
+
+		// Set attributes
+
 		this.element.style.left = `${x}px`;
 		this.element.style.top = `${y}px`;
-
-		// set text
-		this.element.innerHTML = text;
-
-		// set visible
 		this.element.classList.add('is-visible');
 	}
 
@@ -128,14 +146,62 @@ class InfoPopup {
 		this.element.classList.remove('is-visible');
 	}
 }
+
+class InfoPopup extends DynamicPopup {
+	constructor() {
+		super();
+		this.element.classList.add('dynamic-popup__info');
+	}
+
+	text( txt = '' ){
+		this.element.innerHTML = txt;
+	}
+}
 const info = new InfoPopup();
+
+class PickerPopup extends DynamicPopup {
+	constructor() {
+		super();
+		this.element.classList.add('dynamic-popup--picker');
+
+		this.frame = document.createElement('iframe');
+		this.frame.src = './picker/index.html';
+		this.frame.className = 'dynamic-popup__frame';
+		this.element.appendChild(this.frame);
+
+		this.focusedElement = null;
+		this.focusedSelector = '';
+	}
+
+	post( color ){
+		this.frame.contentWindow.postMessage(['color', color]);
+	}
+
+	focus( selector ){
+		if( selector === undefined ){
+			return this.focusedSelector;
+		}
+		if( selector === false ){
+			this.focusedElement = null;
+			this.focusedSelector = '';
+			this.hide();
+		}
+		else {
+			this.focusedElement = document.getElementById(selector);
+			this.focusedSelector = selector;
+			this.show(this.focusedElement);
+		}
+	}
+}
+const picker = new PickerPopup();
 
 function infoOn(target, alignment = 'left') {
 	if(target instanceof Event) {
 		target = target['target'];
 	}
 	let text = target.getAttribute('data-info');
-	info.show(target, text, alignment);
+	info.text(text);
+	info.show(target, alignment);
 }
 function infoOff() {
 	info.hide();
@@ -449,7 +515,7 @@ function applySettings(settings = false) {
 	for(let toggle of document.querySelectorAll('.toggle')) {
 		toggle.classList.remove('is-disabled', 'is-forced', 'has-info');
 	}
-	for(let swatch of document.getElementsByClassName('entry__colour')) {
+	for(let swatch of document.getElementsByClassName('js-swatch')) {
 		swatch.style.backgroundColor = '';
 		swatch.style.backgroundColor = swatch.getAttribute('value');
 	}
@@ -694,7 +760,7 @@ async function updateCss() {
 	document.getElementById('js-output').textContent = newCss;
 
 	// Update iframe
-	postToIframe(['css', newCss]);
+	postToPreview(['css', newCss]);
 }
 
 // "htmlId" should be a valid HTML ID to select the option with.
@@ -711,8 +777,19 @@ function validateInput(htmlId, type) {
 		notice.classList.add('o-hidden');
 		return undefined;
 	}
+	
+	if(type === 'color') {
+		let swatch = document.getElementById(`${htmlId}-colour`);
+		// reset colour before applying new one to be sure it gets reset
+		swatch.style.backgroundColor = '';
+		swatch.style.backgroundColor = val;
+		if(swatch.style.backgroundColor.length === 0) {
+			problems += 1;
+			noticeHTML = 'Your colour appears to be invalid. For help creating valid CSS colours, see <a class="hyperlink" href="https://css-tricks.com/almanac/properties/c/color/">this guide</a>.';
+		}
+	}
 
-	if(qualifier === 'image_url') {
+	else if(qualifier === 'image_url') {
 		// Consider replacing this with a script that simply loads the image and tests if it loads. Since we're already doing that with the preview anyway it shouldn't be a problem.
 		noticeHTML = 'We detected some warnings. If your image does not display, fix these issues and try again.<ul class="info-box__list">';
 
@@ -735,17 +812,6 @@ function validateInput(htmlId, type) {
 			else if(/svg(\?.*)?$/.test(val)) {
 				problem('SVG images will not display on your list while logged out or for other users. Host your CSS on an external website to bypass this.');
 			}
-		}
-	}
-
-	else if(type === 'color') {
-		let swatch = document.getElementById(`${htmlId}-colour`);
-		// reset colour before applying new one to be sure it gets reset
-		swatch.style.backgroundColor = '';
-		swatch.style.backgroundColor = val;
-		if(swatch.style.backgroundColor.length === 0) {
-			problems += 1;
-			noticeHTML = 'Your colour appears to be invalid. For help creating valid CSS colours, see <a class="hyperlink" href="https://css-tricks.com/almanac/properties/c/color/">this guide</a>.';
 		}
 	}
 
@@ -870,6 +936,8 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 		let defaultValue = '';
 		if(entryData['default'] === undefined && entryData['type'] === 'toggle') {
 			defaultValue = false;
+		} if(entryData['default'] === undefined && entryData['type'] === 'color') {
+			defaultValue = '#d8d8d8';
 		} else if(entryData['default'] !== undefined) {
 			defaultValue = entryData['default'];
 		}
@@ -899,56 +967,69 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 
 		// Text-based Options
 
-		if(type.startsWith('text') || type === 'color') {
+		if(type.startsWith('text')) {
 			interface.type = 'text';
 			interface.value = entryData['default'];
 
-			if(type === 'color') {
-				interface.placeholder = 'Your colour here. e.x rgba(0, 135, 255, 1.0)';
+			if(type === 'textarea') {
+				interface = document.createElement('textarea');
+				interface.className = 'input entry__textarea input--textarea';
+				interface.value = entryData['default'];
+			}
 
-				// Add a colour preview
-				let swatch = document.createElement('div');
-				swatch.className = 'entry__colour';
-				swatch.id = `${htmlId}-colour`;
-				swatch.style.backgroundColor = defaultValue;
-				swatch.setAttribute('value', defaultValue);
-				inputRow.appendChild(swatch);
+			if(qualifier === 'value') {
+				interface.placeholder = 'Your value here.';
+				
+				// Add help link to Mozilla docs for CSS properties
+				if(subQualifier) {
+					helpLink.innerHTML = ' Valid Inputs <i class="fa-solid fa-circle-info"></i>';
+					helpLink.href = `https://developer.mozilla.org/en-US/docs/Web/CSS/${subQualifier}#values`
+				}
+			}
+			else if(qualifier === 'size') {
+				interface.placeholder = 'Your size here. e.x 200px, 33%, 20vw, etc.';
+				interface.addEventListener('input', () => { validateInput(htmlId, entryData['type']); });
+			}
+			else if(qualifier === 'image_url') {
+				interface.type = 'url';
+				interface.placeholder = 'https://example.com/image.jpg';
 
-				helpLink.textContent = 'Colour Picker';
-				helpLink.href = 'https://mdn.github.io/css-examples/tools/color-picker/';
+				helpLink.innerHTML = 'Tips & Help <i class="fa-solid fa-circle-question"></i>';
+				helpLink.href = 'https://github.com/ValerioLyndon/MAL-Public-List-Designs/wiki/Image-Hosting-Tips';
 
 				interface.addEventListener('input', () => { validateInput(htmlId, entryData['type']); });
 			}
-			else {
-				if(type === 'textarea') {
-					interface = document.createElement('textarea');
-					interface.className = 'input entry__textarea input--textarea';
-					interface.value = entryData['default'];
-				}
+		}
 
-				if(qualifier === 'value') {
-					interface.placeholder = 'Your value here.';
-					
-					// Add help link to Mozilla docs for CSS properties
-					if(subQualifier) {
-						helpLink.innerHTML = ' Valid Inputs <i class="fa-solid fa-circle-info"></i>';
-						helpLink.href = `https://developer.mozilla.org/en-US/docs/Web/CSS/${subQualifier}#values`
-					}
-				}
-				else if(qualifier === 'size') {
-					interface.placeholder = 'Your size here. e.x 200px, 33%, 20vw, etc.';
-					interface.addEventListener('input', () => { validateInput(htmlId, entryData['type']); });
-				}
-				else if(qualifier === 'image_url') {
-					interface.type = 'url';
-					interface.placeholder = 'https://example.com/image.jpg';
+		// Colour Options
 
-					helpLink.innerHTML = 'Tips & Help <i class="fa-solid fa-circle-question"></i>';
-					helpLink.href = 'https://github.com/ValerioLyndon/MAL-Public-List-Designs/wiki/Image-Hosting-Tips';
+		else if(type === 'color') {
+			interface.classList.add('o-hidden');
 
-					interface.addEventListener('input', () => { validateInput(htmlId, entryData['type']); });
+			// Add a colour preview
+			var swatch = document.createElement('div');
+			swatch.className = 'entry__colour js-swatch';
+			inputRow.appendChild(swatch);
+
+			interface.setAttribute('value', defaultValue);
+			swatch.setAttribute('value', defaultValue);
+			interface.value = defaultValue;
+			swatch.style.backgroundColor = defaultValue;
+
+			swatch.id = `${htmlId}-colour`;
+			swatch.addEventListener('click', () => {
+				colorToSet = {
+					'html': swatch,
+					'input': interface
+				};
+
+				if(picker.focus() === `${htmlId}-colour`) {
+					picker.focus(false);
+				} else {
+					picker.focus(`${htmlId}-colour`);
+					picker.post(interface.value);
 				}
-			}
+			});
 		}
 
 		// Range Options
@@ -1063,10 +1144,20 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 			inputRow.appendChild(reset);
 			
 			reset.addEventListener('click', () => {
-				interface.value = interface.getAttribute('value');
+				let resetVal = interface.getAttribute('value');
+				interface.value = resetVal;
 				interface.dispatchEvent(new Event('input'));
+				if( type === 'color' ){
+					swatch.style.backgroundColor = resetVal;
+					if( picker.focus() === htmlId ){
+						picker.post(resetVal);
+					}
+				}
 			});
-			reset.addEventListener('mouseover', () => { info.show(reset, 'Reset this option to default.', 'top'); });
+			reset.addEventListener('mouseover', () => {
+				info.text('Reset this option to default.');
+				info.show(reset, 'top');
+			});
 			reset.addEventListener('mouseleave', () => { info.hide(); });
 		}
 
@@ -1156,6 +1247,35 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 	// Return rendered HTML
 	return div;
 }
+
+// Listen for messages from color picker
+
+var colorToSet = null;
+window.addEventListener(
+	"message",
+	function (event) {
+		if(event.origin === window.location.origin) {
+			var push = event.data || event.message,
+				type = push[0],
+				content = push[1];
+
+			if(type === 'color') {
+				if(colorToSet !== null) {
+					colorToSet['html'].style.backgroundColor = content;
+					colorToSet['input'].value = content;
+					colorToSet['input'].dispatchEvent(new Event('input'));
+				}
+				else {
+					console.log('[WARN] Received request to change colour, but no option is currently selected.');
+				}
+			}
+			else {
+				console.log('[ERROR] Malformed request received from colour picker. No action taken.')
+			}
+		}
+	},
+	false
+);
 
 
 
@@ -1607,17 +1727,17 @@ function pageSetup() {
 		if(coverCheck.disabled === false) {
 			coverCheck.checked = val;
 		}
-		postToIframe(['cover', val]);
+		postToPreview(['cover', val]);
 	}
 
 	// Category
 	if('category' in theme['preview']) {
-		postToIframe(['category', theme['preview']['category']])
+		postToPreview(['category', theme['preview']['category']])
 	}
 	
 	// Style
 	if('style' in theme['preview']) {
-		postToIframe(['style', theme['preview']['style'][0]]);
+		postToPreview(['style', theme['preview']['style'][0]]);
 	}
 
 	// Columns
@@ -1658,7 +1778,7 @@ function pageSetup() {
 
 	// process columns and update iframe
 	columns = processColumns(mode, tempcolumns[tempListType], tempListType);
-	postToIframe(['columns', columns]);
+	postToPreview(['columns', columns]);
 
 	// Add classic list functions
 
@@ -1804,7 +1924,7 @@ function pageSetup() {
 		}
 		else {
 			loader.text('Loading preview...');
-			loader.log('[info] Awaiting iframe before completing page load.');
+			console.log('[info] Awaiting preview before completing page load.');
 		}
 	});
 }
@@ -1828,7 +1948,7 @@ iframe.addEventListener('load', () => {
 	if(toPost.length > 0) {
 		console.log(`[info] Posting ${toPost.length} backlogged messages.`);
 		for(msg of toPost) {
-			postToIframe(msg);
+			postToPreview(msg);
 		}
 	}
 	if(pageLoaded === true) {
@@ -1838,7 +1958,7 @@ iframe.addEventListener('load', () => {
 
 iframe.className = 'preview__window';
 
-function postToIframe(msg) {
+function postToPreview(msg) {
 	if(iframeLoaded) {
 		iframe.contentWindow.postMessage(msg);
 		return true;
