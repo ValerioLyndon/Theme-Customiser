@@ -95,11 +95,12 @@ input:checked + .toggle:hover::after {
 }
 
 input:checked + .toggle.is-forced {
-	--hover-offset: 0;
 	background: #2ea251af;
 }
 input:checked + .toggle.is-forced::after {
+	--hover-offset: 0;
 	background: #2ea251;
+	transform: translateX(16px);
 }
 
 .info-popup {

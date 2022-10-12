@@ -321,27 +321,36 @@ function updateMod(modId, funcConfig = {}) {
 			for(let requirement of mod['requires']) {
 				if(requirement in theme['mods']) {
 					if(val) {
-						userSettings['mods'][requirement] = val;
-					} else {
-						delete userSettings['mods'][requirement];
+						if( !(requirement in requirements) ){
+							requirements[requirement] = {};
+						}
+						requirements[requirement][modId] = mod['name'];
+					}
+					else {
+						delete requirements[requirement][modId];
 					}
 
 					// todo: do this using js classes or something that won't fall apart the moment you change the DOM
 					let check = document.getElementById(`mod:${requirement}`),
 						requiredToggle = check.nextElementSibling;
 					
-					check.disabled = val;
-					check.checked = val;
-
-					if(val) {
-						requiredToggle.classList.add('is-forced', 'has-info');
-						requiredToggle.addEventListener('mouseover', infoOn);
-						requiredToggle.addEventListener('mouseleave', infoOff);
-						requiredToggle.setAttribute('data-info', 'This must be enabled for other options to work.');
-					} else {
+					if( Object.keys(requirements[requirement]).length === 0 ){
+						delete userSettings['mods'][requirement];
+						check.disabled = false;
+						check.checked = false;
 						requiredToggle.removeEventListener('mouseover', infoOn);
 						requiredToggle.removeEventListener('mouseleave', infoOff);
 						requiredToggle.classList.remove('is-forced', 'has-info');
+					}
+					else {
+						let names = Object.values(requirements[requirement]);
+						userSettings['mods'][requirement] = true;
+						check.disabled = true;
+						check.checked = true;
+						requiredToggle.classList.add('is-forced', 'has-info');
+						requiredToggle.addEventListener('mouseover', infoOn);
+						requiredToggle.addEventListener('mouseleave', infoOff);
+						requiredToggle.setAttribute('data-info', `This mod is required by one of your other choices. To change, disable "${names.join('" and "')}".`);
 					}
 				}
 				else {
@@ -354,21 +363,35 @@ function updateMod(modId, funcConfig = {}) {
 		if('conflicts' in mod) {
 			for(let conflict of mod['conflicts']) {
 				if(conflict in theme['mods']) {
+					if(val) {
+						if( !(conflict in conflicts) ){
+							conflicts[conflict] = {};
+						}
+						conflicts[conflict][modId] = mod['name'];
+					}
+					else {
+						delete conflicts[conflict][modId];
+					}
+
 					// todo: do this using js classes or something that won't fall apart the moment you change the DOM
 					let check = document.getElementById(`mod:${conflict}`),
 						conflictToggle = check.nextElementSibling;
-
-					check.disabled = val;
-
-					if(val) {
-						conflictToggle.classList.add('is-disabled', 'has-info');
-						conflictToggle.addEventListener('mouseover', infoOn);
-						conflictToggle.addEventListener('mouseleave', infoOff);
-						conflictToggle.setAttribute('data-info', `This mod is incompatible with one of your choices. To use, disable "${mod['name']}".`);
-					} else {
+					
+					if( Object.keys(conflicts[conflict]).length === 0 ){
+						check.disabled = false;
+						check.checked = false;
 						conflictToggle.removeEventListener('mouseover', infoOn);
 						conflictToggle.removeEventListener('mouseleave', infoOff);
 						conflictToggle.classList.remove('is-disabled', 'has-info');
+					}
+					else {
+						let names = Object.values(conflicts[conflict]);
+						check.disabled = true;
+						check.checked = false;
+						conflictToggle.classList.add('is-disabled', 'has-info');
+						conflictToggle.addEventListener('mouseover', infoOn);
+						conflictToggle.addEventListener('mouseleave', infoOff);
+						conflictToggle.setAttribute('data-info', `This mod is incompatible with one of your choices. To use, disable "${names.join('" and "')}".`);
 					}
 				}
 				else {
@@ -420,12 +443,20 @@ function applySettings(settings = false) {
 	for(let entry of document.querySelectorAll('.entry.is-enabled')) {
 		entry.classList.remove('is-enabled');
 	}
+	for(let check of document.querySelectorAll('.entry input')) {
+		check.disabled = false;
+	}
+	for(let toggle of document.querySelectorAll('.toggle')) {
+		toggle.classList.remove('is-disabled', 'is-forced', 'has-info');
+	}
 	for(let swatch of document.getElementsByClassName('entry__colour')) {
 		swatch.style.backgroundColor = '';
 		swatch.style.backgroundColor = swatch.getAttribute('value');
 	}
 
 	// Updates variables to match new settings
+	requirements = {};
+	conflicts = {};
 	if(settings) {
 		if(settings['options']) {
 			userSettings['options'] = settings['options'];
@@ -1788,7 +1819,9 @@ var preview = document.getElementById('js-preview'),
 	iframe = document.createElement('iframe'),
 	iframeLoaded = false,
 	toPost = [],
-	pageLoaded = false;
+	pageLoaded = false,
+	requirements = {},
+	conflicts = {};
 
 iframe.addEventListener('load', () => {
 	iframeLoaded = true;
