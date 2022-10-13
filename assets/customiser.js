@@ -975,23 +975,17 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 		let interface = document.createElement('input');
 		interface.placeholder = 'Your text here.';
 		interface.className = 'input';
-		if(type === 'toggle' && defaultValue == true) {
-			interface.setAttribute('checked', 'checked');
-		} else if(!(type === 'toggle')) {
-			interface.setAttribute('value', defaultValue);
-		}
 
 		// Text-based Options
 
 		if(type.startsWith('text')) {
 			interface.type = 'text';
-			interface.value = entryData['default'];
-
 			if(type === 'textarea') {
 				interface = document.createElement('textarea');
 				interface.className = 'input entry__textarea input--textarea';
-				interface.value = entryData['default'];
+				interface.innerHTML = defaultValue;
 			}
+			interface.value = defaultValue;
 
 			if(qualifier === 'value') {
 				interface.placeholder = 'Your value here.';
@@ -1027,7 +1021,6 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 			swatch.className = 'entry__colour js-swatch';
 			inputRow.appendChild(swatch);
 
-			interface.setAttribute('value', defaultValue);
 			swatch.setAttribute('value', defaultValue);
 			interface.value = defaultValue;
 			swatch.style.backgroundColor = defaultValue;
@@ -1162,6 +1155,12 @@ function renderCustomisation(entryType, entry, parentEntry = [undefined, undefin
 		}
 
 		// Add functionality to all the options & finalise type-specific features
+
+		if(type === 'toggle' && defaultValue == true) {
+			interface.setAttribute('checked', 'checked');
+		} else if(!(type === 'toggle')) {
+			interface.setAttribute('value', defaultValue);
+		}
 
 		interface.addEventListener('input', () => {
 			updateOption(entryId, {'parentModId': parentId});

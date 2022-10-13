@@ -116,6 +116,7 @@ body {
 	box-sizing: content-box;
 	resize: none;
 	font: inherit;
+	scrollbar-color: var(--border-heavy) var(--background);
 }
 
 .input--textarea {
@@ -131,6 +132,7 @@ body {
 	background: #404051;
 	color: #eeeeae;
 	font: 11px/1.3 monospace;
+	scrollbar-color: var(--background) var(--invert-background);
 }
 .input--small {
 	width: 60px;

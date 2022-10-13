@@ -451,8 +451,8 @@ input:checked + .toggle.is-forced::after {
 
 .entry__textarea {
 	min-height: 1.3em;
-	height: 1.3em;
-	max-height: 10em;
+	height: 3.9em;
+	max-height: 70vh;
 }
 
 /* entry inputs */
