@@ -799,6 +799,11 @@ function clearCache(  ){
 
 // Render mods and options. Used inside renderHtml()
 function renderCustomisation( entryType, entry, parentEntry = [undefined, undefined] ){
+	function fail( reason ){
+		let parentText = parentId ? ` of "${parentId}"` : '';
+		console.log(`[ERROR] Failed to render ${entryType} "${entryId}"${parentText}: ${reason}`);
+	}
+
 	let entryId = entry[0];
 	let entryData = entry[1];
 	let parentId = parentEntry[0];
@@ -856,10 +861,12 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 		let subQualifier = split[2];
 
 		if( type === 'select' && !entryData.selections ){
-			return 'Option of type "select" must contain a "selections" key.';
+			fail(`Option of type "select" must contain a "selections" key.`);
+			return;
 		}
 		else if( type !== 'select' && !entryData.replacements ){
-			return 'Option must contain a "replacements" key.';
+			fail('Option must contain a "replacements" key.');
+			return;
 		}
 
 		// Set default value if needed
@@ -1194,10 +1201,7 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 
 			for( let opt of Object.entries(entryData.options) ){
 				let renderedOpt = renderCustomisation('option', opt, entry);
-				if( typeof renderedOpt === 'string' ){
-					console.log(`[ERROR] Skipped option "${opt[0]}" of mod "${entryId}": ${renderedOpt}`);
-				}
-				else {
+				if( renderedOpt ){
 					optDiv.appendChild(renderedOpt);
 				}
 			}
@@ -1250,7 +1254,7 @@ window.addEventListener(
 // Adds functionality to page elements
 // Updates preview CSS
 // Removes loader
-function pageSetup(  ){
+function pageSetup( ){
 	loader.text('Rendering page...');
 
 	// Basic theme information
@@ -1277,10 +1281,7 @@ function pageSetup(  ){
 	if( theme.options ){
 		for( const opt of Object.entries(theme.options) ){
 			let renderedOpt = renderCustomisation('option', opt);
-			if( typeof renderedOpt === 'string' ){
-				console.log(`[ERROR] Skipped option "${opt[0]}": ${renderedOpt}`);
-			}
-			else {
+			if( renderedOpt ){
 				optionsEle.appendChild(renderedOpt);
 			}
 		}
@@ -1294,10 +1295,7 @@ function pageSetup(  ){
 	if( theme.mods ){
 		for( const mod of Object.entries(theme.mods) ){
 			let renderedMod = renderCustomisation('mod', mod);
-			if( typeof renderedMod === 'string' ){
-				console.log(`[ERROR] Skipped mod "${modId}": ${renderedMod}`);
-			}
-			else {
+			if( renderedMod ){
 				mods.push(renderedMod);
 				modsEle.appendChild(renderedMod);
 			}
