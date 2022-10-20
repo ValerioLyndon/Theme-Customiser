@@ -1179,8 +1179,8 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 		if( entryData.tags ){
 			tempTags = formatFilters(entryData.tags);
 
-			for( let [category, tags] of Object.entries(tempTags) ){
-				for( let tag of tags ){
+			for( let [category, categoryTags] of Object.entries(tempTags) ){
+				for( let tag of categoryTags ){
 					pushFilter(entryId, tag, category);
 				}
 			}
@@ -1354,8 +1354,6 @@ function pageSetup(  ){
 
 	let configList = document.getElementById('js-theme-config');
 	let configNotice = document.getElementById('js-intended-config');
-
-	var listType = 'both';
 
 	var baseColumns = {
 			'animelist': ['Numbers', 'Score', 'Type', 'Episodes', 'Rating', 'Start/End Dates', 'Total Days Watched', 'Storage', 'Tags', 'Priority', 'Genre', 'Demographics', 'Image', 'Premiered', 'Aired Dates', 'Studios', 'Licensors', 'Notes'],
@@ -1944,12 +1942,13 @@ function postToPreview( msg ){
 	return false;
 }
 
-// Variables
-
-var theme = '';
-var json = null;
-var baseCss = '';
+// Define a few variables to be sure they are available to all functions.
+var theme, json, baseCss;
+// This keeps track of any mod tags, which are entered via the pushFilter() function from common.js
+// It is then used to render the Filter section.
 var tags = {};
+// userSettings keeps track of the currently selected options on the page.
+// It is used, saved, and output in various locations.
 var userSettings = {
 	'data': themeUrls[0],
 	'options': {},
@@ -1957,32 +1956,32 @@ var userSettings = {
 };
 
 
-// Get data for all themes and call other functions
+// Get the theme's JSON URL from the query parameters.
 
 let fetchUrl = themeUrls[0];
-let selectedTheme = query.get('q') || query.get('theme') || 'theme';
 
-// Legacy processing for json 0.1 > 0.2
+// Legacy URL processing from JSON 0.1
+let selectedTheme = query.get('q') || query.get('theme') || 'theme';
 if( themeUrls.length === 0 && collectionUrls.length > 0 ){
 	fetchUrl = collectionUrls[0];
 }
-// Generic failure
+// Back to regular URL processing
 else if( themeUrls.length === 0 ){
 	loader.failed(['No theme was specified in the URL. Did you follow a broken link?', 'select']);
 	throw new Error('select');
 }
-
-loader.text('Fetching theme...');
 
 function jsonfail( msg ){
 	loader.failed([msg, 'invalid.json']);
 	throw new Error('invalid json format');
 }
 
-let fetchData = fetchFile(fetchUrl, false);
+// Fetch and process the theme URL, beginning the page setup pipeline.
 
-fetchData.then((json) => {
-	// Attempt to parse provided data.
+loader.text('Fetching theme...');
+
+fetchFile(fetchUrl, false)
+.then((json) => {
 	try {
 		json = JSON.parse(json);
 	}
@@ -1994,7 +1993,6 @@ fetchData.then((json) => {
 
 	processJson(json, themeUrls[0], selectedTheme ? selectedTheme : 'theme')
 	.then((processedJson) => {
-
 		// Get theme info from URL & take action if problematic
 		if( processedJson === false ){
 			loader.failed(['Encountered a problem while parsing theme information.', 'invalid.name']);
@@ -2042,16 +2040,15 @@ fetchData.then((json) => {
 
 		pageSetup();
 	})
-});
-
-fetchData.catch((reason) => {
+})
+.catch((reason) => {
 	loader.failed(reason);
 	throw new Error(reason);
 });
 
 
 
-// Tutorial
+// Tutorial for new users. Activated upon page load.
 function startThemeTutorial( ){
 	var tutorial = new InfoPopup;
 	let sidebar = document.getElementById('js-sidebar');
