@@ -1,3 +1,5 @@
+'use strict';
+
 // Preview-only HTML - replicating default functionality
 
 function toggle( defaultDisplay = 'block' ){
@@ -263,7 +265,7 @@ function setView( view ){
 		
 		let headerInfo = headerMenu.querySelector('.header-info');
 
-		for( btn of itemBtns ){
+		for( let btn of itemBtns ){
 			btn.className = 'add';
 			btn.firstChild.textContent = 'Add';
 		}

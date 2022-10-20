@@ -1,3 +1,5 @@
+'use strict';
+
 // ================
 // COMMON FUNCTIONS
 // ================
@@ -195,7 +197,7 @@ class ExtendedFilters extends BaseFilters {
 
 		// Apply sort, set URL query, update variables
 
-		for( i = 0; i < attributes.length; i++ ){
+		for( let i = 0; i < attributes.length; i++ ){
 			let id = attributes[i][1];
 			document.getElementById(id).style.order = i;
 		}
@@ -332,7 +334,7 @@ function renderCards( cardData ){
 		cards.push(cardParent);
 
 		// Add tags to sortable list
-		tempTags = formatFilters(theme.tags);
+		let tempTags = formatFilters(theme.tags);
 		pushFilter(thisId, theme.type, 'list type');
 		pushFilter(thisId, themeAuthor, 'author');
 		pushFilter(thisId, releaseState, 'release state');
@@ -537,6 +539,6 @@ function startBrowseTutorial( ){
 		},
 		() => { tutorial.text('Trying to import a pre-made configuration? Click on this button to bring up the Import popup.'); tutorial.show(document.getElementById('js-import'), 'right'); },
 		() => { tutorial.text('Once you\'ve found an interesting design, just click on it! The guide will continue on the theme page.'); tutorial.show([document.scrollingElement.scrollWidth/2, 220], 'left'); },
-		() => { tutorial.hide() }
+		() => { tutorial.destruct(); }
 	]);
 }

@@ -1,3 +1,5 @@
+'use strict';
+
 // ================
 // COMMON FUNCTIONS
 // ================
@@ -222,6 +224,7 @@ function updateOption( optId, funcConfig = {} ){
 		let input = document.getElementById(htmlId);
 		let val = funcConfig.forceValue;
 
+		let optData;
 		if( funcConfig.parentModId !== undefined ){
 			optData = theme.mods[funcConfig.parentModId].options[optId];
 		}
@@ -892,23 +895,23 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 
 		// Type-specific Option HTML & Functions
 
-		let interface = document.createElement('input');
-		interface.placeholder = 'Your text here.';
-		interface.className = 'input';
+		let input = document.createElement('input');
+		input.placeholder = 'Your text here.';
+		input.className = 'input';
 
 		// Text-based Options
 
 		if( type.startsWith('text') ){
-			interface.type = 'text';
+			input.type = 'text';
 			if( type === 'textarea' ){
-				interface = document.createElement('textarea');
-				interface.className = 'input entry__textarea input--textarea';
-				interface.innerHTML = defaultValue;
+				input = document.createElement('textarea');
+				input.className = 'input entry__textarea input--textarea';
+				input.innerHTML = defaultValue;
 			}
-			interface.value = defaultValue;
+			input.value = defaultValue;
 
 			if( qualifier === 'value' ){
-				interface.placeholder = 'Your value here.';
+				input.placeholder = 'Your value here.';
 				
 				// Add help link to Mozilla docs for CSS properties
 				if( subQualifier ){
@@ -917,24 +920,24 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 				}
 			}
 			else if( qualifier === 'size' ){
-				interface.placeholder = 'Your size here. e.x 200px, 33%, 20vw, etc.';
-				interface.addEventListener('input', () => { validateInput(htmlId, entryData.type); });
+				input.placeholder = 'Your size here. e.x 200px, 33%, 20vw, etc.';
+				input.addEventListener('input', () => { validateInput(htmlId, entryData.type); });
 			}
 			else if( qualifier === 'image_url' ){
-				interface.type = 'url';
-				interface.placeholder = 'https://example.com/image.jpg';
+				input.type = 'url';
+				input.placeholder = 'https://example.com/image.jpg';
 
 				helpLink.innerHTML = 'Tips & Help <i class="fa-solid fa-circle-question"></i>';
 				helpLink.href = 'https://github.com/ValerioLyndon/MAL-Public-List-Designs/wiki/Image-Hosting-Tips';
 
-				interface.addEventListener('input', () => { validateInput(htmlId, entryData.type); });
+				input.addEventListener('input', () => { validateInput(htmlId, entryData.type); });
 			}
 		}
 
 		// Colour Options
 
 		else if( type === 'color' ){
-			interface.classList.add('o-hidden');
+			input.classList.add('o-hidden');
 
 			// Add a colour preview
 			var swatch = document.createElement('div');
@@ -942,7 +945,7 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 			inputRow.appendChild(swatch);
 
 			swatch.setAttribute('value', defaultValue);
-			interface.value = defaultValue;
+			input.value = defaultValue;
 			swatch.style.backgroundColor = defaultValue;
 
 			let toReturn = 'rgb';
@@ -957,7 +960,7 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 			swatch.addEventListener('click', () => {
 				colorToSet = {
 					'html': swatch,
-					'input': interface
+					'input': input
 				};
 
 				if( picker.focus() === `${htmlId}-colour` ){
@@ -965,7 +968,7 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 				}
 				else {
 					picker.focus(`${htmlId}-colour`);
-					picker.post(['color', interface.value]);
+					picker.post(['color', input.value]);
 					picker.post(['return', toReturn])
 				}
 			});
@@ -990,12 +993,12 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 		// Range Options
 
 		else if( type === 'range' ){
-			interface.classList.add('input--small');
-			interface.type = 'number';
-			interface.addEventListener('input', () => {
-				range.value = interface.value;
+			input.classList.add('input--small');
+			input.type = 'number';
+			input.addEventListener('input', () => {
+				range.value = input.value;
 			});
-			interface.placeholder = '#';
+			input.placeholder = '#';
 			
 			let range = document.createElement('input');
 			range.type = 'range';
@@ -1003,7 +1006,7 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 			range.className = 'range';
 			range.setAttribute('value', defaultValue);
 			range.addEventListener('input', () => {
-				interface.value = range.value;
+				input.value = range.value;
 				updateOption(entryId, {'parentModId': parentId});
 				updateCss();
 			});
@@ -1031,17 +1034,17 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 				min = entryData.max - difference;
 			}
 
-			interface.setAttribute('min', min);
+			input.setAttribute('min', min);
 			range.setAttribute('min', min);
-			interface.setAttribute('max', max);
+			input.setAttribute('max', max);
 			range.setAttribute('max', max);
 
 			if( entryData.step ){
-				interface.setAttribute('step', entryData.step);
+				input.setAttribute('step', entryData.step);
 				range.setAttribute('step', entryData.step);
 			}
 			else if( max - min <= 5 ){
-				interface.setAttribute('step', 0.1);
+				input.setAttribute('step', 0.1);
 				range.setAttribute('step', 0.1);
 			}
 		}
@@ -1049,9 +1052,9 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 		// Toggle Options
 
 		else if( type === 'toggle' ){
-			interface.type = 'checkbox';
-			interface.id = htmlId;
-			interface.className = 'o-hidden';
+			input.type = 'checkbox';
+			input.id = htmlId;
+			input.className = 'o-hidden';
 			headRight.innerHTML = `
 				<label class="toggle" for="${htmlId}"></label>
 			`;
@@ -1060,8 +1063,8 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 		// Select Options
 
 		else if( type === 'select' ){
-			interface = document.createElement('select');
-			interface.className = 'select entry__select';
+			input = document.createElement('select');
+			input.className = 'select entry__select';
 
 			// Add selections
 			for( let [selectKey, selectData] of Object.entries(entryData.selections) ){
@@ -1071,30 +1074,30 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 				if( selectKey === entryData.default ){
 					selectOption.selected = true;
 				}
-				interface.append(selectOption);
+				input.append(selectOption);
 			}
 		}
 
 		// Add functionality to all the options & finalise type-specific features
 
 		if( type === 'toggle' && defaultValue == true ){
-			interface.setAttribute('checked', 'checked');
+			input.setAttribute('checked', 'checked');
 		}
 		else if( !(type === 'toggle') ){
-			interface.setAttribute('value', defaultValue);
+			input.setAttribute('value', defaultValue);
 		}
 
-		interface.addEventListener('input', () => {
+		input.addEventListener('input', () => {
 			updateOption(entryId, {'parentModId': parentId});
 			updateCss();
 		});
 
-		interface.id = htmlId;
+		input.id = htmlId;
 		if( type === 'toggle' ){
-			headRight.prepend(interface);
+			headRight.prepend(input);
 		}
 		else {
-			inputRow.appendChild(interface);
+			inputRow.appendChild(input);
 		}
 
 		// Add reset button
@@ -1107,9 +1110,9 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 			inputRow.appendChild(reset);
 			
 			reset.addEventListener('click', () => {
-				let resetVal = interface.getAttribute('value');
-				interface.value = resetVal;
-				interface.dispatchEvent(new Event('input'));
+				let resetVal = input.getAttribute('value');
+				input.value = resetVal;
+				input.dispatchEvent(new Event('input'));
 				if( type === 'color' ){
 					swatch.style.backgroundColor = resetVal;
 					if( picker.focus() === htmlId ){
@@ -1179,7 +1182,7 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 
 		// Add mod tag to list of tags
 		if( entryData.tags ){
-			tempTags = formatFilters(entryData.tags);
+			let tempTags = formatFilters(entryData.tags);
 
 			for( let [category, categoryTags] of Object.entries(tempTags) ){
 				for( let tag of categoryTags ){
@@ -1269,7 +1272,7 @@ iframe.addEventListener('load', () => {
 	iframeLoaded = true;
 	if( toPost.length > 0 ){
 		console.log(`[info] Posting ${toPost.length} backlogged messages.`);
-		for( msg of toPost ){
+		for( let msg of toPost ){
 			postToPreview(msg);
 		}
 	}
@@ -1662,6 +1665,7 @@ function pageSetup( ){
 	if( theme.type === 'classic' ){
 		coverHtml.remove();
 		backgroundHtml.remove();
+		document.getElementById('js-preview-options__cover').remove();
 	}
 	else {
 		let hasCustomInstall = false;
@@ -1709,10 +1713,7 @@ function pageSetup( ){
 			`;
 		}
 
-		if( theme.type === 'classic' ){
-			document.getElementById('js-preview-options__cover').remove();
-		}
-		else if( 'cover' in theme ){
+		if( 'cover' in theme ){
 			// toggle button
 			let toggle = check.nextElementSibling;
 			let val = true;
@@ -1866,7 +1867,7 @@ function pageSetup( ){
 	}
 
 	// process columns and update iframe
-	columns = processColumns(mode, tempcolumns[tempListType], tempListType);
+	let columns = processColumns(mode, tempcolumns[tempListType], tempListType);
 	postToPreview(['columns', columns]);
 
 	// Add classic list functions
@@ -1987,7 +1988,7 @@ function pageSetup( ){
 		}
 
 		// Clear any previous theme settings that are older than 4 hours (14,400,000ms).
-		for( i = 0; i < localStorage.length; i++ ){
+		for( let i = 0; i < localStorage.length; i++ ){
 			let key = localStorage.key(i);
 
 			if( key.startsWith('theme:') ){
@@ -2091,6 +2092,6 @@ function startThemeTutorial( ){
 			}
 		},
 		() => { tutorial.text('Have fun customising!'); tutorial.show([document.scrollingElement.scrollWidth/2, document.scrollingElement.scrollHeight/2], 'none'); },
-		() => { tutorial.hide() }
+		() => { tutorial.destruct() }
 	]);
 }

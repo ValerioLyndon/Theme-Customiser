@@ -1,3 +1,5 @@
+'use strict';
+
 // Customiser-related code
 function setColumns( columns ){
 	let selectors = [];
@@ -10,8 +12,8 @@ function setColumns( columns ){
 		}
 	}
 
-	for( sel of selectors ){
-		for( ele of document.querySelectorAll(sel) ){
+	for( let sel of selectors ){
+		for( let ele of document.querySelectorAll(sel) ){
 			ele.remove();
 		}
 	}

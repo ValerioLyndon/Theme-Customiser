@@ -1,3 +1,5 @@
+'use strict';
+
 class LoadingScreen {
 	constructor( ){
 		this.pageContent = document.getElementById('js-content');
@@ -286,6 +288,10 @@ class DynamicPopup {
 	hide( ){
 		this.element.classList.remove('is-visible');
 	}
+
+	destruct( ){
+		this.element.remove();
+	}
 }
 
 class InfoPopup extends DynamicPopup {
@@ -415,6 +421,7 @@ function importPreviousSettings( opts = undefined ){
 				window.location = `./theme?q=${previousSettings.theme}&t=${previousSettings.data}`;
 			}
 			else if( choice === 'ignore' ){
+				localStorage.removeItem('tcImport');
 				applySettings(previousSettings);
 				return true;
 			}
@@ -454,11 +461,11 @@ function toggleEle( selector, btn = false, set = undefined ){
 function capitalise( str, divider = ' ' ){
 	let words = str.split(divider);
 	
-	for( i = 0; i < words.length; i++ ){
-		let first = words[i].substring(0,1).toUpperCase();
-		let theRest = words[i].substring(1);
-		words[i] = first + theRest;
-	}
+	words.forEach((word, index) => {
+		let firstChar = word.substring(0,1).toUpperCase();
+		let otherChars = word.substring(1);
+		words[index] = firstChar + otherChars;
+	});
 	
 	str = words.join(divider);
 	return str;
@@ -953,11 +960,9 @@ function updateToBeta2( json, url, toReturn ){
 // The last step should always be a clean-up step. If you don't have any clean-up requirements, just put a blank function there.
 // If any step returns false, it will be skipped.
 function startTutorial( steps ){
+	console.log('tutorial', steps)
 	document.body.classList.add('is-not-scrollable');
 	let path = query.url.pathname;
-	if( localStorage.getItem(`tutorial-${path}`) ){
-		return false;
-	}
 
 	let overlay = document.createElement('div');
 	overlay.className = 'tutorial';
@@ -980,22 +985,19 @@ function startTutorial( steps ){
 
 	let position = 0;
 	function proceed( e ){
+		console.log('proceed', position)
 		if( e && e.target && e.target === dismiss ){
 			return;
 		}
-
-		let outcome = true;
 
 		// set tutorial html
 		let percent = (position) / progressMax * 100;
 		progress.setAttribute('style', `--progress: ${percent}%`);
 
 		// execute step
+		let outcome = false;
 		if( typeof steps[position] === 'function' ){
 			outcome = steps[position]();
-		}
-		else {
-			outcome = false;
 		}
 
 		// continue loop or finish up
@@ -1010,12 +1012,20 @@ function startTutorial( steps ){
 	}
 
 	function finish( ){
+		console.log('tutorial finish')
 		overlay.classList.add('is-hidden');
 		localStorage.setItem(`tutorial-${path}`, true);
 		document.body.classList.remove('is-not-scrollable');
 	}
 
 	overlay.addEventListener('click', proceed);
-	proceed();
+	
+	if( localStorage.getItem(`tutorial-${path}`) ){
+		finish();
+		return false;
+	}
+	else {
+		proceed();
+	}
 }
 

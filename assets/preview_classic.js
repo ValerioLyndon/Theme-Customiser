@@ -1,3 +1,5 @@
+'use strict';
+
 // Preview-only HTML - replicating default functionality
 
 function toggle( defaultDisplay = 'block' ){
@@ -226,10 +228,10 @@ function setView( view ){
 		document.body.setAttribute('data-owner', '');
 
 		if( view === 'visitor:user' ){
-			menu.innerHTML = menuHtml.visitor:user;
+			menu.innerHTML = menuHtml['visitor:user'];
 		}
 		else if( view === 'visitor:guest' ){
-			menu.innerHTML = menuHtml.visitor:guest;
+			menu.innerHTML = menuHtml['visitor:guest'];
 		}
 	}
 
