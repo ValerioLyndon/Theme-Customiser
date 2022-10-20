@@ -1242,7 +1242,105 @@ window.addEventListener(
 
 
 
-// ONE-TIME FUNCTIONS
+// ONE-TIME SETUP & PAGE SETUP
+
+// Setup preview Window early to allow it time to load.
+var preview = document.getElementById('js-preview');
+var iframe = document.createElement('iframe');
+iframe.className = 'preview__window';
+// Once both of these are true, the loader gets removed.
+var iframeLoaded = false;
+var pageLoaded = false;
+// If trying to communicate with the iframe too early, they get placed inside this variable.
+var toPost = [];
+
+// Checks if iframe is loaded and adds to backlog if not.
+function postToPreview( msg ){
+	if( iframeLoaded ){
+		iframe.contentWindow.postMessage(msg);
+		return true;
+	}
+	toPost.push(msg);
+	return false;
+}
+
+// Once loaded, the aformentioned messages get processed inside this eventlistener. 
+iframe.addEventListener('load', () => {
+	iframeLoaded = true;
+	if( toPost.length > 0 ){
+		console.log(`[info] Posting ${toPost.length} backlogged messages.`);
+		for( msg of toPost ){
+			postToPreview(msg);
+		}
+	}
+	if( pageLoaded === true ){
+		loader.loaded();
+		startThemeTutorial();
+	}
+});
+
+// Define a few variables to be sure they are available to all functions.
+var theme, json, baseCss;
+// This keeps track of any mod tags, which are entered via the pushFilter() function from common.js
+// It is then used to render the Filter section.
+var tags = {};
+// These variables track the current required or conflicting mods, based off of other enabled mods.
+var currentRequirements = {};
+var currentConflicts = {};
+// userSettings keeps track of the currently selected options on the page.
+// It is used, saved, and output in various locations.
+var userSettings = {
+	'data': themeUrls[0],
+	'options': {},
+	'mods': {}
+};
+
+// Get the theme's JSON URL from the query parameters.
+
+let fetchUrl = themeUrls[0];
+
+// Legacy URL processing from JSON 0.1
+let selectedTheme = query.get('q') || query.get('theme') || 'theme';
+if( themeUrls.length === 0 && collectionUrls.length > 0 ){
+	fetchUrl = collectionUrls[0];
+}
+// Back to regular URL processing
+else if( themeUrls.length === 0 ){
+	loader.failed(['No theme was specified in the URL. Did you follow a broken link?', 'select']);
+	throw new Error('select');
+}
+
+// Fetch and process the theme URL, beginning the page setup pipeline.
+
+loader.text('Fetching theme...');
+
+fetchFile(fetchUrl, false)
+.then((json) => {
+	try {
+		json = JSON.parse(json);
+	}
+	catch( e ){
+		loader.logJsonError(`[ERROR] Failed to parse theme JSON.`, json, e, fetchUrl);
+		loader.failed(['Encountered a problem while parsing theme information.', 'json.parse']);
+		throw new Error('json.parse');
+	}
+
+	processJson(json, themeUrls[0], selectedTheme ? selectedTheme : 'theme')
+	.then((processedJson) => {
+		theme = processedJson.data;
+		userSettings.theme = selectedTheme === 'theme' ? theme.name : selectedTheme;
+
+		pageSetup();
+	})
+	.catch((reason) => {
+		loader.failed(reason);
+		throw new Error(reason[0]);
+	});
+})
+.catch((reason) => {
+	loader.failed(reason);
+	throw new Error(reason);
+});
 
 // This function:
 // Sets up basic HTML structure
@@ -1252,7 +1350,37 @@ window.addEventListener(
 function pageSetup( ){
 	loader.text('Rendering page...');
 
-	// Basic theme information
+	// Set preview to correct type and add iframe to page
+	let framePath = './preview/';
+	if( theme.type === 'classic' ){
+		framePath += 'classic/';
+	}
+	else {
+		framePath += 'modern/';
+	}
+	if( theme.supports === ['mangalist'] ){
+		//framePath += 'mangalist.html';
+		console.log('[info] Detected mangalist only, but this feature is not yet supported.');
+		framePath += 'animelist.html';
+	}
+	else {
+		framePath += 'animelist.html';
+	}
+	iframe.src = framePath;
+	preview.appendChild(iframe);
+
+	// Test for basic JSON values to assist list designers debug.
+	if( !theme.css ){
+		console.log('[warn] Theme did not define any CSS.');
+		theme.css = '';
+	}
+	if( !theme.type ){
+		console.log('[warn] Theme did not define a list type, assuming "modern".');
+		theme.type = 'modern';
+	}
+
+	// Basic theme information / HTML changes
+	document.getElementsByTagName('title')[0].textContent = `Theme Customiser - ${theme.name}`;
 	document.getElementById('js-title').textContent = theme.name ? theme.name : 'Untitled';
 	document.getElementById('js-author').textContent = theme.author ? theme.author : 'Unknown Author';
 	document.getElementById('js-theme-credit').textContent = theme.author ? `Customising "${theme.name}" by ${theme.author}` : `Customising "${theme.name}"`;
@@ -1895,140 +2023,6 @@ function pageSetup( ){
 		}
 	});
 }
-
-
-
-// BEGIN PROGRAM & INITIALISE PAGE
-
-// Preview Window
-
-var preview = document.getElementById('js-preview');
-var iframe = document.createElement('iframe');
-var iframeLoaded = false;
-var toPost = [];
-var pageLoaded = false;
-var currentRequirements = {};
-var currentConflicts = {};
-
-iframe.addEventListener('load', () => {
-	iframeLoaded = true;
-	if( toPost.length > 0 ){
-		console.log(`[info] Posting ${toPost.length} backlogged messages.`);
-		for( msg of toPost ){
-			postToPreview(msg);
-		}
-	}
-	if( pageLoaded === true ){
-		loader.loaded();
-		startThemeTutorial();
-	}
-});
-
-iframe.className = 'preview__window';
-
-function postToPreview( msg ){
-	if( iframeLoaded ){
-		iframe.contentWindow.postMessage(msg);
-		return true;
-	}
-	toPost.push(msg);
-	return false;
-}
-
-// Define a few variables to be sure they are available to all functions.
-var theme, json, baseCss;
-// This keeps track of any mod tags, which are entered via the pushFilter() function from common.js
-// It is then used to render the Filter section.
-var tags = {};
-// userSettings keeps track of the currently selected options on the page.
-// It is used, saved, and output in various locations.
-var userSettings = {
-	'data': themeUrls[0],
-	'options': {},
-	'mods': {}
-};
-
-
-// Get the theme's JSON URL from the query parameters.
-
-let fetchUrl = themeUrls[0];
-
-// Legacy URL processing from JSON 0.1
-let selectedTheme = query.get('q') || query.get('theme') || 'theme';
-if( themeUrls.length === 0 && collectionUrls.length > 0 ){
-	fetchUrl = collectionUrls[0];
-}
-// Back to regular URL processing
-else if( themeUrls.length === 0 ){
-	loader.failed(['No theme was specified in the URL. Did you follow a broken link?', 'select']);
-	throw new Error('select');
-}
-
-// Fetch and process the theme URL, beginning the page setup pipeline.
-
-loader.text('Fetching theme...');
-
-fetchFile(fetchUrl, false)
-.then((json) => {
-	try {
-		json = JSON.parse(json);
-	}
-	catch( e ){
-		loader.logJsonError(`[ERROR] Failed to parse theme JSON.`, json, e, fetchUrl);
-		loader.failed(['Encountered a problem while parsing theme information.', 'json.parse']);
-		throw new Error('json.parse');
-	}
-
-	processJson(json, themeUrls[0], selectedTheme ? selectedTheme : 'theme')
-	.then((processedJson) => {
-		theme = processedJson.data;
-		userSettings.theme = selectedTheme === 'theme' ? theme.name : selectedTheme;
-
-		// Set preview to correct type and add iframe to page
-		let framePath = './preview/';
-		if( theme.type === 'classic' ){
-			framePath += 'classic/';
-		}
-		else {
-			framePath += 'modern/';
-		}
-		if( theme.supports === ['mangalist'] ){
-			//framePath += 'mangalist.html';
-			console.log('[info] Detected mangalist only, but this feature is not yet supported.');
-			framePath += 'animelist.html';
-		}
-		else {
-			framePath += 'animelist.html';
-		}
-		iframe.src = framePath;
-		preview.appendChild(iframe);
-
-		// Test for basic JSON values to assist list designers debug.
-		if( !theme.css ){
-			console.log('[warn] Theme did not define any CSS.');
-			theme.css = '';
-		}
-		if( !theme.type ){
-			console.log('[warn] Theme did not define a list type, assuming "modern".');
-			theme.type = 'modern';
-		}
-
-		// Set page title
-		document.getElementsByTagName('title')[0].textContent = `Theme Customiser - ${theme.name}`;
-
-		pageSetup();
-	})
-	.catch((reason) => {
-		loader.failed(reason);
-		throw new Error(reason[0]);
-	});
-})
-.catch((reason) => {
-	loader.failed(reason);
-	throw new Error(reason);
-});
-
-
 
 // Tutorial for new users. Activated upon page load.
 function startThemeTutorial( ){
