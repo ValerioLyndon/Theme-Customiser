@@ -1,5 +1,5 @@
 class LoadingScreen {
-	constructor() {
+	constructor( ){
 		this.pageContent = document.getElementById('js-content');
 		this.parent = document.getElementById('js-loader');
 		this.icon = document.getElementById('js-loader-icon');
@@ -12,7 +12,7 @@ class LoadingScreen {
 		this.stop = false;
 	}
 
-	text(txt) {
+	text( txt ){
 		this.titleText.textContent = txt;
 		this.log(txt, false);
 	}
@@ -71,16 +71,16 @@ class LoadingScreen {
 		}
 	}
 
-	loaded() {
+	loaded( ){
 		this.pageContent.classList.add('is-loaded');
 		this.parent.classList.add('is-hidden');
 		var that = this;
-		setTimeout(function() {
+		setTimeout(() => {
 			that.parent.classList.add('o-hidden');
 		}, 1500)
 	}
 
-	failed(reason_array) {
+	failed( reason_array ){
 		// only runs once
 		if( !this.stop ){
 			this.icon.className = 'loading-screen__cross';
@@ -315,7 +315,7 @@ function fetchFile( path, cacheResult = true ){
 			var request = new XMLHttpRequest();
 			request.open("GET", path, true);
 			request.send(null);
-			request.onreadystatechange = function() {
+			request.onreadystatechange = () => {
 				if( request.readyState === 4 ){
 					if( request.status === 200 ){
 						// Cache result on success and then return it
@@ -330,7 +330,7 @@ function fetchFile( path, cacheResult = true ){
 					}
 				}
 			}
-			request.onerror = function(e) {
+			request.onerror = (e) => {
 				console.log(`[ERROR] Failed while fetching "${path}". Code: request.error`);
 				reject(['Encountered a problem while loading a resource.', 'request.error']);
 			}
@@ -373,7 +373,8 @@ function importPreviousSettings( opts = undefined ){
 
 			try {
 				var previousSettings = JSON.parse(previous);
-			} catch(e) {
+			}
+			catch(e){
 				console.log(`[ERROR] Failed to parse imported settings JSON: ${e}`);
 				messenger.error('Import failed, could not interpret your options. Are you sure you copied and pasted all the settings?', 'json.parse');
 				return false;
@@ -617,7 +618,7 @@ class BaseFilters {
 				group.appendChild(button);
 
 				// format Ids
-				for( let i = 0; i < itemIds.length; i++ ) {
+				for( let i = 0; i < itemIds.length; i++ ){
 					itemIds[i] = this.formatId(itemIds[i]);
 				}
 
@@ -659,7 +660,7 @@ class BaseFilters {
 	}
 
 	// ID Formatting
-	formatId( id ) {
+	formatId( id ){
 		return this.selector.replace('ID', id);
 	}
 
@@ -677,7 +678,7 @@ class BaseFilters {
 			delete this.selectedTags[itemName];
 
 			// Remove from URL
-			if( tagIndex !== -1 ) {
+			if( tagIndex !== -1 ){
 				tagSplit.splice(tagIndex, 1);
 				query.set('tags', tagSplit.join('&&'));
 			}
@@ -689,7 +690,7 @@ class BaseFilters {
 			this.selectedTags[itemName] = itemIds;
 
 			// Add to URL
-			if( tagIndex === -1 ) {
+			if( tagIndex === -1 ){
 				tagSplit.push(itemName);
 				query.set('tags', tagSplit.join('&&'));
 			}
@@ -724,7 +725,7 @@ class BaseFilters {
 
 		// Show matching items
 		for( let item of this.items ){
-			if( andFilters.includes(item.id) ) {
+			if( andFilters.includes(item.id) ){
 				item.classList.remove(this.itemTagCls);
 			}
 			else {
@@ -844,7 +845,7 @@ async function processJson( json, url, toReturn ){
 	
 	// Process as collection or fetch correct theme from collection
 	if(toReturn === 'collection' && 'themes' in json
-	|| 'data' in json) {
+	|| 'data' in json){
 		// Convert legacy dictionary to array
 		if( json.themes && !Array.isArray(json.themes) ){
 			let arrayThemes = [];
@@ -871,7 +872,8 @@ async function processJson( json, url, toReturn ){
 				let themeJson = '';
 				try {
 					themeJson = JSON.parse(result);
-				} catch {
+				}
+				catch {
 					themeJson = false;
 				}
 				return themeJson;
@@ -944,7 +946,7 @@ function updateToBeta2( json, url, toReturn ){
 // ]
 // The last step should always be a clean-up step. If you don't have any clean-up requirements, just put a blank function there.
 // If any step returns false, it will be skipped.
-function startTutorial( steps ) {
+function startTutorial( steps ){
 	document.body.classList.add('is-not-scrollable');
 	let path = query.url.pathname;
 	if( localStorage.getItem(`tutorial-${path}`) ){

@@ -221,7 +221,7 @@ function renderCards( cardData ){
 		let themeName = theme.name ? theme.name : 'Untitled';
 		let themeAuthor = theme.author ? theme.author : 'Untitled';
 		let thisId = itemCount;
-		
+
 		if( !('url' in theme) ){
 			loader.log(`[ERROR] Skipping theme ${themeName} due to missing "url" key.`);
 			continue;
@@ -385,7 +385,8 @@ fetchAllFiles(megaUrls)
 		// Attempt to parse provided data.
 		try {
 			tempData = JSON.parse(files[i]['value']);
-		} catch(e) {
+		}
+		catch(e) {
 			loader.logJsonError(`[ERROR] Failed to parse mega collection JSON.`, files[i]['value'], e, megaUrls[i]);
 			failures++;
 			continue;
@@ -418,7 +419,8 @@ fetchAllFiles(megaUrls)
 			// Attempt to parse provided data.
 			try {
 				tempData = JSON.parse(files[i]['value']);
-			} catch(e) {
+			}
+			catch(e) {
 				loader.logJsonError('[ERROR] Failed to parse collection JSON', files[i]['value'], e, allCollectionUrls[i]);
 				failures++;
 				continue;

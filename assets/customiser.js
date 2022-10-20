@@ -60,7 +60,7 @@ function confirm( msg, options = {'Yes': {'value': true, 'type': 'suggested'}, '
 const info = new InfoPopup;
 
 class PickerPopup extends DynamicPopup {
-	constructor() {
+	constructor( ){
 		super();
 		this.element.classList.add('dynamic-popup--picker');
 
@@ -267,7 +267,7 @@ function updateOption( optId, funcConfig = {} ){
 
 		return true;
 	}
-	catch(e) {
+	catch( e ){
 		console.log(`[ERROR] Unexpected error on updateOption "${optId}": ${e}`);
 		return false;
 	}
@@ -400,7 +400,7 @@ function updateMod( modId, funcConfig = {} ){
 
 		return true;
 	}
-	catch(e) {
+	catch( e ){
 		console.log(`[ERROR] Unexpected error on updateMod "${modId}": ${e}`);
 		return false;
 	}
@@ -557,7 +557,8 @@ async function updateCss(  ){
 		else if( type === 'color' && qualifier === 'insert' ){
 			try {
 				insert = insert.split('(')[1].split(')')[0];
-			} catch {
+			}
+			catch {
 				console.log('[WARN] Failed to process "insert" type due to missing parentheses.');
 			}
 			if( subQualifier.includes('strip_alpha') ){
@@ -619,7 +620,8 @@ async function updateCss(  ){
 			for( let [location, resource] of Object.entries(modData.css) ){
 				try {
 					var modCss = await returnCss(resource);
-				} catch (failure) {
+				}
+				catch ( failure ){
 					console.log(`[ERROR] Failed applying CSS of mod ${modId}: ${failure}`);
 					messenger.error(`Failed to return CSS for mod "${modId}". Try waiting 30s then disabling and re-enabling the mod. If this continues to happen, check with the author if the listed resource still exists.`, failure[1] ? failure[1] : 'returnCss');
 				}
@@ -865,7 +867,8 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 		let defaultValue = '';
 		if( entryData.default === undefined && entryData.type === 'toggle' ){
 			defaultValue = false;
-		} if( entryData.default === undefined && entryData.type === 'color' ){
+		}
+		if( entryData.default === undefined && entryData.type === 'color' ){
 			defaultValue = '#d8d8d8';
 		}
 		else if( entryData.default !== undefined ){
@@ -1605,7 +1608,7 @@ function pageSetup(  ){
 			coverCheck.checked = val;
 			coverCheck.disabled = true;
 			toggle.removeAttribute('onclick');
-			toggle.addEventListener('mouseover', function(e) { infoOn(toggle, 'top') });
+			toggle.addEventListener('mouseover', (e) => { infoOn(toggle, 'top') });
 			toggle.addEventListener('mouseleave', infoOff);
 
 			// installation steps
@@ -1852,7 +1855,8 @@ function pageSetup(  ){
 			else {
 				try {
 					tempSettings = JSON.parse(tempSettings);
-				} catch(e) {
+				}
+				catch( e ){
 					console.log(`[ERROR] Failed to parse imported settings: ${e}`);
 					messenger.error('Failed to import options. Could not parse settings.', 'json.parse');
 				}
@@ -1981,7 +1985,8 @@ fetchData.then((json) => {
 	// Attempt to parse provided data.
 	try {
 		json = JSON.parse(json);
-	} catch(e) {
+	}
+	catch( e ){
 		loader.logJsonError(`[ERROR] Failed to parse theme JSON.`, json, e, fetchUrl);
 		loader.failed(['Encountered a problem while parsing theme information.', 'json.parse']);
 		throw new Error('json.parse');
