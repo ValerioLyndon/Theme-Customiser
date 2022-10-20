@@ -1562,7 +1562,7 @@ function pageSetup( ){
 		`;
 		configList.appendChild(columnsHtml);
 
-		let mode = 'mode' in theme.columns ? theme.columns.mode : 'whitelist';
+		let mode = theme.columns.mode ? theme.columns.mode : 'whitelist';
 
 		// Do actual stuff here
 		var columnsContainer = document.createElement('div');
@@ -1789,7 +1789,7 @@ function pageSetup( ){
 
 	// Set preview options and post to preview iframe
 
-	if( !('preview' in theme) ){
+	if( !theme.preview ){
 		theme.preview = {};
 	}
 	// Inherit settings from regular config.
