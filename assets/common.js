@@ -199,6 +199,8 @@ class DynamicPopup {
 		this.element = document.createElement('div');
 		this.element.className = 'dynamic-popup';
 		document.body.appendChild(this.element);
+		// Prevent "this" from being hijacked by other code
+		this.hide = this.hide.bind(this);
 	}
 
 	// target should either be an HTML element or an array of [x, y] coords.
@@ -804,13 +806,14 @@ const query = new class ActiveURLParams {
 
 // VARIABLES
 
-const
-	megaUrls = query.getAll('m'),
-	collectionUrls = query.getAll('c'),
-	themeUrls = query.getAll('t'),
-	loader = new LoadingScreen(),
-	messenger = new MessageHandler(),
-	jsonVersion = 0.3;
+const loader = new LoadingScreen();
+const messenger = new MessageHandler();
+// Get all the potential combinations of data JSON URLs for fetching later
+const megaUrls = query.getAll('m');
+const collectionUrls = query.getAll('c');
+const themeUrls = query.getAll('t');
+// Define current application version to process all theme & collection JSON.
+const jsonVersion = 0.3;
 
 loader.log('Page initialised.', false);
 
@@ -960,7 +963,6 @@ function updateToBeta2( json, url, toReturn ){
 // The last step should always be a clean-up step. If you don't have any clean-up requirements, just put a blank function there.
 // If any step returns false, it will be skipped.
 function startTutorial( steps ){
-	console.log('tutorial', steps)
 	document.body.classList.add('is-not-scrollable');
 	let path = query.url.pathname;
 
@@ -985,7 +987,6 @@ function startTutorial( steps ){
 
 	let position = 0;
 	function proceed( e ){
-		console.log('proceed', position)
 		if( e && e.target && e.target === dismiss ){
 			return;
 		}
@@ -1012,7 +1013,6 @@ function startTutorial( steps ){
 	}
 
 	function finish( ){
-		console.log('tutorial finish')
 		overlay.classList.add('is-hidden');
 		localStorage.setItem(`tutorial-${path}`, true);
 		document.body.classList.remove('is-not-scrollable');

@@ -6,7 +6,7 @@
 
 // Renders a confirmation popup with custom text and optionally custom buttons if provided a dictionary. 
 function confirm( msg, options = {'Yes': {'value': true, 'type': 'suggested'}, 'No': {'value': false}} ){
-	return new Promise((resolve, reject) => {
+	return new Promise((resolve) => {
 		let modal = document.createElement('div');
 		let modalInner = document.createElement('div');
 		let modalExit = document.createElement('div');
@@ -18,7 +18,7 @@ function confirm( msg, options = {'Yes': {'value': true, 'type': 'suggested'}, '
 		modal.id = 'js-confirmation';
 		modalInner.className = 'popup__inner';
 		modalExit.className = 'popup__invisibutton';
-		modalExit.onclick = 'toggleEle("#js-confirmation")';
+		modalExit.addEventListener('click', ()=>{ toggleEle('#js-confirmation') });
 		modalContent.className = 'popup__content popup__content--narrow';
 		header.className = 'popup__header';
 		header.textContent = 'Confirm action.';
@@ -98,18 +98,6 @@ class PickerPopup extends DynamicPopup {
 	}
 }
 const picker = new PickerPopup;
-
-function infoOn( target, alignment = 'left' ){
-	if( target instanceof Event ){
-		target = target.target;
-	}
-	let text = target.getAttribute('data-info');
-	info.text(text);
-	info.show(target, alignment);
-}
-function infoOff(  ){
-	info.hide();
-}
 
 // Function for the slider button to hide or show the sidebar
 function splitSlide(  ){
@@ -311,24 +299,28 @@ function updateMod( modId, funcConfig = {} ){
 					// todo: do this using js classes or something that won't fall apart the moment you change the DOM
 					let check = document.getElementById(`mod:${requirement}`);
 					let requiredToggle = check.nextElementSibling;
+
+					function infoOn( ){
+						let names = Object.values(currentRequirements[requirement]);
+						info.text(`This mod is required by one of your other choices. To change, disable "${names.join('" and "')}".`);
+						info.show(requiredToggle);
+					}
 					
 					if( Object.keys(currentRequirements[requirement]).length === 0 ){
 						delete userSettings.mods[requirement];
 						check.disabled = false;
 						check.checked = false;
-						requiredToggle.removeEventListener('mouseover', infoOn);
-						requiredToggle.removeEventListener('mouseleave', infoOff);
 						requiredToggle.classList.remove('is-forced', 'has-info');
+						requiredToggle.removeEventListener('mouseenter', infoOn);
+						requiredToggle.removeEventListener('mouseleave', info.hide);
 					}
 					else {
-						let names = Object.values(currentRequirements[requirement]);
 						userSettings.mods[requirement] = true;
 						check.disabled = true;
 						check.checked = true;
 						requiredToggle.classList.add('is-forced', 'has-info');
-						requiredToggle.addEventListener('mouseover', infoOn);
-						requiredToggle.addEventListener('mouseleave', infoOff);
-						requiredToggle.setAttribute('data-info', `This mod is required by one of your other choices. To change, disable "${names.join('" and "')}".`);
+						requiredToggle.addEventListener('mouseenter', infoOn);
+						requiredToggle.addEventListener('mouseleave', info.hide);
 					}
 				}
 				else {
@@ -339,7 +331,7 @@ function updateMod( modId, funcConfig = {} ){
 		
 		// Disable incompatible mods
 		if( mod.conflicts ){
-			for( let conflict of mod.currentConflicts ){
+			for( let conflict of mod.conflicts ){
 				if( theme.mods[conflict] ){
 					if( val ){
 						if( !currentConflicts[conflict] ){
@@ -354,22 +346,26 @@ function updateMod( modId, funcConfig = {} ){
 					// todo: do this using js classes or something that won't fall apart the moment you change the DOM
 					let check = document.getElementById(`mod:${conflict}`);
 					let conflictToggle = check.nextElementSibling;
+
+					function infoOn( ){
+						let names = Object.values(currentConflicts[conflict]);
+						info.text(`This mod is incompatible with one of your choices. To use, disable "${names.join('" and "')}".`);
+						info.show(conflictToggle);
+					}
 					
 					if( Object.keys(currentConflicts[conflict]).length === 0 ){
 						check.disabled = false;
 						check.checked = false;
-						conflictToggle.removeEventListener('mouseover', infoOn);
-						conflictToggle.removeEventListener('mouseleave', infoOff);
 						conflictToggle.classList.remove('is-disabled', 'has-info');
+						conflictToggle.removeEventListener('mouseenter', infoOn);
+						conflictToggle.removeEventListener('mouseleave', info.hide);
 					}
 					else {
-						let names = Object.values(currentConflicts[conflict]);
 						check.disabled = true;
 						check.checked = false;
 						conflictToggle.classList.add('is-disabled', 'has-info');
-						conflictToggle.addEventListener('mouseover', infoOn);
-						conflictToggle.addEventListener('mouseleave', infoOff);
-						conflictToggle.setAttribute('data-info', `This mod is incompatible with one of your choices. To use, disable "${names.join('" and "')}".`);
+						conflictToggle.addEventListener('mouseenter', infoOn);
+						conflictToggle.addEventListener('mouseleave', info.hide);
 					}
 				}
 				else {
@@ -982,11 +978,11 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 					Alpha
 				`;
 				inputRow.appendChild(icon);
-				icon.addEventListener('mouseover', () => {
+				icon.addEventListener('mouseenter', () => {
 					info.text('This option does not support transparency. Changing it will have no effect.');
 					info.show(icon, 'left');
 				});
-				icon.addEventListener('mouseleave', () => { info.hide(); });
+				icon.addEventListener('mouseleave', info.hide);
 			}
 		}
 
@@ -1120,11 +1116,11 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 					}
 				}
 			});
-			reset.addEventListener('mouseover', () => {
+			reset.addEventListener('mouseenter', () => {
 				info.text('Reset this option to default.');
 				info.show(reset, 'top');
 			});
-			reset.addEventListener('mouseleave', () => { info.hide(); });
+			reset.addEventListener('mouseleave', info.hide);
 		}
 
 		// Add notice
@@ -1147,9 +1143,11 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 		if( entryData.url ){
 			let link = document.createElement('a');
 			link.className = 'entry__external-link js-info';
-			link.setAttribute('data-info', 'This mod has linked an external resource or guide for you to install. Unless otherwise instructed, these should be installed <b>after</b> you install the main theme.')
-			link.addEventListener('mouseover', () => { infoOn(link); });
-			link.addEventListener('mouseleave', infoOff);
+			link.addEventListener('mouseenter', () => {
+				info.text('This mod has linked an external resource or guide for you to install. Unless otherwise instructed, these should be installed <b>after</b> you install the main theme.');
+				info.show(link);
+			});
+			link.addEventListener('mouseleave', info.hide);
 			link.href = entryData.url;
 			link.target = "_blank";
 			link.innerHTML = `
@@ -1728,8 +1726,11 @@ function pageSetup( ){
 			coverCheck.checked = val;
 			coverCheck.disabled = true;
 			toggle.removeAttribute('onclick');
-			toggle.addEventListener('mouseover', (e) => { infoOn(toggle, 'top') });
-			toggle.addEventListener('mouseleave', infoOff);
+			toggle.addEventListener('mouseenter', () => {
+				info.text('This option is not editable due to the recommended theme settings.');
+				info.show(toggle);
+			});
+			toggle.addEventListener('mouseleave', info.hide);
 
 			// installation steps
 			hasCustomInstall = true;
