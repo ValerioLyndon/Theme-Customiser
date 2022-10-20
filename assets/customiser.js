@@ -55,110 +55,9 @@ function confirm( msg, options = {'Yes': {'value': true, 'type': 'suggested'}, '
 	});
 }
 
-// Information popup that can be positioned anywhere on the page. Useful for a variety of circumstances.
-class DynamicPopup {
-	constructor() {
-		this.element = document.createElement('div');
-		this.element.className = 'dynamic-popup';
-		document.body.appendChild(this.element);
-	}
+// Info Popups
 
-	// target should either be an HTML element or an array of [x, y] coords.
-	show(target, alignment = 'left') {
-		// Setup variables
-
-		let x = 0;
-		let y = 0;
-		let targetW = 0;
-		let targetH = 0;
-		let popW = this.element.getBoundingClientRect().width;
-		let popH = this.element.getBoundingClientRect().height;
-		let maxW = window.innerWidth;
-		let maxH = window.innerHeight;
-
-		if( target instanceof Element || target instanceof HTMLElement ){
-			let bounds = target.getBoundingClientRect();
-			x = bounds.left;
-			y = bounds.top;
-			targetW = bounds.width;
-			targetH = bounds.height;
-			
-		}
-		else if( target instanceof Array ){
-			x = target[0];
-			y = target[1];
-		}
-		else {
-			return false;
-		}
-
-		// Calculate position
-
-		if( alignment === 'left' ){
-			x = x + targetW + 12;
-			y = y + targetH/2 - popH/2;
-			this.element.classList.add('left');
-			this.element.classList.remove('top', 'bottom', 'right');
-		}
-		else if( alignment === 'right' ){
-			x = x + targetW + 8 - popW;
-			y = y - popH / 2;
-			this.element.classList.add('right');
-			this.element.classList.remove('top', 'bottom', 'left');
-		}
-		else if( alignment === 'top' ){
-			x = x + (targetW / 2) - (popW / 2);
-			y = y + targetH + 12;
-			this.element.classList.add('top');
-			this.element.classList.remove('left', 'bottom', 'right');
-		}
-		else if( alignment === 'bottom' ){
-			x = x + (targetW / 2) - (popW / 2);
-			y = y - 100;
-			console.log('[warn] DynamicPopup top alignment is not supported yet');
-			this.element.classList.add('bottom');
-			this.element.classList.remove('top', 'left', 'right');
-		}
-
-		// Stay within window bounds
-
-		if( x + popW > maxW ){
-			x = maxW - popW;
-		}
-		else if( x < 0 ){
-			x = 0;
-		}
-
-		if( y + popH > maxH ){
-			y = maxH - popH;
-		}
-		else if( y < 0 ){
-			y = 0;
-		}
-
-		// Set attributes
-
-		this.element.style.left = `${x}px`;
-		this.element.style.top = `${y}px`;
-		this.element.classList.add('is-visible');
-	}
-
-	hide() {
-		this.element.classList.remove('is-visible');
-	}
-}
-
-class InfoPopup extends DynamicPopup {
-	constructor() {
-		super();
-		this.element.classList.add('dynamic-popup__info');
-	}
-
-	text( txt = '' ){
-		this.element.innerHTML = txt;
-	}
-}
-const info = new InfoPopup();
+const info = new InfoPopup;
 
 class PickerPopup extends DynamicPopup {
 	constructor() {
@@ -194,7 +93,7 @@ class PickerPopup extends DynamicPopup {
 		}
 	}
 }
-const picker = new PickerPopup();
+const picker = new PickerPopup;
 
 function infoOn( target, alignment = 'left' ){
 	if( target instanceof Event ){
@@ -1993,6 +1892,7 @@ function pageSetup(  ){
 		// Remove Loader if iframe has loaded, else wait until iframe calls function.
 		if( iframeLoaded ){
 			loader.loaded();
+			startThemeTutorial();
 		}
 		else {
 			loader.text('Loading preview...');
@@ -2025,6 +1925,7 @@ iframe.addEventListener('load', () => {
 	}
 	if( pageLoaded === true ){
 		loader.loaded();
+		startThemeTutorial();
 	}
 });
 
@@ -2142,3 +2043,76 @@ fetchData.catch((reason) => {
 	loader.failed(reason);
 	throw new Error(reason);
 });
+
+
+
+// Tutorial
+function startThemeTutorial( ){
+	var tutorial = new InfoPopup;
+	let sidebar = document.getElementById('js-sidebar');
+	let options = document.getElementById('js-options');
+	let mods = document.getElementById('js-mods');
+	startTutorial([
+		() => { tutorial.text('Welcome to your first theme! <br/><br/>Click anywhere to continue.<br/>To escape, click "Dismiss".'); tutorial.show([document.scrollingElement.scrollWidth/2, document.scrollingElement.scrollHeight/2], 'none'); },
+		() => {
+			let target = null;
+
+			if( options ){
+				target = options;
+			}
+			else if( mods ){
+				target = mods;
+			}
+			else {
+				return false;
+			}
+
+			tutorial.text(`To customise the theme, use the available options and/or mods in the sidebar. Toggle them using the sliders or change their values with the input fields.`);
+			tutorial.show(target, 'left');
+		},
+		() => {
+			if( options || mods ){
+				sidebar.scrollTo( {'left': 0, 'top': sidebar.scrollHeight, 'behaviour': 'instant'} );
+				tutorial.text(`If at any point you want to start over, just hit the reset button.`);
+				tutorial.show(document.getElementById('js-tutorial-reset'), 'left');
+			}
+			else {
+				return false;
+			}
+		},
+		() => {
+			tutorial.text('You can preview the theme, including any options you change, in the window on the right.<br/><br/>To give yourself some more space, click the arrow to minimise the sidebar.');
+			tutorial.show(document.getElementById('js-toggle-drawer'), 'left');
+		},
+		() => {
+			sidebar.scrollTo( {'left': 0, 'top': sidebar.scrollHeight, 'behaviour': 'instant'} );
+			tutorial.text('Once you\'re ready, you can copy the customised CSS for use on MyAnimeList. A full install guide is located under "How do I install this?"');
+			tutorial.show(document.getElementById('js-copy-output'), 'left');
+		},
+		() => {
+			sidebar.scrollTo( {'left': 0, 'top': 0, 'behaviour': 'instant'} );
+			tutorial.text('Want to share your configuration or import your previous one? Use the Import and Export buttons at the top.');
+			tutorial.show(document.getElementById('js-tutorial-import'), 'top');
+		},
+		() => {
+			let help = document.querySelector('nav .js-help:not(.o-hidden)');
+			if( help ){
+				tutorial.text('Need extra help with the theme? Check the Theme Help link for an author-provided resource.'); tutorial.show(help, 'top');
+			}
+			else {
+				return false;
+			}
+		},
+		() => {
+			let sponsor = document.querySelector('#js-sponsor:not(.o-hidden)');
+			if( sponsor ){
+				tutorial.text('Loved this author\'s work? Visit their page to see how you can support them.'); tutorial.show(sponsor, 'top');
+			}
+			else {
+				return false;
+			}
+		},
+		() => { tutorial.text('Have fun customising!'); tutorial.show([document.scrollingElement.scrollWidth/2, document.scrollingElement.scrollHeight/2], 'none'); },
+		() => { tutorial.hide() }
+	]);
+}
