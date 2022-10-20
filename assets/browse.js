@@ -412,6 +412,7 @@ fetchAllFiles(megaUrls)
 		loader.text('Rendering page...');
 
 		let processing = [];
+		let collectionFailures = 0;
 
 		// Process all files
 		for( let i = 0; i < files.length; i++ ){
@@ -422,27 +423,42 @@ fetchAllFiles(megaUrls)
 			}
 			catch(e) {
 				loader.logJsonError('[ERROR] Failed to parse collection JSON', files[i]['value'], e, allCollectionUrls[i]);
-				failures++;
+				collectionFailures++;
 				continue;
 			}
 
 			processing.push(processJson(tempData, allCollectionUrls[i], 'collection'));
 		}
+		
+		if( collectionFailures >= files.length ){
+			loader.failed(['Encountered a problem while parsing collection information.', 'json.parse']);
+			throw new Error('too many failures');
+		}
+		else if( collectionFailures > 0 ){
+			messenger.error('Encountered a problem while parsing collection information. Some themes may not have loaded.', 'json.parse');
+		}
 
 		// Render & Sort Cards
 		Promise.allSettled(processing)
 		.then((allJson) => {
-			if( failures >= files.length ){
-				loader.failed(['Encountered a problem while parsing theme information.', 'json.parse']);
-				throw new Error('too many failures');
-			}
-			else if( failures > 0 ){
-				messenger.error('Encountered a problem while parsing theme information. Some themes may not have loaded.', 'json.parse');
-			}
+			let jsonFailures = 0;
 
 			for( let response of allJson ){
 				let json = response.value;
-				renderCards(json.themes);
+				if( json.themes ){
+					renderCards(json.themes);
+				}
+				else {
+					jsonFailures++;
+				}
+			}
+
+			if( jsonFailures >= files.length ){
+				loader.failed(['Encountered a problem while parsing collection information.', 'invalid.json']);
+				throw new Error('too many failures');
+			}
+			else if( jsonFailures > 0 ){
+				messenger.error('Encountered a problem while parsing collection information. Some themes may not have loaded.', 'invalid.json');
 			}
 
 			loader.text('Filtering items...');

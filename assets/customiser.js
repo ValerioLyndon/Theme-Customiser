@@ -1971,11 +1971,6 @@ else if( themeUrls.length === 0 ){
 	throw new Error('select');
 }
 
-function jsonfail( msg ){
-	loader.failed([msg, 'invalid.json']);
-	throw new Error('invalid json format');
-}
-
 // Fetch and process the theme URL, beginning the page setup pipeline.
 
 loader.text('Fetching theme...');
@@ -1993,18 +1988,8 @@ fetchFile(fetchUrl, false)
 
 	processJson(json, themeUrls[0], selectedTheme ? selectedTheme : 'theme')
 	.then((processedJson) => {
-		// Get theme info from URL & take action if problematic
-		if( processedJson === false ){
-			loader.failed(['Encountered a problem while parsing theme information.', 'invalid.name']);
-			throw new Error('invalid theme name');
-		}
-		else if( typeof processedJson === 'string' ){
-			jsonfail(processedJson);
-		}
-		else {
-			theme = processedJson.data;
-			userSettings.theme = selectedTheme === 'theme' ? theme.name : selectedTheme;
-		}
+		theme = processedJson.data;
+		userSettings.theme = selectedTheme === 'theme' ? theme.name : selectedTheme;
 
 		// Set preview to correct type and add iframe to page
 		let framePath = './preview/';
@@ -2040,6 +2025,10 @@ fetchFile(fetchUrl, false)
 
 		pageSetup();
 	})
+	.catch((reason) => {
+		loader.failed(reason);
+		throw new Error(reason[0]);
+	});
 })
 .catch((reason) => {
 	loader.failed(reason);
