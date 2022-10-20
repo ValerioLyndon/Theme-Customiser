@@ -191,6 +191,115 @@ class MessageHandler {
 	}
 }
 
+// Information popup that can be positioned anywhere on the page. Useful for a variety of circumstances.
+class DynamicPopup {
+	constructor() {
+		this.element = document.createElement('div');
+		this.element.className = 'dynamic-popup';
+		document.body.appendChild(this.element);
+	}
+
+	// target should either be an HTML element or an array of [x, y] coords.
+	show(target, alignment = 'left') {
+		// Setup variables
+
+		let x = 0;
+		let y = 0;
+		let targetW = 0;
+		let targetH = 0;
+		let popW = this.element.getBoundingClientRect().width;
+		let popH = this.element.getBoundingClientRect().height;
+		let maxW = window.innerWidth;
+		let maxH = window.innerHeight;
+
+		if(target instanceof Element || target instanceof HTMLElement) {
+			let bounds = target.getBoundingClientRect();
+			x = bounds.left;
+			y = bounds.top;
+			targetW = bounds.width;
+			targetH = bounds.height;
+			
+		} else if(target instanceof Array) {
+			x = target[0];
+			y = target[1];
+		} else {
+			return false;
+		}
+
+		// Calculate position
+
+		if(alignment === 'left') {
+			x = x + targetW + 12;
+			y = y + targetH/2 - popH/2;
+			this.element.classList.add('left');
+			this.element.classList.remove('top', 'bottom', 'right');
+		}
+		else if(alignment === 'right') {
+			x = x - (targetW + 12) - popW;
+			y = y + targetH/2 - popH/2;
+			this.element.classList.add('right');
+			this.element.classList.remove('top', 'bottom', 'left');
+		}
+		else if(alignment === 'top') {
+			x = x + (targetW / 2) - (popW / 2);
+			y = y + targetH + 12;
+			this.element.classList.add('top');
+			this.element.classList.remove('left', 'bottom', 'right');
+		}
+		else if(alignment === 'bottom') {
+			x = x + (targetW / 2) - (popW / 2);
+			y = y - 100;
+			console.log('[warn] DynamicPopup top alignment is not supported yet');
+			this.element.classList.add('bottom');
+			this.element.classList.remove('top', 'left', 'right');
+		}
+		else if(alignment === 'none') {
+			x = x - (popW / 2);
+			y = y - (popH / 2);
+			this.element.classList.remove('top', 'left', 'right', 'bottom');
+		}
+
+		// Stay within window bounds
+
+		if( x + popW > maxW ){
+			x = maxW - popW;
+		}
+		else if( x < 0 ){
+			x = 0;
+		}
+
+		if( y + popH > maxH ){
+			y = maxH - popH;
+		}
+		else if( y < 0 ){
+			y = 0;
+		}
+
+		// Set attributes
+
+		this.element.style.left = `${x}px`;
+		this.element.style.top = `${y}px`;
+		this.element.classList.add('is-visible');
+	}
+
+	hide() {
+		this.element.classList.remove('is-visible');
+	}
+}
+
+class InfoPopup extends DynamicPopup {
+	constructor() {
+		super();
+		this.element.classList.add('dynamic-popup__info');
+	}
+
+	text( txt = '' ){
+		this.element.innerHTML = txt;
+	}
+}
+
+// Fetches and returns resources in the form of a Promise.
+// If cacheResult is true, the result is stored and later fetched from localStorage.
 function fetchFile(path, cacheResult = true) {
 	return new Promise((resolve, reject) => {
 		// Checks if item has previously been fetched and returns the cached result if so
@@ -811,3 +920,81 @@ function updateToBeta2(json, url, toReturn) {
 		}
 	}
 }
+
+
+// Tutorial Function
+// accepts an array of functions that will be executred in chronological order.
+// For example:
+// [
+//    () => { console.log('step1') },
+//    () => { console.log('step2') }
+// ]
+// The last step should always be a clean-up step. If you don't have any clean-up requirements, just put a blank function there.
+// If any step returns false, it will be skipped.
+function startTutorial( steps ) {
+	document.body.classList.add('is-not-scrollable');
+	let path = query.url.pathname;
+	if( localStorage.getItem(`tutorial-${path}`) ){
+		return false;
+	}
+
+	let overlay = document.createElement('div');
+	overlay.className = 'tutorial';
+	document.body.appendChild(overlay);
+
+	let progress = document.createElement('div');
+	let progressMax = steps.length - 2;
+	progress.className = 'tutorial__progress';
+	overlay.appendChild(progress);
+
+	let dismiss = document.createElement('a');
+	dismiss.className = 'tutorial__dismiss hyper-button';
+	dismiss.addEventListener('click', () => {
+		overlay.prevent
+		steps[steps.length-1]();
+		finish();
+	});
+	dismiss.textContent = 'Dismiss';
+	overlay.appendChild(dismiss);
+
+	let position = 0;
+	function proceed( e ){
+		if( e && e.target && e.target === dismiss ){
+			return;
+		}
+
+		let outcome = true;
+
+		// set tutorial html
+		let percent = (position) / progressMax * 100;
+		progress.setAttribute('style', `--progress: ${percent}%`);
+
+		// execute step
+		if( typeof steps[position] === 'function' ){
+			outcome = steps[position]();
+		}
+		else {
+			outcome = false;
+		}
+
+		// continue loop or finish up
+		if( position >= steps.length-1 ){
+			finish();
+		}
+		position++;
+
+		if( outcome === false ){
+			proceed();
+		}
+	}
+
+	function finish( ){
+		overlay.classList.add('is-hidden');
+		localStorage.setItem(`tutorial-${path}`, true);
+		document.body.classList.remove('is-not-scrollable');
+	}
+
+	overlay.addEventListener('click', proceed);
+	proceed();
+}
+

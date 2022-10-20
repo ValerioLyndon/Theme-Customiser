@@ -491,6 +491,28 @@ fetchAllFiles(megaUrls)
 			}
 
 			loader.loaded();
+			startBrowseTutorial();
 		});
 	});
 });
+
+// Tutorial
+
+function startBrowseTutorial( ){
+	var tutorial = new InfoPopup;
+	startTutorial([
+		() => { tutorial.text('Welcome to the Theme Customiser browse page!<br/><br/>Click anywhere to continue.<br/>To escape, click "Dismiss".'); tutorial.show([document.scrollingElement.scrollWidth/2, 150], 'none'); },
+		() => {
+			if( document.querySelector('#js-search:not(.o-hidden)') ){
+				tutorial.text('Looking for something in particular? Use the filters and search to narrow results.');
+				tutorial.show(document.getElementById('js-search'), 'top');
+			}
+			else {
+				return false;
+			}
+		},
+		() => { tutorial.text('Trying to import a pre-made configuration? Click on this button to bring up the Import popup.'); tutorial.show(document.getElementById('js-import'), 'right'); },
+		() => { tutorial.text('Once you\'ve found an interesting design, just click on it! The guide will continue on the theme page.'); tutorial.show([document.scrollingElement.scrollWidth/2, 220], 'left'); },
+		() => { tutorial.hide() }
+	]);
+}
