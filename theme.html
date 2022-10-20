@@ -63,12 +63,12 @@ permalink: /theme
 							<div class="options__item" id="js-preview-options__cover">
 								<b class="options__title">Cover Image</b>
 								<input id="js-preview__cover" type="checkbox" class="o-hidden" checked="checked">
-								<label class="toggle" for="js-preview__cover" onclick="postToIframe(['cover', !document.getElementById('js-preview__cover').checked])" data-info="This option is not editable due to the recommended theme settings."></label>
+								<label class="toggle" for="js-preview__cover" onclick="postToPreview(['cover', !document.getElementById('js-preview__cover').checked])" data-info="This option is not editable due to the recommended theme settings."></label>
 							</div>
 
 							<div class="options__item">
 								<b class="options__title">Select View</b>
-								<select id="js-preview__view" class="select" onchange="postToIframe(['view', this.value])">
+								<select id="js-preview__view" class="select" onchange="postToPreview(['view', this.value])">
 									<option value="owner">List Owner</option>
 									<option value="visitor:user">List Visitor (Logged-in)</option>
 									<option value="visitor:guest">List Visitor (Logged-out)</option>

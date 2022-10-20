@@ -1,16 +1,19 @@
+'use strict';
+
 // Preview-only HTML - replicating default functionality
 
-function toggle(defaultDisplay = 'block') {
-	if(this.style.display === 'none' || this.style.display === '') {
+function toggle( defaultDisplay = 'block' ){
+	if( this.style.display === 'none' || this.style.display === '' ){
 		this.style.display = defaultDisplay;
-	} else {
+	}
+	else {
 		this.style.display = 'none';
 	}
 }
 
 // List Items
 
-function getExpand(id) {
+function getExpand( id ){
 	let more = document.getElementById(`more${id}`);
 	toggle.bind(more)();
 }
@@ -27,18 +30,18 @@ var categoryCodes = {
 	6: 'planned'
 }
 
-function changeCategory(catId, catBtn) {
-	if(!catBtn) {
-		for(let button of categoryButtons) {
+function changeCategory( catId, catBtn ){
+	if( !catBtn ){
+		for( let button of categoryButtons ){
 			let href = button.getElementsByTagName('a')[0].href;
-			if(href.includes(`status=${catId}`)) {
+			if( href.includes(`status=${catId}`) ){
 				catBtn = button;
 			}
 		}
 	}
 
 	// Change button attributes
-	for(let button of categoryButtons) {
+	for( let button of categoryButtons ){
 		button.className = 'status_not_selected';
 	}
 	catBtn.className = 'status_selected';
@@ -46,19 +49,21 @@ function changeCategory(catId, catBtn) {
 	// Hide relevant tables
 	let tables = document.getElementsByTagName('table');
 
-	for(let table of tables) {
+	for( let table of tables ){
 		let tableCat = table.getAttribute('tc-category');
-		if(catId == 7 || tableCat === categoryCodes[catId]) {
+		if( catId == 7 || tableCat === categoryCodes[catId] ){
 			table.style = '';
-		} else if(tableCat === null) {
+		}
+		else if( tableCat === null ){
 			continue;
-		} else {
+		}
+		else {
 			table.style = 'display: none !important';
 		}
 	}
 }
 
-for(let button of categoryButtons) {
+for( let button of categoryButtons ){
 	button.addEventListener('click', () => {
 		let a = button.getElementsByTagName('a')[0],
 			indexStart = a.href.indexOf('status=') + 7,
@@ -210,22 +215,22 @@ let menuHtml = {
 	</tbody>`
 }
 
-function setView(view) {
+function setView( view ){
 	let menu = document.getElementById('mal_control_strip');
 
-	if(view === 'owner') {
+	if( view === 'owner' ){
 		document.body.setAttribute('data-owner', 1);
 
-		menu.innerHTML = menuHtml['owner'];
+		menu.innerHTML = menuHtml.owner;
 	}
 
-	else if(view.startsWith('visitor')) {
+	else if( view.startsWith('visitor') ){
 		document.body.setAttribute('data-owner', '');
 
-		if(view === 'visitor:user') {
+		if( view === 'visitor:user' ){
 			menu.innerHTML = menuHtml['visitor:user'];
 		}
-		else if(view === 'visitor:guest') {
+		else if( view === 'visitor:guest' ){
 			menu.innerHTML = menuHtml['visitor:guest'];
 		}
 	}
