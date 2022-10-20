@@ -1,9 +1,10 @@
 // Preview-only HTML - replicating default functionality
 
-function toggle(defaultDisplay = 'block') {
-	if(this.style.display === 'none' || this.style.display === '') {
+function toggle( defaultDisplay = 'block' ){
+	if( this.style.display === 'none' || this.style.display === '' ){
 		this.style.display = defaultDisplay;
-	} else {
+	}
+	else {
 		this.style.display = 'none';
 	}
 }
@@ -28,10 +29,10 @@ var categoryCodes = {
 	6: 'planned'
 }
 
-function changeCategory(catId, catBtn) {
-	if(!catBtn) {
-		for(let button of categoryButtons) {
-			if(button.href.includes(`status=${catId}`)) {
+function changeCategory( catId, catBtn ){
+	if( !catBtn ){
+		for( let button of categoryButtons ){
+			if( button.href.includes(`status=${catId}`) ){
 				catBtn = button;
 			}
 		}
@@ -47,15 +48,16 @@ function changeCategory(catId, catBtn) {
 	// Hide relevant list items
 	let listItems = document.getElementsByClassName('list-item');
 
-	for(let item of listItems) {
-		if(catId == 7 || item.getAttribute('tc-category') === categoryCodes[catId]) {
+	for( let item of listItems ){
+		if( catId == 7 || item.getAttribute('tc-category') === categoryCodes[catId] ){
 			item.style = '';
-		} else {
+		}
+		else {
 			item.style = 'display: none !important';
 		}
 	}
 }
-for(let button of categoryButtons) {
+for( let button of categoryButtons ){
 	button.addEventListener('click', () => {
 		let catId = button.href.substring(button.href.length - 1);
 		changeCategory(catId, button);
@@ -70,13 +72,14 @@ var statusMenu = document.getElementById('status-menu'),
 
 
 window.addEventListener('scroll', () => {
-	if(!statusMenu.className.includes('fixed')) {
+	if( !statusMenu.className.includes('fixed') ){
 		affixAtPos = statusMenu.getBoundingClientRect().y + window.scrollY;
 	}
 
-	if(window.scrollY >= affixAtPos) {
+	if( window.scrollY >= affixAtPos ){
 		statusMenu.classList.add('fixed');
-	} else {
+	}
+	else {
 		statusMenu.classList.remove('fixed');
 	}
 })
@@ -85,7 +88,7 @@ window.addEventListener('scroll', () => {
 
 var items = document.getElementsByClassName('list-item');
 
-for(var item of items) {
+for( var item of items ){
 	// More button
 	let more = item.getElementsByClassName('more-info')[0];
 	item.querySelector('.more a').addEventListener('click', toggle.bind(more, 'table-row'));
@@ -105,21 +108,22 @@ document.getElementById('fancybox-overlay').addEventListener('click', () => {
 	toggleMenu(filterMenu);
 });
 
-function toggleMenu(dom) {
+function toggleMenu( dom ){
 	let display = dom.style.display;
-	if(!display || display === 'none') {
+	if( !display || display === 'none' ){
 		dom.style.display = 'block';
 		toggleOverlay(true);
-	} else {
+	}
+	else {
 		dom.style.display = 'none';
 		toggleOverlay(false);
 	}
 }
 
 let overlay = document.getElementById('fancybox-overlay');
-function toggleOverlay(set = undefined) {
+function toggleOverlay( set = undefined ){
 	let display = overlay.style.display;
-	if(set === true || !display || display === 'none') {
+	if( set === true || !display || display === 'none' ){
 		overlay.style.display = 'block';
 		overlay.style.opacity = '0.3';
 		overlay.style.backgroundColor = 'rgb(102, 102, 102)';
@@ -196,7 +200,7 @@ let listMenuInner = `<a class="icon-menu profile" href="https://myanimelist.net/
           </span>
         </div>`;
 
-function setView(view) {
+function setView( view ){
 	// setup HTML variables
 
 	let header = document.querySelector('.header'),
@@ -206,7 +210,7 @@ function setView(view) {
 
 	// Apply changes as required
 
-	if(view === 'owner') {
+	if( view === 'owner' ){
 		document.body.setAttribute('data-owner', 1);
 		
 		headerMenu.innerHTML = `<div class="btn-menu">
@@ -214,23 +218,24 @@ function setView(view) {
         </div>`;
 		headerMenu.classList.remove('other');
 
-		if(!listMenu) {
+		if( !listMenu ){
 			let div = document.createElement('div');
 			div.className = 'list-menu-float';
 			div.innerHTML = listMenuInner;
 			listMenu = div;
 			document.body.insertBefore(listMenu, document.getElementById('list-container'));
-		} else {
+		}
+		else {
 			listMenu.innerHTML = listMenuInner;
 		}
 		
-		for(btn of itemBtns) {
+		for( btn of itemBtns ){
 			btn.className = 'edit';
 			btn.firstChild.textContent = 'Edit';
 		}
 	}
 
-	else if(view.startsWith('visitor')) {
+	else if( view.startsWith('visitor') ){
 		document.body.setAttribute('data-owner', '');
 
 		headerMenu.innerHTML = `<div class="btn-menu">Viewing <a class="username" href="/profile/Example" onclick="return false;">Example</a>'s
@@ -258,13 +263,13 @@ function setView(view) {
 		
 		let headerInfo = headerMenu.querySelector('.header-info');
 
-		for(btn of itemBtns) {
+		for( btn of itemBtns ){
 			btn.className = 'add';
 			btn.firstChild.textContent = 'Add';
 		}
 
-		if(view === 'visitor:user') {
-			if(!listMenu) {
+		if( view === 'visitor:user' ){
+			if( !listMenu ){
 				let div = document.createElement('div');
 				div.className = 'list-menu-float';
 				div.innerHTML = listMenuInner;
@@ -278,7 +283,7 @@ function setView(view) {
 				0% Affinity
 				- <a href="/history/Example" onclick="return false;"><i class="fa-solid fa-clock-rotate-left"></i> History</a>`;
 		}
-		else if(view === 'visitor:guest') {
+		else if( view === 'visitor:guest' ){
 			listMenu.remove();
 			headerInfo.innerHTML = `<a href="/login.php" onclick="return false;">Log in</a> -
 				<a href="/register.php" onclick="return false;">Create an Anime List</a>`;
@@ -290,18 +295,20 @@ function setView(view) {
 }
 
 let cover = document.getElementById('cover-image-container');
-function toggleCover(set = undefined) {
-	if(set === true) {
+function toggleCover( set = undefined ){
+	if( set === true ){
 		cover.classList.remove('hide');
-	} else if(set === false) {
+	}
+	else if( set === false ){
 		cover.classList.add('hide');
-	} else {
+	}
+	else {
 		cover.classList.toggle('hide');
 	}
 }
 
 let stats = document.getElementsByClassName('list-stats')[0];
-function toggleStats() {
+function toggleStats(  ){
 	stats.style.overflow = 'hidden';
 	stats.style.marginTop = '0';
 	stats.style.marginBottom = '0';
@@ -316,7 +323,7 @@ function toggleStats() {
 		},
 		display = stats.style.display;
 
-	if(!display || display === 'none') {
+	if( !display || display === 'none' ){
 		stats.style.display = 'block';
 
 		stats.animate([

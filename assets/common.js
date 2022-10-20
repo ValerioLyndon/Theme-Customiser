@@ -82,7 +82,7 @@ class LoadingScreen {
 
 	failed(reason_array) {
 		// only runs once
-		if(!this.stop) {
+		if( !this.stop ){
 			this.icon.className = 'loading-screen__cross';
 			this.titleText.textContent = 'Page Failure.';
 			this.subText.textContent = reason_array[0];
@@ -152,14 +152,14 @@ class MessageHandler {
 	}
 
 	warn( msg, code = null ){
-		if(code) {
+		if( code ){
 			code = `Code: ${code}`;
 		}
 		this.send(msg, 'warning', code);
 	}
 
 	error( msg, code = null ){
-		if(code) {
+		if( code ){
 			code = `Code: ${code}`;
 		}
 		this.send(msg, 'error', code);
@@ -185,18 +185,18 @@ class MessageHandler {
 
 	hideIfEmpty( ){
 		let msgs = this.messages.childNodes;
-		if(msgs.length === 0) {
+		if( msgs.length === 0 ){
 			this.parent.classList.add('is-hidden');
 		}
 	}
 }
 
-function fetchFile(path, cacheResult = true) {
+function fetchFile( path, cacheResult = true ){
 	return new Promise((resolve, reject) => {
 		// Checks if item has previously been fetched and returns the cached result if so
 		let cache = sessionStorage.getItem(path);
 
-		if(cacheResult && cache) {
+		if( cacheResult && cache ){
 			console.log(`[info] Retrieving cached result for ${path}`);
 			resolve(cache);
 		}
@@ -206,14 +206,15 @@ function fetchFile(path, cacheResult = true) {
 			request.open("GET", path, true);
 			request.send(null);
 			request.onreadystatechange = function() {
-				if (request.readyState === 4) {
-					if (request.status === 200) {
+				if( request.readyState === 4 ){
+					if( request.status === 200 ){
 						// Cache result on success and then return it
-						if(cacheResult) {
+						if( cacheResult ){
 							sessionStorage.setItem(path, request.responseText);
 						}
 						resolve(request.responseText);
-					} else {
+					}
+					else {
 						console.log(`[ERROR] Failed while fetching "${path}". Code: request.status.${request.status}`);
 						reject([`Encountered a problem while loading a resource.`, `request.status.${request.status}`]);
 					}
@@ -227,17 +228,17 @@ function fetchFile(path, cacheResult = true) {
 	});
 }
 
-function importPreviousSettings(opts = undefined) {
-	if(opts === undefined) {
+function importPreviousSettings( opts = undefined ){
+	if( opts === undefined ){
 		let previous = document.getElementById('js-pp-import-code').value;
 
 		// Skip if empty string or does not contain formatting.
-		if(previous.trim().length === 0) {
+		if( previous.trim().length === 0 ){
 			messenger.timeout('Please enter your settings into the text field and try again.');
 			return false;
 		}
 
-		if(previous.indexOf('{') === -1) {
+		if( previous.indexOf('{') === -1 ){
 			messenger.error('Import failed, your text does not appear to contain any settings. Please input a valid settings object.');
 			return false;
 		}
@@ -253,7 +254,7 @@ function importPreviousSettings(opts = undefined) {
 		catch {
 			previous = previous.match(/\^TC{.*?}TC\$/);
 
-			if(previous === null) {
+			if( previous === null ){
 				messenger.error('Import failed, could not interpret your options. Are you sure you input the correct text?', ' regex.match');
 				return false;
 			}
@@ -268,26 +269,27 @@ function importPreviousSettings(opts = undefined) {
 				return false;
 			}
 		}
-	} else {
+	}
+	else {
 		var previousSettings = opts;
 	}
 
 	localStorage.setItem('tcUserSettingsImported', JSON.stringify(previousSettings));
 	
 	// Redirect without asking if on the browse page.
-	if(!window.location.pathname.startsWith('/theme')) {
+	if( !window.location.pathname.startsWith('/theme') ){
 		localStorage.setItem('tcImport', true);
-		window.location = `./theme?q=${previousSettings['theme']}&t=${previousSettings['data']}`;
+		window.location = `./theme?q=${previousSettings.theme}&t=${previousSettings.data}`;
 	}
 
 	// Do nothing if on theme page & userSettings are the same.
-	if(userSettings & userSettings === previousSettings) {
+	if( userSettings & userSettings === previousSettings ){
 		messenger.warn('Nothing imported. Settings exactly match the current page.');
 		return null;
 	}
     
 	// If theme or data is wrong, offer to redirect or to try importing anyway.
-	else if(userSettings['theme'] !== previousSettings['theme'] || userSettings['data'] !== previousSettings['data']) {
+	else if( userSettings.theme !== previousSettings.theme || userSettings.data !== previousSettings.data ){
 		let msg = 'There is a mismatch between your imported settings and the current page. Redirect to the page indicated in your import?',
 			choices = {
 				'Yes': {'value': 'redirect', 'type': 'suggested'},
@@ -297,13 +299,15 @@ function importPreviousSettings(opts = undefined) {
 		
 		confirm(msg, choices)
 		.then((choice) => {
-			if(choice === 'redirect') {
+			if( choice === 'redirect' ){
 				localStorage.setItem('tcImport', true);
-				window.location = `./theme?q=${previousSettings['theme']}&t=${previousSettings['data']}`;
-			} else if(choice === 'ignore') {
+				window.location = `./theme?q=${previousSettings.theme}&t=${previousSettings.data}`;
+			}
+			else if( choice === 'ignore' ){
 				applySettings(previousSettings);
 				return true;
-			} else {
+			}
+			else {
 				localStorage.removeItem('tcImport');
 				messenger.timeout('Action aborted.');
 			}
@@ -316,27 +320,29 @@ function importPreviousSettings(opts = undefined) {
 	return true;
 }
 
-function toggleEle(selector, btn = false, set = undefined) {
+function toggleEle( selector, btn = false, set = undefined ){
 	let ele = document.querySelector(selector),
 		cls = 'is-hidden',
 		btnSelCls = 'is-active';
-	if(set === true) {
+	if( set === true ){
 		ele.classList.add(cls);
-		if(btn) { btn.classList.add(btnSelCls); }
-	} else if(set === false) {
+		if( btn ){ btn.classList.add(btnSelCls); }
+	}
+	else if( set === false ){
 		ele.classList.remove(cls);
-		if(btn) { btn.classList.remove(btnSelCls); }
-	} else {
+		if( btn ){ btn.classList.remove(btnSelCls); }
+	}
+	else {
 		ele.classList.toggle(cls);
-		if(btn) { btn.classList.toggle(btnSelCls); }
+		if( btn ){ btn.classList.toggle(btnSelCls); }
 	}
 }
 
 // Capitalises the first letter of every word. To capitalise sentences, set the divider to ".".
-function capitalise(str, divider = ' ') {
+function capitalise( str, divider = ' ' ){
 	let words = str.split(divider);
 	
-	for(i = 0; i < words.length; i++) {
+	for( i = 0; i < words.length; i++ ){
 		let first = words[i].substring(0,1).toUpperCase(),
 			theRest = words[i].substring(1);
 		words[i] = first + theRest;
@@ -347,14 +353,14 @@ function capitalise(str, divider = ' ') {
 }
 
 // sorts a dictionary by key
-function sortKeys(dict) {
+function sortKeys( dict ){
 	let keys = Object.keys(dict);
 	keys.sort((a,b) => {
 		return a.toLowerCase().localeCompare(b.toLowerCase());
 	});
 
 	let sorted = {};
-	for(let k of keys) {
+	for( let k of keys ){
 		sorted[k] = dict[k];
 	}
 
@@ -377,7 +383,7 @@ function formatFilters( filters ){
 	return {};
 }
 
-function pushFilter(thisId, tag, category = 'other') {
+function pushFilter( thisId, tag, category = 'other' ){
 	if( !tags[category] ){
 		tags[category] = {};
 	}
@@ -476,7 +482,7 @@ class BaseFilters {
 			tags = sortKeys(tags);
 
 			// Create Filter Buttons
-			for(let [tag, itemIds] of Object.entries(tags)) {
+			for( let [tag, itemIds] of Object.entries(tags) ){
 				let button = document.createElement('button'),
 					countEle = document.createElement('span'),
 					count = itemIds.length;
@@ -484,7 +490,8 @@ class BaseFilters {
 				// skip rendering tag if all items match, thus making it useless
 				if( count === this.items.length ){
 					continue;
-				} else {
+				}
+				else {
 					totalInCategory++;
 				}
 
@@ -533,8 +540,8 @@ class BaseFilters {
 
 		this.toggle.classList.remove(this.toggleCls);
 		for( let btn of this.buttons ){
-			btn['btn'].classList.remove(this.btnHideCls, this.btnSelCls);
-			btn['count'].textContent = btn['total'];
+			btn.btn.classList.remove(this.btnHideCls, this.btnSelCls);
+			btn.count.textContent = btn.total;
 		}
 		this.selectedButtons = [];
 		this.selectedTags = [];
@@ -589,7 +596,8 @@ class BaseFilters {
 			for( let id of filter ){
 				if( !Object.keys(filterCount).includes(id) ){
 					filterCount[id] = 1;
-				} else {
+				}
+				else {
 					filterCount[id] += 1;
 				}
 			}
@@ -617,16 +625,16 @@ class BaseFilters {
 		for( let btn of this.buttons ){
 			let crossover = 0;
 			for( let id of andFilters ){
-				if( btn['ids'].includes(id) ){
+				if( btn.ids.includes(id) ){
 					crossover++;
 				}
 			}
-			btn['count'].textContent = crossover;
+			btn.count.textContent = crossover;
 			if( crossover === 0 ){
-				btn['btn'].classList.add(this.btnHideCls);
+				btn.btn.classList.add(this.btnHideCls);
 			}
 			else {
-				btn['btn'].classList.remove(this.btnHideCls);
+				btn.btn.classList.remove(this.btnHideCls);
 			}
 		}
 	}
@@ -696,25 +704,26 @@ let path = window.location.pathname,
 	dataUrls = query.getAll('data');
 
 // Check for legacy JSON and process as needed
-async function processJson(json, url, toReturn) {
+async function processJson( json, url, toReturn ){
 	loader.text('Updating JSON...');
 
 	var ver = 0;
-	if(!('json_version' in json)) {
+	if( !json.json_version ){
 		ver = 0.1;
-	} else {
-		ver = json['json_version'];
+	}
+	else {
+		ver = json.json_version;
 	}
 
 	// Else, continue to process.
-	if(ver > jsonVersion) {
+	if( ver > jsonVersion ){
 		messenger.send('Detected JSON version beyond what is supported by this instance. Attempting to process as normal. If any bugs or failures occur, try using the main instance at valeriolyndon.github.io.');
 		console.log('Detected JSON version beyond what is supported by this instance. Attempting to process as normal. If any bugs or failures occur, try updating your fork from the main instance at valeriolyndon.github.io.');
 	}
 
-	else if(ver < jsonVersion) {
+	else if( ver < jsonVersion ){
 		console.log('The loaded JSON has been processed as legacy JSON. This can cause slowdowns or errors. If you are the JSON author, please see the GitHub page for assistance updating.');
-		if(ver === 0.1) {
+		if( ver === 0.1 ){
 			json = updateToBeta2(json, url, toReturn);
 			ver = 0.2;
 		}
@@ -726,25 +735,26 @@ async function processJson(json, url, toReturn) {
 	if(toReturn === 'collection' && 'themes' in json
 	|| 'data' in json) {
 		// Convert legacy dictionary to array
-		if('themes' in json && !Array.isArray(json['themes'])) {
+		if( json.themes && !Array.isArray(json.themes) ){
 			let arrayThemes = [];
-			for(let t of Object.values(json['themes'])) {
+			for( let t of Object.values(json.themes) ){
 				arrayThemes.push(t);
 			}
-			json['themes'] = arrayThemes;
+			json.themes = arrayThemes;
 		}
 		return json;
 	}
 	// If a collection is linked under a theme query, check for valid values
-	else if('themes' in json && Object.values(json['themes']).length > 0) {
+	else if( json.themes && Object.values(json.themes).length > 0 ){
 		let themeUrl = false;
-		if(toReturn in json['themes']) {
-			themeUrl = json['themes'][toReturn]['url'];
-		} else {
-			themeUrl = Object.values(json['themes'])[0]['url'];
+		if( json.themes[toReturn] ){
+			themeUrl = json.themes[toReturn]['url'];
+		}
+		else {
+			themeUrl = Object.values(json.themes)[0]['url'];
 		}
 
-		if(themeUrl) {
+		if( themeUrl ){
 			return fetchFile(themeUrl)
 			.then((result) => {
 				let themeJson = '';
@@ -770,7 +780,7 @@ async function processJson(json, url, toReturn) {
 
 // Redirect from browse page to theme page if a theme is specified
 let themeQuery = query.get('q') || query.get('theme')
-if(path !== '/theme' && themeQuery && dataUrls.length > 0) {
+if( path !== '/theme' && themeQuery && dataUrls.length > 0 ){
 	window.location = `./theme?q=${themeQuery}&c=${dataUrls.join('&c=')}`;
 	throw new Error();
 }
@@ -778,11 +788,11 @@ if(path !== '/theme' && themeQuery && dataUrls.length > 0) {
 
 // json v0.1 > v0.2
 
-if(dataUrls.length > 0) {
+if( dataUrls.length > 0 ){
 	let modifiedQuery = new URLSearchParams();
 	// Transform data into collections
-	for(let [key, val] of query.entries()) {
-		if(key === 'data') {
+	for( let [key, val] of query.entries() ){
+		if( key === 'data' ){
 			key = 'c';
 		}
 		modifiedQuery.append(key, val);
@@ -792,21 +802,22 @@ if(dataUrls.length > 0) {
 	throw new Error();
 }
 
-function updateToBeta2(json, url, toReturn) {
-	if(toReturn === 'collection') {
+function updateToBeta2( json, url, toReturn ){
+	if( toReturn === 'collection' ){
 		let newJson = {
 			'themes': []
 		};
-		for(let [themeId, theme] of Object.entries(json)) {
-			theme['url'] = url + '&q=' + themeId;
-			newJson['themes'].push(theme);
+		for( let [themeId, theme] of Object.entries(json) ){
+			theme.url = url + '&q=' + themeId;
+			newJson.themes.push(theme);
 		}
 		return newJson;
 	}
 	else {
-		if(toReturn in json) {
+		if( json[toReturn] ){
 			return { 'data': json[toReturn] };
-		} else {
+		}
+		else {
 			return false;
 		}
 	}

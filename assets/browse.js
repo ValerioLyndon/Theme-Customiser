@@ -46,14 +46,14 @@ class ExtendedFilters extends BaseFilters {
 		for( let [key, info] of Object.entries(this.sorts) ){
 			// Check that sort is valid and delete if not
 			let valid = false;
-			if(info['attr'] !== 'random') {
+			if( info.attr !== 'random' ){
 				for( let item of this.items ){
-					if( item.hasAttribute(info['attr']) ){
+					if( item.hasAttribute(info.attr) ){
 						valid = true;
 						break;
 					}
 				}
-				if(!valid) {
+				if( !valid ){
 					delete this.sorts[key];
 					continue;
 				}
@@ -66,7 +66,7 @@ class ExtendedFilters extends BaseFilters {
 			div.className = 'dropdown__item';
 			link.className = 'hyper-button';
 			link.id = `sort:${key}`;
-			link.textContent = `${info['label']} `;
+			link.textContent = `${info.label} `;
 			icon.className = 'hyper-button__icon fa-solid fa-sort-asc o-hidden';
 
 			link.appendChild(icon);
@@ -130,12 +130,12 @@ class ExtendedFilters extends BaseFilters {
 	sort( key, forceOrder, updateQuery = true ) {
 		let info = this.sorts[key];
 		// returns false if sort key is invalid
-		if(!info) {
+		if( !info ){
 			return false;
 		}
 
 		let attributes = [],
-			order = forceOrder ? forceOrder : info['default'];
+			order = forceOrder ? forceOrder : info.default;
 
 		// check if already sorted
 		if( this.activeSort.length > 0 ){
@@ -149,20 +149,20 @@ class ExtendedFilters extends BaseFilters {
 		}
 
 		// update button
-		info['btn'].classList.add('is-active');
+		info.btn.classList.add('is-active');
 		if( key !== 'random' ) {
-			info['icon'].classList.remove('o-hidden', 'fa-sort-asc', 'fa-sort-desc');
+			info.icon.classList.remove('o-hidden', 'fa-sort-asc', 'fa-sort-desc');
 			if( order === 'ascending' ){
-				info['icon'].classList.add('fa-sort-asc');
+				info.icon.classList.add('fa-sort-asc');
 			}
 			else {
-				info['icon'].classList.add('fa-sort-desc');
+				info.icon.classList.add('fa-sort-desc');
 			}
 		}
 
 		// calculate sort
 		for( let item of this.items ) {
-			let value = item.getAttribute(info['attr']),
+			let value = item.getAttribute(info.attr),
 				id = item.id;
 			attributes.push([value, id]);
 		}
@@ -186,8 +186,8 @@ class ExtendedFilters extends BaseFilters {
 			attributes.sort((attrOne,attrTwo) => {
 				let a = attrOne[0].toLowerCase();
 				let b = attrTwo[0].toLowerCase();
-				if(a < b && order === 'ascending' || a > b && order === 'descending') { return -1; }
-				if(a > b && order === 'ascending' || a < b && order === 'descending') { return 1; }
+				if( a < b && order === 'ascending' || a > b && order === 'descending' ){ return -1; }
+				if( a > b && order === 'ascending' || a < b && order === 'descending' ){ return 1; }
 				return 0;
 			});
 		}
@@ -199,7 +199,7 @@ class ExtendedFilters extends BaseFilters {
 			document.getElementById(id).style.order = i;
 		}
 
-		if(updateQuery) {
+		if( updateQuery ){
 			query.set('sort', key);
 			query.set('sortdir', order);
 		}
@@ -214,21 +214,21 @@ class ExtendedFilters extends BaseFilters {
 // ONE-TIME FUNCTIONS
 // ==================
 
-function renderCards(cardData) {
+function renderCards( cardData ){
 	// Render theme list
-	for(let theme of cardData) {
-		let themeName = theme['name'] ? theme['name'] : 'Untitled',
-			themeAuthor = theme['author'] ? theme['author'] : 'Untitled',
+	for( let theme of cardData ){
+		let themeName = theme.name ? theme.name : 'Untitled',
+			themeAuthor = theme.author ? theme.author : 'Untitled',
 			thisId = itemCount;
-		if(!('url' in theme)) {
+		if( !('url' in theme) ){
 			loader.log(`[ERROR] Skipping theme ${themeName} due to missing "url" key.`);
 			continue;
 		}
 
 		let cardParent = document.createElement('a');
 		cardParent.className = 'browser__card';
-		let cardUrl = `./theme?t=${theme['url']}`;
-		if(collectionUrls.length > 0) {
+		let cardUrl = `./theme?t=${theme.url}`;
+		if( collectionUrls.length > 0 ){
 			cardUrl += `&c=${collectionUrls.join('&c=')}`;
 		}
 		if( (megaUrls.length !== 1 && megaUrls[0] !== 'json/default.json') && megaUrls.length > 0 ){
@@ -237,21 +237,22 @@ function renderCards(cardData) {
 		cardParent.href = cardUrl;
 		cardParent.setAttribute('data-title', themeName);
 		cardParent.id = `card:${thisId}`;
-		if('date' in theme) {
-			if(!sorts.includes('data-date')) {
+		if( 'date' in theme ){
+			if( !sorts.includes('data-date') ){
 				sorts.push('data-date');
 			}
 
-			cardParent.setAttribute('data-date', theme['date']);
-		} else {
+			cardParent.setAttribute('data-date', theme.date);
+		}
+		else {
 			cardParent.setAttribute('data-date', '0000-00-00');
 		}
-		if('author' in theme) {
-			if(!sorts.includes('data-author')) {
+		if( 'author' in theme ){
+			if( !sorts.includes('data-author') ){
 				sorts.push('data-author');
 			}
 
-			cardParent.setAttribute('data-author', theme['author']);
+			cardParent.setAttribute('data-author', theme.author);
 		}
 
 		let card = document.createElement('div');
@@ -280,46 +281,48 @@ function renderCards(cardData) {
 		tagArea.className = 'card__tag-list';
 		display.appendChild(tagArea);
 
-		function addTag(name, colour) {
+		function addTag( name, colour ){
 			let tag = document.createElement('span');
 			tag.className = 'card__tag';
 			tag.textContent = name;
-			if(colour) {
+			if( colour ){
 				tag.style.cssText = `--tag-accent: ${colour};`;
 			}
 			tagArea.appendChild(tag);
 		}
 
-		let typeName = capitalise(theme['type']);
-		if(theme['type'] === 'classic') {
+		let typeName = capitalise(theme.type);
+		if( theme.type === 'classic' ){
 			addTag(typeName, '#5ad590');
-		} else {
+		}
+		else {
 			addTag(typeName, '#72d3ea');
 		}
 
 		let releaseState = 'released';
-		if('flags' in theme) {
-			if(theme['flags'].includes('beta')) {
+		if( 'flags' in theme ){
+			if( theme.flags.includes('beta') ){
 				addTag('Beta', '#e37837');
 				releaseState = 'beta';
 			}
-			else if(theme['flags'].includes('alpha')) {
+			else if( theme.flags.includes('alpha') ){
 				addTag('Alpha', '#cecc47');
 				releaseState = 'alpha';
 			}
 		}
 
-		if('supports' in theme && theme['supports'].length === 1) {
-			addTag(`${capitalise(theme['supports'][0])} Only`, '#d26666');
+		if( 'supports' in theme && theme.supports.length === 1 ){
+			addTag(`${capitalise(theme.supports[0])} Only`, '#d26666');
 		}
 		
-		if('image' in theme) {
+		if( 'image' in theme ){
 			let image = document.createElement('img');
 			image.className = 'card__image';
-			image.src = theme['image'];
+			image.src = theme.image;
 			image.loading = 'lazy';
 			display.appendChild(image);
-		} else {
+		}
+		else {
 			display.classList.add('card__display--no-image');
 		}
 
@@ -327,8 +330,8 @@ function renderCards(cardData) {
 		cards.push(cardParent);
 
 		// Add tags to sortable list
-		tempTags = formatFilters(theme['tags']);
-		pushFilter(thisId, theme['type'], 'list type');
+		tempTags = formatFilters(theme.tags);
+		pushFilter(thisId, theme.type, 'list type');
 		pushFilter(thisId, themeAuthor, 'author');
 		pushFilter(thisId, releaseState, 'release state');
 
@@ -355,14 +358,14 @@ var itemCount = 0,
 
 loader.text('Fetching data files...');
 
-if(collectionUrls.length === 0 && megaUrls.length === 0) {
+if( collectionUrls.length === 0 && megaUrls.length === 0 ){
 	megaUrls.push('json/default.json');
 }
 
 // Accepts array of URLs to fetch then returns a promise once they have all loaded.
-function fetchAllFiles(arrayOfUrls) {
+function fetchAllFiles( arrayOfUrls ){
 	const files = [];
-	for(let i = 0; i < arrayOfUrls.length; i++) {
+	for( let i = 0; i < arrayOfUrls.length; i++ ){
 		files.push(fetchFile(arrayOfUrls[i], false));
 	}
 	return Promise.allSettled(files);
@@ -375,7 +378,7 @@ fetchAllFiles(megaUrls)
 	let failures = 0,
 		allCollectionUrls = structuredClone(collectionUrls);
 
-	for(let i = 0; i < files.length; i++) {
+	for( let i = 0; i < files.length; i++ ){
 		let tempData = {};
 		// Attempt to parse provided data.
 		try {
@@ -386,17 +389,17 @@ fetchAllFiles(megaUrls)
 			continue;
 		}
 
-		if(!('collections' in tempData)) {
+		if( !('collections' in tempData) ){
 			loader.log(`[ERROR] Mega collection "${megaUrls[i]}" does not use correct format.`);
 			continue;
 		}
 
-		if(tempData['collections'].length === 0) {
+		if( tempData.collections.length === 0 ){
 			loader.log(`[warn] Mega collection "${megaUrls[i]}" has no URLs!`);
 			continue;
 		}
 
-		for(let url of tempData['collections']) {
+		for( let url of tempData.collections ){
 			allCollectionUrls.push(url);
 		}
 	}
@@ -408,7 +411,7 @@ fetchAllFiles(megaUrls)
 		let processing = [];
 
 		// Process all files
-		for(let i = 0; i < files.length; i++) {
+		for( let i = 0; i < files.length; i++ ){
 			let tempData = {};
 			// Attempt to parse provided data.
 			try {
@@ -425,16 +428,17 @@ fetchAllFiles(megaUrls)
 		// Render & Sort Cards
 		Promise.allSettled(processing)
 		.then((allJson) => {
-			if(failures >= files.length) {
+			if( failures >= files.length ){
 				loader.failed(['Encountered a problem while parsing theme information.', 'json.parse']);
 				throw new Error('too many failures');
-			} else if(failures > 0) {
+			}
+			else if( failures > 0 ){
 				messenger.error('Encountered a problem while parsing theme information. Some themes may not have loaded.', 'json.parse');
 			}
 
-			for(let response of allJson) {
-				let json = response['value'];
-				renderCards(json['themes']);
+			for( let response of allJson ){
+				let json = response.value;
+				renderCards(json.themes);
 			}
 
 			loader.text('Filtering items...');
@@ -450,8 +454,8 @@ fetchAllFiles(megaUrls)
 				filter.initialiseSearch();
 
 				let hasTags = false;
-				for(let categoryTags of Object.values(tags)) {
-					if(Object.keys(categoryTags).length > 0) {
+				for( let categoryTags of Object.values(tags) ){
+					if( Object.keys(categoryTags).length > 0 ){
 						hasTags = true;
 						break;
 					}
