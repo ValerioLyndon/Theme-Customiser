@@ -60,9 +60,10 @@ class ExtendedFilters extends BaseFilters {
 			}
 
 			// Render HTML
-			let div = document.createElement('div'),
-				link = document.createElement('a'),
-				icon = document.createElement('i');
+			let div = document.createElement('div');
+			let link = document.createElement('a');
+			let icon = document.createElement('i');
+
 			div.className = 'dropdown__item';
 			link.className = 'hyper-button';
 			link.id = `sort:${key}`;
@@ -134,8 +135,8 @@ class ExtendedFilters extends BaseFilters {
 			return false;
 		}
 
-		let attributes = [],
-			order = forceOrder ? forceOrder : info.default;
+		let attributes = [];
+		let order = forceOrder ? forceOrder : info.default;
 
 		// check if already sorted
 		if( this.activeSort.length > 0 ){
@@ -162,8 +163,8 @@ class ExtendedFilters extends BaseFilters {
 
 		// calculate sort
 		for( let item of this.items ) {
-			let value = item.getAttribute(info.attr),
-				id = item.id;
+			let value = item.getAttribute(info.attr);
+			let id = item.id;
 			attributes.push([value, id]);
 		}
 
@@ -217,9 +218,10 @@ class ExtendedFilters extends BaseFilters {
 function renderCards( cardData ){
 	// Render theme list
 	for( let theme of cardData ){
-		let themeName = theme.name ? theme.name : 'Untitled',
-			themeAuthor = theme.author ? theme.author : 'Untitled',
-			thisId = itemCount;
+		let themeName = theme.name ? theme.name : 'Untitled';
+		let themeAuthor = theme.author ? theme.author : 'Untitled';
+		let thisId = itemCount;
+		
 		if( !('url' in theme) ){
 			loader.log(`[ERROR] Skipping theme ${themeName} due to missing "url" key.`);
 			continue;
@@ -350,9 +352,9 @@ function renderCards( cardData ){
 
 // Variables
 
-var itemCount = 0,
-	sorts = ['data-title'],
-	cards = [];
+var itemCount = 0;
+var sorts = ['data-title'];
+var cards = [];
 
 // Get data for all collections and call other functions
 
@@ -375,8 +377,8 @@ function fetchAllFiles( arrayOfUrls ){
 // Then, load each collection URL and render cards. 
 fetchAllFiles(megaUrls)
 .then((files) => {
-	let failures = 0,
-		allCollectionUrls = structuredClone(collectionUrls);
+	let failures = 0;
+	let allCollectionUrls = structuredClone(collectionUrls);
 
 	for( let i = 0; i < files.length; i++ ){
 		let tempData = {};
@@ -464,8 +466,8 @@ fetchAllFiles(megaUrls)
 					filter.initialiseTags(tags);
 				}
 
-				let tSearch = query.get('search'),
-					tTags = query.get('tags');
+				let tSearch = query.get('search');
+				let tTags = query.get('tags');
 				
 				if( tSearch ){
 					filter.search( tSearch );
@@ -480,9 +482,9 @@ fetchAllFiles(megaUrls)
 			}
 
 			// Add sort dropdown items and apply default sort
-			let attemptedSort = false,
-				tSort = query.get('sort'),
-				tSortDir = query.get('sortdir') ? query.get('sortdir') : 'ascending';
+			let attemptedSort = false;
+			let tSort = query.get('sort');
+			let tSortDir = query.get('sortdir') ? query.get('sortdir') : 'ascending';
 			
 			if( tSort ){
 				attemptedSort = filter.sort(tSort, tSortDir, false);

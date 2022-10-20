@@ -66,8 +66,8 @@ for( let button of categoryButtons ){
 
 // Fixed header
 
-var statusMenu = document.getElementById('status-menu'),
-	affixAtPos = statusMenu.getBoundingClientRect().y + window.scrollY;
+var statusMenu = document.getElementById('status-menu');
+var affixAtPos = statusMenu.getBoundingClientRect().y + window.scrollY;
 
 
 
@@ -203,10 +203,10 @@ let listMenuInner = `<a class="icon-menu profile" href="https://myanimelist.net/
 function setView( view ){
 	// setup HTML variables
 
-	let header = document.querySelector('.header'),
-		headerMenu = header.querySelector('.header-menu'),
-		listMenu = document.querySelector('.list-menu-float'),
-		itemBtns = document.querySelectorAll('.add-edit-more span:first-child');
+	let header = document.querySelector('.header');
+	let headerMenu = header.querySelector('.header-menu');
+	let listMenu = document.querySelector('.list-menu-float');
+	let itemBtns = document.querySelectorAll('.add-edit-more span:first-child');
 
 	// Apply changes as required
 
@@ -315,13 +315,13 @@ function toggleStats(  ){
 	stats.style.paddingTop = '0';
 	stats.style.paddingBottom = '0';
 	
-	let visible = { height: '30px' },
-		invisible = { height: '0px' },
-		timing = {
-			duration: 100,
-			easing: 'cubic-bezier(.02, .01, .47, 1)'
-		},
-		display = stats.style.display;
+	let visible = { height: '30px' };
+	let invisible = { height: '0px' };
+	let display = stats.style.display;
+	let timing = {
+		duration: 100,
+		easing: 'cubic-bezier(.02, .01, .47, 1)'
+	};
 
 	if( !display || display === 'none' ){
 		stats.style.display = 'block';
@@ -352,8 +352,8 @@ document.getElementById('show-stats-button').addEventListener('click', () => {
 
 // Search Box
 
-let searchBox = document.getElementById('search-box'),
-	searchInput = searchBox.getElementsByTagName('input')[0];
+let searchBox = document.getElementById('search-box');
+let searchInput = searchBox.getElementsByTagName('input')[0];
 
 // Activate
 document.getElementById('search-button').addEventListener('click', () => {

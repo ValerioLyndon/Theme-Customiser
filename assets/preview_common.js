@@ -22,9 +22,9 @@ window.addEventListener(
 	"message",
 	function (event) {
 		if( event.origin === window.location.origin ){
-			var push = event.data || event.message,
-				type = push[0],
-				content = push[1];
+			let push = event.data || event.message;
+			let type = push[0];
+			let content = push[1];
 
 			if( type === 'css' ){
 				document.getElementById('custom-css').textContent = previewCss(content);

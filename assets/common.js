@@ -37,11 +37,11 @@ class LoadingScreen {
 		console.log(error);
 		let eStr = error.toString();
 		try {
-			let lines = json.split('\n'),
-				errorReason = eStr.match(/JSON\.parse:(.*?)at line [0-9]/)[1].trim(),
-				errorInfo = eStr.match(/line ([0-9]*) column ([0-9]*)/),
-				errorLine = errorInfo[1] - 2,
-				errorChar = errorInfo[2] - 2;
+			let lines = json.split('\n');
+			let errorReason = eStr.match(/JSON\.parse:(.*?)at line [0-9]/)[1].trim();
+			let errorInfo = eStr.match(/line ([0-9]*) column ([0-9]*)/);
+			let errorLine = errorInfo[1] - 2;
+			let errorChar = errorInfo[2] - 2;
 
 			this.log(`${msg}
 			<table class="table">
@@ -112,8 +112,8 @@ class MessageHandler {
 	send( text, type = 'notice', subtext = null, destruct = -1 ){
 		this.parent.classList.remove('is-hidden');
 
-		let msg = document.createElement('div'),
-			head = document.createElement('b');
+		let msg = document.createElement('div');
+		let head = document.createElement('b');
 
 		msg.className = 'messenger__message is-visible';
 		msg.innerHTML = text;
@@ -290,12 +290,12 @@ function importPreviousSettings( opts = undefined ){
     
 	// If theme or data is wrong, offer to redirect or to try importing anyway.
 	else if( userSettings.theme !== previousSettings.theme || userSettings.data !== previousSettings.data ){
-		let msg = 'There is a mismatch between your imported settings and the current page. Redirect to the page indicated in your import?',
-			choices = {
-				'Yes': {'value': 'redirect', 'type': 'suggested'},
-				'No, apply settings here.': {'value': 'ignore'},
-				'No, do nothing.': {'value': 'dismiss'}
-			};
+		let msg = 'There is a mismatch between your imported settings and the current page. Redirect to the page indicated in your import?';
+		let choices = {
+			'Yes': {'value': 'redirect', 'type': 'suggested'},
+			'No, apply settings here.': {'value': 'ignore'},
+			'No, do nothing.': {'value': 'dismiss'}
+		};
 		
 		confirm(msg, choices)
 		.then((choice) => {
@@ -321,9 +321,10 @@ function importPreviousSettings( opts = undefined ){
 }
 
 function toggleEle( selector, btn = false, set = undefined ){
-	let ele = document.querySelector(selector),
-		cls = 'is-hidden',
-		btnSelCls = 'is-active';
+	let ele = document.querySelector(selector);
+	let cls = 'is-hidden';
+	let btnSelCls = 'is-active';
+
 	if( set === true ){
 		ele.classList.add(cls);
 		if( btn ){ btn.classList.add(btnSelCls); }
@@ -343,8 +344,8 @@ function capitalise( str, divider = ' ' ){
 	let words = str.split(divider);
 	
 	for( i = 0; i < words.length; i++ ){
-		let first = words[i].substring(0,1).toUpperCase(),
-			theRest = words[i].substring(1);
+		let first = words[i].substring(0,1).toUpperCase();
+		let theRest = words[i].substring(1);
 		words[i] = first + theRest;
 	}
 	
@@ -483,9 +484,9 @@ class BaseFilters {
 
 			// Create Filter Buttons
 			for( let [tag, itemIds] of Object.entries(tags) ){
-				let button = document.createElement('button'),
-					countEle = document.createElement('span'),
-					count = itemIds.length;
+				let button = document.createElement('button');
+				let countEle = document.createElement('span');
+				let count = itemIds.length;
 
 				// skip rendering tag if all items match, thus making it useless
 				if( count === this.items.length ){
@@ -555,9 +556,9 @@ class BaseFilters {
 	// On button click
 	activateTag( button, itemName, itemIds ){
 		// Check if already selected and select button if not
-		let tagQ = query.get('tags'),
-			tagSplit = tagQ ? tagQ.split('&&') : [],
-			tagIndex = tagSplit.indexOf(itemName);
+		let tagQ = query.get('tags');
+		let tagSplit = tagQ ? tagQ.split('&&') : [];
+		let tagIndex = tagSplit.indexOf(itemName);
 		
 		let selected = this.selectedButtons.indexOf(button);
 		if( selected !== -1 ){
@@ -602,8 +603,8 @@ class BaseFilters {
 				}
 			}
 		}
-		let orFilters = Object.keys(filterCount),
-			andFilters = [];
+		let orFilters = Object.keys(filterCount);
+		let andFilters = [];
 		// create AND filter by only adding filters that match all of the selected filters
 		for( let [id, count] of Object.entries(filterCount) ){
 			if( count === Object.keys(this.selectedTags).length ){
@@ -700,8 +701,8 @@ loader.log('Page initialised.', false);
 // LEGACY JSON MANAGEMENT
 // Detect and Manage legacy JSON versions and URL parameters.
 
-let path = window.location.pathname,
-	dataUrls = query.getAll('data');
+let path = window.location.pathname;
+let dataUrls = query.getAll('data');
 
 // Check for legacy JSON and process as needed
 async function processJson( json, url, toReturn ){

@@ -4,12 +4,12 @@
 
 function confirm( msg, options = {'Yes': {'value': true, 'type': 'suggested'}, 'No': {'value': false}} ){
 	return new Promise((resolve, reject) => {
-		let modal = document.createElement('div'),
-			modalInner = document.createElement('div'),
-			modalExit = document.createElement('div'),
-			modalContent = document.createElement('div'),
-			header = document.createElement('h4'),
-			blurb = document.createElement('p');
+		let modal = document.createElement('div');
+		let modalInner = document.createElement('div');
+		let modalExit = document.createElement('div');
+		let modalContent = document.createElement('div');
+		let header = document.createElement('h4');
+		let blurb = document.createElement('p');
 
 		modal.className = 'popup';
 		modal.id = 'js-confirmation';
@@ -210,8 +210,8 @@ function infoOff(  ){
 
 // Function for the slider button to hide the sidebar
 function splitSlide(  ){
-	let slider = document.getElementById('js-toggle-drawer'),
-		sidebar = document.getElementById('js-sidebar');
+	let slider = document.getElementById('js-toggle-drawer');
+	let sidebar = document.getElementById('js-sidebar');
 
 	slider.classList.toggle('is-active');
 	sidebar.classList.toggle('is-aside');
@@ -252,8 +252,8 @@ function createBB( text ){
 		let contents = captureGroup2.replaceAll('[*]', '</li><li class="bb-list-item">');
 		contents = contents.replace(/l>.*?<\/li>/, 'l>');
 		
-		let ol = '<ol class="bb-list bb-list--ordered">'+contents+'</li></ol>',
-			ul = '<ul class="bb-list">'+contents+'</li></ul>';
+		let ol = '<ol class="bb-list bb-list--ordered">'+contents+'</li></ol>';
+		let ul = '<ul class="bb-list">'+contents+'</li></ul>';
 
 		if( typeof captureGroup1 !== 'undefined' ){
 			if( captureGroup1 === '=0' || captureGroup1 === '' ){
@@ -316,9 +316,9 @@ function returnCss( resource ){
 function updateOption( optId, funcConfig = {} ){
 	try {
 		// set values and default value
-		let htmlId = funcConfig.parentModId ? `mod:${funcConfig.parentModId}:${optId}` : `opt:${optId}`,
-			input = document.getElementById(htmlId),
-			val = funcConfig.forceValue;
+		let htmlId = funcConfig.parentModId ? `mod:${funcConfig.parentModId}:${optId}` : `opt:${optId}`;
+		let input = document.getElementById(htmlId);
+		let val = funcConfig.forceValue;
 
 		if( funcConfig.parentModId !== undefined ){
 			optData = theme.mods[funcConfig.parentModId].options[optId];
@@ -380,9 +380,9 @@ function updateOption( optId, funcConfig = {} ){
 // 'forceValue' // Default none
 function updateMod( modId, funcConfig = {} ){
 	try {
-		let toggle = document.getElementById(`mod:${modId}`),
-			val = toggle.checked,
-			mod = theme.mods[modId];
+		let toggle = document.getElementById(`mod:${modId}`);
+		let val = toggle.checked;
+		let mod = theme.mods[modId];
 
 		if( funcConfig.forceValue !== undefined ){
 			val = funcConfig.forceValue;
@@ -403,8 +403,8 @@ function updateMod( modId, funcConfig = {} ){
 					}
 
 					// todo: do this using js classes or something that won't fall apart the moment you change the DOM
-					let check = document.getElementById(`mod:${requirement}`),
-						requiredToggle = check.nextElementSibling;
+					let check = document.getElementById(`mod:${requirement}`);
+					let requiredToggle = check.nextElementSibling;
 					
 					if( Object.keys(currentRequirements[requirement]).length === 0 ){
 						delete userSettings.mods[requirement];
@@ -446,8 +446,8 @@ function updateMod( modId, funcConfig = {} ){
 					}
 
 					// todo: do this using js classes or something that won't fall apart the moment you change the DOM
-					let check = document.getElementById(`mod:${conflict}`),
-						conflictToggle = check.nextElementSibling;
+					let check = document.getElementById(`mod:${conflict}`);
+					let conflictToggle = check.nextElementSibling;
 					
 					if( Object.keys(currentConflicts[conflict]).length === 0 ){
 						check.disabled = false;
@@ -616,8 +616,8 @@ async function updateCss(  ){
 
 	function replacementString( length = 5 ){
 		let result = '';
-		const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
-		      charactersLength = characters.length;
+		const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+		const charactersLength = characters.length;
 		for( let i = 0; i < length; i++ ){
 			if( i % 2 === 0 ){
 				result += '~';
@@ -679,8 +679,8 @@ async function updateCss(  ){
 
 		for( let set of replacements ){
 			// Choose the correct replacement set based on whether the toggle is on or off
-			let find = set[0],
-				replace = (insert === true) ? set[2] : set[1];
+			let find = set[0];
+			let replace = (insert === true) ? set[2] : set[1];
 
 			// Fetch external CSS if necessary
 			replace = await returnCss(replace);
@@ -798,11 +798,11 @@ async function updateCss(  ){
 // "type" is the full option type string: "type/qualifier/subqualifier" 
 // Also accepts an HTML DOM element with the bind function for certain features: validateInput.bind(DOMElement)
 function validateInput( htmlId, type ){
-	let notice = document.getElementById(`${htmlId}-notice`),
-		noticeHTML = '',
-		val = document.getElementById(htmlId).value.toLowerCase(),
-		problems = 0,
-		qualifier = type.split('/')[1];
+	let notice = document.getElementById(`${htmlId}-notice`);
+	let noticeHTML = '';
+	let val = document.getElementById(htmlId).value.toLowerCase();
+	let problems = 0;
+	let qualifier = type.split('/')[1];
 	
 	if( val.length === 0 ){
 		notice.classList.add('o-hidden');
@@ -898,18 +898,18 @@ function clearCache(  ){
 
 // Render mods and options. Used inside renderHtml()
 function renderCustomisation( entryType, entry, parentEntry = [undefined, undefined] ){
-	let entryId = entry[0],
-		entryData = entry[1],
-		parentId = parentEntry[0];
+	let entryId = entry[0];
+	let entryData = entry[1];
+	let parentId = parentEntry[0];
 
 	// Setup basic HTML
 
-	let div = document.createElement('div'),
-		head = document.createElement('div'),
-		headLeft = document.createElement('b'),
-		headRight = document.createElement('div'),
-		expando = document.createElement('div'),
-		desc = document.createElement('div');
+	let div = document.createElement('div');
+	let head = document.createElement('div');
+	let headLeft = document.createElement('b');
+	let headRight = document.createElement('div');
+	let expando = document.createElement('div');
+	let desc = document.createElement('div');
 
 	div.className = 'entry';
 	head.className = 'entry__head';
@@ -949,10 +949,10 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 			return `Option must have a "type" key.`;
 		}
 
-		let split = entryData.type.split('/'),
-			type = split[0],
-			qualifier = split[1],
-			subQualifier = split[2];
+		let split = entryData.type.split('/');
+		let type = split[0];
+		let qualifier = split[1];
+		let subQualifier = split[2];
 
 		if( type === 'select' && !entryData.selections ){
 			return 'Option of type "select" must contain a "selections" key.';
@@ -1106,9 +1106,9 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 
 			inputRow.appendChild(range);
 
-			let difference = 100,
-				min = 0,
-				max = 100;
+			let difference = 100;
+			let min = 0;
+			let max = 100;
 
 			if( entryData.step < 1 ){
 				difference = 1;
@@ -1308,9 +1308,11 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 	return div;
 }
 
-// Listen for messages from color picker
 
+// colorToSet is defined whenever a user clicks on a "color" type option and activates the colour picker.
 var colorToSet = null;
+
+// We then listen for messages from the colour picker and apply the colour picker value onto the HTML.
 window.addEventListener(
 	"message",
 	function( event ){
@@ -1410,8 +1412,8 @@ function pageSetup(  ){
 	}
 
 	// Back link
-	let back = document.getElementById('js-back'),
-		backUrl = `./?`;
+	let back = document.getElementById('js-back');
+	let backUrl = `./?`;
 	if( collectionUrls.length > 0 ){
 		backUrl += `&c=${collectionUrls.join('&c=')}`;
 	}
@@ -1431,8 +1433,8 @@ function pageSetup(  ){
 	// Help links
 	if( theme.help ){
 		if( theme.help.startsWith('http') || theme.help.startsWith('mailto:') ){
-			let help = document.getElementsByClassName('js-help'),
-				helpLinks = document.getElementsByClassName('js-help-href');
+			let help = document.getElementsByClassName('js-help');
+			let helpLinks = document.getElementsByClassName('js-help-href');
 
 			for( let ele of help ){
 				ele.classList.remove('o-hidden');
@@ -1448,8 +1450,8 @@ function pageSetup(  ){
 
 	// Theme config - variables & functions
 
-	let configList = document.getElementById('js-theme-config'),
-		configNotice = document.getElementById('js-intended-config');
+	let configList = document.getElementById('js-theme-config');
+	let configNotice = document.getElementById('js-intended-config');
 
 	var listType = 'both';
 
@@ -1459,8 +1461,8 @@ function pageSetup(  ){
 		};
 
 	function processColumns( mode, todo, listType ){
-		let columns = {},
-			base = baseColumns[listType];
+		let columns = {};
+		let base = baseColumns[listType];
 
 		for( let col of base ){
 			if( Object.keys(todo).includes(col) ){
@@ -1546,10 +1548,10 @@ function pageSetup(  ){
 		columnsContainer.className = 'columns';
 
 		function renderColumns( columns, listType ){
-			let typeWrapper = document.createElement('div'),
-				glue = document.createElement('div'),
-				classic = document.createElement('div'),
-				modern = document.createElement('div');
+			let typeWrapper = document.createElement('div');
+			let glue = document.createElement('div');
+			let classic = document.createElement('div');
+			let modern = document.createElement('div');
 			
 			typeWrapper.className = 'columns__wrapper';
 			glue.className = 'columns__glue';
@@ -1632,17 +1634,17 @@ function pageSetup(  ){
 
 	// Set recommended installation steps
 
-	let coverHtml = document.getElementById('js-install-cover'),
-		backgroundHtml = document.getElementById('js-install-background'),
-		coverCheck = document.getElementById('js-preview__cover');
+	let coverHtml = document.getElementById('js-install-cover');
+	let backgroundHtml = document.getElementById('js-install-background');
+	let coverCheck = document.getElementById('js-preview__cover');
 
 	if( theme.type === 'classic' ){
 		coverHtml.remove();
 		backgroundHtml.remove();
 	}
 	else {
-		let hasCustomInstall = false,
-			customInstallTexts = [];
+		let hasCustomInstall = false;
+		let customInstallTexts = [];
 
 		if( theme.style ){
 			hasCustomInstall = true;
@@ -1691,8 +1693,8 @@ function pageSetup(  ){
 		}
 		else if( 'cover' in theme ){
 			// toggle button
-			let toggle = check.nextElementSibling,
-				val = true;
+			let toggle = check.nextElementSibling;
+			let val = true;
 
 			if( !theme.cover ){
 				val = false;
@@ -1710,8 +1712,9 @@ function pageSetup(  ){
 			// installation steps
 			hasCustomInstall = true;
 
-			let choice = theme.cover === true ? 'Yes' : 'No',
-				extra = '';
+			let choice = theme.cover === true ? 'Yes' : 'No';
+			let extra = '';
+
 			if( choice === 'Yes' ){
 				extra = `Be sure to upload an image by using the "Browse..." button.`;
 			}
@@ -1809,8 +1812,8 @@ function pageSetup(  ){
 	var tempcolumns = {};
 
 	// Set correct columns
-	let mode = 'whitelist',
-		tempListType = theme.supports[0];
+	let mode = 'whitelist';
+	let tempListType = theme.supports[0];
 	if( 'columns' in theme.preview ){
 		mode = 'mode' in theme.preview.columns ? theme.preview.columns.mode : 'whitelist';
 		tempcolumns = theme.preview.columns;
@@ -1863,15 +1866,15 @@ function pageSetup(  ){
 	let expandos = document.getElementsByClassName('js-expando');
 
 	function toggleExpando(  ){
-		let parent = this.parentNode,
-			expandedHeight = parent.scrollHeight,
-			collapsedHeight = parent.getAttribute('data-expando-limit'),
-			expanded = parent.classList.contains('is-expanded'),
-			animTiming = {
-				duration: 300 + expandedHeight / 3,
-				iterations: 1,
-				easing: 'ease'
-			};
+		let parent = this.parentNode;
+		let expandedHeight = parent.scrollHeight;
+		let collapsedHeight = parent.getAttribute('data-expando-limit');
+		let expanded = parent.classList.contains('is-expanded');
+		let animTiming = {
+			duration: 300 + expandedHeight / 3,
+			iterations: 1,
+			easing: 'ease'
+		};
 
 		if( expanded ){
 			let animFrames = [
@@ -2004,13 +2007,13 @@ function pageSetup(  ){
 
 // Preview Window
 
-var preview = document.getElementById('js-preview'),
-	iframe = document.createElement('iframe'),
-	iframeLoaded = false,
-	toPost = [],
-	pageLoaded = false,
-	currentRequirements = {},
-	currentConflicts = {};
+var preview = document.getElementById('js-preview');
+var iframe = document.createElement('iframe');
+var iframeLoaded = false;
+var toPost = [];
+var pageLoaded = false;
+var currentRequirements = {};
+var currentConflicts = {};
 
 iframe.addEventListener('load', () => {
 	iframeLoaded = true;
@@ -2038,11 +2041,10 @@ function postToPreview( msg ){
 
 // Variables
 
-var theme = '',
-	json = null,
-	baseCss = '',
-	tags = {};
-
+var theme = '';
+var json = null;
+var baseCss = '';
+var tags = {};
 var userSettings = {
 	'data': themeUrls[0],
 	'options': {},
@@ -2052,8 +2054,8 @@ var userSettings = {
 
 // Get data for all themes and call other functions
 
-let fetchUrl = themeUrls[0],
-	selectedTheme = query.get('q') || query.get('theme') || 'theme';
+let fetchUrl = themeUrls[0];
+let selectedTheme = query.get('q') || query.get('theme') || 'theme';
 
 // Legacy processing for json 0.1 > 0.2
 if( themeUrls.length === 0 && collectionUrls.length > 0 ){
