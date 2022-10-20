@@ -2,6 +2,7 @@
 // COMMON FUNCTIONS
 // ================
 
+// Renders a confirmation popup with custom text and optionally custom buttons if provided a dictionary. 
 function confirm( msg, options = {'Yes': {'value': true, 'type': 'suggested'}, 'No': {'value': false}} ){
 	return new Promise((resolve, reject) => {
 		let modal = document.createElement('div');
@@ -14,21 +15,21 @@ function confirm( msg, options = {'Yes': {'value': true, 'type': 'suggested'}, '
 		modal.className = 'popup';
 		modal.id = 'js-confirmation';
 		modalInner.className = 'popup__inner';
-		modalContent.className = 'popup__content popup__content--narrow';
 		modalExit.className = 'popup__invisibutton';
-		modalExit.onclick = 'togglEle("#js-confirmation")';
-		modal.appendChild(modalInner);
-		modalInner.appendChild(modalExit);
-		modalInner.appendChild(modalContent);
-
+		modalExit.onclick = 'toggleEle("#js-confirmation")';
+		modalContent.className = 'popup__content popup__content--narrow';
 		header.className = 'popup__header';
 		header.textContent = 'Confirm action.';
 		blurb.className = 'popup__paragraph';
 		blurb.textContent = msg;
+
+		modal.appendChild(modalInner);
+		modalInner.appendChild(modalExit);
+		modalInner.appendChild(modalContent);
 		modalContent.appendChild(header);
 		modalContent.appendChild(blurb);
 
-		// Add buttons
+		// Render buttons based off of the input dictionary
 
 		function complete( returnValue ){
 			resolve(returnValue);
@@ -55,7 +56,8 @@ function confirm( msg, options = {'Yes': {'value': true, 'type': 'suggested'}, '
 	});
 }
 
-// Info Popups
+// See common.js for the primary DynamicPopup class and the InfoPopup class.
+// InfoPopup is used for generic dialogues, PickerPopup is used for the colour picker.
 
 const info = new InfoPopup;
 
@@ -107,7 +109,7 @@ function infoOff(  ){
 	info.hide();
 }
 
-// Function for the slider button to hide the sidebar
+// Function for the slider button to hide or show the sidebar
 function splitSlide(  ){
 	let slider = document.getElementById('js-toggle-drawer');
 	let sidebar = document.getElementById('js-sidebar');
@@ -116,7 +118,7 @@ function splitSlide(  ){
 	sidebar.classList.toggle('is-aside');
 }
 
-// Creates and returns an HTML DOM element containing processed BB Code 
+// Creates and returns an HTML DOM element containing processed BB Code
 function createBB( text ){
 	// Sanitise input from HTML characters
 
@@ -190,11 +192,11 @@ function createBB( text ){
 	return parent;
 }
 
-// Takes CSS values from the JSON, checks to see if they are URLs or actual CSS, and proceeds accordingly.
-function returnCss( resource ){
+// Determines if a string is CSS or a URL to fetch. If a URL, fetches then returns the contents for use in CSS. 
+function returnCss( string ){
 	return new Promise((resolve, reject) => {
-		if( resource.startsWith('http') ){
-			fetchFile(resource)
+		if( string.startsWith('http') ){
+			fetchFile(string)
 				.then((response) => {
 					resolve(response);
 				})
@@ -203,11 +205,12 @@ function returnCss( resource ){
 				})
 		}
 		else {
-			resolve(resource);
+			resolve(string);
 		}
 	});
 }
 
+// Updates the userSettings with the option's value.
 // If funcConfig.forceValue is set then the mod will be updated to match this value. If not, the value will be read from the HTML
 // Accepted values for funcConfig:
 // 'parentModId' // Default none
@@ -273,6 +276,7 @@ function updateOption( optId, funcConfig = {} ){
 	}
 }
 
+// Updates the userSettings with the mod's value.
 // If funcConfig.forceValue is set then the mod will be updated to match this value. If not, the value will be read from the HTML
 // Accepted values for funcConfig:
 // 'skipOptions' // Default off/false
@@ -487,7 +491,8 @@ function applySettings( settings = false ){
 	updateCss();
 }
 
-// Processes all options & mods and applies the CSS to output & iframe
+// Processes all options & mods in the userSettings and creates CSS.
+// It then applies the CSS to the output textarea & preview iframe
 async function updateCss(  ){
 	let storageString = {'date': Date.now(), 'settings': userSettings};
 	localStorage.setItem(`theme:${userSettings.data}`, JSON.stringify(storageString));
@@ -695,9 +700,10 @@ async function updateCss(  ){
 	postToPreview(['css', newCss]);
 }
 
+// Used as an eventListener on certain user inputs and activated on change.
+// Validates user input depending on option type and warns user of problems. 
 // "htmlId" should be a valid HTML ID to select the option with.
 // "type" is the full option type string: "type/qualifier/subqualifier" 
-// Also accepts an HTML DOM element with the bind function for certain features: validateInput.bind(DOMElement)
 function validateInput( htmlId, type ){
 	let notice = document.getElementById(`${htmlId}-notice`);
 	let noticeHTML = '';
@@ -709,19 +715,8 @@ function validateInput( htmlId, type ){
 		notice.classList.add('o-hidden');
 		return undefined;
 	}
-	
-	if( type === 'color' ){
-		let swatch = document.getElementById(`${htmlId}-colour`);
-		// reset colour before applying new one to be sure it gets reset
-		swatch.style.backgroundColor = '';
-		swatch.style.backgroundColor = val;
-		if( swatch.style.backgroundColor.length === 0 ){
-			problems += 1;
-			noticeHTML = 'Your colour appears to be invalid. For help creating valid CSS colours, see <a class="hyperlink" href="https://css-tricks.com/almanac/properties/c/color/">this guide</a>.';
-		}
-	}
 
-	else if( qualifier === 'image_url' ){
+	if( qualifier === 'image_url' ){
 		// Consider replacing this with a script that simply loads the image and tests if it loads. Since we're already doing that with the preview anyway it shouldn't be a problem.
 		noticeHTML = 'We detected some warnings. If your image does not display, fix these issues and try again.<ul class="info-box__list">';
 
@@ -797,7 +792,7 @@ function clearCache(  ){
 	});
 }
 
-// Render mods and options. Used inside renderHtml()
+// Render mods and options and returns the DOM element. Used inside renderHtml()
 function renderCustomisation( entryType, entry, parentEntry = [undefined, undefined] ){
 	function fail( reason ){
 		let parentText = parentId ? ` of "${parentId}"` : '';
