@@ -126,7 +126,9 @@
 	flex-flow: row wrap;
 	align-content: flex-start;
 	padding: 0 15px;
+	max-width: calc((244px + 14px * 2) * 5 + 30px);
 	min-height: calc(100vh - 300px);
+	margin: 0 auto;
 }
 
 .browser__card {
