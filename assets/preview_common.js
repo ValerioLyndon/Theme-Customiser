@@ -6,8 +6,7 @@ function setColumns( columns ){
 
 	for( let [column, enabled] of Object.entries(columns) ){
 		// Add selector for removal if the item is optional or disabled
-		if(enabled === null && selectors.length < 7 && Math.round(Math.random()) === 1
-		|| enabled === false) {
+		if( enabled === false || enabled === null && selectors.length < 7 && Math.round(Math.random()) === 1 ){
 			selectors.push(`[tc-column="${column}"]`);
 		}
 	}
