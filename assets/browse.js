@@ -6,8 +6,8 @@
 
 // An extended filter class with search & sorting
 class ExtendedFilters extends BaseFilters {
-	constructor( items, selector = 'ID' ){
-		super( items, selector );
+	constructor( items, selector = 'ID', saveToUrl = true ){
+		super( items, selector, saveToUrl );
 
 		// Search Variables
 		this.searchBar = document.getElementById('js-search');
@@ -83,11 +83,25 @@ class ExtendedFilters extends BaseFilters {
 				this.sort(key);
 			});
 		}
+
+		// Activate any previously active sort
+		let previousSort = query.get('sort');
+		let previousSortDir = query.get('sortdir') ? query.get('sortdir') : 'ascending';
+		if( previousSort ){
+			this.sort(previousSort, previousSortDir, false);
+		}
 	}
 
 	initialiseSearch( ){
 		this.searchBar.classList.remove('o-hidden');
 		this.searchBar.addEventListener('input', () => { this.search(this.searchBar.value); } );
+
+		// Activate any previously active search
+		let previousSearch = query.get('search');
+		if( previousSearch ){
+			this.search( previousSearch );
+			this.searchBar.value = previousSearch;
+		}
 	}
 
 	reset( ){
@@ -104,7 +118,7 @@ class ExtendedFilters extends BaseFilters {
 
 	// Search
 	search( input ){
-		if( input.length > 0 ){
+		if( this.saveToUrl && input.length > 0 ){
 			query.set('search', input);
 		}
 		else {
@@ -130,7 +144,7 @@ class ExtendedFilters extends BaseFilters {
 		}
 	}
 
-	sort( key, forceOrder, updateQuery = true ) {
+	sort( key, forceOrder, updateUrl = true ) {
 		let info = this.sorts[key];
 		// returns false if sort key is invalid
 		if( !info ){
@@ -202,7 +216,7 @@ class ExtendedFilters extends BaseFilters {
 			document.getElementById(id).style.order = i;
 		}
 
-		if( updateQuery ){
+		if( this.saveToUrl && updateUrl ){
 			query.set('sort', key);
 			query.set('sortdir', order);
 		}
@@ -485,37 +499,19 @@ fetchAllFiles(megaUrls)
 				if( hasTags ){
 					filter.initialiseTags(tags);
 				}
-
-				let tSearch = query.get('search');
-				let tTags = query.get('tags');
-				
-				if( tSearch ){
-					filter.search( tSearch );
-					filter.searchBar.value = tSearch;
-				}
-				if( tTags ){
-					let splitTags = tTags.split('&&');
-					for( let tag of splitTags ){
-						document.getElementById(`tag:${tag}`).dispatchEvent( new Event('click') );
-					}
-				}
 			}
 
-			// Add sort dropdown items and apply default sort
-			let attemptedSort = false;
-			let tSort = query.get('sort');
-			let tSortDir = query.get('sortdir') ? query.get('sortdir') : 'ascending';
+			// If not already sorted, attempt various sorts depending on available info.
+			let previousSort = query.get('sort');
 			
-			if( tSort ){
-				attemptedSort = filter.sort(tSort, tSortDir, false);
-			}
-			else {
-				attemptedSort = filter.sort('date', undefined, false)
-			}
-			if( attemptedSort === false ){
-				filter.sort('random', undefined, false);
+			if( !previousSort ) {
+				let attemptedSort = filter.sort('date', undefined, false);
+				if( !attemptedSort ){
+					filter.sort('random', undefined, false);
+				}
 			}
 
+			// Finish up
 			loader.loaded();
 			startBrowseTutorial();
 		});

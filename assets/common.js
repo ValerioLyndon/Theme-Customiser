@@ -531,12 +531,13 @@ function pushFilter( thisId, tag, category = 'other' ){
  | • A div with ID 'js-tags__cloud'
  */
 class BaseFilters {
-	constructor( items, selector = 'ID' ){
+	constructor( items, selector = 'ID', saveToUrl = false ){
 		// Variables for all
 		this.toggle = document.getElementById('js-tags__button');
 		this.toggleCls = 'has-selected';
 		this.clearBtn = document.getElementById('js-tags__clear');
 		this.items = [...items];
+		this.saveToUrl = saveToUrl;
 
 		// Tag Variables
 		this.tagContainer = document.getElementById('js-tags__cloud');
@@ -647,6 +648,15 @@ class BaseFilters {
 				group.remove();
 			}
 		}
+
+		// Activate any previously active items
+		let previousTags = query.get('tags');
+		if( previousTags ){
+			let splitTags = previousTags.split('&&');
+			for( let tag of splitTags ){
+				document.getElementById(`tag:${tag}`).dispatchEvent( new Event('click') );
+			}
+		}
 	}
 
 	reset( ){
@@ -689,7 +699,9 @@ class BaseFilters {
 			// Remove from URL
 			if( tagIndex !== -1 ){
 				tagSplit.splice(tagIndex, 1);
-				query.set('tags', tagSplit.join('&&'));
+				if( this.saveToUrl ) {
+					query.set('tags', tagSplit.join('&&'));
+				}
 			}
 		}
 		else {
@@ -701,7 +713,9 @@ class BaseFilters {
 			// Add to URL
 			if( tagIndex === -1 ){
 				tagSplit.push(itemName);
-				query.set('tags', tagSplit.join('&&'));
+				if( this.saveToUrl ) {
+					query.set('tags', tagSplit.join('&&'));
+				}
 			}
 		}
 
