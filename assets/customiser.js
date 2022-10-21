@@ -705,7 +705,7 @@ async function updateCss(  ){
 // "type" is the full option type string: "type/qualifier/subqualifier" 
 function validateInput( htmlId, type ){
 	let notice = document.getElementById(`${htmlId}-notice`);
-	let noticeHTML = '';
+	let noticeHtml = '';
 	let val = document.getElementById(htmlId).value.toLowerCase();
 	let problems = 0;
 	let qualifier = type.split('/')[1];
@@ -717,11 +717,11 @@ function validateInput( htmlId, type ){
 
 	if( qualifier === 'image_url' ){
 		// Consider replacing this with a script that simply loads the image and tests if it loads. Since we're already doing that with the preview anyway it shouldn't be a problem.
-		noticeHTML = 'We detected some warnings. If your image does not display, fix these issues and try again.<ul class="info-box__list">';
+		noticeHtml = 'Potential problems detected. If your image does not display, fix these issues and try again.<ul class="info-box__list">';
 
 		function problem( text ){
 			problems += 1;
-			noticeHTML += `<li class="info-box__list-item">${text}</li>`;
+			noticeHtml += `<li class="info-box__list-item">${text}</li>`;
 		}
 
 		if( val !== 'none' && val.length > 0 ){
@@ -753,16 +753,24 @@ function validateInput( htmlId, type ){
 			problems = 0;
 		}
 		if( problems > 0 ){
-			noticeHTML = 'Did not detect a length unit. All CSS sizes must end in a length unit such as "px", "%", "vw", or otherwise. For help creating valid CSS colours, see <a class="hyperlink" href="https://css-tricks.com/the-lengths-of-css/">this guide</a>.';
+			noticeHtml = 'Did not detect a length unit. All CSS sizes must end in a length unit such as "px", "%", "vw", or otherwise. For help creating valid CSS colours, see <a class="hyperlink" href="https://css-tricks.com/the-lengths-of-css/">this guide</a>.';
 		}
 	}
 	
+	function noticePopup( ){
+		info.text(noticeHtml);
+		info.show(notice);
+	}
+	notice.addEventListener('mouseleave', info.hide);
+
 	if( problems > 0 ){
-		notice.innerHTML = noticeHTML;
+		notice.removeEventListener('mouseenter', noticePopup);
+		notice.addEventListener('mouseenter', noticePopup);
 		notice.classList.remove('o-hidden');
 		return false;
 	}
 	else {
+		notice.removeEventListener('mouseenter', noticePopup);
 		notice.classList.add('o-hidden');
 		return true;
 	}
@@ -1940,10 +1948,11 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 
 		// Add notice
 
-		let notice = document.createElement('p');
+		let notice = document.createElement('div');
 		notice.id = `${htmlId}-notice`;
-		notice.className = 'info-box info-box--indented info-box--error o-hidden';
-		div.appendChild(notice);
+		notice.className = 'entry__notice entry__notice--error has-info o-hidden';
+		notice.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i>`;
+		inputRow.appendChild(notice);
 	}
 
 	else if( entryType === 'mod' ){

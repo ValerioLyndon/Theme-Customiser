@@ -500,12 +500,25 @@ input:checked + .toggle.is-forced::after {
 	margin: 0 0 8px 8px;
 }
 
+.entry__notice {
+	flex: 0 0 auto;
+	margin: 0 0 8px 8px;
+	order: 3;
+	font-size: 1.4em;
+}
+.entry__notice--warn {
+	color: var(--accent--warn);
+}
+.entry__notice--error {
+	color: var(--accent--error);
+}
+
 .entry__reset {
 	background: none;
 	border-color: transparent;
 	flex: 0 0 auto;
 	margin: 0 0 8px auto;
-	order: 3;
+	order: 4;
 	opacity: 0.1;
 	transition: opacity 0.2s ease;
 }
@@ -554,6 +567,9 @@ input:checked + .toggle.is-forced::after {
 	background: var(--box);
 	border-left: 2px solid var(--box-accent);
 	margin: 0 0 8px;
+}
+.info-box--warn {
+	--box-accent: var(--accent--warn);
 }
 .info-box--error {
 	--box-accent: var(--accent--error);
