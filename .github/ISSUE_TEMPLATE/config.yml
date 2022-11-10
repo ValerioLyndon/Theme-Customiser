@@ -1,0 +1,4 @@
+contact_links:
+  - name: Theme feature request
+    url: https://github.com/ValerioLyndon/Theme-Customiser-Json/issues/new?template=theme_feature_request.yml
+    about: Suggestions to improve themes and their available options 
