@@ -1832,15 +1832,15 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 				difference = 1;
 			}
 
-			if( entryData.min && entryData.max ){
+			if( 'min' in entryData && 'max' in entryData ){
 				min = entryData.min;
 				max = entryData.max;
 			}
-			else if( entryData.min ){
+			else if( 'min' in entryData ){
 				min = entryData.min;
 				max = entryData.min + difference;
 			}
-			else if( entryData.max ){
+			else if( 'max' in entryData ){
 				max = entryData.max;
 				min = entryData.max - difference;
 			}
