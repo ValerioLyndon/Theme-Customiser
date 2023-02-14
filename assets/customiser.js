@@ -299,27 +299,26 @@ function updateMod( modId, funcConfig = {} ){
 					// todo: do this using js classes or something that won't fall apart the moment you change the DOM
 					let check = document.getElementById(`mod:${requirement}`);
 					let requiredToggle = check.nextElementSibling;
-
-					function infoOn( ){
-						let names = Object.values(currentRequirements[requirement]);
-						info.text(`This mod is required by one of your other choices. To change, disable "${names.join('" and "')}".`);
-						info.show(requiredToggle);
-					}
 					
 					if( Object.keys(currentRequirements[requirement]).length === 0 ){
 						delete userSettings.mods[requirement];
 						check.disabled = false;
 						check.checked = false;
 						requiredToggle.classList.remove('is-forced', 'has-info');
-						requiredToggle.removeEventListener('mouseenter', infoOn);
-						requiredToggle.removeEventListener('mouseleave', info.hide);
+						// this clone node/remove BS is required to make sure that the unique anonymous function added as a listener gets removed 
+						requiredToggle.parentElement.append(requiredToggle.cloneNode(true));
+						requiredToggle.remove();
 					}
 					else {
 						userSettings.mods[requirement] = true;
 						check.disabled = true;
 						check.checked = true;
 						requiredToggle.classList.add('is-forced', 'has-info');
-						requiredToggle.addEventListener('mouseenter', infoOn);
+						requiredToggle.addEventListener('mouseenter', () => {
+							let names = Object.values(currentRequirements[requirement]);
+							info.text(`This mod is required by one of your other choices. To change, disable "${names.join('" and "')}".`);
+							info.show(requiredToggle);
+						});
 						requiredToggle.addEventListener('mouseleave', info.hide);
 					}
 				}
@@ -333,6 +332,9 @@ function updateMod( modId, funcConfig = {} ){
 		if( mod.conflicts ){
 			for( let conflict of mod.conflicts ){
 				if( conflict in theme.mods ){
+					// before we clean up the conflicts, create clone for use disabling infoOn function 
+					let tempConflicts = structuredClone(currentConflicts);
+
 					if( val ){
 						if( !currentConflicts[conflict] ){
 							currentConflicts[conflict] = {};
@@ -346,25 +348,24 @@ function updateMod( modId, funcConfig = {} ){
 					// todo: do this using js classes or something that won't fall apart the moment you change the DOM
 					let check = document.getElementById(`mod:${conflict}`);
 					let conflictToggle = check.nextElementSibling;
-
-					function infoOn( ){
-						let names = Object.values(currentConflicts[conflict]);
-						info.text(`This mod is incompatible with one of your choices. To use, disable "${names.join('" and "')}".`);
-						info.show(conflictToggle);
-					}
 					
 					if( Object.keys(currentConflicts[conflict]).length === 0 ){
 						check.disabled = false;
 						check.checked = false;
 						conflictToggle.classList.remove('is-disabled', 'has-info');
-						conflictToggle.removeEventListener('mouseenter', infoOn);
-						conflictToggle.removeEventListener('mouseleave', info.hide);
+						// this clone node/remove BS is required to make sure that the unique anonymous function added as a listener gets removed 
+						conflictToggle.parentElement.append(conflictToggle.cloneNode(true));
+						conflictToggle.remove();
 					}
 					else {
 						check.disabled = true;
 						check.checked = false;
 						conflictToggle.classList.add('is-disabled', 'has-info');
-						conflictToggle.addEventListener('mouseenter', infoOn);
+						conflictToggle.addEventListener('mouseenter', () => {
+							let names = Object.values(currentConflicts[conflict]);
+							info.text(`This mod is incompatible with one of your choices. To use, disable "${names.join('" and "')}".`);
+							info.show(conflictToggle);
+						});
 						conflictToggle.addEventListener('mouseleave', info.hide);
 					}
 				}
