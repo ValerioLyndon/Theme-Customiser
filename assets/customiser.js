@@ -285,7 +285,7 @@ function updateMod( modId, funcConfig = {} ){
 		// Enable required mods
 		if( mod.requires ){
 			for( let requirement of mod.requires ){
-				if( theme.mods.requirement ){
+				if( requirement in theme.mods ){
 					if( val ){
 						if( !currentRequirements[requirement] ){
 							currentRequirements[requirement] = {};
@@ -332,7 +332,7 @@ function updateMod( modId, funcConfig = {} ){
 		// Disable incompatible mods
 		if( mod.conflicts ){
 			for( let conflict of mod.conflicts ){
-				if( theme.mods[conflict] ){
+				if( conflict in theme.mods ){
 					if( val ){
 						if( !currentConflicts[conflict] ){
 							currentConflicts[conflict] = {};
