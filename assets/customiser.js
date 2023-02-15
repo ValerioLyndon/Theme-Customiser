@@ -1829,7 +1829,7 @@ var userSettings = {
 	'mods': {}
 };
 
-if( query.url.pathname === '/Theme-Customiser/theme' || query.url.pathname === '/theme' ){
+if( query.url.pathname === '/theme' ){
 	// Get data for all themes and call other functions
 	let fetchUrl = themeUrls[0],
 		selectedTheme = query.get('q') || query.get('theme') || 'theme';
