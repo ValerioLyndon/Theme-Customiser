@@ -760,7 +760,7 @@ function validateInput( htmlId, type ){
 	
 	function noticePopup( ){
 		info.text(noticeHtml);
-		info.show(notice);
+		info.show(notice, 'top');
 	}
 	notice.addEventListener('mouseleave', info.hide);
 
