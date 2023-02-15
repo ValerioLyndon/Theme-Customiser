@@ -11,7 +11,7 @@ class ExtendedFilters extends BaseFilters {
 
 		// Search Variables
 		this.searchBar = document.getElementById('js-search');
-		this.searchAttributes = ['data-title'];
+		this.searchAttributes = ['title'];
 		this.itemSearchCls = 'is-hidden-by-search';
 
 		// Sort Variables
@@ -19,17 +19,17 @@ class ExtendedFilters extends BaseFilters {
 		this.activeSort = [];
 		this.sorts = {
 			'title': {
-				'attr': 'data-title',
+				'attr': 'title',
 				'default': 'ascending',
 				'label': 'Title'
 			},
 			'author': {
-				'attr': 'data-author',
+				'attr': 'author',
 				'default': 'ascending',
 				'label': 'Author'
 			},
 			'date': {
-				'attr': 'data-date',
+				'attr': 'date',
 				'default': 'descending',
 				'label': 'Release Date'
 			},
@@ -50,7 +50,7 @@ class ExtendedFilters extends BaseFilters {
 			let valid = false;
 			if( info.attr !== 'random' ){
 				for( let item of this.items ){
-					if( item.hasAttribute(info.attr) ){
+					if( info.attr in item.dataset ){
 						valid = true;
 						break;
 					}
@@ -128,7 +128,7 @@ class ExtendedFilters extends BaseFilters {
 		for( let item of this.items ){
 			let match = false;
 			for( let attr of this.searchAttributes ){
-				let attrValue = item.getAttribute(attr);
+				let attrValue = item.dataset[attr];
 
 				if( attrValue && attrValue.toLowerCase().includes( input.toLowerCase() ) ){
 					match = true;
@@ -179,7 +179,7 @@ class ExtendedFilters extends BaseFilters {
 
 		// calculate sort
 		for( let item of this.items ) {
-			let value = item.getAttribute(info.attr);
+			let value = item.dataset[info.attr];
 			let id = item.id;
 			attributes.push([value, id]);
 		}
@@ -253,24 +253,24 @@ function renderCards( cardData ){
 			cardUrl += `&m=${megaUrls.join('&m=')}`;
 		}
 		cardParent.href = cardUrl;
-		cardParent.setAttribute('data-title', themeName);
+		cardParent.dataset.title = themeName;
 		cardParent.id = `card:${thisId}`;
 		if( 'date' in theme ){
-			if( !sorts.includes('data-date') ){
-				sorts.push('data-date');
+			if( !sorts.includes('date') ){
+				sorts.push('date');
 			}
 
-			cardParent.setAttribute('data-date', theme.date);
+			cardParent.dataset.date = theme.date;
 		}
 		else {
-			cardParent.setAttribute('data-date', '0000-00-00');
+			cardParent.dataset.date = '0000-00-00';
 		}
 		if( 'author' in theme ){
-			if( !sorts.includes('data-author') ){
-				sorts.push('data-author');
+			if( !sorts.includes('author') ){
+				sorts.push('author');
 			}
 
-			cardParent.setAttribute('data-author', theme.author);
+			cardParent.dataset.author = theme.author;
 		}
 
 		let card = document.createElement('div');
@@ -369,7 +369,7 @@ function renderCards( cardData ){
 // Variables
 
 var itemCount = 0;
-var sorts = ['data-title'];
+var sorts = ['title'];
 var cards = [];
 
 // Get data for all collections and call other functions

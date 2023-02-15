@@ -1472,7 +1472,7 @@ function pageSetup( ){
 	function toggleExpando(  ){
 		let parent = this.parentNode;
 		let expandedHeight = parent.scrollHeight;
-		let collapsedHeight = parent.getAttribute('data-expando-limit');
+		let collapsedHeight = parent.dataset.expandoLimit;
 		let expanded = parent.classList.contains('is-expanded');
 		let animTiming = {
 			duration: 300 + expandedHeight / 3,
@@ -1506,7 +1506,7 @@ function pageSetup( ){
 	}
 
 	for( let expando of expandos ){
-		let limit = expando.getAttribute('data-expando-limit');
+		let limit = expando.dataset.expandoLimit;
 		if( expando.scrollHeight < limit ){
 			expando.classList.add('is-innert');
 		}
@@ -1633,7 +1633,7 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 	headLeft.className = 'entry__name';
 	headRight.className = 'entry__action-box';
 	expando.className = 'expando js-expando';
-	expando.setAttribute('data-expando-limit', "100");
+	expando.dataset.expandoLimit = '100';
 	expando.innerHTML = '<button class="expando__button expando__button--subtle js-expando-button">Expand</button>';
 	desc.className = 'entry__desc';
 
