@@ -1,0 +1,55 @@
+name: Bug report
+description: Create a report to help improve the project
+labels: [bug]
+body:
+- type: checkboxes
+  attributes:
+    label: Has this issue been reported already?
+    description: 
+    options:
+    - label: I have searched the existing issues and this is a new bug.
+      required: true
+- type: textarea
+  attributes:
+    label: Describe the bug
+    description: A clear and concise description of what is going wrong.
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Steps to reproduce
+    description: Steps or explanation on how to reproduce the behavior. If you are not able to consistently reproduce, say that instead.
+    placeholder: |
+      1. Go to '...'
+      2. Click on '....'
+      3. Scroll down to '....'
+      4. See error
+  validations:
+    required: false
+- type: textarea
+  attributes:
+    label: Desktop
+    description: |
+      Details about your desktop environment to assist in reproducing the issue. Some issues are not solvable without this information.
+      
+      Generally speaking, you should list your operating system, browser, and browser extensions.
+    placeholder: |
+      Operating System: [e.g. Windows, Linux, iOS]
+      Browser: [e.g. chrome, safari]
+      Notable browser extensions: [e.g. uBlock Origin, Adblock, NoScript, etc, no need to list all]
+  validations:
+    required: false
+- type: textarea
+  attributes:
+    label: Screenshots
+    description: If applicable, add screenshots to help explain your problem.
+    placeholder: Add links to images here.
+  validations:
+    required: false
+- type: textarea
+  attributes:
+    label: Customiser settings
+    description: If applicable, paste the settings you were using below. You can find them by clicking "Export Settings" at the top of the Theme Customiser page.
+    placeholder: '{"data":"url","theme":"name"}'
+  validations:
+    required: false

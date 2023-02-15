@@ -6,12 +6,12 @@
 
 // An extended filter class with search & sorting
 class ExtendedFilters extends BaseFilters {
-	constructor( items, selector = 'ID' ){
-		super( items, selector );
+	constructor( items, selector = 'ID', saveToUrl = true ){
+		super( items, selector, saveToUrl );
 
 		// Search Variables
 		this.searchBar = document.getElementById('js-search');
-		this.searchAttributes = ['data-title'];
+		this.searchAttributes = ['title'];
 		this.itemSearchCls = 'is-hidden-by-search';
 
 		// Sort Variables
@@ -19,17 +19,17 @@ class ExtendedFilters extends BaseFilters {
 		this.activeSort = [];
 		this.sorts = {
 			'title': {
-				'attr': 'data-title',
+				'attr': 'title',
 				'default': 'ascending',
 				'label': 'Title'
 			},
 			'author': {
-				'attr': 'data-author',
+				'attr': 'author',
 				'default': 'ascending',
 				'label': 'Author'
 			},
 			'date': {
-				'attr': 'data-date',
+				'attr': 'date',
 				'default': 'descending',
 				'label': 'Release Date'
 			},
@@ -50,7 +50,7 @@ class ExtendedFilters extends BaseFilters {
 			let valid = false;
 			if( info.attr !== 'random' ){
 				for( let item of this.items ){
-					if( item.hasAttribute(info.attr) ){
+					if( info.attr in item.dataset ){
 						valid = true;
 						break;
 					}
@@ -83,11 +83,25 @@ class ExtendedFilters extends BaseFilters {
 				this.sort(key);
 			});
 		}
+
+		// Activate any previously active sort
+		let previousSort = query.get('sort');
+		let previousSortDir = query.get('sortdir') ? query.get('sortdir') : 'ascending';
+		if( previousSort ){
+			this.sort(previousSort, previousSortDir, false);
+		}
 	}
 
 	initialiseSearch( ){
 		this.searchBar.classList.remove('o-hidden');
 		this.searchBar.addEventListener('input', () => { this.search(this.searchBar.value); } );
+
+		// Activate any previously active search
+		let previousSearch = query.get('search');
+		if( previousSearch ){
+			this.search( previousSearch );
+			this.searchBar.value = previousSearch;
+		}
 	}
 
 	reset( ){
@@ -104,7 +118,7 @@ class ExtendedFilters extends BaseFilters {
 
 	// Search
 	search( input ){
-		if( input.length > 0 ){
+		if( this.saveToUrl && input.length > 0 ){
 			query.set('search', input);
 		}
 		else {
@@ -114,7 +128,7 @@ class ExtendedFilters extends BaseFilters {
 		for( let item of this.items ){
 			let match = false;
 			for( let attr of this.searchAttributes ){
-				let attrValue = item.getAttribute(attr);
+				let attrValue = item.dataset[attr];
 
 				if( attrValue && attrValue.toLowerCase().includes( input.toLowerCase() ) ){
 					match = true;
@@ -130,7 +144,7 @@ class ExtendedFilters extends BaseFilters {
 		}
 	}
 
-	sort( key, forceOrder, updateQuery = true ) {
+	sort( key, forceOrder, updateUrl = true ) {
 		let info = this.sorts[key];
 		// returns false if sort key is invalid
 		if( !info ){
@@ -165,7 +179,7 @@ class ExtendedFilters extends BaseFilters {
 
 		// calculate sort
 		for( let item of this.items ) {
-			let value = item.getAttribute(info.attr);
+			let value = item.dataset[info.attr];
 			let id = item.id;
 			attributes.push([value, id]);
 		}
@@ -202,7 +216,7 @@ class ExtendedFilters extends BaseFilters {
 			document.getElementById(id).style.order = i;
 		}
 
-		if( updateQuery ){
+		if( this.saveToUrl && updateUrl ){
 			query.set('sort', key);
 			query.set('sortdir', order);
 		}
@@ -239,24 +253,24 @@ function renderCards( cardData ){
 			cardUrl += `&m=${megaUrls.join('&m=')}`;
 		}
 		cardParent.href = cardUrl;
-		cardParent.setAttribute('data-title', themeName);
+		cardParent.dataset.title = themeName;
 		cardParent.id = `card:${thisId}`;
 		if( 'date' in theme ){
-			if( !sorts.includes('data-date') ){
-				sorts.push('data-date');
+			if( !sorts.includes('date') ){
+				sorts.push('date');
 			}
 
-			cardParent.setAttribute('data-date', theme.date);
+			cardParent.dataset.date = theme.date;
 		}
 		else {
-			cardParent.setAttribute('data-date', '0000-00-00');
+			cardParent.dataset.date = '0000-00-00';
 		}
 		if( 'author' in theme ){
-			if( !sorts.includes('data-author') ){
-				sorts.push('data-author');
+			if( !sorts.includes('author') ){
+				sorts.push('author');
 			}
 
-			cardParent.setAttribute('data-author', theme.author);
+			cardParent.dataset.author = theme.author;
 		}
 
 		let card = document.createElement('div');
@@ -355,7 +369,7 @@ function renderCards( cardData ){
 // Variables
 
 var itemCount = 0;
-var sorts = ['data-title'];
+var sorts = ['title'];
 var cards = [];
 
 // Get data for all collections and call other functions
@@ -485,37 +499,19 @@ fetchAllFiles(megaUrls)
 				if( hasTags ){
 					filter.initialiseTags(tags);
 				}
-
-				let tSearch = query.get('search');
-				let tTags = query.get('tags');
-				
-				if( tSearch ){
-					filter.search( tSearch );
-					filter.searchBar.value = tSearch;
-				}
-				if( tTags ){
-					let splitTags = tTags.split('&&');
-					for( let tag of splitTags ){
-						document.getElementById(`tag:${tag}`).dispatchEvent( new Event('click') );
-					}
-				}
 			}
 
-			// Add sort dropdown items and apply default sort
-			let attemptedSort = false;
-			let tSort = query.get('sort');
-			let tSortDir = query.get('sortdir') ? query.get('sortdir') : 'ascending';
+			// If not already sorted, attempt various sorts depending on available info.
+			let previousSort = query.get('sort');
 			
-			if( tSort ){
-				attemptedSort = filter.sort(tSort, tSortDir, false);
-			}
-			else {
-				attemptedSort = filter.sort('date', undefined, false)
-			}
-			if( attemptedSort === false ){
-				filter.sort('random', undefined, false);
+			if( !previousSort ) {
+				let attemptedSort = filter.sort('date', undefined, false);
+				if( !attemptedSort ){
+					filter.sort('random', undefined, false);
+				}
 			}
 
+			// Finish up
 			loader.loaded();
 			startBrowseTutorial();
 		});
