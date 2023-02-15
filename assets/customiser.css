@@ -804,6 +804,9 @@ input:checked + .toggle.is-forced::after {
 	overflow: hidden;
 	grid-area: main;
 }
+.preview--left {
+	grid-area: sidebar;
+}
 
 .preview__window-wrapper {
 	width: 100%;

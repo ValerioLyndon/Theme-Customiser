@@ -169,7 +169,7 @@ body {
 	height: 100vh;
 	grid-template-rows: auto 1fr;
 	grid-template-columns: auto 1fr;
-	grid-template-areas: "top top" "sidebar main";
+	grid-template-areas: "top top" "main sidebar";
 }
 .content__browse {
 	padding-bottom: 32px;
