@@ -72,25 +72,6 @@
 
 
 
-/* Hyperlink Buttons */
-
-.hyper-button {
-	cursor: pointer;
-}
-.hyper-button:hover {
-	color: var(--accent);
-	text-decoration: underline;
-}
-.hyper-button.is-active {
-	font-weight: bold;
-}
-
-.hyper-button__icon {
-	font-size: 0.8em;
-}
-
-
-
 /* Filter Area */
 
 .filter {
@@ -145,7 +126,9 @@
 	flex-flow: row wrap;
 	align-content: flex-start;
 	padding: 0 15px;
+	max-width: calc((244px + 14px * 2) * 5 + 30px);
 	min-height: calc(100vh - 300px);
+	margin: 0 auto;
 }
 
 .browser__card {

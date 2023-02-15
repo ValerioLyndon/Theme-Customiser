@@ -1,17 +1,150 @@
+'use strict';
+
 // Preview-only HTML - replicating default functionality
 
-function toggle(defaultDisplay = 'block') {
-	if(this.style.display === 'none' || this.style.display === '') {
+function toggle( defaultDisplay = 'block' ){
+	if( this.style.display === 'none' || this.style.display === '' ){
 		this.style.display = defaultDisplay;
-	} else {
+	}
+	else {
 		this.style.display = 'none';
 	}
 }
 
-// List Items
+// More Info
 
-function getExpand(id) {
+const moreData = {
+	'5114': `<table border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tbody><tr><td class="td1 borderRBL"><div style="margin-bottom: 3px;"><a href="/forum/?animeid=5114" target="_blank" onclick="return false;">Discuss Anime</a></div>
+                        <span title="Anime Database Rating">Rating: R - 17+ (violence &amp; profanity)</span> (<a href="javascript:void(0);" onclick="window.open('/info.php?go=mpaa','bbcode','menubar=no,scrollbars=yes,status=no,width=350,height=250');return false;" onclick="return false;">Why?</a>)<br>Storage:  None<br>Rewatch Value: &nbsp;<br>Retail Disks: <br>Start Date: May  10, 2016
+                <br>
+                End Date: <br>
+                         Days Since Started Watching: 2,249<br>
+                         Last Updated: 
+                         06-29-22
+                        <br>
+                        Time Spent Watching: 
+                        33 hours, 39 minutes, and 40 seconds <small>(0 hours, 24 minutes, and 20 seconds per episode)</small><br>
+                        Notes: Vestibulum luctus dolor dui, ut iaculis quam auctor sed. Vestibulum vitae tellus nunc. Curabitur dapibus lorem et sagittis lobortis. Nullam eget tellus rhoncus, eleifend felis et, dignissim nisl.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus ut nunc orci. Nunc et consequat risus.&nbsp;<br></td>
+                        </tr>
+                        </tbody></table>`,
+	'918': `<table border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tbody><tr><td class="td2 borderRBL"><div style="margin-bottom: 3px;"><a href="/forum/?animeid=918" target="_blank" onclick="return false;">Discuss Anime</a></div>
+                        <span title="Anime Database Rating">Rating: PG-13 - Teens 13 or older</span> (<a href="javascript:void(0);" onclick="window.open('/info.php?go=mpaa','bbcode','menubar=no,scrollbars=yes,status=no,width=350,height=250');return false;" onclick="return false;">Why?</a>)<br>Storage:  None<br>Rewatch Value: Medium<br>
+                            Deviation Score: -2.0<br>Retail Disks: <br>Start Date: Feb  3, 2021
+                <br>
+                End Date: <br>
+                         Days Since Started Watching: 519<br>
+                         Last Updated: 
+                         06-29-22
+                        <br>
+                        Time Spent Watching: 
+                        56 hours, 26 minutes, and 24 seconds <small>(0 hours, 24 minutes, and 54 seconds per episode)</small><br>
+                        Notes: &nbsp;<br></td>
+                        </tr>
+                        </tbody></table>`,
+	'3841': `<table border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tbody><tr><td class="td1 borderRBL"><div style="margin-bottom: 3px;"><a href="/forum/?animeid=3841" target="_blank" onclick="return false;">Discuss Anime</a></div>This series has been re-watched
+                                    <strong>0</strong> times<br>
+                        <span title="Anime Database Rating">Rating: G - All Ages</span> (<a href="javascript:void(0);" onclick="window.open('/info.php?go=mpaa','bbcode','menubar=no,scrollbars=yes,status=no,width=350,height=250');return false;" onclick="return false;">Why?</a>)<br>Storage:  None<br>Rewatch Value: &nbsp;<br>
+                            Deviation Score: 0.3<br>Retail Disks: <br>Start Date: Dec  1, 2021
+                <br>
+                End Date: Dec  28, 2021<br>
+                         Days Since Started Watching: 28<br>
+                         Last Updated: 
+                         06-29-22
+                        <br>
+                        Time Spent Watching: 
+                        5 hours, 12 minutes, and 0 seconds <small>(0 hours, 3 minutes, and 0 seconds per episode)</small><br>
+                        Notes: &nbsp;<br></td>
+                        </tr>
+                        </tbody></table>`,
+	'32281': `<table border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tbody><tr><td class="td2 borderRBL"><div style="margin-bottom: 3px;"><a href="/forum/?animeid=32281" target="_blank" onclick="return false;">Discuss Anime</a></div>This series has been re-watched
+                                    <strong>3</strong> times<br>
+                        <span title="Anime Database Rating">Rating: PG-13 - Teens 13 or older</span> (<a href="javascript:void(0);" onclick="window.open('/info.php?go=mpaa','bbcode','menubar=no,scrollbars=yes,status=no,width=350,height=250');return false;" onclick="return false;">Why?</a>)<br>Storage: NAS at 3.00 Gb<br>Rewatch Value: Very High<br>
+                            Deviation Score: 1.1<br>Retail Disks: <br>Start Date: Jun  29, 2022
+                <br>
+                End Date: Jun  29, 2022<br>
+                         Days Since Started Watching: 1<br>
+                         Last Updated: 
+                         06-29-22
+                        <br>
+                        Time Spent Watching: 
+                        1 hour, 46 minutes, and 31 seconds <small>(1 hour, 46 minutes, and 31 seconds per episode)</small><br>
+                        Notes: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus ut nunc orci. Nunc et consequat risus. Ut lobortis lorem eget odio molestie aliquam. Etiam egestas, purus a aliquet consectetur, nisl felis sagittis nisi, ut bibendum augue tortor vitae elit. Nullam suscipit eget ipsum eu blandit. Donec elit eros, pellentesque sit amet venenatis ut, sollicitudin sit amet sem. In placerat erat nec tortor aliquet consectetur. Vestibulum luctus dolor dui, ut iaculis quam auctor sed. Vestibulum vitae tellus nunc. Curabitur dapibus lorem et sagittis lobortis. Nullam eget tellus rhoncus, eleifend felis et, dignissim nisl.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus ut nunc orci. Nunc et consequat risus. Ut lobortis lorem eget odio molestie aliquam. Etiam egestas, purus a aliquet consectetur, nisl felis sagittis nisi, ut bibendum augue tortor vitae elit. Nullam suscipit eget ipsum eu blandit. Donec elit eros, pellentesque sit amet venenatis ut, sollicitudin sit amet sem. In placerat erat nec tortor aliquet consectetur. Vestibulum luctus dolor dui, ut iaculis quam auctor sed. Vestibulum vitae tellus nunc. Curabitur dapibus lorem et sagittis lobortis. Nullam eget tellus rhoncus, eleifend felis et, dignissim nisl.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus ut nunc orci. Nunc et consequat risus. Ut lobortis lorem eget odio molestie aliquam. Etiam egestas, purus a aliquet consectetur, nisl felis sagittis nisi, ut bibendum augue tortor vitae elit.&nbsp;<br></td>
+                        </tr>
+                        </tbody></table>`,
+	'21': `<table width="100%" cellspacing="0" cellpadding="0" border="0">
+                <tbody><tr><td class="td1 borderRBL"><div style="margin-bottom: 3px;"><a href="/forum/?animeid=21" target="_blank" onclick="return false;">Discuss Anime</a></div>
+                        <span title="Anime Database Rating">Rating: PG-13 - Teens 13 or older</span> (<a href="javascript:void(0);" onclick="window.open('/info.php?go=mpaa','bbcode','menubar=no,scrollbars=yes,status=no,width=350,height=250');return false;" onclick="return false;">Why?</a>)<br>Storage:  None<br>Rewatch Value: &nbsp;<br>Retail Disks: <br>Start Date: Jan  8, 2007
+                <br>
+                End Date: <br>
+                         Days Since Started Watching: 5,686<br>
+                         Last Updated: 
+                         08-01-22
+                        <br>
+                        Time Spent Watching: 
+                        54 hours, 0 minutes, and 0 seconds <small>(0 hours, 24 minutes, and 0 seconds per episode)</small><br>
+                        Notes: &nbsp;<br></td>
+                        </tr>
+                        </tbody></table>`,
+	'2372': `<table border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tbody><tr><td class="td1 borderRBL"><div style="margin-bottom: 3px;"><a href="/forum/?animeid=2372" target="_blank" onclick="return false;">Discuss Anime</a></div>
+                        <span title="Anime Database Rating">Rating: Rx - Hentai</span> (<a href="javascript:void(0);" onclick="window.open('/info.php?go=mpaa','bbcode','menubar=no,scrollbars=yes,status=no,width=350,height=250');return false;" onclick="return false;">Why?</a>)<br>Storage:  None<br>Rewatch Value: &nbsp;<br>Retail Disks: <br>Start Date: Apr  3, 2019
+                <br>
+                End Date: <br>
+                         Days Since Started Watching: 1,191<br>
+                         Last Updated: 
+                         06-29-22
+                        <br>
+                        Time Spent Watching: 
+                        0 hours, 28 minutes, and 32 seconds <small>(0 hours, 28 minutes, and 32 seconds per episode)</small><br>
+                        Notes: &nbsp;<br></td>
+                        </tr>
+                        </tbody></table>`,
+	'4654': `<table border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tbody><tr><td class="td2 borderRBL"><div style="margin-bottom: 3px;"><a href="/forum/?animeid=4654" target="_blank" onclick="return false;">Discuss Anime</a></div>
+                        <span title="Anime Database Rating">Rating: R - 17+ (violence &amp; profanity)</span> (<a href="javascript:void(0);" onclick="window.open('/info.php?go=mpaa','bbcode','menubar=no,scrollbars=yes,status=no,width=350,height=250');return false;" onclick="return false;">Why?</a>)<br>Storage:  None<br>Rewatch Value: &nbsp;<br>
+                            Deviation Score: -6.4<br>Retail Disks: <br>Start Date: 
+                <br>
+                End Date: <br>
+                         Days Since Started Watching: <br>
+                         Last Updated: 
+                         06-29-22
+                        <br>
+                        Time Spent Watching: 
+                        9 hours, 32 minutes, and 0 seconds <small>(0 hours, 23 minutes, and 50 seconds per episode)</small><br>
+                        Notes: &nbsp;<br></td>
+                        </tr>
+                        </tbody></table>`,
+	'47': `<table border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tbody><tr><td class="td1 borderRBL"><div style="margin-bottom: 3px;"><a href="/forum/?animeid=47" target="_blank" onclick="return false;">Discuss Anime</a></div>
+                        <span title="Anime Database Rating">Rating: R+ - Mild Nudity</span> (<a href="javascript:void(0);" onclick="window.open('/info.php?go=mpaa','bbcode','menubar=no,scrollbars=yes,status=no,width=350,height=250');return false;" onclick="return false;">Why?</a>)<br>Storage:  None<br>Rewatch Value: &nbsp;<br>Retail Disks: <br>Start Date: 
+                <br>
+                End Date: <br>
+                         Days Since Started Watching: <br>
+                         Last Updated: 
+                         06-29-22
+                        <br>
+                        Time Spent Watching: 
+                        0 hours, 0 minutes, and 0 seconds <small>(2 hours, 4 minutes, and 28 seconds per episode)</small><br>
+                        Notes: Japan, 1988. An explosion caused by a young boy with psychic powers tears through the city of Tokyo and ignites the fuse that leads to World War III. In order to prevent any further destruction, he is captured and taken into custody, never to be heard from again. Now, in the year 2019, a restored version of the city known as Neo-Tokyo—an area rife with gang violence and terrorism against the current government—stands in its place. Here, Shoutarou Kaneda leads "the Capsules," a group of misfits known for riding large, custom motorcycles and being in constant conflict with their rivals "the Clowns."<br />
+<br />
+During one of these battles, Shoutarou's best friend Tetsuo Shima is caught up in an accident with an esper who finds himself in the streets of Tokyo after escaping confinement from a government institution. Through this encounter, Tetsuo begins to develop his own mysterious abilities, as the government seeks to quarantine this latest psychic in a desperate attempt to prevent him from unleashing the destructive power that could once again bring the city to its knees.&nbsp;<br></td>
+                        </tr>
+                        </tbody></table>`
+}
+
+function getExpand( id ){
 	let more = document.getElementById(`more${id}`);
+	
+	// add HTML on first run to simulate MAL-like behaviour
+	if( !more.hasChildNodes() ){
+		more.innerHTML = moreData[id];
+	}
+
+	// toggle display 
 	toggle.bind(more)();
 }
 
@@ -27,18 +160,18 @@ var categoryCodes = {
 	6: 'planned'
 }
 
-function changeCategory(catId, catBtn) {
-	if(!catBtn) {
-		for(let button of categoryButtons) {
+function changeCategory( catId, catBtn ){
+	if( !catBtn ){
+		for( let button of categoryButtons ){
 			let href = button.getElementsByTagName('a')[0].href;
-			if(href.includes(`status=${catId}`)) {
+			if( href.includes(`status=${catId}`) ){
 				catBtn = button;
 			}
 		}
 	}
 
 	// Change button attributes
-	for(let button of categoryButtons) {
+	for( let button of categoryButtons ){
 		button.className = 'status_not_selected';
 	}
 	catBtn.className = 'status_selected';
@@ -46,19 +179,21 @@ function changeCategory(catId, catBtn) {
 	// Hide relevant tables
 	let tables = document.getElementsByTagName('table');
 
-	for(let table of tables) {
+	for( let table of tables ){
 		let tableCat = table.getAttribute('tc-category');
-		if(catId == 7 || tableCat === categoryCodes[catId]) {
+		if( catId == 7 || tableCat === categoryCodes[catId] ){
 			table.style = '';
-		} else if(tableCat === null) {
+		}
+		else if( tableCat === null ){
 			continue;
-		} else {
+		}
+		else {
 			table.style = 'display: none !important';
 		}
 	}
 }
 
-for(let button of categoryButtons) {
+for( let button of categoryButtons ){
 	button.addEventListener('click', () => {
 		let a = button.getElementsByTagName('a')[0],
 			indexStart = a.href.indexOf('status=') + 7,
@@ -210,22 +345,22 @@ let menuHtml = {
 	</tbody>`
 }
 
-function setView(view) {
+function setView( view ){
 	let menu = document.getElementById('mal_control_strip');
 
-	if(view === 'owner') {
+	if( view === 'owner' ){
 		document.body.setAttribute('data-owner', 1);
 
-		menu.innerHTML = menuHtml['owner'];
+		menu.innerHTML = menuHtml.owner;
 	}
 
-	else if(view.startsWith('visitor')) {
+	else if( view.startsWith('visitor') ){
 		document.body.setAttribute('data-owner', '');
 
-		if(view === 'visitor:user') {
+		if( view === 'visitor:user' ){
 			menu.innerHTML = menuHtml['visitor:user'];
 		}
-		else if(view === 'visitor:guest') {
+		else if( view === 'visitor:guest' ){
 			menu.innerHTML = menuHtml['visitor:guest'];
 		}
 	}
