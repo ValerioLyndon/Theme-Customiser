@@ -9,23 +9,24 @@ function sanitiseForHtml( text ){
 // Common functions
 
 class AdvancedEditor {
-	constructor( parent = document.body ){
+	constructor( parent = document.body, onChange = () => {} ){
+		this.onChange = onChange;
 		// setup HTML
 		this.container = document.createElement('div');
-		this.container.className = 'ae';
+		this.container.className = 'advanced-editor';
 		this.rawText = document.createElement('textarea');
-		this.rawText.className = 'ae-raw';
+		this.rawText.className = 'advanced-editor__interactable-text';
 		this.rawText.wrap = 'off';
 		this.scrollSync = document.createElement('div');
 		this.visibleText = document.createElement('div');
-		this.visibleText.className = 'ae-vis';
+		this.visibleText.className = 'advanced-editor__visible-text';
 		this.lineContainer = document.createElement('div');
 		this.lineContainer = document.createElement('div');
-		this.lineContainer.className = 'ae-lines';
-		this.scrollSync.appendChild(this.lineContainer);
-		this.scrollSync.appendChild(this.visibleText);
-		this.container.appendChild(this.scrollSync);
-		this.container.appendChild(this.rawText);
+		this.lineContainer.className = 'advanced-editor__line-container';
+		this.scrollSync.append(this.lineContainer);
+		this.scrollSync.append(this.visibleText);
+		this.container.append(this.scrollSync);
+		this.container.append(this.rawText);
 		parent.prepend(this.container);
 
 		// setup passthrough variables
@@ -34,26 +35,37 @@ class AdvancedEditor {
 
 		// add basic functions
 		this.rawText.addEventListener('input', () => {
-			try {
-				JSON.parse(this.rawText.value);
-				this.setVisible();
-			}
-			catch( e ){
-				try {
-					let match = e.toString().match(/line ([0-9]*) column ([0-9]*)/);
-					this.showError( match[1], match[2] );
-				}
-				catch{
-					this.setVisible();
-				}
-			}
+			this.setVisible();
+			this.onChange();
 		});
 		this.rawText.addEventListener('scroll', () => {
 			this.scrollSync.style.transform = `translate(${-this.rawText.scrollLeft}px, ${-this.rawText.scrollTop}px)`;
 		});
+		let keyPress = this.onKeyPress.bind(this);
+		this.rawText.addEventListener('focusin', () => {
+			this.rawText.addEventListener('keydown', keyPress);
+		});
+		this.rawText.addEventListener('focusout', () => {
+			this.rawText.removeEventListener('keydown', keyPress);
+		});
 	}
 
 	setVisible( ){
+		// check for errors and get location numbers
+		let errorLine = -1;
+		let errorChar = -1;
+		try {
+			JSON.parse(this.rawText.value);
+		}
+		catch( e ){
+			try {
+				let match = e.toString().match(/line ([0-9]*) column ([0-9]*)/);
+				errorLine = match[1];
+				errorChar = match[2];
+			}
+			catch{}
+		}
+
 		// let linted = this.rawText.value
 		// 	.replaceAll(/([[{,][^[{]*?)(\"[^"]*\"[^":,]*)(:)/g, '$1<span style="color:#75bfff">$2</span>$3');
 		this.lineContainer.replaceChildren();
@@ -61,25 +73,38 @@ class AdvancedEditor {
 
 		let lines = this.rawText.value.split('\n');
 		for( let i = 0; i < lines.length; i++ ){
-			let num = document.createElement('div'),
-				text = lines[i];
-			num.className = 'ae-line-num';
+			let num = document.createElement('div');
+			let text = lines[i];
+			num.className = 'advanced-editor__line-num';
 			num.textContent = i+1;
-			this.lineContainer.appendChild(num);
+			this.lineContainer.append(num);
 
 			let line = document.createElement('div');
-			line.className = 'ae-line';
-			line.id = `ae-${i+1}`;
+			line.className = 'advanced-editor__line';
+			line.id = `js-advanced-editor-${i+1}`;
 
-			// tabs
+			// sanitise text before changing HTML
 			text = sanitiseForHtml(text);
-			text = text.replaceAll('\t', '<span class="ae-tab">\t</span>');
-			// trailing space
+
+			// if this is an error line, insert error info
+			if( i === errorLine-1 && errorChar > -1 ){
+				line.classList.add('advanced-editor__line--error');
+				text = 
+					text.substring(0, errorChar-1)
+					+ '<span class="advanced-editor__error-char">'
+					+ text.substring(errorChar-1, errorChar)
+					+ '</span>'
+					+ text.substring(errorChar, text.length);
+			}
+
+			// stylise tabs
+			text = text.replaceAll('\t', '<span class="advanced-editor__tab">\t</span>');
+			// stylise trailing space
 			if( text.endsWith(' ') ){
 				text = text.replace(/( +)$/, (match) => {
 					let str = '';
 					for( let char of match ){
-						str += '<span class="ae-trailing"> </span>';
+						str += '<span class="advanced-editor__trailing"> </span>';
 					}
 					return str;
 				});
@@ -87,7 +112,7 @@ class AdvancedEditor {
 			
 			// commit line
 			line.innerHTML = text;
-			this.visibleText.appendChild(line);
+			this.visibleText.append(line);
 		}
 		
 		let w = 18;
@@ -100,30 +125,14 @@ class AdvancedEditor {
 		else if( lines.length > 1000 ){
 			w = 30;
 		}
-		this.container.style.cssText = `--ae-line-width: ${w}px`;
-	}
-
-	showError( line, column ){
-		this.setVisible();
-		let errorLine = document.getElementById(`ae-${line}`),
-			errorLineTxt = sanitiseForHtml(errorLine.textContent);
-		
-		errorLine.innerHTML = 
-			'<div class="ae-err-line">'
-			+ errorLineTxt.substring(0, column-1)
-			+ '<span class="ae-err-char">'
-			+ errorLineTxt.substring(column-1, column)
-			+ '</span>'
-			+ errorLineTxt.substring(column, errorLineTxt.length)
-			+ '</div>';
+		this.container.style.cssText = `--advanced-editor__line-width: ${w}px`;
 	}
 
 	value( text ){
-		if( text !== 'undefined' && typeof text === 'string' ){
+		if( typeof text === 'string' ){
 			this.rawText.value = text;
 			this.setVisible();
 		}
-
 		return this.rawText.value;
 	}
 
@@ -146,49 +155,37 @@ class AdvancedEditor {
 			this.value(myValue);
 		}
 	}
+
+	onKeyPress( keyPress ){
+		let key = keyPress['key'];
+
+		// handle 
+		if( key === 'Tab' ) {
+			keyPress.preventDefault();
+			this.insertAtCursor( '\t' );
+			this.onChange();
+		}
+		else if( key === 'Enter' ){
+			keyPress.preventDefault();
+
+			let cursorPos = this.rawText.selectionStart;
+			let currentLine = this.value().substr( 0, cursorPos ).match(/\n([^\n]*)$/);
+			let startingWhitespace = currentLine && currentLine[1] ? currentLine[1].match(/^\s*/) : false;
+			
+			if( startingWhitespace ){
+				this.insertAtCursor( '\n' + startingWhitespace );
+			}
+			else {
+				this.insertAtCursor( '\n' );
+			}
+
+			this.onChange();
+		}
+	}
 }
 
 
 // JSON textarea
-
-var editor = new AdvancedEditor( document.getElementById('js-json') ),
-	notice = document.getElementById('js-json-notice'),
-	renderer = document.getElementById('js-renderer');
-
-editor.rawText.addEventListener('focusin', () => {
-	editor.rawText.addEventListener('keydown', onKeyPress);
-});
-editor.rawText.addEventListener('focusout', () => {
-	editor.rawText.removeEventListener('keydown', onKeyPress);
-});
-editor.rawText.addEventListener('input', validate);
-
-function onKeyPress( keyPress ){
-	let key = keyPress['key'];
-
-	// handle 
-	if( key === 'Tab' ) {
-		keyPress.preventDefault();
-		editor.insertAtCursor( '\t' );
-		validate();
-	}
-	if( key === 'Enter' ){
-		keyPress.preventDefault();
-
-		let cursorPos = editor.rawText.selectionStart;
-		let currentLine = editor.value().substr( 0, cursorPos ).match(/\n([^\n]*)$/);
-		let startingWhitespace = currentLine && currentLine[1] ? currentLine[1].match(/^\s*/) : false;
-		
-		if( startingWhitespace ){
-			editor.insertAtCursor( '\n' + startingWhitespace );
-		}
-		else {
-			editor.insertAtCursor( '\n' );
-		}
-
-		validate();
-	}
-}
 
 function fail( msg ){
 	jsonValid = false;
@@ -221,6 +218,10 @@ function good( json ){
 
 function validate( ){
 	json = editor.value();
+	
+	// save text to storage
+	let storageString = {'date': Date.now(), 'editor': editor.value()};
+	localStorage.setItem(`developer`, JSON.stringify(storageString));
 
 	// attempt parsing
 	try {
@@ -251,11 +252,15 @@ function validate( ){
 	else {
 		good( json );
 	}
-	
-	// save text to storage
-	let storageString = {'date': Date.now(), 'editor': editor.value()};
-	localStorage.setItem(`developer`, JSON.stringify(storageString));
 }
+
+var editor = new AdvancedEditor( document.getElementById('js-json'), validate );
+var notice = document.getElementById('js-json-notice');
+var renderer = document.getElementById('js-renderer');
+
+
+
+// Preview functions and habndlers
 
 function renderPreview( ){
 	iframeLoaded = false;
@@ -281,19 +286,6 @@ function setRenderTimer( ){
 	}, 1000);
 }
 
-// add function to checkbox
-let autoRenderBtn = document.getElementById('js-auto-render');
-autoRenderBtn.addEventListener('change', () => {
-	if( autoRenderBtn.checked ){
-		setRenderTimer();
-	}
-	else {
-		clearTimeout(timer);
-	}
-});
-
-// Preview Window
-
 var preview = document.getElementById('js-preview'),
 	iframe = document.createElement('iframe'),
 	iframeLoaded = false,
@@ -309,7 +301,7 @@ iframe.addEventListener('load', () => {
 });
 
 iframe.className = 'preview__window preview__window--dynamic preview__window--dimmed';
-preview.appendChild(iframe);
+preview.append(iframe);
 
 function postToIframe(msg) {
 	if(iframeLoaded) {
@@ -319,6 +311,20 @@ function postToIframe(msg) {
 	toPost = msg;
 	return false;
 }
+
+
+
+// Buttons
+
+let autoRenderBtn = document.getElementById('js-auto-render');
+autoRenderBtn.addEventListener('change', () => {
+	if( autoRenderBtn.checked ){
+		setRenderTimer();
+	}
+	else {
+		clearTimeout(timer);
+	}
+});
 
 function resetEditor( ){
 	userConfirm('Clear everything from the editor and start over with the template JSON?')

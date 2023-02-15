@@ -2,7 +2,7 @@ html {
 	tab-size: 4;
 }
 
-.ae {
+.advanced-editor {
 	position: relative;
 	box-sizing: content-box;
 	width: calc(100% - 12px);
@@ -14,39 +14,15 @@ html {
 	border-radius: 4px;
 	margin: 0 0 8px;
 	overflow: hidden;
-	--ae-line-width: 23px;
+	--advanced-editor__line-width: 23px;
 }
 
-.ae-lines {
+.advanced-editor__visible-text, .advanced-editor__interactable-text {
 	box-sizing: border-box;
 	position: absolute;
 	top: 0;
 	left: 0;
-	width: var(--ae-line-width);
-	height: auto;
-	padding: 6px 0;
-	background: #212127;
-}
-
-.ae-line-num {
-	width: 100%;
-	height: 15px;
-	padding-right: 3px;
-	color: #aaa;
-	font: 9px/15px monospace;
-	text-align: right;
-}
-
-.ae-line {
-	min-height: 15px;
-}
-
-.ae-vis, .ae-raw {
-	box-sizing: border-box;
-	position: absolute;
-	top: 0;
-	left: 0;
-	padding: 6px 6px 6px calc(var(--ae-line-width) + 3px);
+	padding: 6px 6px 6px calc(var(--advanced-editor__line-width) + 3px);
 	background: none;
 	border: none;
 	margin: 0;
@@ -55,32 +31,56 @@ html {
 	white-space: pre;
 }
 
-.ae-vis {
+.advanced-editor__visible-text {
 	min-width: 100%;
 	color: #eeeeae;
 	width: auto;
 	height: auto;
 }
 
-.ae-raw {
+.advanced-editor__interactable-text {
 	color: transparent;
 	width: 100%;
 	height: 100%;
 	overflow: auto;
 }
 
-.ae-err-line {
+.advanced-editor__line-container {
+	box-sizing: border-box;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: var(--advanced-editor__line-width);
+	height: auto;
+	padding: 6px 0;
+	background: #212127;
+}
+
+.advanced-editor__line-num {
+	width: 100%;
+	height: 15px;
+	padding-right: 3px;
+	color: #aaa;
+	font: 9px/15px monospace;
+	text-align: right;
+}
+
+.advanced-editor__line {
+	min-height: 15px;
+}
+.advanced-editor__line--error {
 	background: rgba(255, 0, 0, 0.5);
 }
-.ae-err-char {
+
+.advanced-editor__error-char {
 	background: red;
 	border-radius: 2px;
 }
 
-.ae-tab {
+.advanced-editor__tab {
 	position: relative;
 }
-.ae-tab::after {
+.advanced-editor__tab::after {
 	content: "→";
 	position: absolute;
 	right: 3px;
@@ -89,10 +89,10 @@ html {
 	transform: translateY(-50%);
 }
 
-.ae-trailing {
+.advanced-editor__trailing {
 	position: relative;
 }
-.ae-trailing::after {
+.advanced-editor__trailing::after {
 	content: "•";
 	position: absolute;
 	left: 50%;
@@ -108,21 +108,6 @@ html {
 .toggle-with-text__text {
 	display: block;
 	margin-left: 3px;
-}
-
-.code {
-	white-space: pre;
-	background: #404051;
-	color: #eeeeae;
-	border-radius: 4px;
-	padding: 2px;
-	font-family: monospace;
-}
-
-.code--block {
-	padding: 4px;
-	display: block;
-	white-space: pre-wrap;
 }
 
 /* Layout */

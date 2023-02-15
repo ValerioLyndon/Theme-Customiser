@@ -761,7 +761,6 @@ window.addEventListener(
 				}
 			}
 			else if( type === 'json' ){
-				console.log(content);
 				theme = content.data;
 				userSettings.theme = theme.name;
 				pageSetup();
