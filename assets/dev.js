@@ -175,10 +175,10 @@ function onKeyPress( keyPress ){
 	if( key === 'Enter' ){
 		keyPress.preventDefault();
 
-		let cursorPos = editor.rawText.selectionStart,
-			currentLine = editor.value().substr( 0, cursorPos ).match(/\n([^\n]*)$/),
-			startingWhitespace = currentLine && currentLine[1] ? currentLine[1].match(/^\s*/) : false;
-		console.log(currentLine, startingWhitespace)
+		let cursorPos = editor.rawText.selectionStart;
+		let currentLine = editor.value().substr( 0, cursorPos ).match(/\n([^\n]*)$/);
+		let startingWhitespace = currentLine && currentLine[1] ? currentLine[1].match(/^\s*/) : false;
+		
 		if( startingWhitespace ){
 			editor.insertAtCursor( '\n' + startingWhitespace );
 		}
@@ -191,36 +191,36 @@ function onKeyPress( keyPress ){
 }
 
 function fail( msg ){
+	jsonValid = false;
 	notice.innerHTML = msg;
 	notice.classList.add('info-box--error');
 	notice.classList.remove('o-hidden', 'info-box--warn');
 }
 
 function warn( msg ){
+	jsonValid = true;
 	notice.innerHTML = msg;
 	notice.classList.add('info-box--warn');
 	notice.classList.remove('o-hidden', 'info-box--error');
 }
 
 function good( json ){
+	jsonValid = true;
 	notice.classList.add('o-hidden');
 
-	let type = 'theme';
-	if( 'themes' in json ){
+	if( 'data' in json ){
+		type = 'theme';
+	}
+	else if( 'themes' in json ){
 		type = 'collection';
 	}
-	if( 'collections' in json ){
+	else if( 'collections' in json ){
 		type = 'mega';
 	}
-	renderPreview( type, json );
-	
-	// save text to storage
-	let storageString = {'date': Date.now(), 'editor': editor.value()};
-	localStorage.setItem(`developer`, JSON.stringify(storageString));
 }
 
 function validate( ){
-	let json = editor.value();
+	json = editor.value();
 
 	// attempt parsing
 	try {
@@ -249,40 +249,87 @@ function validate( ){
 
 	// if everything good
 	else {
-		good(json);
+		good( json );
 	}
+	
+	// save text to storage
+	let storageString = {'date': Date.now(), 'editor': editor.value()};
+	localStorage.setItem(`developer`, JSON.stringify(storageString));
 }
 
-function renderPreview( type, json ){
-	console.log(json);
-}
-
-
-// On page load
-
-// load previous settings or clear if older than 4 hours (14,400,000ms).
-let previousSettings = localStorage.getItem('developer');
-
-if( previousSettings ){
-	let data = JSON.parse(previousSettings);
-	if(Date.now() - data['date'] > 14400000) {
-		localStorage.removeItem('developer');
+function renderPreview( ){
+	iframeLoaded = false;
+	if( type === 'theme' ){
+		iframe.src = './theme?dynamic=1';
 	}
-	editor.value(data['editor']);
-	validate(data['editor']);
-}
-else {
-	editor.value(`{
-	"json_version": 0.3,
-	"data": {
-		"name": "Your Theme Name",
-		"author": "Your Name"
+	else {
+		iframe.src = './?dynamic=1';
 	}
-}`);
-	validate(editor.value());
+	postToIframe(['json', json]);
+}
+document.getElementById('js-render').addEventListener('click', renderPreview);
+
+var timer = undefined;
+var lastJson = {};
+function setRenderTimer( ){
+	lastJson = json;
+	timer = setTimeout(() => {
+		if( jsonValid && json !== lastJson ){
+			renderPreview();
+		}
+		setRenderTimer();
+	}, 1000);
 }
 
-loader.loaded();
+// add function to checkbox
+let autoRenderBtn = document.getElementById('js-auto-render');
+autoRenderBtn.addEventListener('change', () => {
+	if( autoRenderBtn.checked ){
+		setRenderTimer();
+	}
+	else {
+		clearTimeout(timer);
+	}
+});
+
+// Preview Window
+
+var preview = document.getElementById('js-preview'),
+	iframe = document.createElement('iframe'),
+	iframeLoaded = false,
+	toPost = [],
+	pageLoaded = false;
+
+iframe.addEventListener('load', () => {
+	iframeLoaded = true;
+	if( toPost.length > 0 ){
+		console.log(`[info] Posting backlogged message.`);
+		postToIframe(toPost);
+	}
+});
+
+iframe.className = 'preview__window preview__window--dynamic preview__window--dimmed';
+preview.appendChild(iframe);
+
+function postToIframe(msg) {
+	if(iframeLoaded) {
+		iframe.contentWindow.postMessage(msg);
+		return true;
+	}
+	toPost = msg;
+	return false;
+}
+
+function resetEditor( ){
+	userConfirm('Clear everything from the editor and start over with the template JSON?')
+	.then((choice) => {
+		if( choice ){
+			localStorage.removeItem('developer');
+			editor.value(templateJson);
+			validate()
+		}
+	})
+}
 
 
 
@@ -334,3 +381,39 @@ function formatPopupCss( ){
 
 	output.value = JSON.stringify(css);
 }
+
+
+// On page load
+
+var type = 'theme';
+var json = {};
+var jsonValid = true;
+
+const templateJson = `{
+	"json_version": 0.3,
+	"data": {
+		"name": "Your Theme Name",
+		"author": "Your Name",
+		"type": "modern"
+	}
+}`;
+
+// load previous settings or clear if older than 4 hours (14,400,000ms).
+let previousSettings = localStorage.getItem('developer');
+
+if( previousSettings ){
+	let data = JSON.parse(previousSettings);
+	if(Date.now() - data['date'] > 14400000) {
+		localStorage.removeItem('developer');
+	}
+	editor.value(data['editor']);
+}
+else {
+	editor.value(templateJson);
+}
+
+validate(editor.value());
+renderPreview();
+setRenderTimer();
+
+loader.loaded();

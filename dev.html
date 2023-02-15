@@ -17,7 +17,7 @@
 		<link rel="icon" type="image/png" href="./assets/favicon_256.png" sizes="256x256">
 	</head>
 	<body>
-		<main class="content content__dev" id="js-content">
+		<main class="content content__customiser" id="js-content">
 			<div class="topbar">
 				<div class="topbar__section">
 					<nav class="top-nav">
@@ -48,10 +48,10 @@
 			<div class="preview">
 				<div class="rounds rounds--left"></div>
 
-				<div class="dynamic-render" id="js-renderer"></div>
+				<div class="preview__window-wrapper" id="js-preview"></div>
 			</div>
 	
-			<div class="sidebar" style="--sidebar-width: 50vw;" id="js-sidebar">
+			<div class="sidebar" style="--sidebar-width: clamp(350px, 500px, 40vw);" id="js-sidebar">
 				<div class="sidebar__inner">
 					<div class="rounds rounds--right"></div>
 
@@ -60,9 +60,19 @@
 						<h2 class="sub-title">Validate & test your files.</h2>
 					</div>
 
-					<div class="sidebar__section" id="js-json">
-
+					<div class="sidebar__section sidebar__section--no-border" id="js-json">
 						<p class="info-box info-box--indented info-box--error o-hidden" id="js-json-notice"></p>
+						<button type="button" class="button button--highlighted" id="js-render">
+							Refresh Preview
+						</button>
+						<button type="button" class="button" onclick="resetEditor()">
+							Reset Editor
+						</button>
+						<label class="toggle-with-text">
+							<input id="js-auto-render" type="checkbox" class="o-hidden" checked="checked">
+							<label class="toggle" for="js-auto-render"></label>
+							<span class="toggle-with-text__text">Auto Refresh</span>
+						</label>
 					</div>
 				</div>
 			</div>

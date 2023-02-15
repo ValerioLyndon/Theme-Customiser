@@ -2,19 +2,11 @@ html {
 	tab-size: 4;
 }
 
-.content__dev {
-	display: grid;
-	height: 100vh;
-	grid-template-rows: auto 1fr;
-	grid-template-columns: 1fr 1fr;
-	grid-template-areas: "top top" "sidebar main";
-}
-
 .ae {
 	position: relative;
 	box-sizing: content-box;
 	width: calc(100% - 12px);
-	height: 70vh;
+	height: calc(90vh - 220px);
 	min-height: 3.9em;
 	max-height: calc(100vh - 100px);
 	background: #404051;
@@ -109,6 +101,15 @@ html {
 	transform: translate(-50%,-50%);
 }
 
+.toggle-with-text {
+	display: inline-flex;
+	white-space: nowrap;
+}
+.toggle-with-text__text {
+	display: block;
+	margin-left: 3px;
+}
+
 .code {
 	white-space: pre;
 	background: #404051;
@@ -122,12 +123,6 @@ html {
 	padding: 4px;
 	display: block;
 	white-space: pre-wrap;
-}
-
-.dynamic-render {
-	width: 100%;
-	height: 100%;
-	overflow-y: auto;
 }
 
 /* Layout */

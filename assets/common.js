@@ -193,6 +193,60 @@ class MessageHandler {
 	}
 }
 
+// Renders a confirmation popup with custom text and optionally custom buttons if provided a dictionary. 
+function userConfirm( msg, options = {'Yes': {'value': true, 'type': 'suggested'}, 'No': {'value': false}} ){
+	return new Promise((resolve) => {
+		let modal = document.createElement('div');
+		let modalInner = document.createElement('div');
+		let modalExit = document.createElement('div');
+		let modalContent = document.createElement('div');
+		let header = document.createElement('h4');
+		let blurb = document.createElement('p');
+
+		modal.className = 'popup';
+		modal.id = 'js-confirmation';
+		modalInner.className = 'popup__inner';
+		modalExit.className = 'popup__invisibutton';
+		modalExit.addEventListener('click', ()=>{ toggleEle('#js-confirmation') });
+		modalContent.className = 'popup__content popup__content--narrow';
+		header.className = 'popup__header';
+		header.textContent = 'Confirm action.';
+		blurb.className = 'popup__paragraph';
+		blurb.textContent = msg;
+
+		modal.appendChild(modalInner);
+		modalInner.appendChild(modalExit);
+		modalInner.appendChild(modalContent);
+		modalContent.appendChild(header);
+		modalContent.appendChild(blurb);
+
+		// Render buttons based off of the input dictionary
+
+		function complete( returnValue ){
+			resolve(returnValue);
+			modal.remove();
+		}
+
+		for( let [label, details] of Object.entries(options) ){
+			let btn = document.createElement('button');
+			btn.className = 'button';
+			if( details.type === 'suggested' ){
+				btn.classList.add('button--highlighted');
+			}
+			else if( details.type === 'danger' ){
+				btn.classList.add('button--danger');
+			}
+			btn.textContent = label;
+			btn.addEventListener('click', ()=>{complete(details.value)});
+			modalContent.appendChild(btn);
+		}
+
+		modalExit.addEventListener('click', ()=>{complete(false)});
+
+		document.body.appendChild(modal);
+	});
+}
+
 // Information popup that can be positioned anywhere on the page. Useful for a variety of circumstances.
 class DynamicPopup {
 	constructor( ){
@@ -416,7 +470,7 @@ function importPreviousSettings( opts = undefined ){
 			'No, do nothing.': {'value': 'dismiss'}
 		};
 		
-		confirm(msg, choices)
+		userConfirm(msg, choices)
 		.then((choice) => {
 			if( choice === 'redirect' ){
 				localStorage.setItem('tcImport', true);

@@ -4,60 +4,6 @@
 // COMMON FUNCTIONS
 // ================
 
-// Renders a confirmation popup with custom text and optionally custom buttons if provided a dictionary. 
-function confirm( msg, options = {'Yes': {'value': true, 'type': 'suggested'}, 'No': {'value': false}} ){
-	return new Promise((resolve) => {
-		let modal = document.createElement('div');
-		let modalInner = document.createElement('div');
-		let modalExit = document.createElement('div');
-		let modalContent = document.createElement('div');
-		let header = document.createElement('h4');
-		let blurb = document.createElement('p');
-
-		modal.className = 'popup';
-		modal.id = 'js-confirmation';
-		modalInner.className = 'popup__inner';
-		modalExit.className = 'popup__invisibutton';
-		modalExit.addEventListener('click', ()=>{ toggleEle('#js-confirmation') });
-		modalContent.className = 'popup__content popup__content--narrow';
-		header.className = 'popup__header';
-		header.textContent = 'Confirm action.';
-		blurb.className = 'popup__paragraph';
-		blurb.textContent = msg;
-
-		modal.appendChild(modalInner);
-		modalInner.appendChild(modalExit);
-		modalInner.appendChild(modalContent);
-		modalContent.appendChild(header);
-		modalContent.appendChild(blurb);
-
-		// Render buttons based off of the input dictionary
-
-		function complete( returnValue ){
-			resolve(returnValue);
-			modal.remove();
-		}
-
-		for( let [label, details] of Object.entries(options) ){
-			let btn = document.createElement('button');
-			btn.className = 'button';
-			if( details.type === 'suggested' ){
-				btn.classList.add('button--highlighted');
-			}
-			else if( details.type === 'danger' ){
-				btn.classList.add('button--danger');
-			}
-			btn.textContent = label;
-			btn.addEventListener('click', ()=>{complete(details.value)});
-			modalContent.appendChild(btn);
-		}
-
-		modalExit.addEventListener('click', ()=>{complete(false)});
-
-		document.body.appendChild(modal);
-	});
-}
-
 // See common.js for the primary DynamicPopup class and the InfoPopup class.
 // InfoPopup is used for generic dialogues, PickerPopup is used for the colour picker.
 
@@ -770,7 +716,7 @@ function validateInput( htmlId, type ){
 }
 
 function resetSettings(  ){
-	confirm('Wipe your currently selected settings and start from scratch?', {'Yes': {'value': true, 'type': 'danger'}, 'No': {'value': false}})
+	userConfirm('Wipe your currently selected settings and start from scratch?', {'Yes': {'value': true, 'type': 'danger'}, 'No': {'value': false}})
 	.then((choice) => {
 		if( choice ){
 			userSettings.options = {};
@@ -782,7 +728,7 @@ function resetSettings(  ){
 }
 
 function clearCache(  ){
-	confirm('Clear all cached data? This can be useful if the customiser is pulling out-of-date CSS or something seems broken, but normally this should never be needed.')
+	userConfirm('Clear all cached data? This can be useful if the customiser is pulling out-of-date CSS or something seems broken, but normally this should never be needed.')
 	.then((choice) => {
 		if( choice ){
 			sessionStorage.clear();
@@ -814,8 +760,14 @@ window.addEventListener(
 					console.log('[WARN] Received request to change colour, but no option is currently selected.');
 				}
 			}
+			else if( type === 'json' ){
+				console.log(content);
+				theme = content.data;
+				userSettings.theme = theme.name;
+				pageSetup();
+			}
 			else {
-				console.log('[ERROR] Malformed request received from colour picker. No action taken.')
+				console.log('[ERROR] Malformed request sent to customiser.js. No action taken.')
 			}
 		}
 	},
@@ -877,52 +829,54 @@ var userSettings = {
 	'mods': {}
 };
 
-// Get the theme's JSON URL from the query parameters.
+// If page is in 'dynamic' dev mode, it awaits a message via window.addEventListener. Else proceeds via URL.
+if( !query.get('dynamic') ) {
+	// Get the theme's JSON URL from the query parameters.
 
-let fetchUrl = themeUrls[0];
+	let fetchUrl = themeUrls[0];
 
-// Legacy URL processing from JSON 0.1
-let selectedTheme = query.get('q') || query.get('theme') || 'theme';
-if( themeUrls.length === 0 && collectionUrls.length > 0 ){
-	fetchUrl = collectionUrls[0];
-}
-// Back to regular URL processing
-else if( themeUrls.length === 0 ){
-	loader.failed(['No theme was specified in the URL. Did you follow a broken link?', 'select']);
-	throw new Error('select');
-}
-
-// Fetch and process the theme URL, beginning the page setup pipeline.
-
-loader.text('Fetching theme...');
-
-fetchFile(fetchUrl, false)
-.then((json) => {
-	try {
-		json = JSON.parse(json);
+	// Legacy URL processing from JSON 0.1
+	let selectedTheme = query.get('q') || query.get('theme') || 'theme';
+	if( themeUrls.length === 0 && collectionUrls.length > 0 ){
+		fetchUrl = collectionUrls[0];
 	}
-	catch( e ){
-		loader.logJsonError(`[ERROR] Failed to parse theme JSON.`, json, e, fetchUrl);
-		loader.failed(['Encountered a problem while parsing theme information.', 'json.parse']);
-		throw new Error('json.parse');
+	// Back to regular URL processing
+	else if( themeUrls.length === 0 ){
+		loader.failed(['No theme was specified in the URL. Did you follow a broken link?', 'select']);
+		throw new Error('select');
 	}
 
-	processJson(json, themeUrls[0], selectedTheme ? selectedTheme : 'theme')
-	.then((processedJson) => {
-		theme = processedJson.data;
-		userSettings.theme = selectedTheme === 'theme' ? theme.name : selectedTheme;
+	// Fetch and process the theme URL, beginning the page setup pipeline.
 
-		pageSetup();
+	loader.text('Fetching theme...');
+
+	fetchFile(fetchUrl, false)
+	.then((json) => {
+		try {
+			json = JSON.parse(json);
+		}
+		catch( e ){
+			loader.logJsonError(`[ERROR] Failed to parse theme JSON.`, json, e, fetchUrl);
+			loader.failed(['Encountered a problem while parsing theme information.', 'json.parse']);
+			throw new Error('json.parse');
+		}
+
+		processJson(json, themeUrls[0], selectedTheme ? selectedTheme : 'theme')
+		.then((processedJson) => {
+			theme = processedJson.data;
+			userSettings.theme = selectedTheme === 'theme' ? theme.name : selectedTheme;
+			pageSetup();
+		})
+		.catch((reason) => {
+			loader.failed(reason);
+			throw new Error(reason[0]);
+		});
 	})
 	.catch((reason) => {
 		loader.failed(reason);
-		throw new Error(reason[0]);
+		throw new Error(reason);
 	});
-})
-.catch((reason) => {
-	loader.failed(reason);
-	throw new Error(reason);
-});
+}
 
 // This function:
 // Sets up basic HTML structure
