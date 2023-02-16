@@ -372,65 +372,30 @@ var itemCount = 0;
 var sorts = ['title'];
 var cards = [];
 
-// Get data for all collections and call other functions
-
-loader.text('Fetching data files...');
-
-if( collectionUrls.length === 0 && megaUrls.length === 0 ){
-	megaUrls.push('json/default.json');
-}
-
-// Accepts array of URLs to fetch then returns a promise once they have all loaded.
-function fetchAllFiles( arrayOfUrls ){
-	const files = [];
-	for( let i = 0; i < arrayOfUrls.length; i++ ){
-		files.push(fetchFile(arrayOfUrls[i], false));
-	}
-	return Promise.allSettled(files);
-}
-
-// Fetch mega collections and add any collection URLs to the list.
-// Then, load each collection URL and render cards. 
-fetchAllFiles(megaUrls)
-.then((files) => {
-	let failures = 0;
-	let allCollectionUrls = structuredClone(collectionUrls);
-
-	for( let i = 0; i < files.length; i++ ){
-		let tempData = {};
-		// Attempt to parse provided data.
-		try {
-			tempData = JSON.parse(files[i]['value']);
+// This function initialises all the other parts of the code that are needed.
+function pageSetup( ){
+	// Accepts array of URLs to fetch then returns a promise once they have all loaded.
+	function fetchAllFiles( arrayOfUrls ){
+		const files = [];
+		for( let i = 0; i < arrayOfUrls.length; i++ ){
+			if( typeof arrayOfUrls[i] === 'string' ){
+				files.push(fetchFile(arrayOfUrls[i], false));
+			}
+			// this codes' only purpose is to allow dev tools to directly inject JSON into the page through window.addEventListener
+			else {
+				files.push(JSON.stringify(arrayOfUrls[i]));
+			}
 		}
-		catch(e) {
-			loader.logJsonError(`[ERROR] Failed to parse mega collection JSON.`, files[i]['value'], e, megaUrls[i]);
-			failures++;
-			continue;
-		}
-
-		if( !('collections' in tempData) ){
-			loader.log(`[ERROR] Mega collection "${megaUrls[i]}" does not use correct format.`);
-			continue;
-		}
-
-		if( tempData.collections.length === 0 ){
-			loader.log(`[warn] Mega collection "${megaUrls[i]}" has no URLs!`);
-			continue;
-		}
-
-		for( let url of tempData.collections ){
-			allCollectionUrls.push(url);
-		}
+		return Promise.allSettled(files);
 	}
 
-	fetchAllFiles(allCollectionUrls)
+	// Fetch mega collections and add any collection URLs to the list.
+	// Then, load each collection URL and render cards. 
+	fetchAllFiles(megaUrls)
 	.then((files) => {
-		loader.text('Rendering page...');
+		let failures = 0;
+		let allCollectionUrls = structuredClone(collectionUrls);
 
-		let processing = [];
-		let collectionFailures = 0;
-
-		// Process all files
 		for( let i = 0; i < files.length; i++ ){
 			let tempData = {};
 			// Attempt to parse provided data.
@@ -438,85 +403,161 @@ fetchAllFiles(megaUrls)
 				tempData = JSON.parse(files[i]['value']);
 			}
 			catch(e) {
-				loader.logJsonError('[ERROR] Failed to parse collection JSON', files[i]['value'], e, allCollectionUrls[i]);
-				collectionFailures++;
+				loader.logJsonError(`[ERROR] Failed to parse mega collection JSON.`, files[i]['value'], e, megaUrls[i]);
+				failures++;
 				continue;
 			}
 
-			processing.push(processJson(tempData, allCollectionUrls[i], 'collection'));
-		}
-		
-		if( collectionFailures >= files.length ){
-			loader.failed(['Encountered a problem while parsing collection information.', 'json.parse']);
-			throw new Error('too many failures');
-		}
-		else if( collectionFailures > 0 ){
-			messenger.error('Encountered a problem while parsing collection information. Some themes may not have loaded.', 'json.parse');
-		}
-
-		// Render & Sort Cards
-		Promise.allSettled(processing)
-		.then((allJson) => {
-			let jsonFailures = 0;
-
-			for( let response of allJson ){
-				let json = response.value;
-				if( json.themes ){
-					renderCards(json.themes);
-				}
-				else {
-					jsonFailures++;
-				}
+			if( !('collections' in tempData) ){
+				loader.log(`[ERROR] Mega collection "${megaUrls[i]}" does not use correct format.`);
+				continue;
 			}
 
-			if( jsonFailures >= files.length ){
-				loader.failed(['Encountered a problem while parsing collection information.', 'invalid.json']);
+			if( tempData.collections.length === 0 ){
+				loader.log(`[warn] Mega collection "${megaUrls[i]}" has no URLs!`);
+				continue;
+			}
+
+			for( let url of tempData.collections ){
+				allCollectionUrls.push(url);
+			}
+		}
+
+		fetchAllFiles(allCollectionUrls)
+		.then((files) => {
+			loader.text('Rendering page...');
+
+			let processing = [];
+			let collectionFailures = 0;
+
+			// Process all files
+			for( let i = 0; i < files.length; i++ ){
+				let tempData = {};
+				// Attempt to parse provided data.
+				try {
+					tempData = JSON.parse(files[i]['value']);
+				}
+				catch(e) {
+					loader.logJsonError('[ERROR] Failed to parse collection JSON', files[i]['value'], e, allCollectionUrls[i]);
+					collectionFailures++;
+					continue;
+				}
+
+				processing.push(processJson(tempData, allCollectionUrls[i], 'collection'));
+			}
+			
+			if( collectionFailures >= files.length ){
+				loader.failed(['Encountered a problem while parsing collection information.', 'json.parse']);
 				throw new Error('too many failures');
 			}
-			else if( jsonFailures > 0 ){
-				messenger.error('Encountered a problem while parsing collection information. Some themes may not have loaded.', 'invalid.json');
+			else if( collectionFailures > 0 ){
+				messenger.error('Encountered a problem while parsing collection information. Some themes may not have loaded.', 'json.parse');
 			}
 
-			loader.text('Filtering items...');
-			
-			// Create and load filters.
-			var filter = new ExtendedFilters(cards, 'card:ID');
+			// Render & Sort Cards
+			Promise.allSettled(processing)
+			.then((allJson) => {
+				let jsonFailures = 0;
 
-			if( itemCount <= 5 ){
-				filter.initialiseSort(false);
-			}
-			else if( itemCount > 5 ){
-				filter.initialiseSort(true);
-				filter.initialiseSearch();
-
-				let hasTags = false;
-				for( let categoryTags of Object.values(tags) ){
-					if( Object.keys(categoryTags).length > 0 ){
-						hasTags = true;
-						break;
+				for( let response of allJson ){
+					let json = response.value;
+					if( json.themes ){
+						renderCards(json.themes);
+					}
+					else {
+						jsonFailures++;
 					}
 				}
-				if( hasTags ){
-					filter.initialiseTags(tags);
-				}
-			}
 
-			// If not already sorted, attempt various sorts depending on available info.
-			let previousSort = query.get('sort');
-			
-			if( !previousSort ) {
-				let attemptedSort = filter.sort('date', undefined, false);
-				if( !attemptedSort ){
-					filter.sort('random', undefined, false);
+				if( jsonFailures >= files.length ){
+					loader.failed(['Encountered a problem while parsing collection information.', 'invalid.json']);
+					throw new Error('too many failures');
 				}
-			}
+				else if( jsonFailures > 0 ){
+					messenger.error('Encountered a problem while parsing collection information. Some themes may not have loaded.', 'invalid.json');
+				}
 
-			// Finish up
-			loader.loaded();
-			startBrowseTutorial();
+				loader.text('Filtering items...');
+				
+				// Create and load filters.
+				var filter = new ExtendedFilters(cards, 'card:ID');
+
+				if( itemCount <= 5 ){
+					filter.initialiseSort(false);
+				}
+				else if( itemCount > 5 ){
+					filter.initialiseSort(true);
+					filter.initialiseSearch();
+
+					let hasTags = false;
+					for( let categoryTags of Object.values(tags) ){
+						if( Object.keys(categoryTags).length > 0 ){
+							hasTags = true;
+							break;
+						}
+					}
+					if( hasTags ){
+						filter.initialiseTags(tags);
+					}
+				}
+
+				// If not already sorted, attempt various sorts depending on available info.
+				let previousSort = query.get('sort');
+				
+				if( !previousSort ) {
+					let attemptedSort = filter.sort('date', undefined, false);
+					if( !attemptedSort ){
+						filter.sort('random', undefined, false);
+					}
+				}
+
+				// Finish up
+				loader.loaded();
+				startBrowseTutorial();
+			});
 		});
 	});
-});
+}
+
+// If page is in 'dynamic' dev mode, it awaits a message via window.addEventListener. Else proceeds via URL.
+if( !query.get('dynamic') ) {
+	// Get data for all collections and call other functions
+
+	loader.text('Fetching data files...');
+
+	if( collectionUrls.length === 0 && megaUrls.length === 0 ){
+		megaUrls.push('json/default.json');
+	}
+
+	pageSetup( );
+}
+
+window.addEventListener(
+	"message",
+	function( event ){
+		if( event.origin === window.location.origin ){
+			var push = event.data || event.message;
+			var type = push[0];
+			var content = push[1];
+
+			if( type === 'json' ){
+				console.log(content);
+				let receivedJson = content;
+				if( 'collections' in receivedJson ){
+					megaUrls.push(receivedJson);
+				}
+				else if( 'themes' in receivedJson ){
+					collectionUrls.push(receivedJson);
+				}
+				pageSetup( );
+			}
+			else {
+				console.log('[ERROR] Malformed request sent to browse.js. No action taken.')
+			}
+		}
+	},
+	false
+);
 
 // Tutorial
 

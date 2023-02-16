@@ -147,6 +147,12 @@ body {
 	max-height: 70vh;
 	resize: vertical;
 }
+.input--textarea-tall {
+	height: 50vh;
+	min-height: 50px;
+	max-height: 80vh;
+	resize: vertical;
+}
 .input--code {
 	width: calc(100% - 16px);
 	padding: 6px;
@@ -187,8 +193,8 @@ body {
 	display: grid;
 	height: 100vh;
 	grid-template-rows: auto 1fr;
-	grid-template-columns: auto 1fr;
-	grid-template-areas: "top top" "left right";
+	grid-template-columns: 0fr auto;
+	grid-template-areas: "top top" "sidebar main";
 }
 .content__browse {
 	padding-bottom: 32px;
