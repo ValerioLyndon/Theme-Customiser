@@ -450,7 +450,7 @@ function importPreviousSettings( opts = undefined ){
 	localStorage.setItem('tcUserSettingsImported', JSON.stringify(previousSettings));
 	
 	// Redirect without asking if on the browse page.
-	if( !window.location.pathname.startsWith('/theme') ){
+	if( !window.location.pathname.endsWith('/theme') ){
 		localStorage.setItem('tcImport', true);
 		window.location = `./theme?q=${previousSettings.theme}&t=${previousSettings.data}`;
 	}
@@ -977,7 +977,7 @@ function processJson( json, url, toReturn ){
 
 // Redirect from browse page to theme page if a theme is specified
 let themeQuery = query.get('q') || query.get('theme')
-if( path !== '/theme' && themeQuery && dataUrls.length > 0 ){
+if( !path.endsWith('/theme') && themeQuery && dataUrls.length > 0 ){
 	window.location = `./theme?q=${themeQuery}&c=${dataUrls.join('&c=')}`;
 	throw new Error();
 }
