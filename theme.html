@@ -300,7 +300,7 @@ permalink: /theme
 						Place a customiser settings object or your full theme CSS into this textbox and then click "Import Settings".
 					</p>
 
-					<textarea id="js-pp-import-code" class="input input--textarea"></textarea>
+					<textarea id="js-pp-import-code" class="input input--textarea" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="{&quot;data&quot;:&quot;https://example.com/theme.json&quot;}"></textarea>
 					<button type="button" class="button button--highlighted" onclick="importPreviousSettings()">Import Settings</button>
 				</div>
 			</div>
@@ -316,7 +316,7 @@ permalink: /theme
 						You can store this text for later use or share it with others. Be sure to keep the text in its entirety. Losing even one letter would require repairing before import.
 					</p>
 
-					<textarea id="js-export-code" class="input input--code" readonly="readonly"></textarea>
+					<textarea id="js-export-code" class="input input--textarea-tall input--code" readonly="readonly"></textarea>
 					<button type="button" class="button button--highlighted js-swappable-text" onclick="navigator.clipboard.writeText(document.getElementById('js-export-code').textContent);">
 						<div class="swappable-text">
 							<div class="swappable-text__text">
