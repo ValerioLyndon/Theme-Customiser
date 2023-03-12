@@ -193,6 +193,60 @@ class MessageHandler {
 	}
 }
 
+// Renders a confirmation popup with custom text and optionally custom buttons if provided a dictionary. 
+function userConfirm( msg, options = {'Yes': {'value': true, 'type': 'suggested'}, 'No': {'value': false}} ){
+	return new Promise((resolve) => {
+		let modal = document.createElement('div');
+		let modalInner = document.createElement('div');
+		let modalExit = document.createElement('div');
+		let modalContent = document.createElement('div');
+		let header = document.createElement('h4');
+		let blurb = document.createElement('p');
+
+		modal.className = 'popup';
+		modal.id = 'js-confirmation';
+		modalInner.className = 'popup__inner';
+		modalExit.className = 'popup__invisibutton';
+		modalExit.addEventListener('click', ()=>{ toggleEle('#js-confirmation') });
+		modalContent.className = 'popup__content popup__content--narrow';
+		header.className = 'popup__header';
+		header.textContent = 'Confirm action.';
+		blurb.className = 'popup__paragraph';
+		blurb.textContent = msg;
+
+		modal.appendChild(modalInner);
+		modalInner.appendChild(modalExit);
+		modalInner.appendChild(modalContent);
+		modalContent.appendChild(header);
+		modalContent.appendChild(blurb);
+
+		// Render buttons based off of the input dictionary
+
+		function complete( returnValue ){
+			resolve(returnValue);
+			modal.remove();
+		}
+
+		for( let [label, details] of Object.entries(options) ){
+			let btn = document.createElement('button');
+			btn.className = 'button';
+			if( details.type === 'suggested' ){
+				btn.classList.add('button--highlighted');
+			}
+			else if( details.type === 'danger' ){
+				btn.classList.add('button--danger');
+			}
+			btn.textContent = label;
+			btn.addEventListener('click', ()=>{complete(details.value)});
+			modalContent.appendChild(btn);
+		}
+
+		modalExit.addEventListener('click', ()=>{complete(false)});
+
+		document.body.appendChild(modal);
+	});
+}
+
 // Information popup that can be positioned anywhere on the page. Useful for a variety of circumstances.
 class DynamicPopup {
 	constructor( ){
@@ -396,7 +450,7 @@ function importPreviousSettings( opts = undefined ){
 	localStorage.setItem('tcUserSettingsImported', JSON.stringify(previousSettings));
 	
 	// Redirect without asking if on the browse page.
-	if( !window.location.pathname.startsWith('/theme') ){
+	if( !window.location.pathname.endsWith('/theme') ){
 		localStorage.setItem('tcImport', true);
 		window.location = `./theme?q=${previousSettings.theme}&t=${previousSettings.data}`;
 	}
@@ -416,7 +470,7 @@ function importPreviousSettings( opts = undefined ){
 			'No, do nothing.': {'value': 'dismiss'}
 		};
 		
-		confirm(msg, choices)
+		userConfirm(msg, choices)
 		.then((choice) => {
 			if( choice === 'redirect' ){
 				localStorage.setItem('tcImport', true);
@@ -845,11 +899,11 @@ function processJson( json, url, toReturn ){
 		loader.text('Updating JSON...');
 
 		var ver = 0;
-		if( !json.json_version ){
+		if( !("json_version" in json) || isNaN(parseFloat(json.json_version)) ){
 			ver = 0.1;
 		}
 		else {
-			ver = json.json_version;
+			ver = parseFloat(json.json_version);
 		}
 
 		// Else, continue to process.
@@ -923,7 +977,7 @@ function processJson( json, url, toReturn ){
 
 // Redirect from browse page to theme page if a theme is specified
 let themeQuery = query.get('q') || query.get('theme')
-if( path !== '/theme' && themeQuery && dataUrls.length > 0 ){
+if( !path.endsWith('/theme') && themeQuery && dataUrls.length > 0 ){
 	window.location = `./theme?q=${themeQuery}&c=${dataUrls.join('&c=')}`;
 	throw new Error();
 }
@@ -957,8 +1011,14 @@ function updateToBeta2( json, url, toReturn ){
 		return newJson;
 	}
 	else {
-		if( json[toReturn] ){
+		if( toReturn in json ){
 			return { 'data': json[toReturn] };
+		}
+		if( Object.keys(json).length > 0 ){
+			return {
+				'json_version': 0.2,
+				'data': Object.values(json)[0]
+			};
 		}
 		else {
 			return false;

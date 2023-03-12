@@ -316,11 +316,16 @@ input:checked + .toggle.is-forced::after {
 	overflow-y: auto;
 	border-right: 2px solid var(--invert-background);
 	flex: 0 0 auto;
-	grid-area: left;
+	grid-area: sidebar;
 	transition:
 		margin-left 0.5s ease,
 		scrollbar-color .18s ease-out;
 	scrollbar-color: var(--invert-background) var(--invert-background);
+}
+.sidebar--right {
+	direction: rtl;
+	border-right: none;
+	border-left: 2px solid var(--invert-background);
 }
 .sidebar:hover {
 	scrollbar-color: var(--accent-text) var(--invert-background);
@@ -330,27 +335,27 @@ input:checked + .toggle.is-forced::after {
 }
 
 .sidebar__inner {
-	border-right: inherit;
+	direction: ltr;
+	border: inherit;
 	flex-grow: 1;
 }
 
 /* Rounded accent */
 
-.sidebar__decorative {
+.rounds {
 	position: sticky;
 	top: 0;
 	z-index: 1;
-	height: 20px;
-	margin-bottom: -5px;
+	height: 0;
 	background: linear-gradient(to bottom, var(--background), transparent);
 	pointer-events: none;
 }
 
 @supports (mask-image: url()) or (-webkit-mask-image: url()) {
-	.preview::after,
-	.sidebar__decorative::after {
-		content: "";
+	.rounds::before,
+	.rounds::after {
 		position: absolute;
+		top: 0;
 		width: 20px;
 		height: 20px;
 		background: var(--invert-background);
@@ -361,13 +366,14 @@ input:checked + .toggle.is-forced::after {
 		-webkit-mask-size: 40px 40px;
 		mask-size: 40px 40px;
 	}
-	.preview::after {
-		left: var(--sidebar-width);
-		top: 0;
+	.rounds--left::before {
+		content: "";
+		left: 0;
 		-webkit-mask-position: 0 0;
 		mask-position: 0 0;
 	}
-	.sidebar__decorative::after {
+	.rounds--right::after {
+		content: "";
 		right: 0;
 		-webkit-mask-position: -20px 0;
 		mask-position: -20px 0;
@@ -384,6 +390,9 @@ input:checked + .toggle.is-forced::after {
 }
 .sidebar__section--no-border {
 	border: 0;
+}
+.sidebar__section--top {
+	padding-top: 16px;
 }
 
 .theme-tag {
@@ -748,7 +757,10 @@ input:checked + .toggle.is-forced::after {
 	height: 100%;
 	flex: 1 1 auto;
 	overflow: hidden;
-	grid-area: right;
+	grid-area: main;
+}
+.preview--left {
+	grid-area: sidebar;
 }
 
 .preview__window-wrapper {
@@ -763,6 +775,18 @@ input:checked + .toggle.is-forced::after {
 	width: 100%;
 	min-height: 100%;
 	border: none;
+}
+.preview__window--dynamic {
+	min-width: auto;
+}
+.preview__window--dimmed {
+	filter: brightness(0.5);
+	transition: filter 0.3s ease;
+}
+.preview__window--dimmed:hover {
+	filter: none;
+	transition-duration: 0.5s;
+	transition-delay: 0.1s;
 }
 
 
