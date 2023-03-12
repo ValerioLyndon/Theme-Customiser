@@ -899,11 +899,11 @@ function processJson( json, url, toReturn ){
 		loader.text('Updating JSON...');
 
 		var ver = 0;
-		if( !json.json_version ){
+		if( !("json_version" in json) || isNaN(parseFloat(json.json_version)) ){
 			ver = 0.1;
 		}
 		else {
-			ver = json.json_version;
+			ver = parseFloat(json.json_version);
 		}
 
 		// Else, continue to process.
