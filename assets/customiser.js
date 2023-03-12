@@ -1247,15 +1247,15 @@ function pageSetup( ){
 
 		if( 'cover' in theme ){
 			// toggle button
-			let toggle = check.nextElementSibling;
+			let toggle = coverCheck.nextElementSibling;
 			let val = true;
 
-			if( !theme.cover ){
-				val = false;
-				toggle.classList.add('is-disabled', 'has-info');
+			if( theme.cover ){
+				toggle.classList.add('is-forced', 'has-info');
 			}
 			else {
-				toggle.classList.add('is-forced', 'has-info');
+				val = false;
+				toggle.classList.add('is-disabled', 'has-info');
 			}
 			coverCheck.checked = val;
 			coverCheck.disabled = true;
