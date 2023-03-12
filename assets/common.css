@@ -140,7 +140,10 @@ body {
 	font: inherit;
 	scrollbar-color: var(--border-heavy) var(--background);
 }
-
+.input--invalid {
+	border-color: var(--accent--error);
+	outline-color: var(--accent--error);
+}
 .input--textarea {
 	height: 4.2em;
 	min-height: 1.3em;

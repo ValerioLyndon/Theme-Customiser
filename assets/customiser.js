@@ -651,6 +651,7 @@ async function updateCss(  ){
 // "htmlId" should be a valid HTML ID to select the option with.
 // "type" is the full option type string: "type/qualifier/subqualifier" 
 function validateInput( htmlId, type ){
+	let input = document.getElementById(htmlId);
 	let notice = document.getElementById(`${htmlId}-notice`);
 	let noticeHtml = '';
 	let val = document.getElementById(htmlId).value.toLowerCase();
@@ -711,12 +712,14 @@ function validateInput( htmlId, type ){
 	notice.addEventListener('mouseleave', info.hide);
 
 	if( problems > 0 ){
+		input.classList.add('input--invalid');
 		notice.removeEventListener('mouseenter', noticePopup);
 		notice.addEventListener('mouseenter', noticePopup);
 		notice.classList.remove('o-hidden');
 		return false;
 	}
 	else {
+		input.classList.remove('input--invalid');
 		notice.removeEventListener('mouseenter', noticePopup);
 		notice.classList.add('o-hidden');
 		return true;
