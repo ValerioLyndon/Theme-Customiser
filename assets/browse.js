@@ -526,6 +526,7 @@ if( !query.get('dynamic') ) {
 	loader.text('Fetching data files...');
 
 	if( collectionUrls.length === 0 && megaUrls.length === 0 ){
+		document.getElementById('js-home').classList.add('o-hidden');
 		megaUrls.push('json/default.json');
 	}
 
