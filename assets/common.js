@@ -1037,6 +1037,10 @@ function updateToBeta2( json, url, toReturn ){
 // The last step should always be a clean-up step. If you don't have any clean-up requirements, just put a blank function there.
 // If any step returns false, it will be skipped.
 function startTutorial( steps ){
+	gtag('event', 'tutorial_begin', {
+		'page': location.pathname
+	})
+
 	document.body.classList.add('is-not-scrollable');
 	let path = query.url.pathname;
 
@@ -1088,6 +1092,9 @@ function startTutorial( steps ){
 	}
 
 	function finish( ){
+		gtag('event', 'tutorial_complete', {
+			'page': location.pathname
+		})
 		overlay.classList.add('is-hidden');
 		localStorage.setItem(`tutorial-${path}`, true);
 		document.body.classList.remove('is-not-scrollable');

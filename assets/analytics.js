@@ -11,8 +11,7 @@ if( installBtn ){
 let tutorialDismissBtn = document.querySelector('.gtag-tutorial-dismiss')
 if( tutorialDismissBtn ){
 	tutorialDismissBtn.addEventListener('click', () => {
-		gtag('event', 'tutorial', {
-			'dismissed': true,
+		gtag('event', 'tutorial_dismiss', {
 			'dismissed_at': tutorialDismissBtn.dataset.position,
 			'page': location.pathname
 		})
