@@ -1050,7 +1050,7 @@ function startTutorial( steps ){
 	overlay.appendChild(progress);
 
 	let dismiss = document.createElement('a');
-	dismiss.className = 'tutorial__dismiss hyper-button';
+	dismiss.className = 'tutorial__dismiss hyper-button gtag-tutorial-dismiss';
 	dismiss.addEventListener('click', () => {
 		overlay.prevent
 		steps[steps.length-1]();
@@ -1068,6 +1068,7 @@ function startTutorial( steps ){
 		// set tutorial html
 		let percent = (position) / progressMax * 100;
 		progress.setAttribute('style', `--progress: ${percent}%`);
+		dismiss.dataset.position = position;
 
 		// execute step
 		let outcome = false;
