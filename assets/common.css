@@ -224,16 +224,18 @@ body {
 
 .footer__row {
 	display: block;
-	padding: 4px 0;
+	max-width: 600px;
+	padding: 4px;
+	margin: 0 auto;
 	text-align: center;
 }
 
 .footer__subtle-text {
-	font-size: 1.1em;
-}
-
-.footer__subtle-text {
 	font-size: 0.9em;
+}
+.footer__tiny-text {
+	font-size: 0.8em;
+	color: var(--text-light);
 }
 
 .footer__separator {
