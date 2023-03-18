@@ -151,7 +151,13 @@ permalink: /theme
 
 							<p class="info-box info-box--indented info-box--error o-hidden" id="js-output-notice"></p>
 						
-							<button type="button" class="gtag-install button button--highlighted js-swappable-text" id="js-copy-output" onclick="navigator.clipboard.writeText(document.getElementById('js-output').textContent);">
+							<button type="button" class="gtag-install button button--highlighted js-swappable-text" id="js-copy-output" onclick="
+								navigator.clipboard.writeText(document.getElementById('js-output').textContent);
+								gtag('event', 'copy_css', {
+									'theme_url': query.get('t'),
+									'user_settings': JSON.stringify(userSettings)
+								});
+							">
 								<div class="swappable-text">
 									<div class="swappable-text__text">
 										Copy CSS
@@ -329,7 +335,7 @@ permalink: /theme
 					</p>
 
 					<textarea id="js-export-code" class="input input--textarea-tall input--code" readonly="readonly"></textarea>
-					<button type="button" class="button button--highlighted js-swappable-text" onclick="navigator.clipboard.writeText(document.getElementById('js-export-code').textContent);">
+					<button type="button" class="button button--highlighted js-swappable-text" onclick="navigator.clipboard.writeText(document.getElementById('js-export-code').textContent); gtag('event', 'settings_exported');">
 						<div class="swappable-text">
 							<div class="swappable-text__text">
 								Copy settings
@@ -368,5 +374,4 @@ permalink: /theme
 
 	<script src="./assets/common.js" type="text/javascript"></script>
 	<script src="./assets/customiser.js" type="text/javascript"></script>
-	<script src="./assets/analytics.js" type="text/javascript"></script>
 </html>

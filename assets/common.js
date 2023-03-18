@@ -479,6 +479,7 @@ function importPreviousSettings( opts = undefined ){
 			else if( choice === 'ignore' ){
 				localStorage.removeItem('tcImport');
 				applySettings(previousSettings);
+				gtag('event', 'settings_imported');
 				return true;
 			}
 			else {
@@ -490,6 +491,7 @@ function importPreviousSettings( opts = undefined ){
 		return false;
 	}
 	applySettings(previousSettings);
+	gtag('event', 'settings_imported');
 	messenger.timeout('Settings import complete.');
 	return true;
 }
@@ -1054,11 +1056,15 @@ function startTutorial( steps ){
 	overlay.appendChild(progress);
 
 	let dismiss = document.createElement('a');
-	dismiss.className = 'tutorial__dismiss hyper-button gtag-tutorial-dismiss';
+	dismiss.className = 'tutorial__dismiss hyper-button';
 	dismiss.addEventListener('click', () => {
 		overlay.prevent
 		steps[steps.length-1]();
 		finish();
+		gtag('event', 'tutorial_dismiss', {
+			'dismissed_at': tutorialDismissBtn.dataset.position,
+			'page': location.pathname
+		})
 	});
 	dismiss.textContent = 'Dismiss';
 	overlay.appendChild(dismiss);
