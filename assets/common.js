@@ -93,6 +93,10 @@ class LoadingScreen {
 			this.console.classList.remove('o-hidden');
 			this.home.classList.remove('o-hidden');
 			this.stop = true;
+			gtag('event', 'exception', {
+				'description': reason_array[0],
+				'error_code': reason_array[1]
+			});
 			return new Error(reason_array[1]);
 		}
 	}
@@ -1169,6 +1173,7 @@ createPopup(
 		<li>tutorial interactions (so that it can be tamed if it becomes annoying)</li>
 		<li>theme installs (to know how many people actually use the website and what themes are popular)</li>
 		<li>theme setting import/exports (to see if this feature even gets used)</li>
+		<li>page crashes (for obvious reasons)</li>
 	</ul>
 	<p class="popup__paragraph">
 		For a full list of page interaction events, search the publicly available code on GitHub for "gtag" and you will find all of them.
