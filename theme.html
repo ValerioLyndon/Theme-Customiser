@@ -151,11 +151,10 @@ permalink: /theme
 
 							<p class="info-box info-box--indented info-box--error o-hidden" id="js-output-notice"></p>
 						
-							<button type="button" class="gtag-install button button--highlighted js-swappable-text" id="js-copy-output" onclick="
+							<button type="button" class="button button--highlighted js-swappable-text" id="js-copy-output" onclick="
 								navigator.clipboard.writeText(document.getElementById('js-output').textContent);
 								gtag('event', 'copy_css', {
-									'theme_url': query.get('t'),
-									'user_settings': JSON.stringify(userSettings)
+									'theme_url': query.get('t')
 								});
 							">
 								<div class="swappable-text">
@@ -180,18 +179,19 @@ permalink: /theme
 					<footer class="sidebar__section sidebar__section--no-border">
 						<div class="footer">
 							<div class="footer__row">
+								<small class="footer__subtle-text">Theme Customiser</small><br />
+							</div>
+							<div class="footer__row">
 								<a href="https://github.com/ValerioLyndon/Theme-Customiser/issues" class="hyperlink">Feedback/Help</a>
 								<span class="footer__separator">•</span>
 								<a href="https://github.com/ValerioLyndon/Theme-Customiser" class="hyperlink">Source Code</a>
 								<span class="footer__separator">•</span>
 								<a href="https://github.com/ValerioLyndon/Theme-Customiser/wiki" class="hyperlink">Use this with your design</a>
+								<span class="footer__separator">•</span>
+								<a href="./dev" class="hyperlink">Developer Mode</a>
 							</div>
 							<div class="footer__row">
-								<small class="footer__subtle-text">Theme Customiser</small><br />
-								<small class="footer__subtle-text" id="js-theme-credit"></small>
-							</div>
-							<div class="footer__row">
-								<small class="footer__tiny-text">This website utilises Google Analytics to collect browser metadata and certain interactions with page elements. This is done with the intention of improving the website. To avoid this, install uBlock Origin or uMatrix and block the Google Analytics domain. To complain about this, please visit the <a href="https://github.com/ValerioLyndon/Theme-Customiser/issues" class="hyperlink">GitHub</a> page.</small>
+								<small class="footer__tiny-text">This website utilises Google Analytics. <a class="hyperlink" onclick="toggleEle('#js-pp-analytics'); gtag('event', 'viewed_analytics_disclaimer');">More info.</a></small>
 							</div>
 						</div>
 					</footer>

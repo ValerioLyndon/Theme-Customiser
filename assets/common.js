@@ -1117,3 +1117,70 @@ function startTutorial( steps ){
 	}
 }
 
+// Analytics disclaimer
+
+function createPopup( id, htmlContent ){
+	document.body.insertAdjacentHTML(
+		'beforeend',
+		`<div class="popup is-hidden" id="${id}">
+			<div class="popup__inner">
+				<div class="popup__invisibutton" onclick="toggleEle('#${id}')"></div>
+				<div class="popup__content js-anchor">
+					${htmlContent}
+				</div>
+			</div>
+		</div>`
+	)
+}
+
+createPopup(
+	'js-pp-analytics',
+	`<h4 class="popup__header">Analytics information.</h4>
+	
+	<p class="popup__paragraph">
+		The Theme Customiser collects certain user information and tracks certain interactions with page elements.
+	</p>
+
+	<b class="popup__sub-header">
+		Why?
+	</b>
+	<p class="popup__paragraph">
+		This information is collected with the intention of improving the themes, theme options, and the Customiser itself. This would be achieved by prioritising features or themes that are used often and removing or toning down features that are annoying.
+	</p>
+
+	<b class="popup__sub-header">
+		What information is collected and why?
+	</b>
+	<p class="popup__paragraph">
+		User information includes, but is not limited to:
+	</p>
+	<ul>
+		<li>browser name (used to prioritise browser testing)</li>
+		<li>screen resolution (used to decide what resolutions to test with themes)</li>
+		<li>country/approximate location (because I have yet to find a way to disable this)</li>
+	</ul>
+	<p class="popup__paragraph">
+		More data than this is currently tracked, and I apologise for any lack of transparency. I am new to Google Analytics and there does not seem to be much granularity to which data I can track or not. <b>None of the data visible to me contains your name, IP, or other identifiable information.</b>
+	</p>
+	<p class="popup__paragraph">
+		Page interactions include:
+	</p>
+	<ul>
+		<li>tutorial interactions (so that it can be tamed if it becomes annoying)</li>
+		<li>theme installs (to know how many people actually use the website and what themes are popular)</li>
+		<li>theme setting import/exports (to see if this feature even gets used)</li>
+	</ul>
+	<p class="popup__paragraph">
+		For a full list of page interaction events, search the publicly available code on GitHub for "gtag" and you will find all of them.
+	</p>
+
+	<b class="popup__sub-header">
+		Can I stop you from collecting my information?
+	</b>
+	<p class="popup__paragraph">
+		To prevent your data being recorded, the best way is to install either the uBlock Origin or uMatrix browser extensions and use them to block the Google Analytics domain (analytics.google.com). This will work across your entire browsing history, so if you care about your privacy, this is the way to go.
+	</p>
+	<p class="popup__paragraph">
+		Alternatively, please complain to me about this by visiting the <a href="https://github.com/ValerioLyndon/Theme-Customiser/issues" class="hyperlink">GitHub</a> page and opening an issue about it (unless one has already been made). I am open to removing the analytics entirely if anyone cares, as I don't enjoy using Google and assisting their tracking. However, alternate solutions are much harder to set up and/or require payment, and no analytics at all is highly frustrating as a developer and theme creator.
+	</p>`
+)
