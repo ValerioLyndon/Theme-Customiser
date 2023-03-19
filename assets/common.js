@@ -1,16 +1,85 @@
 'use strict';
 
+// DEFAULT FUNCTION REPLACEMENTS
+// To speed up coding and piss off everyone that reads this code who wonders why the fuck I didn't just use default functions.
+
+function create( tagStr, content ){
+	// Use regex to split strings and find matches of format tag#id.class[attr=value]
+	let matches = tagStr.match(/^([a-zA-Z]+)(#[^.]+)?(\.[^[]+)*(\[.+])*/);
+
+	// tag
+	if( !matches || !matches[1] ){
+		return false;
+	}
+	let node = document.createElement(matches[1]);
+	// id
+	if( matches[2] ){
+		node.id = matches[2];
+	}
+	// class
+	if( matches[3] ){
+		let classes = matches[3].substr(1).split('.');
+		node.classList.add(...classes);
+	}
+	// attributes
+	if( matches[4] ){
+		let attributes = matches[4].matchAll(/\[([^=]+)="([^\]]+)"\]/g);
+		for( let [match, attr, value] of attributes ){
+			node.setAttribute(attr, value);
+		}
+	}
+
+	// content accepts a string, node, or array of strings/nodes and appends them all to the node
+	if( content && content instanceof Array ){
+		for( let item of content ){
+			node.append(item);
+		}
+	}
+	else if( content ){
+		node.append(content);
+	}
+
+	return node;
+}
+
 class LoadingScreen {
 	constructor( ){
 		this.pageContent = document.getElementById('js-content');
-		this.parent = document.getElementById('js-loader');
-		this.icon = document.getElementById('js-loader-icon');
-		this.titleText = document.getElementById('js-loader-text');
-		this.subText = document.getElementById('js-loader-subtext');
-		this.subText2 = document.getElementById('js-loader-subsubtext');
-		this.console = document.getElementById('js-loader-console');
-		this.messages = document.getElementById('js-loader-console-messages');
-		this.home = document.getElementById('js-loader-home');
+
+		this.loader = create('div.loading-screen');
+		this.infoArea = create('div.loading-screen__info-area');
+		this.loader.append(this.infoArea);
+		this.linkArea = create('div.loading-screen__link-area');
+		this.infoArea.append(this.linkArea);
+
+		this.icon = create('div.loading-screen__icon.loading-screen__spinner');
+		this.infoArea.prepend(this.icon);
+		this.titleText = create('div.loading-screen__text', 'Loading...');
+		this.infoArea.prepend(this.titleText);
+		this.linkArea.append(create('a.loading-screen__hyperlink.hyperlink[href="./"]', 'Home.'));
+		this.linkArea.append(create('a.loading-screen__hyperlink.hyperlink[href="https://github.com/ValerioLyndon/Theme-Customiser"]', 'GitHub.'));
+
+		let copyLogs = create(`button.loading-screen__console-button.button[type="button"]`,
+			create('div.swappable-text',
+				create('div.swappable-text__text',
+					['Copy Logs', create('br'), 'Copied.']
+				)
+			)
+		);
+		copyLogs.addEventListener('click', () => {
+			navigator.clipboard.writeText(this.messages.outerText);
+			swapText(copyLogs);
+		});
+		this.messages = create('div.loading-screen__message-boxes');
+		this.console = create('div.loading-screen__console.o-hidden', [
+			create('div.loading-screen__console-header',
+				['Timeline', copyLogs]
+			),
+			this.messages
+		]);
+		this.loader.append(this.console);
+
+		document.body.append(this.loader);
 		this.stop = false;
 	}
 
@@ -23,7 +92,7 @@ class LoadingScreen {
 		let paragraph = document.createElement('div');
 		if( html ){
 			paragraph.className = 'loading-screen__message';
-			paragraph.innerHTML = msg;
+			paragraph.insertAdjacentHTML('beforeend', msg);
 		}
 		else {
 			paragraph.className = 'loading-screen__message o-pre-wrap';
@@ -75,25 +144,31 @@ class LoadingScreen {
 
 	loaded( ){
 		this.pageContent.classList.add('is-loaded');
-		this.parent.classList.add('is-hidden');
+		this.loader.classList.add('is-hidden');
 		var that = this;
 		setTimeout(() => {
-			that.parent.classList.add('o-hidden');
+			that.loader.classList.add('o-hidden');
 		}, 1500)
 	}
 
-	failed( reason_array ){
+	failed( reasonArray ){
 		// only runs once
 		if( !this.stop ){
-			this.icon.className = 'loading-screen__cross';
-			this.titleText.textContent = 'Page Failure.';
-			this.subText.textContent = reason_array[0];
-			this.subText2.classList.remove('o-hidden');
-			this.subText2.textContent = `Code: ${reason_array[1]}`;
+			this.log('Page failed.', false);
 			this.console.classList.remove('o-hidden');
-			this.home.classList.remove('o-hidden');
+			this.infoArea.style.width = '100%';
+			this.icon.className = 'loading-screen__icon loading-screen__cross';
+			this.titleText.textContent = 'Page Failure.';
+			this.infoArea.insertBefore(create('div.loading-screen__subtext', reasonArray[0]), this.linkArea);
+			this.infoArea.insertBefore(create('div.loading-screen__subtext', `Code: ${reasonArray[1]}`), this.linkArea);
+
+			let report = create(`a.loading-screen__hyperlink.hyperlink`, 'Report this issue.');
+			let formattedMessages = this.messages.outerText.replaceAll('\n','%0A').replaceAll('\t','%09');
+			report.href = `https://github.com/ValerioLyndon/Theme-Customiser/issues/new/?title=Page%20Failure%20-%20please%20insert%20a%20summary&labels=bug&body=I%20encountered%20a page%20failure.%0A%0AURL%20of%20the%20page:%20${window.location.href}%0A%0AHere%20are%20the%20logs:%0A\`\`\`%0A${formattedMessages}%0A\`\`\``;
+			this.linkArea.append(report);
+
 			this.stop = true;
-			return new Error(reason_array[1]);
+			return new Error(reasonArray[1]);
 		}
 	}
 }
@@ -525,6 +600,26 @@ function capitalise( str, divider = ' ' ){
 	
 	str = words.join(divider);
 	return str;
+}
+
+/* Text animation for buttons. Requires a specific DOM layout:
+	<button onclick="swapText(this)">
+		<div class="swappable-text">
+			<div class="swappable-text__text">
+				default text
+				<br />
+				on animation text
+			</div>
+		</div>
+	</button>
+*/
+function swapText( ele ){
+	let toSwap = ele.querySelector('.swappable-text');
+	
+	toSwap.classList.add('is-swapped');
+	setTimeout(() => {
+		toSwap.classList.remove('is-swapped')
+	}, 666);
 }
 
 // sorts a dictionary by key

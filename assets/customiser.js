@@ -1474,17 +1474,8 @@ function pageSetup( ){
 
 	let swaps = document.getElementsByClassName('js-swappable-text');
 
-	function swapText(  ){
-		let toSwap = this.querySelector('.swappable-text');
-		
-		toSwap.classList.add('is-swapped');
-		setTimeout(() => {
-			toSwap.classList.remove('is-swapped')
-		}, 666);
-	}
-
 	for( let swap of swaps ){
-		swap.addEventListener('click', swapText.bind(swap));
+		swap.addEventListener('click', swapText(swap));
 	}
 
 	loader.text('Fetching CSS...');

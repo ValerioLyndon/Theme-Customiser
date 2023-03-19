@@ -378,6 +378,26 @@ body {
 	}
 }
 
+.loading-screen__info-area {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	max-width: 500px;
+	min-height: 124px;
+	padding: 8px 0 0 140px;
+}
+.loading-screen__link-area {
+	margin-top: 8px;
+	display: flex;
+	gap: 16px;
+}
+
+.loading-screen__icon {
+	position: absolute;
+	top: 0;
+	left: 0;
+}
 .loading-screen__spinner {
 	width: 118px;
 	height: 118px;
@@ -385,11 +405,9 @@ body {
 	border-top-color: #000;
 	border-left-color: #000;
 	border-radius: 50%;
-	margin-bottom: 16px;
 	animation: 1s cubic-bezier(.54,.39,.45,.63) 0s infinite loader-spin;
 }
 .loading-screen__cross {
-	position: relative;
 	width: 124px;
 	height: 124px;
 	overflow: hidden;
@@ -420,13 +438,12 @@ body {
 }
 
 .loading-screen__text {
-	margin-bottom: 8px;
 	font-size: 20px;
 	white-space: nowrap;
 }
 
 .loading-screen__subtext {
-	margin-bottom: 6px;
+	margin-top: 6px;
 	opacity: 0.65;
 	font-size: 14px;
 	font-style: italic;
