@@ -1160,7 +1160,7 @@ createPopup(
 	</p>
 	<ul>
 		<li>browser name (used to prioritise browser testing)</li>
-		<li>screen resolution (used to decide what resolutions to test with themes)</li>
+		<li>screen resolution (used to prioritise resolution testing)</li>
 		<li>country/approximate location (because I have yet to find a way to disable this)</li>
 	</ul>
 	<p class="popup__paragraph">
@@ -1183,9 +1183,9 @@ createPopup(
 		Can I stop you from collecting my information?
 	</b>
 	<p class="popup__paragraph">
-		To prevent your data being recorded, the best way is to install either the uBlock Origin or uMatrix browser extensions and use them to block the Google Analytics domain (analytics.google.com). This will work across your entire browsing history, so if you care about your privacy, this is the way to go.
+		To prevent your data being recorded, the best way is to install either the uBlock Origin or uMatrix browser extensions and use them to block the Google Analytics domains (analytics.google.com & googletagmanager.com). This will work across your entire browsing history, so if you care about your privacy, this is the way to go.
 	</p>
 	<p class="popup__paragraph">
-		Alternatively, please complain to me about this by visiting the <a href="https://github.com/ValerioLyndon/Theme-Customiser/issues" class="hyperlink" onclick="gtag('event', 'visit_issues', {'where': 'analytics_disclaimer'})">GitHub</a> page and opening an issue about it (unless one has already been made). I am open to removing the analytics entirely if anyone cares, as I don't enjoy using Google and assisting their tracking. However, alternate solutions are much harder to set up and/or require payment, and no analytics at all is highly frustrating as a developer and theme creator.
+		Alternatively, please complain to me about this by visiting the <a href="https://github.com/ValerioLyndon/Theme-Customiser/issues" class="hyperlink" onclick="gtag('event', 'visit_issues', {'where': 'analytics_disclaimer'})">GitHub</a> page and opening an issue about it (unless one has already been made). I am open to removing the analytics entirely if people care, as I don't enjoy using Google and assisting their tracking. The reason I chose Google is because alternate solutions are much harder to set up and/or require payment and no analytics at all can get highly frustrating as a developer and theme creator.
 	</p>`
 )
