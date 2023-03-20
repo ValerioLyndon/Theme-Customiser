@@ -1300,16 +1300,16 @@ var ColorPickerTool = (function ColorPickerTool() {
 				HSLA.info.textContent = 'HSLA';
 			}
 
-			RGBA.value.value = color.getRGBA();
-			HSLA.value.value = color.getHSLA();
-			HEXA.value.value = color.getHexa();
+			RGBA.value.textContent = color.getRGBA();
+			HSLA.value.textContent = color.getHSLA();
+			HEXA.value.textContent = color.getHexa();
 		};
 
 		var InfoProperty = function InfoProperty(info) {
 
 			var node = document.createElement('div');
 			var title = document.createElement('div');
-			var value = document.createElement('input');
+			var value = document.createElement('code');
 			var copy = document.createElement('div');
 
 			node.className = 'property';
@@ -1318,10 +1318,9 @@ var ColorPickerTool = (function ColorPickerTool() {
 			copy.className = 'copy';
 
 			title.textContent = info;
-			value.setAttribute('type', 'text');
 
 			copy.addEventListener('click', function() {
-				value.select();
+				navigator.clipboard.writeText(value.textContent);
 			});
 
 			node.appendChild(title);
@@ -1433,8 +1432,6 @@ var ColorPickerTool = (function ColorPickerTool() {
 		};
 
 		var updateUI = function updateUI() {
-			updateContainerProp();
-
 			var index = 0;
 			var nr = samples.length;
 			for (var i=0; i < nr; i++)
@@ -1488,12 +1485,6 @@ var ColorPickerTool = (function ColorPickerTool() {
 				return new Color(samples[id].color);
 		};
 
-		var updateContainerProp = function updateContainerProp() {
-			samples_per_line = ((container.clientWidth - 5) / 52) | 0;
-			var height = 52 * (1 + (nr_samples / samples_per_line) | 0);
-			container.style.height = height + 10 + 'px';
-		};
-
 		var AddSampleButton = (function AddSampleButton() {
 			var node;
 			var _index = 0;
@@ -1541,7 +1532,7 @@ var ColorPickerTool = (function ColorPickerTool() {
 
 			AddSampleButton.init();
 
-			for (var i=0; i<16; i++) {
+			for (var i=0; i<15; i++) {
 				var sample = new ColorSample();
 				container.appendChild(sample.node);
 			}

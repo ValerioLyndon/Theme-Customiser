@@ -17,7 +17,15 @@ class PickerPopup extends DynamicPopup {
 		this.frame = document.createElement('iframe');
 		this.frame.src = './picker/index.html';
 		this.frame.className = 'dynamic-popup__frame';
-		this.element.appendChild(this.frame);
+		this.element.append(this.frame);
+
+		this.close = document.createElement('button');
+		this.close.className = 'dynamic-popup__close';
+		this.close.insertAdjacentHTML('beforeend', `<i class="fa-solid fa-close"></i>`)
+		this.close.addEventListener('click', () => {
+			this.focus(false);
+		});
+		this.element.append(this.close);
 
 		this.focusedElement = null;
 		this.focusedSelector = '';

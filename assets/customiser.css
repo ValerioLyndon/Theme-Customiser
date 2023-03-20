@@ -857,8 +857,8 @@ input:checked + .toggle.is-forced::after {
 
 .dynamic-popup--picker {
 	z-index: 14;
-	width: 1020px;
-	height: 610px;
+	width: 810px;
+	height: 510px;
 }
 .dynamic-popup--picker.is-visible {
 	pointer-events: auto;
@@ -868,6 +868,19 @@ input:checked + .toggle.is-forced::after {
 	width: 100%;
 	height: 100%;
 	border: none;
+}
+
+.dynamic-popup__close {
+	position: absolute;
+	top: -16px;
+	right: -16px;
+	width: 30px;
+	height: 30px;
+	cursor: pointer;
+	border: 2px solid var(--border-light);
+	background: var(--background);
+	border-radius: 4px;
+	box-shadow: 1px 1.5px 3px rgba(0,0,0,.3);
 }
 
 /* Dummy Theme Unit to replicate MyAnimeList appearance */
