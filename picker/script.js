@@ -1851,7 +1851,8 @@ window.addEventListener(
 				
 				if( content.startsWith('#') ){
 					color.setHexa(content);
-				} else {
+				}
+				else {
 					let array = content.split('(')[1].split(')')[0].split(',');
 					for( let i = 0; i < array.length; i++ ){
 						array[i] = parseFloat(array[i].trim());
@@ -1862,7 +1863,7 @@ window.addEventListener(
 					}
 
 					if(content.startsWith('rgb')) {
-						color.setRGB(...array);
+						color.setRGBA(...array, alpha);
 					}
 					else if(content.startsWith('hsl')) {
 						color.setHSL(...array);
