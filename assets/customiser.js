@@ -17,7 +17,15 @@ class PickerPopup extends DynamicPopup {
 		this.frame = document.createElement('iframe');
 		this.frame.src = './picker/index.html';
 		this.frame.className = 'dynamic-popup__frame';
-		this.element.appendChild(this.frame);
+		this.element.append(this.frame);
+
+		this.close = document.createElement('button');
+		this.close.className = 'dynamic-popup__close';
+		this.close.insertAdjacentHTML('beforeend', `<i class="fa-solid fa-close"></i>`)
+		this.close.addEventListener('click', () => {
+			this.focus(false);
+		});
+		this.element.append(this.close);
 
 		this.focusedElement = null;
 		this.focusedSelector = '';
@@ -556,14 +564,35 @@ async function updateCss(  ){
 		return css;
 	}
 
+	// Sort any items in array1 that are also in array2 to have the exact same order
+	function sortArrayToMatch( array1, array2 ){
+		return array1.sort((a, b) => {
+			let aIndex = array2.indexOf(a);
+			let bIndex = array2.indexOf(b);
+			
+			// if unique to this array, do nothing.
+			if( aIndex === -1 || bIndex === -1 ){
+				return 0;
+			}
+			
+			// elsewise, match the order of the original 
+			return aIndex - bIndex;
+		});
+	}
+
 	// Options
-	for( let [id, val] of Object.entries(userSettings.options) ){
-		newCss = await applyOptionToCss(newCss, theme.options[id], val);
+	// Sort options before to match the order of the JSON to prevent issues with incorrectly layered mods
+	let sortedOptIds = sortArrayToMatch(Object.keys(userSettings.options), Object.keys(theme.options));
+	for( let optId of sortedOptIds ){
+		newCss = await applyOptionToCss(newCss, theme.options[optId], userSettings.options[optId]);
 	}
 
 	// Mods
 	if( theme.mods && Object.keys(userSettings.mods).length > 0 ){
-		for( let modId of Object.keys(userSettings.mods) ){
+		// Sort mods before to match the order of the JSON to prevent issues with incorrectly layered mods
+		let sortedModIds = sortArrayToMatch(Object.keys(userSettings.mods), Object.keys(theme.mods));
+
+		for( let modId of sortedModIds ){
 			let modData = theme.mods[modId];
 			if( !modData.css ){
 				modData.css = {'bottom': ''};
@@ -576,15 +605,22 @@ async function updateCss(  ){
 					console.log(`[ERROR] Failed applying CSS of mod ${modId}: ${failure}`);
 					messenger.error(`Failed to return CSS for mod "${modId}". Try waiting 30s then disabling and re-enabling the mod. If this continues to happen, check with the author if the listed resource still exists.`, failure[1] ? failure[1] : 'returnCss');
 				}
+				
+				if( !('options' in modData) ){
+					continue;
+				}
+
+				// Sort options before to match the order of the JSON to prevent issues with incorrectly layered mods
+				let sortedOptIds = sortArrayToMatch(Object.keys(userSettings.mods[modId]), Object.keys(theme.mods[modId].options));
 
 				let globalOpts = [];
-				for( let [optId, val] of Object.entries(userSettings.mods[modId]) ){
+				for( let optId of sortedOptIds ){
 					let optData = modData.options[optId];
 					if( optData.flags?.includes('global') ){
 						globalOpts.push([optData, val]);
 					}
 					else {
-						modCss = await applyOptionToCss(modCss, optData, val);
+						modCss = await applyOptionToCss(modCss, optData, userSettings.mods[modId][optId]);
 					}
 				}
 
