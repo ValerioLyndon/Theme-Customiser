@@ -582,7 +582,7 @@ async function updateCss(  ){
 
 	// Options
 	// Sort options before to match the order of the JSON to prevent issues with incorrectly layered mods
-	if( userSettings.options ){
+	if( userSettings?.options && theme?.options ){
 		let sortedOptIds = sortArrayToMatch(Object.keys(userSettings.options), Object.keys(theme.options));
 		for( let optId of sortedOptIds ){
 			newCss = await applyOptionToCss(newCss, theme.options[optId], userSettings.options[optId]);
@@ -590,7 +590,7 @@ async function updateCss(  ){
 	}
 
 	// Mods
-	if( theme.mods && Object.keys(userSettings.mods).length > 0 ){
+	if( theme?.mods && Object.keys(userSettings?.mods).length > 0 ){
 		// Sort mods before to match the order of the JSON to prevent issues with incorrectly layered mods
 		let sortedModIds = sortArrayToMatch(Object.keys(userSettings.mods), Object.keys(theme.mods));
 
