@@ -582,9 +582,11 @@ async function updateCss(  ){
 
 	// Options
 	// Sort options before to match the order of the JSON to prevent issues with incorrectly layered mods
-	let sortedOptIds = sortArrayToMatch(Object.keys(userSettings.options), Object.keys(theme.options));
-	for( let optId of sortedOptIds ){
-		newCss = await applyOptionToCss(newCss, theme.options[optId], userSettings.options[optId]);
+	if( userSettings.options ){
+		let sortedOptIds = sortArrayToMatch(Object.keys(userSettings.options), Object.keys(theme.options));
+		for( let optId of sortedOptIds ){
+			newCss = await applyOptionToCss(newCss, theme.options[optId], userSettings.options[optId]);
+		}
 	}
 
 	// Mods
