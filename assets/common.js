@@ -1052,7 +1052,6 @@ function startTutorial( steps ){
 	let dismiss = document.createElement('a');
 	dismiss.className = 'tutorial__dismiss hyper-button';
 	dismiss.addEventListener('click', () => {
-		overlay.prevent
 		steps[steps.length-1]();
 		finish();
 	});
