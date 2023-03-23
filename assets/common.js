@@ -1065,7 +1065,8 @@ function startTutorial( steps ){
 		steps[steps.length-1]();
 		finish();
 		gtag('event', 'tutorial_dismiss', {
-			'dismissed_at': tutorialDismissBtn.dataset.position,
+			'dismissed_at_step': dismiss.dataset.position,
+			'dismissed_at_percent': dismiss.dataset.position / progressMax * 100,
 			'page': location.pathname
 		})
 	});
