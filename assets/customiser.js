@@ -608,21 +608,19 @@ async function updateCss(  ){
 					messenger.error(`Failed to return CSS for mod "${modId}". Try waiting 30s then disabling and re-enabling the mod. If this continues to happen, check with the author if the listed resource still exists.`, failure[1] ? failure[1] : 'returnCss');
 				}
 				
-				if( !('options' in modData) ){
-					continue;
-				}
-
-				// Sort options before to match the order of the JSON to prevent issues with incorrectly layered mods
-				let sortedOptIds = sortArrayToMatch(Object.keys(userSettings.mods[modId]), Object.keys(theme.mods[modId].options));
-
 				let globalOpts = [];
-				for( let optId of sortedOptIds ){
-					let optData = modData.options[optId];
-					if( optData.flags?.includes('global') ){
-						globalOpts.push([optData, val]);
-					}
-					else {
-						modCss = await applyOptionToCss(modCss, optData, userSettings.mods[modId][optId]);
+				if( 'options' in modData ){
+					// Sort options before to match the order of the JSON to prevent issues with incorrectly layered mods
+					let sortedOptIds = sortArrayToMatch(Object.keys(userSettings.mods[modId]), Object.keys(theme.mods[modId].options));
+
+					for( let optId of sortedOptIds ){
+						let optData = modData.options[optId];
+						if( optData.flags?.includes('global') ){
+							globalOpts.push([optData, val]);
+						}
+						else {
+							modCss = await applyOptionToCss(modCss, optData, userSettings.mods[modId][optId]);
+						}
 					}
 				}
 
@@ -1553,7 +1551,7 @@ function pageSetup( ){
 					console.log(`[ERROR] Failed to parse imported settings: ${e}`);
 					messenger.error('Failed to import options. Could not parse settings.', 'json.parse');
 				}
-				// importPreviousSettings will call updateCss and pushCss
+				// importPreviousSettings will call updateCss
 				if( importPreviousSettings(tempSettings) ){
 					localStorage.removeItem('tcImport');
 				}
