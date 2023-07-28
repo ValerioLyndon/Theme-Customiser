@@ -136,6 +136,54 @@ function createBB( text ){
 	return parent;
 }
 
+// Class to handle CSS value datalists that are used when suggesting values to the user
+var cssValues = new class CssValues {
+	constructor( ){
+		this.dataLists = {
+			'background-size': [
+				'contain',
+				'cover',
+				'auto',
+				'0px 100px',
+				'10px 100px',
+				'20px 100px',
+				'30px 100px',
+				'40px 100px',
+				'50px 100px',
+				'60px 100px',
+				'70px 100px',
+				'80px 100px',
+				'90px 100px'
+			]
+		};
+		this.knownValues = Object.keys(this.dataLists);
+	}
+
+	addDataList( value ){
+		console.log('adding');
+		if( document.getElementById(`css-${value}`) !== null ){
+			console.log('already added', value);
+			return null;
+		}
+		if(! this.knownValues.includes(value) ){
+			console.log('rejected', value);
+			return false;
+		}
+
+		let datalist = document.createElement('datalist');
+		datalist.id = `css-${value}`;
+		for( let text of this.dataLists[value] ){
+			let option = document.createElement('option');
+			option.value = text;
+			datalist.append(option);
+		}
+
+		document.documentElement.append(datalist);
+		console.log('added', value);
+		return true;
+	}
+}
+
 // Determines if a string is CSS or a URL to fetch. If a URL, fetches then returns the contents for use in CSS. 
 function returnCss( string ){
 	return new Promise((resolve, reject) => {
@@ -903,11 +951,19 @@ if( !query.get('dynamic') ) {
 			pageSetup();
 		})
 		.catch((reason) => {
+			if( reason instanceof Error ){
+				console.log('UNCAUGHT ERROR\n', reason);
+				reason = ['An unknown problem occured while generating the page.', 'uncaught.setup'];
+			}
 			loader.failed(reason);
-			throw new Error(reason[0]);
+			throw new Error(reason);
 		});
 	})
 	.catch((reason) => {
+		if( reason instanceof Error ){
+			console.log('UNCAUGHT ERROR\n', reason);
+			reason = ['An unknown problem occured while fetching list info.', 'uncaught.fetch'];
+		}
 		loader.failed(reason);
 		throw new Error(reason);
 	});
@@ -1718,6 +1774,12 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 				if( subQualifier ){
 					helpLink.innerHTML = ' Valid Inputs <i class="fa-solid fa-circle-info"></i>';
 					helpLink.href = `https://developer.mozilla.org/en-US/docs/Web/CSS/${subQualifier}#values`
+				}
+
+				console.log('adding 1');
+				let knownValue = cssValues.addDataList(subQualifier);
+				if( knownValue ){
+					input.setAttribute('list', `css-${subQualifier}`);
 				}
 			}
 			else if( qualifier === 'size' ){
