@@ -139,21 +139,17 @@ function createBB( text ){
 // Class to handle CSS value datalists that are used when suggesting values to the user
 var cssValues = new class CssValues {
 	constructor( ){
+		// to allow more suggestions and save effort, datalist values use a custom syntax
+		// this syntax is parsed further down this Class.
+		// # represents a number 0-9
+		// [] represents a series of comma-separated options e.x {one,two}
+		// {} represents an optional section
 		this.dataLists = {
 			'background-size': [
 				'contain',
 				'cover',
 				'auto',
-				'0px 100px',
-				'10px 100px',
-				'20px 100px',
-				'30px 100px',
-				'40px 100px',
-				'50px 100px',
-				'60px 100px',
-				'70px 100px',
-				'80px 100px',
-				'90px 100px'
+				'[#0-99#[px,%],auto] [#0-99#[px,%],auto]'
 			]
 		};
 		this.knownValues = Object.keys(this.dataLists);
@@ -172,15 +168,51 @@ var cssValues = new class CssValues {
 
 		let datalist = document.createElement('datalist');
 		datalist.id = `css-${value}`;
-		for( let text of this.dataLists[value] ){
-			let option = document.createElement('option');
-			option.value = text;
-			datalist.append(option);
+		for( let unparsedText of this.dataLists[value] ){
+			for( let text of this.parseOption(unparsedText) ){
+				let option = document.createElement('option');
+				option.value = text;
+				datalist.append(option);
+			}
 		}
 
 		document.documentElement.append(datalist);
 		console.log('added', value);
 		return true;
+	}
+
+	parseOption( text ){
+		const numberRegex = /#([^#]+)#/;
+		const listRegex = /\[([^\[\]]+)\]/;
+		let results = [];
+		let branches = new Set([text]);
+		while( branches.size > 0 ){
+			let newBranches = new Set();
+			for( let text of branches ){
+				let numberMatches = text.match(numberRegex);
+				let listMatches = text.match(listRegex);
+				if( numberMatches !== null ){
+					let number = numberMatches[1].split('-');
+					let low = number[0];
+					let high = number[1];
+					
+					for( let i = low; i <= high; i++ ){
+						newBranches.add(text.replace(numberRegex,i));
+					}
+				}
+				else if( listMatches !== null ){
+					let list = listMatches[1].split(',');
+					for( let opt of list ){
+						newBranches.add(text.replace(listRegex,opt));
+					}
+				}
+				else {
+					results.push(text);
+				}
+			}
+			branches = newBranches;
+		}
+		return results;
 	}
 }
 
