@@ -139,9 +139,28 @@ function createBB( text ){
 // Class to handle CSS value datalists that are used when suggesting values to the user
 var cssValues = new class CssValues {
 	constructor( ){
+		let blendModes = [
+			'normal',
+			'multiply',
+			'screen',
+			'overlay',
+			'darken',
+			'lighten',
+			'color-dodge',
+			'color-burn',
+			'hard-light',
+			'soft-light',
+			'difference',
+			'exclusion',
+			'hue',
+			'saturation',
+			'color',
+			'luminosity'
+		];
+
 		// to allow more suggestions and save effort, datalist values use a custom syntax
 		// this syntax is parsed further down this Class.
-		// # represents a number 0-9
+		// #low-high# represents a number from low to high ex. #0-9#
 		// [] represents a series of comma-separated options e.x {one,two}
 		// {} represents an optional section
 		this.dataLists = {
@@ -149,20 +168,35 @@ var cssValues = new class CssValues {
 				'contain',
 				'cover',
 				'auto',
-				'[#0-99#[px,%],auto] [#0-99#[px,%],auto]'
-			]
+				'[<width>,auto] [<height>,auto]'
+			],
+			'background-position': [
+				'<width> <height>',
+				'[left,center,right] [top,center,bottom]'
+			],
+			'opacity': [
+				'0.#0-9#',
+				'1.0'
+			],
+			'cursor': [
+				'<yourimageurl> <xpos> <ypos>',
+				'url(https://example.com/cursor.png) 0 0'
+			],
+			'font-size': [
+				'#1-24#[px,rem]',
+				'#1-5#em'
+			],
+			'background-blend-mode': blendModes,
+			'mix-blend-mode': blendModes
 		};
 		this.knownValues = Object.keys(this.dataLists);
 	}
 
 	addDataList( value ){
-		console.log('adding');
 		if( document.getElementById(`css-${value}`) !== null ){
-			console.log('already added', value);
-			return null;
+			return true;
 		}
 		if(! this.knownValues.includes(value) ){
-			console.log('rejected', value);
 			return false;
 		}
 
@@ -177,12 +211,11 @@ var cssValues = new class CssValues {
 		}
 
 		document.documentElement.append(datalist);
-		console.log('added', value);
 		return true;
 	}
 
 	parseOption( text ){
-		const numberRegex = /#([^#]+)#/;
+		const numberRegex = /#(\d-\d+)#/;
 		const listRegex = /\[([^\[\]]+)\]/;
 		let results = [];
 		let branches = new Set([text]);
@@ -1808,7 +1841,6 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 					helpLink.href = `https://developer.mozilla.org/en-US/docs/Web/CSS/${subQualifier}#values`
 				}
 
-				console.log('adding 1');
 				let knownValue = cssValues.addDataList(subQualifier);
 				if( knownValue ){
 					input.setAttribute('list', `css-${subQualifier}`);
