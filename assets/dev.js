@@ -421,5 +421,15 @@ else {
 validate(editor.value());
 renderPreview();
 setRenderTimer();
+var tutorial = new InfoPopup;
+startTutorial([
+	() => {
+		tutorial.text('Welcome to the Customiser\'s developer mode. This is meant for assistance in interfacing a CSS theme with the Customiser, <b>not</b> for creating new CSS themes.<br><br>Please see the documentation for correct use of this tool.');
+		tutorial.show([document.scrollingElement.scrollWidth/2, 150], 'none');
+	},
+	() => {
+		tutorial.destruct();
+	}
+]);
 
 loader.loaded();
