@@ -6,6 +6,20 @@
   <style type="text/css">
     body.ownlist {}
 
+    .list-unit .list-stats a {
+  color: unset;
+  text-decoration: none;
+}
+
+.floatRightHeader
+{
+  float: right;
+  font-weight: normal;
+  font-size: 11px;
+  padding-right: 2px;
+  margin-right: 8px;
+}
+
             #advanced-options {
     position: absolute;
     top: 24px;
@@ -450,6 +464,11 @@ a {
 
 .list-menu-float .icon-menu.manga-list {}
 .list-menu-float .icon-menu.manga-list svg.icon-manga-list {
+    left: 13px;
+    top: 12px;
+}
+
+.list-menu-float .icon-menu.statistics svg.icon-statistics {
     left: 13px;
     top: 12px;
 }
@@ -1130,7 +1149,6 @@ a {
 
 .list-table .list-table-data .data.title .notes .text {
   color: #787878;
-  white-space: pre-line;
 }
 
 .list-table .list-table-data .data.title .notes textarea {
@@ -1139,6 +1157,7 @@ a {
 
 .list-table .list-table-data .data.title .notes .edit {
   color: #787878;
+  font-size: 10px;
 }
 
 .list-unit .loading-space {
@@ -1222,6 +1241,12 @@ a {
           </svg>
           <span class="text">Manga List</span>
         </a>
+		<a class="icon-menu statistics" href="https://myanimelist.net/profile/Example/statistics" onclick="return false;">
+          <svg class="icon icon-statistics" xmlns="http://www.w3.org/2000/svg" width="22px" height="20px" viewBox="0 0 512 512">
+            <path d="M32 32c17.7 0 32 14.3 32 32V400c0 8.8 7.2 16 16 16H480c17.7 0 32 14.3 32 32s-14.3 32-32 32H80c-44.2 0-80-35.8-80-80V64C0 46.3 14.3 32 32 32zM160 224c17.7 0 32 14.3 32 32v64c0 17.7-14.3 32-32 32s-32-14.3-32-32V256c0-17.7 14.3-32 32-32zm128-64V320c0 17.7-14.3 32-32 32s-32-14.3-32-32V160c0-17.7 14.3-32 32-32s32 14.3 32 32zm64 32c17.7 0 32 14.3 32 32v96c0 17.7-14.3 32-32 32s-32-14.3-32-32V224c0-17.7 14.3-32 32-32zM480 96V320c0 17.7-14.3 32-32 32s-32-14.3-32-32V96c0-17.7 14.3-32 32-32s32 14.3 32 32z"></path>
+          </svg>
+          <span class="text">Statistics</span>
+        </a>
         <a class="icon-menu history" href="/history/Example" onclick="return false;">
           <svg class="icon icon-history" width="21px" height="21px" viewBox="0 0 21 21" version="1.1">
             <g transform="translate(-1.000000, -154.000000)">
@@ -1299,120 +1324,138 @@ a {
     </span>
   </div>
   <div class="list-stats">
-    TV: 3,
+    TV: 4,
     OVA: 1,
-    Movies: 3,
+    Movies: 2,
     <span title="Specials">Spcl.</span>: 0,
-    Eps: 27,
-    Days: 0.64,
-    Mean Score: <span class="score-label score-8">8.5</span>,
-    Score <span title="Deviation">Dev.</span>: -0.43
+    Eps: 283,
+    Days: 3.51,
+    Mean Score: <span class="score-label score-6">6.5</span>,
+    Score <span title="Deviation">Dev.</span>: -1.70
+    <span><a class="floatRightHeader" href="https://myanimelist.net/profile/Example/statistics/anime-scores" onclick="return false;">More stats <i class="fa-solid fa-angle-right"></i></a></span>
   </div>
 
-  <table class="list-table" data-items="[{&quot;example&quot;:0}]"><tbody><tr class="list-table-header"><th class="header-title status"></th><th class="header-title number" tc-column="Numbers">#</th><th class="header-title image" tc-column="Image"><a class="link hover_info" onclick="return false;">Image</a></th><th class="header-title title"><a href="/animelist/Example?status=7&amp;order=1&amp;order2=0" class="link sort" onclick="return false;">
+  <table class="list-table" data-items="[{&quot;example&quot;:0}]" data-broadcasts="[{&quot;example&quot;:0}]" class="list-table"><tbody><tr class="list-table-header"><th class="header-title status"></th><th class="header-title number" tc-column="Numbers">#</th><th class="header-title image" tc-column="Image"><a class="link hover_info" onclick="return false;">Image</a></th><th class="header-title title"><a href="https://myanimelist.net/animelist/Example?status=7&amp;order=1&amp;order2=0" class="link sort" onclick="return false;">
             Anime Title
-                      </a></th><th class="header-title score" tc-column="Score"><a href="/animelist/Example?status=7&amp;order=4&amp;order2=0" class="link sort" onclick="return false;">
+                      </a></th><th class="header-title score" tc-column="Score"><a href="https://myanimelist.net/animelist/Example?status=7&amp;order=4&amp;order2=0" class="link sort" onclick="return false;">
             Score
-                      </a></th><th class="header-title type" tc-column="Type"><a href="/animelist/Example?status=7&amp;order=6&amp;order2=0" class="link sort" onclick="return false;">
+                      </a></th><th class="header-title type" tc-column="Type"><a href="https://myanimelist.net/animelist/Example?status=7&amp;order=6&amp;order2=0" class="link sort" onclick="return false;">
             Type
-                      </a></th><th class="header-title progress" tc-column="Episodes"><a href="/animelist/Example?status=7&amp;order=12&amp;order2=0" class="link sort" onclick="return false;">
+                      </a></th><th class="header-title progress" tc-column="Episodes"><a href="https://myanimelist.net/animelist/Example?status=7&amp;order=12&amp;order2=0" class="link sort" onclick="return false;">
             Progress
-                      </a></th><th class="header-title tags" tc-column="Tags">
-          Tags
-                  </th><th class="header-title rated" tc-column="Rating"><a href="/animelist/Example?status=7&amp;order=8&amp;order2=0" class="link sort" onclick="return false;">
-            Rated
-                      </a></th><th class="header-title started" tc-column="Start/End Dates"><a href="/animelist/Example?status=7&amp;order=3&amp;order2=0" class="link sort" onclick="return false;">
+                      </a></th><th class="header-title started" tc-column="Start/End Dates"><a href="https://myanimelist.net/animelist/Example?status=7&amp;order=3&amp;order2=0" class="link sort" onclick="return false;">
             Started Date
-                      </a></th><th class="header-title finished" tc-column="Start/End Dates"><a href="/animelist/Example?status=7&amp;order=2&amp;order2=0" class="link sort" onclick="return false;">
+                      </a></th><th class="header-title finished" tc-column="Start/End Dates"><a href="https://myanimelist.net/animelist/Example?status=7&amp;order=2&amp;order2=0" class="link sort" onclick="return false;">
             Finished Date
-                      </a></th><th class="header-title days" tc-column="Total Days Watched">Days</th><th class="header-title started" tc-column="Premiered">Premiered</th><th class="header-title started" tc-column="Aired Dates"><a href="/animelist/Example?status=7&amp;order=14&amp;order2=0" class="link sort" onclick="return false;">
-            Air Start
-                      </a></th><th class="header-title finished" tc-column="Aired Dates"><a href="/animelist/Example?status=7&amp;order=15&amp;order2=0" class="link sort" onclick="return false;">
-            Air End
-                      </a></th><th class="header-title studio" tc-column="Studios">Studios</th><th class="header-title licensor" tc-column="Licensors">Licensors</th><th class="header-title storage" tc-column="Storage"><a href="/animelist/Example?status=7&amp;order=13&amp;order2=0" class="link sort" onclick="return false;">
-            Storage
-                      </a></th><th class="header-title priority" tc-column="Priority"><a href="/animelist/Example?status=7&amp;order=11&amp;order2=0" class="link sort" onclick="return false;">
-            Priority
-                      </a></th><th class="header-title genre" tc-column="Genre">
+                      </a></th><th class="header-title days" tc-column="Total Days Watched">Days</th><th class="header-title started" tc-column="Premiered">Premiered</th><th class="header-title tags" tc-column="Tags">
+          Tags
+                  </th><th class="header-title genre" tc-column="Genre">
             Genres
                       </th><th class="header-title demographic" tc-column="Demographics">
             Demogr.
-                      </th></tr></tbody> <tbody class="list-item" tc-category="current"><tr class="list-table-data"><td class="data status watching"></td> <td class="data number" tc-column="Numbers">1</td> <td class="data image" tc-column="Image"><a href="/anime/918/Gintama" target="_blank" rel="noopener" class="link sort" onclick="return false;"><img src="https://cdn.myanimelist.net/r/192x272/images/anime/10/73274.webp?s=beeccc4b076ae419972988f8afff3c19" class="hover-info image"></a></td> <td class="data title clearfix"><a href="/anime/918/Gintama" target="_blank" rel="noopener" class="link sort" onclick="return false;">Gintama</a> <div class="icon-watch2"><a href="#" title="Watch Episode Video" data-ga-click-type="broadcast-ownlist" data-ga-click-param="aid:918" class="mal-icon ml4 ga-click" onclick="return false;"><i class="malicon malicon-streaming"></i></a></div> <span class="rewatching" style="display: none;">
+                      </th><th class="header-title studio" tc-column="Studios">Studios</th><th class="header-title studio" tc-column="Licensors">Licensors</th><th class="header-title storage" tc-column="Storage"><a href="https://myanimelist.net/animelist/Example?status=7&amp;order=13&amp;order2=0" class="link sort" onclick="return false;">
+            Storage
+                      </a></th><th class="header-title started" tc-column="Aired Dates"><a href="https://myanimelist.net/animelist/Example?status=7&amp;order=14&amp;order2=0" class="link sort" onclick="return false;">
+            Air Start
+                      </a></th><th class="header-title finished" tc-column="Aired Dates"><a href="https://myanimelist.net/animelist/Example?status=7&amp;order=15&amp;order2=0" class="link sort" onclick="return false;">
+            Air End
+                      </a></th><th class="header-title rated" tc-column="Rating"><a href="https://myanimelist.net/animelist/Example?status=7&amp;order=8&amp;order2=0" class="link sort" onclick="return false;">
+            Rated
+                      </a></th><th class="header-title mal_score" tc-column="MAL Score"><a href="https://myanimelist.net/animelist/Example?status=7&amp;order=17&amp;order2=0" class="link sort" onclick="return false;">
+            MAL Score
+                      </a></th><th class="header-title score_diff" tc-column="Score Diff."><a href="https://myanimelist.net/animelist/Lolicon?status=2&amp;order=18&amp;order2=0" class="link sort" onclick="return false;">
+            Score Diff.
+                      </a></th><th class="header-title popularity" tc-column="Popularity"><a href="https://myanimelist.net/animelist/Lolicon?status=2&amp;order=19&amp;order2=0" class="link sort" onclick="return false;">
+            Popularity
+                      </a></th><th class="header-title priority" tc-column="Priority"><a href="https://myanimelist.net/animelist/Example?status=7&amp;order=11&amp;order2=0" class="link sort" onclick="return false;">
+            Priority
+                      </a></th></tr></tbody> <tbody class="list-item"><tr class="list-table-data"><td class="data status watching"></td> <td class="data number" tc-column="Numbers">1</td> <td class="data image" tc-column="Image"><a href="/anime/918/Gintama" class="link sort" target="_blank" onclick="return false;"><img src="https://cdn.myanimelist.net/r/192x272/images/anime/10/73274.webp?s=beeccc4b076ae419972988f8afff3c19" class="hover-info image"></a></td> <td class="data title clearfix"><a href="/anime/918/Gintama" class="link sort" target="_blank" onclick="return false;">Gintama</a> <div class="icon-watch2"><a href="#" title="Watch Episode Video" data-ga-click-type="broadcast-ownlist" data-ga-click-param="aid:918" class="mal-icon ml4 ga-click" onclick="return false;"><i class="malicon malicon-streaming"></i></a></div> <span class="rewatching" style="display: none;">
             
           </span> <span class="content-status" style="display: none;">
             
           </span> <div class="add-edit-more"><span class="edit"><a href="/ownlist/anime/918/edit?hideLayout" class="List_LightBox" onclick="return false;">Edit</a></span> <!---->
             -
-            <span class="more"><a href="#" onclick="return false;">More</a></span></div><div class="notes" tc-column="Notes"><div class="text notes-918"></div> <!----> <div class="edit">Add notes</div></div></td> <td class="data score" tc-column="Score"><a href="#" class="link" onclick="return false;"><span class="score-label score-7">
+            <span class="more"><a href="#" onclick="return false;">More</a></span></div> <div class="notes"><div class="text notes-918"></div> <!----> <div class="edit">Add notes</div></div></td> <td class="data score" tc-column="Score"><a href="#" class="link" onclick="return false;"><span class="score-label score-7">
               7
             </span></a> <!----></td> <td class="data type" tc-column="Type">
           TV
         </td> <td class="data progress" tc-column="Episodes"><div class="progress-918"><span><a href="#" class="link" onclick="return false;">136</a> <!---->
               /
-            </span> <span>201</span> <a href="#" class="icon-add-episode" onclick="return false;"><i class="fa-solid fa-circle-plus"></i></a></div></td> <td id="tags-918" class="data tags" tc-column="Tags"><div class="tags-918"><span><a href="?status=7&amp;tag=Comedy" onclick="return false;">Comedy</a></span></div> <!----> <a href="#" class="edit" onclick="return false;">Edit</a></td> <td class="data rated" tc-column="Rating">
-          PG-13
-        </td> <td class="data started" tc-column="Start/End Dates">
-          02-03-21
+            </span> <span>201</span> <a href="#" class="icon-add-episode" onclick="return false;"><i class="fa-solid fa-circle-plus"></i></a></div></td> <td class="data started" tc-column="Start/End Dates">
+          03-02-21
         </td> <td class="data finished" tc-column="Start/End Dates">
           
         </td> <td class="data days" tc-column="Total Days Watched">
-          513
+          979
         </td> <td class="data season" tc-column="Premiered"><span><a href="/anime/season/2006/spring" onclick="return false;">
               Spring 2006
-            </a></span></td> <td class="data airing-started" tc-column="Aired Dates">
+            </a></span></td> <td id="tags-918" class="data tags" tc-column="Tags"><div class="tags-918"><span><a href="?status=7&amp;tag=Comedy" onclick="return false;">Comedy</a></span></div> <!----> <a href="#" class="edit" onclick="return false;">Edit</a></td> <td class="data genre" tc-column="Genre"><span><a href="?status=7&amp;genre=1" onclick="return false;">Action</a></span><span>, <a href="?status=7&amp;genre=4" onclick="return false;">Comedy</a></span><span>, <a href="?status=7&amp;genre=24" onclick="return false;">Sci-Fi</a></span></td> <td class="data demographic" tc-column="Demographics"><span><a href="?status=7&amp;demographic=27" onclick="return false;">Shounen</a></span></td> <td class="data studio" tc-column="Studios"><span><a href="/anime/producer/14" onclick="return false;">Sunrise</a></span></td> <td class="data licensor" tc-column="Licensors"><span><a href="/anime/producer/376" onclick="return false;">Sentai Filmworks</a></span><span>, <a href="/anime/producer/1468" onclick="return false;">Crunchyroll</a></span></td> <td class="data storage" tc-column="Storage">
+          
+        </td> <td class="data airing-started" tc-column="Aired Dates">
           04-04-06
         </td> <td class="data airing-finished" tc-column="Aired Dates">
-          03-25-10
-        </td> <td class="data studio" tc-column="Studios"><span><a href="/anime/producer/14" onclick="return false;">Sunrise</a></span></td> <td class="data licensor" tc-column="Licensors"><span><a href="/anime/producer/376" onclick="return false;">Sentai Filmworks</a></span><span>, <a href="/anime/producer/1468" onclick="return false;">Crunchyroll</a></span></td> <td class="data storage" tc-column="Storage">
-          
+          25-03-10
+        </td> <td class="data rated" tc-column="Rating">
+          PG-13
+        </td> <td class="data mal_score" tc-column="MAL Score">
+          8.94
+        </td> <td class="data score_diff" tc-column="Score Diff.">
+          -1.94
+        </td> <td class="data popularity" tc-column="Popularity">
+          #139
         </td> <td class="data priority" tc-column="Priority">
           Medium
-        </td> <td class="data genre" tc-column="Genre"><span><a href="?status=7&amp;genre=1" onclick="return false;">Action</a></span><span>, <a href="?status=7&amp;genre=4" onclick="return false;">Comedy</a></span><span>, <a href="?status=7&amp;genre=24" onclick="return false;">Sci-Fi</a></span></td> <td class="data demographic" tc-column="Demographics"><span><a href="?status=7&amp;demographic=27" onclick="return false;">Shounen</a></span></td></tr> <tr id="more-918" class="more-info" style="display: none;"><td colspan="21" class="more-content">
-                <table width="100%" cellspacing="0" cellpadding="0" border="0">
+        </td></tr> <tr id="more-918" class="more-info" style="display: none;"><td colspan="23" class="more-content">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%">
                 <tbody><tr><td class="td1 borderRBL"><div style="margin-bottom: 3px;"><a href="/forum/?animeid=918" target="_blank" onclick="return false;">Discuss Anime</a></div>
-                        <span title="Anime Database Rating">Rating: PG-13 - Teens 13 or older</span> (<a href="javascript:void(0);" onclick="window.open('/info.php?go=mpaa','bbcode','menubar=no,scrollbars=yes,status=no,width=350,height=250');return false;" onclick="return false;">Why?</a>)<br>Storage:  None<br>Rewatch Value: Medium<br>
-                            Deviation Score: -2.0<br>Retail Disks: <br>Start Date: Feb  3, 2021
+                        <span title="Anime Database Rating">Rating: PG-13 - Teens 13 or older</span> (<a href="javascript:void(0);" onclick="window.open('/info.php?go=mpaa','bbcode','menubar=no,scrollbars=yes,status=no,width=350,height=250');return false;" onclick="return false;">Why?</a>)<br>Storage:  None<br>Rewatch Value: &nbsp;<br>
+                            Deviation Score: -1.9<br>Retail Disks: <br>Start Date: Feb  3, 2021
                 <br>
                 End Date: <br>
-                         Days Since Started Watching: 513<br>
+                         Days Since Started Watching: 979<br>
                          Last Updated: 
-                         06-29-22
+                         10-08-23
                         <br>
                         Time Spent Watching: 
-                        56 hours, 26 minutes, and 24 seconds <small>(0 hours, 24 minutes, and 54 seconds per episode)</small><br>
-                        Notes: &nbsp;<br></td>
+                        56 hours, 26 minutes, and 24 seconds <small>(0 hours, 24 minutes, and 54 seconds per episode)</small></td>
                         </tr>
                         </tbody></table>
-                </td></tr></tbody><tbody class="list-item" tc-category="completed"><tr class="list-table-data"><td class="data status completed"></td> <td class="data number" tc-column="Numbers">2</td> <td class="data image" tc-column="Image"><a href="/anime/3841/Chis_Sweet_Home" target="_blank" rel="noopener" class="link sort" onclick="return false;"><img src="https://cdn.myanimelist.net/r/192x272/images/anime/6/7632.webp?s=3d5c27d5422ee207c260c6590be09b7c" class="hover-info image"></a></td> <td class="data title clearfix"><a href="/anime/3841/Chis_Sweet_Home" target="_blank" rel="noopener" class="link sort" onclick="return false;">Chi's Sweet Home</a> <div class="icon-watch2"><!----></div> <span class="rewatching" style="display: none;">
+                </td></tr></tbody><tbody class="list-item"><tr class="list-table-data"><td class="data status completed"></td> <td class="data number" tc-column="Numbers">2</td> <td class="data image" tc-column="Image"><a href="/anime/3841/Chis_Sweet_Home" class="link sort" target="_blank" onclick="return false;"><img src="https://cdn.myanimelist.net/r/192x272/images/anime/6/7632.webp?s=3d5c27d5422ee207c260c6590be09b7c" class="hover-info image"></a></td> <td class="data title clearfix"><a href="/anime/3841/Chis_Sweet_Home" class="link sort" target="_blank" onclick="return false;">Chi's Sweet Home</a> <div class="icon-watch2"><!----></div> <span class="rewatching" style="display: none;">
             
           </span> <span class="content-status" style="display: none;">
             
           </span> <div class="add-edit-more"><span class="edit"><a href="/ownlist/anime/3841/edit?hideLayout" class="List_LightBox" onclick="return false;">Edit</a></span> <!---->
             -
-            <span class="more"><a href="#" onclick="return false;">More</a></span></div><div class="notes" tc-column="Notes"><div class="text notes-3841"></div> <!----> <div class="edit">Add notes</div></div></td> <td class="data score" tc-column="Score"><a href="#" class="link" onclick="return false;"><span class="score-label score-8">
+            <span class="more"><a href="#" onclick="return false;">More</a></span></div> <div class="notes"><div class="text notes-3841"></div> <!----> <div class="edit">Add notes</div></div></td> <td class="data score" tc-column="Score"><a href="#" class="link" onclick="return false;"><span class="score-label score-8">
               8
             </span></a> <!----></td> <td class="data type" tc-column="Type">
           TV
-        </td> <td class="data progress" tc-column="Episodes"><div class="progress-3841"><!----> <span>104</span> <!----></div></td> <td id="tags-3841" class="data tags" tc-column="Tags"><div class="tags-3841"><span><a href="?status=7&amp;tag=Favourite" onclick="return false;">Favourite</a></span></div> <!----> <a href="#" class="edit" onclick="return false;">Edit</a></td> <td class="data rated" tc-column="Rating">
-          G
-        </td> <td class="data started" tc-column="Start/End Dates">
-          12-01-21
+        </td> <td class="data progress" tc-column="Episodes"><div class="progress-3841"><!----> <span>104</span> <!----></div></td> <td class="data started" tc-column="Start/End Dates">
+          01-12-21
         </td> <td class="data finished" tc-column="Start/End Dates">
-          12-28-21
+          28-12-21
         </td> <td class="data days" tc-column="Total Days Watched">
           28
         </td> <td class="data season" tc-column="Premiered"><span><a href="/anime/season/2008/spring" onclick="return false;">
               Spring 2008
-            </a></span></td> <td class="data airing-started" tc-column="Aired Dates">
-          03-31-08
-        </td> <td class="data airing-finished" tc-column="Aired Dates">
-          09-25-08
-        </td> <td class="data studio" tc-column="Studios"><span><a href="/anime/producer/11" onclick="return false;">Madhouse</a></span></td> <td class="data licensor" tc-column="Licensors"><span><a href="/anime/producer/467" onclick="return false;">Discotek Media</a></span></td> <td class="data storage" tc-column="Storage">
+            </a></span></td> <td id="tags-3841" class="data tags" tc-column="Tags"><div class="tags-3841"><span><a href="?status=7&amp;tag=Favourite" onclick="return false;">Favourite</a></span></div> <!----> <a href="#" class="edit" onclick="return false;">Edit</a></td> <td class="data genre" tc-column="Genre"><span><a href="?status=7&amp;genre=4" onclick="return false;">Comedy</a></span><span>, <a href="?status=7&amp;genre=36" onclick="return false;">Slice of Life</a></span></td> <td class="data demographic" tc-column="Demographics"><span><a href="?status=7&amp;demographic=42" onclick="return false;">Seinen</a></span></td> <td class="data studio" tc-column="Studios"><span><a href="/anime/producer/11" onclick="return false;">Madhouse</a></span></td> <td class="data licensor" tc-column="Licensors"><span><a href="/anime/producer/467" onclick="return false;">Discotek Media</a></span></td> <td class="data storage" tc-column="Storage">
           
+        </td> <td class="data airing-started" tc-column="Aired Dates">
+          31-03-08
+        </td> <td class="data airing-finished" tc-column="Aired Dates">
+          25-09-08
+        </td> <td class="data rated" tc-column="Rating">
+          G
+        </td> <td class="data mal_score" tc-column="MAL Score">
+          7.67
+        </td> <td class="data score_diff" tc-column="Score Diff.">
+          +0.23
+        </td> <td class="data popularity" tc-column="Popularity">
+          #2624
         </td> <td class="data priority" tc-column="Priority">
           Low
-        </td> <td class="data genre" tc-column="Genre"><span><a href="?status=7&amp;genre=4" onclick="return false;">Comedy</a></span><span>, <a href="?status=7&amp;genre=36" onclick="return false;">Slice of Life</a></span></td> <td class="data demographic" tc-column="Demographics"><span><a href="?status=7&amp;demographic=42" onclick="return false;">Seinen</a></span></td></tr> <tr id="more-3841" class="more-info" style="display: none;"><td colspan="21" class="more-content">
-                <table width="100%" cellspacing="0" cellpadding="0" border="0">
+        </td></tr> <tr id="more-3841" class="more-info" style="display: none;"><td colspan="23" class="more-content">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%">
                 <tbody><tr><td class="td1 borderRBL"><div style="margin-bottom: 3px;"><a href="/forum/?animeid=3841" target="_blank" onclick="return false;">Discuss Anime</a></div>This series has been re-watched
                                     <strong>0</strong> times<br>
                         <span title="Anime Database Rating">Rating: G - All Ages</span> (<a href="javascript:void(0);" onclick="window.open('/info.php?go=mpaa','bbcode','menubar=no,scrollbars=yes,status=no,width=350,height=250');return false;" onclick="return false;">Why?</a>)<br>Storage:  None<br>Rewatch Value: &nbsp;<br>
@@ -1421,163 +1464,175 @@ a {
                 End Date: Dec  28, 2021<br>
                          Days Since Started Watching: 28<br>
                          Last Updated: 
-                         06-29-22
+                         10-08-23
                         <br>
                         Time Spent Watching: 
-                        5 hours, 12 minutes, and 0 seconds <small>(0 hours, 3 minutes, and 0 seconds per episode)</small><br>
-                        Notes: &nbsp;<br></td>
+                        5 hours, 12 minutes, and 0 seconds <small>(0 hours, 3 minutes, and 0 seconds per episode)</small></td>
                         </tr>
                         </tbody></table>
-                </td></tr></tbody><tbody class="list-item" tc-category="completed"><tr class="list-table-data"><td class="data status completed"></td> <td class="data number" tc-column="Numbers">3</td> <td class="data image" tc-column="Image"><a href="/anime/32281/Kimi_no_Na_wa" target="_blank" rel="noopener" class="link sort" onclick="return false;"><img src="https://cdn.myanimelist.net/r/192x272/images/anime/5/87048.webp?s=9b98886f1f5ac1d02f63b0b81a6287e1" class="hover-info image"></a></td> <td class="data title clearfix"><a href="/anime/32281/Kimi_no_Na_wa" target="_blank" rel="noopener" class="link sort" onclick="return false;">Kimi no Na wa.</a> <div class="icon-watch2"><!----></div> <span class="rewatching" style="display: none;">
+                </td></tr></tbody><tbody class="list-item"><tr class="list-table-data"><td class="data status completed"></td> <td class="data number" tc-column="Numbers">3</td> <td class="data image" tc-column="Image"><a href="/anime/32281/Kimi_no_Na_wa" class="link sort" target="_blank" onclick="return false;"><img src="https://cdn.myanimelist.net/r/192x272/images/anime/5/87048.webp?s=9b98886f1f5ac1d02f63b0b81a6287e1" class="hover-info image"></a></td> <td class="data title clearfix"><a href="/anime/32281/Kimi_no_Na_wa" class="link sort" target="_blank" onclick="return false;">Kimi no Na wa.</a> <div class="icon-watch2"><!----></div> <span class="rewatching" style="display: none;">
             
           </span> <span class="content-status" style="display: none;">
             
           </span> <div class="add-edit-more"><span class="edit"><a href="/ownlist/anime/32281/edit?hideLayout" class="List_LightBox" onclick="return false;">Edit</a></span> <!---->
             -
-            <span class="more"><a href="#" onclick="return false;">More</a></span></div><div class="notes" tc-column="Notes"><div class="text notes-32281">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus ut nunc orci. Nunc et consequat risus. Ut lobortis lorem eget odio molestie aliquam. Etiam egestas, purus a aliquet consectetur, nisl felis sagittis nisi, ut bibendum augue tortor vitae elit. Nullam suscipit eget ipsum eu blandit. Donec elit eros, pellentesque sit amet venenatis ut, sollicitudin sit amet sem. In placerat erat nec tortor aliquet consectetur. Vestibulum luctus dolor dui, ut iaculis quam auctor sed. Vestibulum vitae tellus nunc. Curabitur dapibus lorem et sagittis lobortis. Nullam eget tellus rhoncus, eleifend felis et, dignissim nisl.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus ut nunc orci. Nunc et consequat risus. Ut lobortis lorem eget odio molestie aliquam. Etiam egestas, purus a aliquet consectetur, nisl felis sagittis nisi, ut bibendum augue tortor vitae elit. Nullam suscipit eget ipsum eu blandit. Donec elit eros, pellentesque sit amet venenatis ut, sollicitudin sit amet sem. In placerat erat nec tortor aliquet consectetur. Vestibulum luctus dolor dui, ut iaculis quam auctor sed. Vestibulum vitae tellus nunc. Curabitur dapibus lorem et sagittis lobortis. Nullam eget tellus rhoncus, eleifend felis et, dignissim nisl.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus ut nunc orci. Nunc et consequat risus. Ut lobortis lorem eget odio molestie aliquam. Etiam egestas, purus a aliquet consectetur, nisl felis sagittis nisi, ut bibendum augue tortor vitae elit.</div> <!----> <!----></div></td> <td class="data score" tc-column="Score"><a href="#" class="link" onclick="return false;"><span class="score-label score-10">
+            <span class="more"><a href="#" onclick="return false;">More</a></span></div> <div class="notes"><div class="text notes-32281">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus ut nunc orci. Nunc et consequat risus. Ut lobortis lorem eget odio molestie aliquam. Etiam egestas, purus a aliquet consectetur, nisl felis sagittis nisi, ut bibendum augue tortor vitae elit. Nullam suscipit eget ipsum eu blandit. Donec elit eros, pellentesque sit amet venenatis ut, sollicitudin sit amet sem. In placerat erat nec tortor aliquet consectetur. Vestibulum luctus dolor dui, ut iaculis quam auctor sed. Vestibulum vitae tellus nunc. Curabitur dapibus lorem et sagittis lobortis. Nullam eget tellus rhoncus, eleifend felis et, dignissim nisl.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus ut nunc orci. Nunc et consequat risus. Ut lobortis lorem eget odio molestie aliquam. Etiam egestas, purus a aliquet consectetur, nisl felis sagittis nisi, ut bibendum augue tortor vitae elit. Nullam suscipit eget ipsum eu blandit. Donec elit eros, pellentesque sit amet venenatis ut, sollicitudin sit amet sem. In placerat erat nec tortor aliquet consectetur. Vestibulum luctus dolor dui, ut iaculis quam auctor sed. Vestibulum vitae tellus nunc. Curabitur dapibus lorem et sagittis lobortis. Nullam eget tellus rhoncus, eleifend felis et, dignissim nisl.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus ut nunc orci. Nunc et consequat risus. Ut lobortis lorem eget odio molestie aliquam. Etiam egestas, purus a aliquet consectetur, nisl felis sagittis nisi, ut bibendum augue tortor vitae elit.</div> <!----> <!----></div></td> <td class="data score" tc-column="Score"><a href="#" class="link" onclick="return false;"><span class="score-label score-10">
               10
             </span></a> <!----></td> <td class="data type" tc-column="Type">
           Movie
-        </td> <td class="data progress" tc-column="Episodes"><div class="progress-32281"><!----> <span>1</span> <!----></div></td> <td id="tags-32281" class="data tags" tc-column="Tags"><div class="tags-32281"></div> <!----> <a href="#" class="edit" onclick="return false;">Edit</a></td> <td class="data rated" tc-column="Rating">
-          PG-13
-        </td> <td class="data started" tc-column="Start/End Dates">
-          06-29-22
+        </td> <td class="data progress" tc-column="Episodes"><div class="progress-32281"><!----> <span>1</span> <!----></div></td> <td class="data started" tc-column="Start/End Dates">
+          29-06-22
         </td> <td class="data finished" tc-column="Start/End Dates">
-          06-29-22
+          29-06-22
         </td> <td class="data days" tc-column="Total Days Watched">
           1
         </td> <td class="data season" tc-column="Premiered"><span><a href="/anime/season/2016/summer" onclick="return false;">
               Summer 2016
-            </a></span></td> <td class="data airing-started" tc-column="Aired Dates">
-          08-26-16
-        </td> <td class="data airing-finished" tc-column="Aired Dates">
-          08-26-16
-        </td> <td class="data studio" tc-column="Studios"><span><a href="/anime/producer/291" onclick="return false;">CoMix Wave Films</a></span></td> <td class="data licensor" tc-column="Licensors"><span><a href="/anime/producer/102" onclick="return false;">Funimation</a></span><span>, <a href="/anime/producer/595" onclick="return false;">NYAV Post</a></span></td> <td class="data storage" tc-column="Storage">
+            </a></span></td> <td id="tags-32281" class="data tags" tc-column="Tags"><div class="tags-32281"></div> <!----> <a href="#" class="edit" onclick="return false;">Edit</a></td> <td class="data genre" tc-column="Genre"><span><a href="?status=7&amp;genre=46" onclick="return false;">Award Winning</a></span><span>, <a href="?status=7&amp;genre=8" onclick="return false;">Drama</a></span><span>, <a href="?status=7&amp;genre=37" onclick="return false;">Supernatural</a></span></td> <td class="data demographic" tc-column="Demographics"></td> <td class="data studio" tc-column="Studios"><span><a href="/anime/producer/291" onclick="return false;">CoMix Wave Films</a></span></td> <td class="data licensor" tc-column="Licensors"><span><a href="/anime/producer/102" onclick="return false;">Funimation</a></span><span>, <a href="/anime/producer/595" onclick="return false;">NYAV Post</a></span></td> <td class="data storage" tc-column="Storage">
           NAS 3.0 Gb
+        </td> <td class="data airing-started" tc-column="Aired Dates">
+          26-08-16
+        </td> <td class="data airing-finished" tc-column="Aired Dates">
+          26-08-16
+        </td> <td class="data rated" tc-column="Rating">
+          PG-13
+        </td> <td class="data mal_score" tc-column="MAL Score">
+          8.84
+        </td> <td class="data score_diff" tc-column="Score Diff.">
+          +1.16
+        </td> <td class="data popularity" tc-column="Popularity">
+          #11
         </td> <td class="data priority" tc-column="Priority">
           Low
-        </td> <td class="data genre" tc-column="Genre"><span><a href="?status=7&amp;genre=8" onclick="return false;">Drama</a></span><span>, <a href="?status=7&amp;genre=37" onclick="return false;">Supernatural</a></span></td> <td class="data demographic" tc-column="Demographics"></td></tr> <tr id="more-32281" class="more-info" style="display: none;"><td colspan="21" class="more-content">
-                <table width="100%" cellspacing="0" cellpadding="0" border="0">
+        </td></tr> <tr id="more-32281" class="more-info" style="display: none;"><td colspan="23" class="more-content">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%">
                 <tbody><tr><td class="td1 borderRBL"><div style="margin-bottom: 3px;"><a href="/forum/?animeid=32281" target="_blank" onclick="return false;">Discuss Anime</a></div>This series has been re-watched
                                     <strong>3</strong> times<br>
                         <span title="Anime Database Rating">Rating: PG-13 - Teens 13 or older</span> (<a href="javascript:void(0);" onclick="window.open('/info.php?go=mpaa','bbcode','menubar=no,scrollbars=yes,status=no,width=350,height=250');return false;" onclick="return false;">Why?</a>)<br>Storage: NAS at 3.00 Gb<br>Rewatch Value: Very High<br>
-                            Deviation Score: 1.1<br>Retail Disks: <br>Start Date: Jun  29, 2022
+                            Deviation Score: 1.2<br>Retail Disks: <br>Start Date: Jun  29, 2022
                 <br>
                 End Date: Jun  29, 2022<br>
                          Days Since Started Watching: 1<br>
                          Last Updated: 
-                         06-29-22
+                         10-08-23
                         <br>
                         Time Spent Watching: 
-                        1 hour, 46 minutes, and 31 seconds <small>(1 hour, 46 minutes, and 31 seconds per episode)</small><br>
-                        Notes: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus ut nunc orci. Nunc et consequat risus. Ut lobortis lorem eget odio molestie aliquam. Etiam egestas, purus a aliquet consectetur, nisl felis sagittis nisi, ut bibendum augue tortor vitae elit. Nullam suscipit eget ipsum eu blandit. Donec elit eros, pellentesque sit amet venenatis ut, sollicitudin sit amet sem. In placerat erat nec tortor aliquet consectetur. Vestibulum luctus dolor dui, ut iaculis quam auctor sed. Vestibulum vitae tellus nunc. Curabitur dapibus lorem et sagittis lobortis. Nullam eget tellus rhoncus, eleifend felis et, dignissim nisl.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus ut nunc orci. Nunc et consequat risus. Ut lobortis lorem eget odio molestie aliquam. Etiam egestas, purus a aliquet consectetur, nisl felis sagittis nisi, ut bibendum augue tortor vitae elit. Nullam suscipit eget ipsum eu blandit. Donec elit eros, pellentesque sit amet venenatis ut, sollicitudin sit amet sem. In placerat erat nec tortor aliquet consectetur. Vestibulum luctus dolor dui, ut iaculis quam auctor sed. Vestibulum vitae tellus nunc. Curabitur dapibus lorem et sagittis lobortis. Nullam eget tellus rhoncus, eleifend felis et, dignissim nisl.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus ut nunc orci. Nunc et consequat risus. Ut lobortis lorem eget odio molestie aliquam. Etiam egestas, purus a aliquet consectetur, nisl felis sagittis nisi, ut bibendum augue tortor vitae elit.<br></td>
+                        1 hour, 46 minutes, and 31 seconds <small>(1 hour, 46 minutes, and 31 seconds per episode)</small></td>
                         </tr>
                         </tbody></table>
-                </td></tr></tbody><tbody class="list-item" tc-category="paused"><tr class="list-table-data"><td class="data status onhold"></td> <td class="data number" tc-column="Numbers">4</td> <td class="data image" tc-column="Image"><a href="/anime/5114/Fullmetal_Alchemist__Brotherhood" target="_blank" rel="noopener" class="link sort" onclick="return false;"><img src="https://cdn.myanimelist.net/r/192x272/images/anime/1223/96541.webp?s=e11fa4682608c3542b56b0681cdca684" class="hover-info image"></a></td> <td class="data title clearfix"><a href="/anime/5114/Fullmetal_Alchemist__Brotherhood" target="_blank" rel="noopener" class="link sort" onclick="return false;">Fullmetal Alchemist: Brotherhood</a> <div class="icon-watch2"><a href="#" title="Watch Episode Video" data-ga-click-type="broadcast-ownlist" data-ga-click-param="aid:5114" class="mal-icon ml4 ga-click" onclick="return false;"><i class="malicon malicon-streaming"></i></a></div> <span class="rewatching" style="display: none;">
+                </td></tr></tbody><tbody class="list-item"><tr class="list-table-data"><td class="data status onhold"></td> <td class="data number" tc-column="Numbers">4</td> <td class="data image" tc-column="Image"><a href="/anime/5114/Fullmetal_Alchemist__Brotherhood" class="link sort" target="_blank" onclick="return false;"><img src="https://cdn.myanimelist.net/r/192x272/images/anime/1208/94745.webp?s=ab4b84dcc8c8a250b92a5589e9485152" class="hover-info image"></a></td> <td class="data title clearfix"><a href="/anime/5114/Fullmetal_Alchemist__Brotherhood" class="link sort" target="_blank" onclick="return false;">Fullmetal Alchemist: Brotherhood</a> <div class="icon-watch2"><a href="#" title="Watch Episode Video" data-ga-click-type="broadcast-ownlist" data-ga-click-param="aid:5114" class="mal-icon ml4 ga-click" onclick="return false;"><i class="malicon malicon-streaming"></i></a></div> <span class="rewatching" style="display: none;">
             
           </span> <span class="content-status" style="display: none;">
             
           </span> <div class="add-edit-more"><span class="edit"><a href="/ownlist/anime/5114/edit?hideLayout" class="List_LightBox" onclick="return false;">Edit</a></span> <!---->
             -
-            <span class="more"><a href="#" onclick="return false;">More</a></span></div><div class="notes" tc-column="Notes"><div class="text notes-5114">Vestibulum luctus dolor dui, ut iaculis quam auctor sed. Vestibulum vitae tellus nunc. Curabitur dapibus lorem et sagittis lobortis. Nullam eget tellus rhoncus, eleifend felis et, dignissim nisl.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus ut nunc orci. Nunc et consequat risus.</div> <!----> <!----></div></td> <td class="data score" tc-column="Score"><a href="#" class="link" onclick="return false;"><span class="score-label score-na">
+            <span class="more"><a href="#" onclick="return false;">More</a></span></div> <div class="notes"><div class="text notes-5114">Vestibulum luctus dolor dui, ut iaculis quam auctor sed. Vestibulum vitae tellus nunc. Curabitur dapibus lorem et sagittis lobortis. Nullam eget tellus rhoncus, eleifend felis et, dignissim nisl.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus ut nunc orci. Nunc et consequat risus.</div> <!----> <!----></div></td> <td class="data score" tc-column="Score"><a href="#" class="link" onclick="return false;"><span class="score-label score-na">
               -
             </span></a> <!----></td> <td class="data type" tc-column="Type">
           TV
         </td> <td class="data progress" tc-column="Episodes"><div class="progress-5114"><span><a href="#" class="link" onclick="return false;">19</a> <!---->
               /
-            </span> <span>64</span> <a href="#" class="icon-add-episode" onclick="return false;"><i class="fa-solid fa-circle-plus"></i></a></div></td> <td id="tags-5114" class="data tags" tc-column="Tags"><div class="tags-5114"><span><a href="?status=7&amp;tag=A%20top-rated%20classic" onclick="return false;">A top-rated classic</a></span><span>, <a href="?status=7&amp;tag=and%20for%20a%20good%20reason!%20Fullmetal%20Alchemist%20doesn't%20pull%20any%20punches" onclick="return false;">and for a good reason! Fullmetal Alchemist doesn't pull any punches</a></span><span>, <a href="?status=7&amp;tag=with%20great%20animation" onclick="return false;">with great animation</a></span><span>, <a href="?status=7&amp;tag=characters" onclick="return false;">characters</a></span><span>, <a href="?status=7&amp;tag=and%20probably%20some%20other%20stuff.%20Look" onclick="return false;">and probably some other stuff. Look</a></span><span>, <a href="?status=7&amp;tag=I%20haven't%20watched%20it%20yet.%20Is%20this%20enough%20filler%3F" onclick="return false;">I haven't watched it yet. Is this enough filler?</a></span></div> <!----> <a href="#" class="edit" onclick="return false;">Edit</a></td> <td class="data rated" tc-column="Rating">
-          R
-        </td> <td class="data started" tc-column="Start/End Dates">
-          05-10-16
+            </span> <span>64</span> <a href="#" class="icon-add-episode" onclick="return false;"><i class="fa-solid fa-circle-plus"></i></a></div></td> <td class="data started" tc-column="Start/End Dates">
+          10-05-16
         </td> <td class="data finished" tc-column="Start/End Dates">
           
         </td> <td class="data days" tc-column="Total Days Watched">
-          2243
+          2709
         </td> <td class="data season" tc-column="Premiered"><span><a href="/anime/season/2009/spring" onclick="return false;">
               Spring 2009
-            </a></span></td> <td class="data airing-started" tc-column="Aired Dates">
-          04-05-09
-        </td> <td class="data airing-finished" tc-column="Aired Dates">
-          07-04-10
-        </td> <td class="data studio" tc-column="Studios"><span><a href="/anime/producer/4" onclick="return false;">Bones</a></span></td> <td class="data licensor" tc-column="Licensors"><span><a href="/anime/producer/102" onclick="return false;">Funimation</a></span><span>, <a href="/anime/producer/493" onclick="return false;">Aniplex of America</a></span></td> <td class="data storage" tc-column="Storage">
+            </a></span></td> <td id="tags-5114" class="data tags" tc-column="Tags"><div class="tags-5114"><span><a href="?status=7&amp;tag=A%20top-rated%20classic" onclick="return false;">A top-rated classic</a></span><span>, <a href="?status=7&amp;tag=and%20for%20a%20good%20reason!%20Fullmetal%20Alchemist%20doesn't%20pull%20any%20punches" onclick="return false;">and for a good reason! Fullmetal Alchemist doesn't pull any punches</a></span><span>, <a href="?status=7&amp;tag=with%20great%20animation" onclick="return false;">with great animation</a></span><span>, <a href="?status=7&amp;tag=characters" onclick="return false;">characters</a></span><span>, <a href="?status=7&amp;tag=and%20probably%20some%20other%20stuff.%20Look" onclick="return false;">and probably some other stuff. Look</a></span><span>, <a href="?status=7&amp;tag=I%20haven't%20watched%20it%20yet.%20Is%20this%20enough%20filler%3F" onclick="return false;">I haven't watched it yet. Is this enough filler?</a></span></div> <!----> <a href="#" class="edit" onclick="return false;">Edit</a></td> <td class="data genre" tc-column="Genre"><span><a href="?status=7&amp;genre=1" onclick="return false;">Action</a></span><span>, <a href="?status=7&amp;genre=2" onclick="return false;">Adventure</a></span><span>, <a href="?status=7&amp;genre=8" onclick="return false;">Drama</a></span><span>, <a href="?status=7&amp;genre=10" onclick="return false;">Fantasy</a></span></td> <td class="data demographic" tc-column="Demographics"><span><a href="?status=7&amp;demographic=27" onclick="return false;">Shounen</a></span></td> <td class="data studio" tc-column="Studios"><span><a href="/anime/producer/4" onclick="return false;">Bones</a></span></td> <td class="data licensor" tc-column="Licensors"><span><a href="/anime/producer/102" onclick="return false;">Funimation</a></span><span>, <a href="/anime/producer/493" onclick="return false;">Aniplex of America</a></span></td> <td class="data storage" tc-column="Storage">
           VHS 8.0
+        </td> <td class="data airing-started" tc-column="Aired Dates">
+          05-04-09
+        </td> <td class="data airing-finished" tc-column="Aired Dates">
+          04-07-10
+        </td> <td class="data rated" tc-column="Rating">
+          R
+        </td> <td class="data mal_score" tc-column="MAL Score">
+          9.1
+        </td> <td class="data score_diff" tc-column="Score Diff.">
+          -
+        </td> <td class="data popularity" tc-column="Popularity">
+          #3
         </td> <td class="data priority" tc-column="Priority">
           Low
-        </td> <td class="data genre" tc-column="Genre"><span><a href="?status=7&amp;genre=1" onclick="return false;">Action</a></span><span>, <a href="?status=7&amp;genre=2" onclick="return false;">Adventure</a></span><span>, <a href="?status=7&amp;genre=8" onclick="return false;">Drama</a></span><span>, <a href="?status=7&amp;genre=10" onclick="return false;">Fantasy</a></span></td> <td class="data demographic" tc-column="Demographics"><span><a href="?status=7&amp;demographic=27" onclick="return false;">Shounen</a></span></td></tr> <tr id="more-5114" class="more-info" style="display: none;"><td colspan="21" class="more-content">
-                <table width="100%" cellspacing="0" cellpadding="0" border="0">
+        </td></tr> <tr id="more-5114" class="more-info" style="display: none;"><td colspan="23" class="more-content">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%">
                 <tbody><tr><td class="td1 borderRBL"><div style="margin-bottom: 3px;"><a href="/forum/?animeid=5114" target="_blank" onclick="return false;">Discuss Anime</a></div>
                         <span title="Anime Database Rating">Rating: R - 17+ (violence &amp; profanity)</span> (<a href="javascript:void(0);" onclick="window.open('/info.php?go=mpaa','bbcode','menubar=no,scrollbars=yes,status=no,width=350,height=250');return false;" onclick="return false;">Why?</a>)<br>Storage:  None<br>Rewatch Value: &nbsp;<br>Retail Disks: <br>Start Date: May  10, 2016
                 <br>
                 End Date: <br>
-                         Days Since Started Watching: 2,243<br>
+                         Days Since Started Watching: 2,709<br>
                          Last Updated: 
-                         06-29-22
+                         10-08-23
                         <br>
                         Time Spent Watching: 
-                        33 hours, 39 minutes, and 40 seconds <small>(0 hours, 24 minutes, and 20 seconds per episode)</small><br>
-                        Notes: Vestibulum luctus dolor dui, ut iaculis quam auctor sed. Vestibulum vitae tellus nunc. Curabitur dapibus lorem et sagittis lobortis. Nullam eget tellus rhoncus, eleifend felis et, dignissim nisl.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus ut nunc orci. Nunc et consequat risus.&nbsp;<br></td>
+                        7 hours, 42 minutes, and 20 seconds <small>(0 hours, 24 minutes, and 20 seconds per episode)</small></td>
                         </tr>
                         </tbody></table>
-                </td></tr></tbody><tbody class="list-item" tc-category="dropped"><tr class="list-table-data"><td class="data status dropped"></td> <td class="data number" tc-column="Numbers">5</td> <td class="data image" tc-column="Image"><a href="/anime/2372/Enbo" target="_blank" rel="noopener" class="link sort" onclick="return false;"><img src="https://cdn.myanimelist.net/r/192x272/images/anime/6/40117.webp?s=363d79288a2556f7f9edb865dfdc91ec" class="hover-info image"></a></td> <td class="data title clearfix"><a href="/anime/2372/Enbo" target="_blank" rel="noopener" class="link sort" onclick="return false;">Enbo</a> <div class="icon-watch2"><!----></div> <span class="rewatching" style="display: none;">
+                </td></tr></tbody><tbody class="list-item"><tr class="list-table-data"><td class="data status dropped"></td> <td class="data number" tc-column="Numbers">5</td> <td class="data image" tc-column="Image"><a href="/anime/2372/Enbo" class="link sort" target="_blank" onclick="return false;"><img src="https://cdn.myanimelist.net/r/192x272/images/anime/6/40117.webp?s=363d79288a2556f7f9edb865dfdc91ec" class="hover-info image"></a></td> <td class="data title clearfix"><a href="/anime/2372/Enbo" class="link sort" target="_blank" onclick="return false;">Enbo</a> <div class="icon-watch2"><!----></div> <span class="rewatching" style="display: none;">
             
           </span> <span class="content-status" style="display: none;">
             
           </span> <div class="add-edit-more"><span class="edit"><a href="/ownlist/anime/2372/edit?hideLayout" class="List_LightBox" onclick="return false;">Edit</a></span> <!---->
             -
-            <span class="more"><a href="#" onclick="return false;">More</a></span></div><div class="notes" tc-column="Notes"><div class="text notes-2372"></div> <!----> <div class="edit">Add notes</div></div></td> <td class="data score" tc-column="Score"><a href="#" class="link" onclick="return false;"><span class="score-label score-na">
+            <span class="more"><a href="#" onclick="return false;">More</a></span></div> <div class="notes"><div class="text notes-2372"></div> <!----> <div class="edit">Add notes</div></div></td> <td class="data score" tc-column="Score"><a href="#" class="link" onclick="return false;"><span class="score-label score-na">
               -
             </span></a> <!----></td> <td class="data type" tc-column="Type">
           OVA
         </td> <td class="data progress" tc-column="Episodes"><div class="progress-2372"><span><a href="#" class="link" onclick="return false;">1</a> <!---->
               /
-            </span> <span>6</span> <a href="#" class="icon-add-episode" onclick="return false;"><i class="fa-solid fa-circle-plus"></i></a></div></td> <td id="tags-2372" class="data tags" tc-column="Tags"><div class="tags-2372"><span><a href="?status=7&amp;tag=Hentai" onclick="return false;">Hentai</a></span><span>, <a href="?status=7&amp;tag=Rx" onclick="return false;">Rx</a></span><span>, <a href="?status=7&amp;tag=18%2B" onclick="return false;">18+</a></span></div> <!----> <a href="#" class="edit" onclick="return false;">Edit</a></td> <td class="data rated" tc-column="Rating">
-          Rx
-        </td> <td class="data started" tc-column="Start/End Dates">
-          04-03-19
+            </span> <span>6</span> <a href="#" class="icon-add-episode" onclick="return false;"><i class="fa-solid fa-circle-plus"></i></a></div></td> <td class="data started" tc-column="Start/End Dates">
+          03-04-19
         </td> <td class="data finished" tc-column="Start/End Dates">
           
         </td> <td class="data days" tc-column="Total Days Watched">
-          1185
+          1651
         </td> <td class="data season" tc-column="Premiered"><span><a href="/anime/season/2003/fall" onclick="return false;">
               Fall 2003
-            </a></span></td> <td class="data airing-started" tc-column="Aired Dates">
-          11-25-03
-        </td> <td class="data airing-finished" tc-column="Aired Dates">
-          11-25-05
-        </td> <td class="data studio" tc-column="Studios"><span><a href="/anime/producer/2358" onclick="return false;">Big Wing</a></span></td> <td class="data licensor" tc-column="Licensors"><span><a href="/anime/producer/573" onclick="return false;">JapanAnime</a></span></td> <td class="data storage" tc-column="Storage">
+            </a></span></td> <td id="tags-2372" class="data tags" tc-column="Tags"><div class="tags-2372"><span><a href="?status=7&amp;tag=Hentai" onclick="return false;">Hentai</a></span><span>, <a href="?status=7&amp;tag=Rx" onclick="return false;">Rx</a></span><span>, <a href="?status=7&amp;tag=18%2B" onclick="return false;">18+</a></span></div> <!----> <a href="#" class="edit" onclick="return false;">Edit</a></td> <td class="data genre" tc-column="Genre"><span><a href="?status=7&amp;genre=8" onclick="return false;">Drama</a></span><span>, <a href="?status=7&amp;genre=12" onclick="return false;">Hentai</a></span></td> <td class="data demographic" tc-column="Demographics"></td> <td class="data studio" tc-column="Studios"><span><a href="/anime/producer/2358" onclick="return false;">Big Wing</a></span></td> <td class="data licensor" tc-column="Licensors"><span><a href="/anime/producer/573" onclick="return false;">JapanAnime</a></span></td> <td class="data storage" tc-column="Storage">
           
+        </td> <td class="data airing-started" tc-column="Aired Dates">
+          25-11-03
+        </td> <td class="data airing-finished" tc-column="Aired Dates">
+          25-11-05
+        </td> <td class="data rated" tc-column="Rating">
+          Rx
+        </td> <td class="data mal_score" tc-column="MAL Score">
+          7.11
+        </td> <td class="data score_diff" tc-column="Score Diff.">
+          -
+        </td> <td class="data popularity" tc-column="Popularity">
+          #4571
         </td> <td class="data priority" tc-column="Priority">
           Low
-        </td> <td class="data genre" tc-column="Genre"><span><a href="?status=7&amp;genre=8" onclick="return false;">Drama</a></span><span>, <a href="?status=7&amp;genre=12" onclick="return false;">Hentai</a></span></td> <td class="data demographic" tc-column="Demographics"></td></tr> <tr id="more-2372" class="more-info" style="display: none;"><td colspan="21" class="more-content">
-                <table width="100%" cellspacing="0" cellpadding="0" border="0">
+        </td></tr> <tr id="more-2372" class="more-info" style="display: none;"><td colspan="23" class="more-content">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%">
                 <tbody><tr><td class="td1 borderRBL"><div style="margin-bottom: 3px;"><a href="/forum/?animeid=2372" target="_blank" onclick="return false;">Discuss Anime</a></div>
                         <span title="Anime Database Rating">Rating: Rx - Hentai</span> (<a href="javascript:void(0);" onclick="window.open('/info.php?go=mpaa','bbcode','menubar=no,scrollbars=yes,status=no,width=350,height=250');return false;" onclick="return false;">Why?</a>)<br>Storage:  None<br>Rewatch Value: &nbsp;<br>Retail Disks: <br>Start Date: Apr  3, 2019
                 <br>
                 End Date: <br>
-                         Days Since Started Watching: 1,185<br>
+                         Days Since Started Watching: 1,651<br>
                          Last Updated: 
-                         06-29-22
+                         10-08-23
                         <br>
                         Time Spent Watching: 
-                        0 hours, 28 minutes, and 32 seconds <small>(0 hours, 28 minutes, and 32 seconds per episode)</small><br>
-                        Notes: &nbsp;<br></td>
+                        0 hours, 28 minutes, and 32 seconds <small>(0 hours, 28 minutes, and 32 seconds per episode)</small></td>
                         </tr>
                         </tbody></table>
-                </td></tr></tbody><tbody class="list-item" tc-category="dropped"><tr class="list-table-data"><td class="data status dropped"></td> <td class="data number" tc-column="Numbers">6</td> <td class="data image" tc-column="Image"><a href="/anime/4654/Toaru_Majutsu_no_Index" target="_blank" rel="noopener" class="link sort" onclick="return false;"><img src="https://cdn.myanimelist.net/r/192x272/images/anime/2/75533.webp?s=41eb43b1e9fb520de82092bb45d3a6c7" class="hover-info image"></a></td> <td class="data title clearfix"><a href="/anime/4654/Toaru_Majutsu_no_Index" target="_blank" rel="noopener" class="link sort" onclick="return false;">Toaru Majutsu no Index</a> <div class="icon-watch2"><a href="#" title="Watch Episode Video" data-ga-click-type="broadcast-ownlist" data-ga-click-param="aid:4654" class="mal-icon ml4 ga-click" onclick="return false;"><i class="malicon malicon-streaming"></i></a></div> <span class="rewatching" style="display: none;">
+                </td></tr></tbody><tbody class="list-item"><tr class="list-table-data"><td class="data status dropped"></td> <td class="data number" tc-column="Numbers">6</td> <td class="data image" tc-column="Image"><a href="/anime/4654/Toaru_Majutsu_no_Index" class="link sort" target="_blank" onclick="return false;"><img src="https://cdn.myanimelist.net/r/192x272/images/anime/2/75533.webp?s=41eb43b1e9fb520de82092bb45d3a6c7" class="hover-info image"></a></td> <td class="data title clearfix"><a href="/anime/4654/Toaru_Majutsu_no_Index" class="link sort" target="_blank" onclick="return false;">Toaru Majutsu no Index</a> <div class="icon-watch2"><a href="#" title="Watch Episode Video" data-ga-click-type="broadcast-ownlist" data-ga-click-param="aid:4654" class="mal-icon ml4 ga-click" onclick="return false;"><i class="malicon malicon-streaming"></i></a></div> <span class="rewatching" style="display: none;">
             
           </span> <span class="content-status" style="display: none;">
             
           </span> <div class="add-edit-more"><span class="edit"><a href="/ownlist/anime/4654/edit?hideLayout" class="List_LightBox" onclick="return false;">Edit</a></span> <!---->
             -
-            <span class="more"><a href="#" onclick="return false;">More</a></span></div><div class="notes" tc-column="Notes"><div class="text notes-4654"></div> <!----> <div class="edit">Add notes</div></div></td> <td class="data score" tc-column="Score"><a href="#" class="link" onclick="return false;"><span class="score-label score-1">
+            <span class="more"><a href="#" onclick="return false;">More</a></span></div> <div class="notes"><div class="text notes-4654"></div> <!----> <div class="edit">Add notes</div></div></td> <td class="data score" tc-column="Score"><a href="#" class="link" onclick="return false;"><span class="score-label score-1">
               1
             </span></a> <!----></td> <td class="data type" tc-column="Type">
           TV
-        </td> <td class="data progress" tc-column="Episodes"><div class="progress-4654"><span><a href="#" class="link" onclick="return false;">24</a> <!---->
+        </td> <td class="data progress" tc-column="Episodes"><div class="progress-4654"><span><a href="#" class="link" onclick="return false;">19</a> <!---->
               /
-            </span> <span>24</span> <a href="#" class="icon-add-episode" onclick="return false;"><i class="fa-solid fa-circle-plus"></i></a></div></td> <td id="tags-4654" class="data tags" tc-column="Tags"><div class="tags-4654"></div> <!----> <a href="#" class="edit" onclick="return false;">Edit</a></td> <td class="data rated" tc-column="Rating">
-          R
-        </td> <td class="data started" tc-column="Start/End Dates">
+            </span> <span>24</span> <a href="#" class="icon-add-episode" onclick="return false;"><i class="fa-solid fa-circle-plus"></i></a></div></td> <td class="data started" tc-column="Start/End Dates">
           
         </td> <td class="data finished" tc-column="Start/End Dates">
           
@@ -1585,16 +1640,24 @@ a {
           
         </td> <td class="data season" tc-column="Premiered"><span><a href="/anime/season/2008/fall" onclick="return false;">
               Fall 2008
-            </a></span></td> <td class="data airing-started" tc-column="Aired Dates">
-          10-05-08
-        </td> <td class="data airing-finished" tc-column="Aired Dates">
-          03-19-09
-        </td> <td class="data studio" tc-column="Studios"><span><a href="/anime/producer/7" onclick="return false;">J.C.Staff</a></span></td> <td class="data licensor" tc-column="Licensors"><span><a href="/anime/producer/102" onclick="return false;">Funimation</a></span></td> <td class="data storage" tc-column="Storage">
+            </a></span></td> <td id="tags-4654" class="data tags" tc-column="Tags"><div class="tags-4654"></div> <!----> <a href="#" class="edit" onclick="return false;">Edit</a></td> <td class="data genre" tc-column="Genre"><span><a href="?status=7&amp;genre=1" onclick="return false;">Action</a></span><span>, <a href="?status=7&amp;genre=10" onclick="return false;">Fantasy</a></span><span>, <a href="?status=7&amp;genre=24" onclick="return false;">Sci-Fi</a></span></td> <td class="data demographic" tc-column="Demographics"></td> <td class="data studio" tc-column="Studios"><span><a href="/anime/producer/7" onclick="return false;">J.C.Staff</a></span></td> <td class="data licensor" tc-column="Licensors"><span><a href="/anime/producer/102" onclick="return false;">Funimation</a></span></td> <td class="data storage" tc-column="Storage">
           
+        </td> <td class="data airing-started" tc-column="Aired Dates">
+          05-10-08
+        </td> <td class="data airing-finished" tc-column="Aired Dates">
+          19-03-09
+        </td> <td class="data rated" tc-column="Rating">
+          R
+        </td> <td class="data mal_score" tc-column="MAL Score">
+          7.35
+        </td> <td class="data score_diff" tc-column="Score Diff.">
+          -6.35
+        </td> <td class="data popularity" tc-column="Popularity">
+          #220
         </td> <td class="data priority" tc-column="Priority">
           Low
-        </td> <td class="data genre" tc-column="Genre"><span><a href="?status=7&amp;genre=1" onclick="return false;">Action</a></span><span>, <a href="?status=7&amp;genre=24" onclick="return false;">Sci-Fi</a></span></td> <td class="data demographic" tc-column="Demographics"></td></tr> <tr id="more-4654" class="more-info" style="display: none;"><td colspan="21" class="more-content">
-                <table width="100%" cellspacing="0" cellpadding="0" border="0">
+        </td></tr> <tr id="more-4654" class="more-info" style="display: none;"><td colspan="23" class="more-content">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%">
                 <tbody><tr><td class="td1 borderRBL"><div style="margin-bottom: 3px;"><a href="/forum/?animeid=4654" target="_blank" onclick="return false;">Discuss Anime</a></div>
                         <span title="Anime Database Rating">Rating: R - 17+ (violence &amp; profanity)</span> (<a href="javascript:void(0);" onclick="window.open('/info.php?go=mpaa','bbcode','menubar=no,scrollbars=yes,status=no,width=350,height=250');return false;" onclick="return false;">Why?</a>)<br>Storage:  None<br>Rewatch Value: &nbsp;<br>
                             Deviation Score: -6.4<br>Retail Disks: <br>Start Date: 
@@ -1602,30 +1665,27 @@ a {
                 End Date: <br>
                          Days Since Started Watching: <br>
                          Last Updated: 
-                         06-29-22
+                         10-08-23
                         <br>
                         Time Spent Watching: 
-                        9 hours, 32 minutes, and 0 seconds <small>(0 hours, 23 minutes, and 50 seconds per episode)</small><br>
-                        Notes: &nbsp;<br></td>
+                        7 hours, 32 minutes, and 50 seconds <small>(0 hours, 23 minutes, and 50 seconds per episode)</small></td>
                         </tr>
                         </tbody></table>
-                </td></tr></tbody><tbody class="list-item" tc-category="planned"><tr class="list-table-data"><td class="data status plantowatch"></td> <td class="data number" tc-column="Numbers">7</td> <td class="data image" tc-column="Image"><a href="/anime/47/Akira" target="_blank" rel="noopener" class="link sort" onclick="return false;"><img src="https://cdn.myanimelist.net/r/192x272/images/anime/1408/114012.webp?s=7083f856e394d6f29e098e6db9984d31" class="hover-info image"></a></td> <td class="data title clearfix"><a href="/anime/47/Akira" target="_blank" rel="noopener" class="link sort" onclick="return false;">Akira</a> <div class="icon-watch2"><a href="#" title="Watch Episode Video" data-ga-click-type="broadcast-ownlist" data-ga-click-param="aid:47" class="mal-icon ml4 ga-click" onclick="return false;"><i class="malicon malicon-streaming"></i></a></div> <span class="rewatching" style="display: none;">
+                </td></tr></tbody><tbody class="list-item"><tr class="list-table-data"><td class="data status plantowatch"></td> <td class="data number" tc-column="Numbers">7</td> <td class="data image" tc-column="Image"><a href="/anime/47/Akira" class="link sort" target="_blank" onclick="return false;"><img src="https://cdn.myanimelist.net/r/192x272/images/anime/1408/114012.webp?s=7083f856e394d6f29e098e6db9984d31" class="hover-info image"></a></td> <td class="data title clearfix"><a href="/anime/47/Akira" class="link sort" target="_blank" onclick="return false;">Akira</a> <div class="icon-watch2"><a href="#" title="Watch Episode Video" data-ga-click-type="broadcast-ownlist" data-ga-click-param="aid:47" class="mal-icon ml4 ga-click" onclick="return false;"><i class="malicon malicon-streaming"></i></a></div> <span class="rewatching" style="display: none;">
             
           </span> <span class="content-status" style="display: none;">
             
           </span> <div class="add-edit-more"><span class="edit"><a href="/ownlist/anime/47/edit?hideLayout" class="List_LightBox" onclick="return false;">Edit</a></span> <!---->
             -
-            <span class="more"><a href="#" onclick="return false;">More</a></span></div><div class="notes" tc-column="Notes"><div class="text notes-47">Japan, 1988. An explosion caused by a young boy with psychic powers tears through the city of Tokyo and ignites the fuse that leads to World War III. In order to prevent any further destruction, he is captured and taken into custody, never to be heard from again. Now, in the year 2019, a restored version of the city known as Neo-Tokyo—an area rife with gang violence and terrorism against the current government—stands in its place. Here, Shoutarou Kaneda leads "the Capsules," a group of misfits known for riding large, custom motorcycles and being in constant conflict with their rivals "the Clowns."
-
+            <span class="more"><a href="#" onclick="return false;">More</a></span></div> <div class="notes"><div class="text notes-47">Japan, 1988. An explosion caused by a young boy with psychic powers tears through the city of Tokyo and ignites the fuse that leads to World War III. In order to prevent any further destruction, he is captured and taken into custody, never to be heard from again. Now, in the year 2019, a restored version of the city known as Neo-Tokyo—an area rife with gang violence and terrorism against the current government—stands in its place. Here, Shoutarou Kaneda leads "the Capsules," a group of misfits known for riding large, custom motorcycles and being in constant conflict with their rivals "the Clowns."<br>
+<br>
 During one of these battles, Shoutarou's best friend Tetsuo Shima is caught up in an accident with an esper who finds himself in the streets of Tokyo after escaping confinement from a government institution. Through this encounter, Tetsuo begins to develop his own mysterious abilities, as the government seeks to quarantine this latest psychic in a desperate attempt to prevent him from unleashing the destructive power that could once again bring the city to its knees.</div> <!----> <!----></div></td> <td class="data score" tc-column="Score"><a href="#" class="link" onclick="return false;"><span class="score-label score-na">
               -
             </span></a> <!----></td> <td class="data type" tc-column="Type">
           Movie
         </td> <td class="data progress" tc-column="Episodes"><div class="progress-47"><span><a href="#" class="link" onclick="return false;">-</a> <!---->
               /
-            </span> <span>1</span> <a href="#" class="icon-add-episode" onclick="return false;"><i class="fa-solid fa-circle-plus"></i></a></div></td> <td id="tags-47" class="data tags" tc-column="Tags"><div class="tags-47"><span><a href="?status=7&amp;tag=High%20Priority%20Watch" onclick="return false;">High Priority Watch</a></span></div> <!----> <a href="#" class="edit" onclick="return false;">Edit</a></td> <td class="data rated" tc-column="Rating">
-          R+
-        </td> <td class="data started" tc-column="Start/End Dates">
+            </span> <span>1</span> <a href="#" class="icon-add-episode" onclick="return false;"><i class="fa-solid fa-circle-plus"></i></a></div></td> <td class="data started" tc-column="Start/End Dates">
           
         </td> <td class="data finished" tc-column="Start/End Dates">
           
@@ -1633,29 +1693,34 @@ During one of these battles, Shoutarou's best friend Tetsuo Shima is caught up i
           
         </td> <td class="data season" tc-column="Premiered"><span><a href="/anime/season/1988/summer" onclick="return false;">
               Summer 1988
-            </a></span></td> <td class="data airing-started" tc-column="Aired Dates">
-          07-16-88
-        </td> <td class="data airing-finished" tc-column="Aired Dates">
-          07-16-88
-        </td> <td class="data studio" tc-column="Studios"><span><a href="/anime/producer/65" onclick="return false;">Tokyo Movie Shinsha</a></span></td> <td class="data licensor" tc-column="Licensors"><span><a href="/anime/producer/102" onclick="return false;">Funimation</a></span><span>, <a href="/anime/producer/233" onclick="return false;">Bandai Entertainment</a></span><span>, <a href="/anime/producer/1459" onclick="return false;">Geneon Entertainment USA</a></span></td> <td class="data storage" tc-column="Storage">
+            </a></span></td> <td id="tags-47" class="data tags" tc-column="Tags"><div class="tags-47"><span><a href="?status=7&amp;tag=High%20Priority%20Watch" onclick="return false;">High Priority Watch</a></span></div> <!----> <a href="#" class="edit" onclick="return false;">Edit</a></td> <td class="data genre" tc-column="Genre"><span><a href="?status=7&amp;genre=1" onclick="return false;">Action</a></span><span>, <a href="?status=7&amp;genre=2" onclick="return false;">Adventure</a></span><span>, <a href="?status=7&amp;genre=14" onclick="return false;">Horror</a></span><span>, <a href="?status=7&amp;genre=24" onclick="return false;">Sci-Fi</a></span><span>, <a href="?status=7&amp;genre=37" onclick="return false;">Supernatural</a></span></td> <td class="data demographic" tc-column="Demographics"><span><a href="?status=7&amp;demographic=42" onclick="return false;">Seinen</a></span></td> <td class="data studio" tc-column="Studios"><span><a href="/anime/producer/65" onclick="return false;">Tokyo Movie Shinsha</a></span></td> <td class="data licensor" tc-column="Licensors"><span><a href="/anime/producer/102" onclick="return false;">Funimation</a></span><span>, <a href="/anime/producer/233" onclick="return false;">Bandai Entertainment</a></span><span>, <a href="/anime/producer/1459" onclick="return false;">Geneon Entertainment USA</a></span></td> <td class="data storage" tc-column="Storage">
           
+        </td> <td class="data airing-started" tc-column="Aired Dates">
+          16-07-88
+        </td> <td class="data airing-finished" tc-column="Aired Dates">
+          16-07-88
+        </td> <td class="data rated" tc-column="Rating">
+          R+
+        </td> <td class="data mal_score" tc-column="MAL Score">
+          8.16
+        </td> <td class="data score_diff" tc-column="Score Diff.">
+          -
+        </td> <td class="data popularity" tc-column="Popularity">
+          #208
         </td> <td class="data priority" tc-column="Priority">
-          High
-        </td> <td class="data genre" tc-column="Genre"><span><a href="?status=7&amp;genre=1" onclick="return false;">Action</a></span><span>, <a href="?status=7&amp;genre=2" onclick="return false;">Adventure</a></span><span>, <a href="?status=7&amp;genre=14" onclick="return false;">Horror</a></span><span>, <a href="?status=7&amp;genre=24" onclick="return false;">Sci-Fi</a></span><span>, <a href="?status=7&amp;genre=37" onclick="return false;">Supernatural</a></span></td> <td class="data demographic" tc-column="Demographics"><span><a href="?status=7&amp;demographic=42" onclick="return false;">Seinen</a></span></td></tr> <tr id="more-47" class="more-info" style="display: none;"><td colspan="21" class="more-content">
-                <table width="100%" cellspacing="0" cellpadding="0" border="0">
+          Low
+        </td></tr> <tr id="more-47" class="more-info" style="display: none;"><td colspan="23" class="more-content">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%">
                 <tbody><tr><td class="td1 borderRBL"><div style="margin-bottom: 3px;"><a href="/forum/?animeid=47" target="_blank" onclick="return false;">Discuss Anime</a></div>
                         <span title="Anime Database Rating">Rating: R+ - Mild Nudity</span> (<a href="javascript:void(0);" onclick="window.open('/info.php?go=mpaa','bbcode','menubar=no,scrollbars=yes,status=no,width=350,height=250');return false;" onclick="return false;">Why?</a>)<br>Storage:  None<br>Rewatch Value: &nbsp;<br>Retail Disks: <br>Start Date: 
                 <br>
                 End Date: <br>
                          Days Since Started Watching: <br>
                          Last Updated: 
-                         06-29-22
+                         10-08-23
                         <br>
                         Time Spent Watching: 
-                        0 hours, 0 minutes, and 0 seconds <small>(2 hours, 4 minutes, and 28 seconds per episode)</small><br>
-                        Notes: Japan, 1988. An explosion caused by a young boy with psychic powers tears through the city of Tokyo and ignites the fuse that leads to World War III. In order to prevent any further destruction, he is captured and taken into custody, never to be heard from again. Now, in the year 2019, a restored version of the city known as Neo-Tokyo—an area rife with gang violence and terrorism against the current government—stands in its place. Here, Shoutarou Kaneda leads "the Capsules," a group of misfits known for riding large, custom motorcycles and being in constant conflict with their rivals "the Clowns."<br>
-<br>
-During one of these battles, Shoutarou's best friend Tetsuo Shima is caught up in an accident with an esper who finds himself in the streets of Tokyo after escaping confinement from a government institution. Through this encounter, Tetsuo begins to develop his own mysterious abilities, as the government seeks to quarantine this latest psychic in a desperate attempt to prevent him from unleashing the destructive power that could once again bring the city to its knees.&nbsp;<br></td>
+                        0 hours, 0 minutes, and 0 seconds <small>(2 hours, 4 minutes, and 28 seconds per episode)</small></td>
                         </tr>
                         </tbody></table>
                 </td></tr></tbody></table>

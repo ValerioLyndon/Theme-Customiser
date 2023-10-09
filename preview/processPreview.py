@@ -1,8 +1,9 @@
 import os
 import re
 previewFiles = [
-	'modern\\animelist.html',
-	'classic\\animelist.html'
+	'temp.html'
+	#'modern\\animelist.html',
+	#'classic\\animelist.html'#,
 	#'modern\\mangalist.html',
 	#'classic\\mangalist.html'
 ]
@@ -60,6 +61,12 @@ for filePath in previewFiles:
 			[r'class="data genre"', r'class="data genre" tc-column="Genre"'],
 			[r'class="header-title demographic"', r'class="header-title demographic" tc-column="Demographics"'],
 			[r'class="data demographic"', r'class="data demographic" tc-column="Demographics"'],
+			[r'(class="header-title mal_score")', r'\1 tc-column="MAL Score"'],
+			[r'(class="data mal_score")', r'\1 tc-column="MAL Score"'],
+			[r'(class="header-title score_diff")', r'\1 tc-column="Score Diff."'],
+			[r'(class="data score_diff")', r'\1 tc-column="Score Diff."'],
+			[r'(class="header-title popularity")', r'\1 tc-column="Popularity"'],
+			[r'(class="data popularity")', r'\1 tc-column="Popularity"'],
 			#class lists only
 			[r'(style="border-left-width: 1px;" width="30" align="center")', r'\1 tc-column="Numbers"'],
 			[r'(width="45")((?:[\s\S](?!td))*?Score)', r'\1 tc-column="Score"\2'],
