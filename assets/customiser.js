@@ -929,7 +929,7 @@ function pageSetup( ){
 	else {
 		framePath += 'modern/';
 	}
-	if( theme.supports === ['mangalist'] ){
+	if( theme.supports?.length === 0 && theme.supports?.includes('mangalist') ){
 		//framePath += 'mangalist.html';
 		console.log('[info] Detected mangalist only, but this feature is not yet supported.');
 		framePath += 'animelist.html';
@@ -1048,8 +1048,8 @@ function pageSetup( ){
 	let configNotice = document.getElementById('js-intended-config');
 
 	var baseColumns = {
-			'animelist': ['Numbers', 'Score', 'Type', 'Episodes', 'Rating', 'Start/End Dates', 'Total Days Watched', 'Storage', 'Tags', 'Priority', 'Genre', 'Demographics', 'Image', 'Premiered', 'Aired Dates', 'Studios', 'Licensors', 'Notes'],
-			'mangalist': ['Numbers', 'Score', 'Type', 'Chapters', 'Volumes', 'Start/End Dates', 'Total Days Read', 'Retail Manga', 'Tags', 'Priority', 'Genres', 'Demographics', 'Image', 'Published Dates', 'Magazine', 'Notes']
+			'animelist': ['Numbers', 'Score', 'Type', 'Episodes', 'Rating', 'Start/End Dates', 'Total Days Watched', 'Storage', 'Tags', 'Priority', 'Genre', 'Demographics', 'Notes', 'Image', 'Premiered', 'Aired Dates', 'Studios', 'Licensors', 'MAL Score', 'Score Diff.', 'Popularity'],
+			'mangalist': ['Numbers', 'Score', 'Type', 'Chapters', 'Volumes', 'Start/End Dates', 'Total Days Read', 'Retail Manga', 'Tags', 'Priority', 'Genres', 'Demographics', 'Notes', 'Image', 'Published Dates', 'Magazine', 'MAL Score', 'Score Diff.', 'Popularity']
 		};
 
 	function processColumns( mode, todo, listType ){
@@ -1181,7 +1181,7 @@ function pageSetup( ){
 					col.title = 'This column is optional.';
 				}
 
-				if( ['Image', 'Premiered', 'Aired Dates', 'Studios', 'Licensors', 'Published Dates', 'Magazine'].includes(name) ){
+				if( ['Image', 'Premiered', 'Aired Dates', 'Studios', 'Licensors', 'Published Dates', 'Magazine', 'MAL Score', 'Score Diff.', 'Popularity'].includes(name) ){
 					modern.appendChild(col);
 				}
 				else {

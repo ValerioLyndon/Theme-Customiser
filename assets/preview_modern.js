@@ -164,6 +164,12 @@ let listMenuInner = `<a class="icon-menu profile" href="https://myanimelist.net/
           </svg>
           <span class="text">Manga List</span>
         </a>
+		<a class="icon-menu statistics" href="https://myanimelist.net/profile/Example/statistics" onclick="return false;">
+          <svg class="icon icon-statistics" xmlns="http://www.w3.org/2000/svg" width="22px" height="20px" viewBox="0 0 512 512">
+            <path d="M32 32c17.7 0 32 14.3 32 32V400c0 8.8 7.2 16 16 16H480c17.7 0 32 14.3 32 32s-14.3 32-32 32H80c-44.2 0-80-35.8-80-80V64C0 46.3 14.3 32 32 32zM160 224c17.7 0 32 14.3 32 32v64c0 17.7-14.3 32-32 32s-32-14.3-32-32V256c0-17.7 14.3-32 32-32zm128-64V320c0 17.7-14.3 32-32 32s-32-14.3-32-32V160c0-17.7 14.3-32 32-32s32 14.3 32 32zm64 32c17.7 0 32 14.3 32 32v96c0 17.7-14.3 32-32 32s-32-14.3-32-32V224c0-17.7 14.3-32 32-32zM480 96V320c0 17.7-14.3 32-32 32s-32-14.3-32-32V96c0-17.7 14.3-32 32-32s32 14.3 32 32z"></path>
+          </svg>
+          <span class="text">Statistics</span>
+        </a>
         <a class="icon-menu history" href="https://myanimelist.net/history/Example" onclick="return false;">
           <svg class="icon icon-history" width="21px" height="21px" viewBox="0 0 21 21" version="1.1">
             <g transform="translate(-1.000000, -154.000000)">
@@ -280,10 +286,13 @@ function setView( view ){
 			}
 			listMenu.querySelector('.setting').remove();
 			listMenu.querySelector('.export').remove();
-			headerInfo.innerHTML = `4
-				<a href="/sharedanime.php?u1=Example&u2=Example2" onclick="return false;">Shared Anime</a>,
-				0% Affinity
-				- <a href="/history/Example" onclick="return false;"><i class="fa-solid fa-clock-rotate-left"></i> History</a>`;
+			headerInfo.innerHTML = `
+                      4
+            <a href="/sharedanime.php?u1=Example&amp;u2=Example" onclick="return false;">Shared Anime</a>,
+            0% Affinity
+            - <a href="https://myanimelist.net/profile/Example/statistics" onclick="return false;"><i class="fa-solid fa-chart-column"></i> Statistics</a>
+            - <a href="/history/Example" onclick="return false;"><i class="fa-solid fa-clock-rotate-left"></i> History</a>
+                  `;
 		}
 		else if( view === 'visitor:guest' ){
 			listMenu.remove();
