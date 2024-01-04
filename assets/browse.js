@@ -31,7 +31,12 @@ class ExtendedFilters extends BaseFilters {
 			'date': {
 				'attr': 'date',
 				'default': 'descending',
-				'label': 'Release Date'
+				'label': 'Date Released'
+			},
+			'dateAdded': {
+				'attr': 'dateAdded',
+				'default': 'descending',
+				'label': 'Date Added'
 			},
 			'random': {
 				'attr': 'random',
@@ -255,6 +260,16 @@ function renderCards( cardData ){
 		cardParent.href = cardUrl;
 		cardParent.dataset.title = themeName;
 		cardParent.id = `card:${thisId}`;
+		if( 'date_added' in theme ){
+			if( !sorts.includes('dateAdded') ){
+				sorts.push('dateAdded');
+			}
+
+			cardParent.dataset.dateAdded = theme.date_added;
+		}
+		else {
+			cardParent.dataset.dateAdded = '0000-00-00';
+		}
 		if( 'date' in theme ){
 			if( !sorts.includes('date') ){
 				sorts.push('date');
@@ -505,10 +520,8 @@ function pageSetup( ){
 				let previousSort = query.get('sort');
 				
 				if( !previousSort ) {
-					let attemptedSort = filter.sort('date', undefined, false);
-					if( !attemptedSort ){
-						filter.sort('random', undefined, false);
-					}
+					// Choose sort depending on which keys exist
+					(filter.sort('dateAdded', undefined, false) || filter.sort('date', undefined, false) || filter.sort('random', undefined, false));
 				}
 
 				// Finish up
