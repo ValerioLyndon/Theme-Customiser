@@ -54,7 +54,45 @@ window.addEventListener(
 	false
 );
 
+const coverImages = {
+	"21": "https://cdn.myanimelist.net/images/anime/1244/138851.webp",
+	"47": "https://cdn.myanimelist.net/images/anime/1408/114012.webp",
+	"918": "https://cdn.myanimelist.net/images/anime/10/73274.webp",
+	"2372": "https://cdn.myanimelist.net/images/anime/6/40117.webp",
+	"3841": "https://cdn.myanimelist.net/images/anime/6/7632.webp",
+	"4654": "https://cdn.myanimelist.net/images/anime/2/75533.webp",
+	"5114": "https://cdn.myanimelist.net/images/anime/1208/94745.webp",
+	"32281": "https://cdn.myanimelist.net/images/anime/5/87048.webp"
+}
+const presets = {
+	'dataimagelink': '.data.image a[href^="/{type}/{id}/"]{background-image:url({image})}',
+	'dataimagelinkbefore': '.data.image a[href^="/{type}/{id}/"]:before{background-image:url({image})}',
+	'dataimagelinkafter': '.data.image a[href^="/{type}/{id}/"]:after{background-image:url({image})}',
+	'datatitlelink': '.data.title>a[href^="/{type}/{id}/"]{background-image:url({image})}',
+	'datatitlelinkbefore': '.data.title>a[href^="/{type}/{id}/"]:before{background-image:url({image})}',
+	'datatitlelinkafter': '.data.title>a[href^="/{type}/{id}/"]:after{background-image:url({image})}',
+	'animetitle': '.animetitle[href^="/{type}/{id}/"]{background-image:url({image})}',
+	'animetitlebefore': '.animetitle[href^="/{type}/{id}/"]:before{background-image:url({image})}',
+	'animetitleafter': '.animetitle[href^="/{type}/{id}/"]:after{background-image:url({image})}',
+	'more': '#more{id}{background-image:url({image})}'
+}
+
 function previewCss( css ){
+	// remove cover imports and add an optimised version to improve page loads!
+	let covers = css.matchAll(/@\\?import (?:url\("?|\")?https?:\/\/malscraper\.azurewebsites\.net\/covers\/[^\/]+\/[^\/]+\/presets\/(\w+)(?:"|"?\));/g);
+	for( let match of covers ){
+		let preset = match[1];
+		// do not replace if are unable to generate an optimised version
+		if( preset === undefined || !(preset in presets) ){
+			continue;
+		}
+		css = css.replace(match[0], '');
+		for( let [id, image] of Object.entries(coverImages) ){
+			css += '\n' + presets[preset].replace('{type}','anime').replace('{id}', id).replace('{image}', image);
+		}
+	}
+
+	// generic replacements
 	let replacements = [
 		// relative paths to absolute
 		['url(/', 'url(https://myanimelist.net/'],
