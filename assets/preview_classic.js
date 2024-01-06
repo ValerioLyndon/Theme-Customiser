@@ -194,7 +194,7 @@ function changeCategory( catId, catBtn ){
 }
 
 for( let button of categoryButtons ){
-	button.addEventListener('click', () => {
+	button.getElementsByTagName('a')[0].addEventListener('click', () => {
 		let a = button.getElementsByTagName('a')[0],
 			indexStart = a.href.indexOf('status=') + 7,
 			indexEnd = indexStart + 1,
