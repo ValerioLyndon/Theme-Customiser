@@ -1,9 +1,12 @@
+'use strict';
+
 // Preview-only HTML - replicating default functionality
 
-function toggle(defaultDisplay = 'block') {
-	if(this.style.display === 'none' || this.style.display === '') {
+function toggle( defaultDisplay = 'block' ){
+	if( this.style.display === 'none' || this.style.display === '' ){
 		this.style.display = defaultDisplay;
-	} else {
+	}
+	else {
 		this.style.display = 'none';
 	}
 }
@@ -28,10 +31,10 @@ var categoryCodes = {
 	6: 'planned'
 }
 
-function changeCategory(catId, catBtn) {
-	if(!catBtn) {
-		for(let button of categoryButtons) {
-			if(button.href.includes(`status=${catId}`)) {
+function changeCategory( catId, catBtn ){
+	if( !catBtn ){
+		for( let button of categoryButtons ){
+			if( button.href.includes(`status=${catId}`) ){
 				catBtn = button;
 			}
 		}
@@ -47,15 +50,16 @@ function changeCategory(catId, catBtn) {
 	// Hide relevant list items
 	let listItems = document.getElementsByClassName('list-item');
 
-	for(let item of listItems) {
-		if(catId == 7 || item.getAttribute('tc-category') === categoryCodes[catId]) {
+	for( let item of listItems ){
+		if( catId == 7 || item.getAttribute('tc-category') === categoryCodes[catId] ){
 			item.style = '';
-		} else {
+		}
+		else {
 			item.style = 'display: none !important';
 		}
 	}
 }
-for(let button of categoryButtons) {
+for( let button of categoryButtons ){
 	button.addEventListener('click', () => {
 		let catId = button.href.substring(button.href.length - 1);
 		changeCategory(catId, button);
@@ -64,19 +68,20 @@ for(let button of categoryButtons) {
 
 // Fixed header
 
-var statusMenu = document.getElementById('status-menu'),
-	affixAtPos = statusMenu.getBoundingClientRect().y + window.scrollY;
+var statusMenu = document.getElementById('status-menu');
+var affixAtPos = statusMenu.getBoundingClientRect().y + window.scrollY;
 
 
 
 window.addEventListener('scroll', () => {
-	if(!statusMenu.className.includes('fixed')) {
+	if( !statusMenu.className.includes('fixed') ){
 		affixAtPos = statusMenu.getBoundingClientRect().y + window.scrollY;
 	}
 
-	if(window.scrollY >= affixAtPos) {
+	if( window.scrollY >= affixAtPos ){
 		statusMenu.classList.add('fixed');
-	} else {
+	}
+	else {
 		statusMenu.classList.remove('fixed');
 	}
 })
@@ -85,7 +90,7 @@ window.addEventListener('scroll', () => {
 
 var items = document.getElementsByClassName('list-item');
 
-for(var item of items) {
+for( var item of items ){
 	// More button
 	let more = item.getElementsByClassName('more-info')[0];
 	item.querySelector('.more a').addEventListener('click', toggle.bind(more, 'table-row'));
@@ -105,21 +110,22 @@ document.getElementById('fancybox-overlay').addEventListener('click', () => {
 	toggleMenu(filterMenu);
 });
 
-function toggleMenu(dom) {
+function toggleMenu( dom ){
 	let display = dom.style.display;
-	if(!display || display === 'none') {
+	if( !display || display === 'none' ){
 		dom.style.display = 'block';
 		toggleOverlay(true);
-	} else {
+	}
+	else {
 		dom.style.display = 'none';
 		toggleOverlay(false);
 	}
 }
 
 let overlay = document.getElementById('fancybox-overlay');
-function toggleOverlay(set = undefined) {
+function toggleOverlay( set = undefined ){
 	let display = overlay.style.display;
-	if(set === true || !display || display === 'none') {
+	if( set === true || !display || display === 'none' ){
 		overlay.style.display = 'block';
 		overlay.style.opacity = '0.3';
 		overlay.style.backgroundColor = 'rgb(102, 102, 102)';
@@ -157,6 +163,12 @@ let listMenuInner = `<a class="icon-menu profile" href="https://myanimelist.net/
             </g>
           </svg>
           <span class="text">Manga List</span>
+        </a>
+		<a class="icon-menu statistics" href="https://myanimelist.net/profile/Example/statistics" onclick="return false;">
+          <svg class="icon icon-statistics" xmlns="http://www.w3.org/2000/svg" width="22px" height="20px" viewBox="0 0 512 512">
+            <path d="M32 32c17.7 0 32 14.3 32 32V400c0 8.8 7.2 16 16 16H480c17.7 0 32 14.3 32 32s-14.3 32-32 32H80c-44.2 0-80-35.8-80-80V64C0 46.3 14.3 32 32 32zM160 224c17.7 0 32 14.3 32 32v64c0 17.7-14.3 32-32 32s-32-14.3-32-32V256c0-17.7 14.3-32 32-32zm128-64V320c0 17.7-14.3 32-32 32s-32-14.3-32-32V160c0-17.7 14.3-32 32-32s32 14.3 32 32zm64 32c17.7 0 32 14.3 32 32v96c0 17.7-14.3 32-32 32s-32-14.3-32-32V224c0-17.7 14.3-32 32-32zM480 96V320c0 17.7-14.3 32-32 32s-32-14.3-32-32V96c0-17.7 14.3-32 32-32s32 14.3 32 32z"></path>
+          </svg>
+          <span class="text">Statistics</span>
         </a>
         <a class="icon-menu history" href="https://myanimelist.net/history/Example" onclick="return false;">
           <svg class="icon icon-history" width="21px" height="21px" viewBox="0 0 21 21" version="1.1">
@@ -196,17 +208,17 @@ let listMenuInner = `<a class="icon-menu profile" href="https://myanimelist.net/
           </span>
         </div>`;
 
-function setView(view) {
+function setView( view ){
 	// setup HTML variables
 
-	let header = document.querySelector('.header'),
-		headerMenu = header.querySelector('.header-menu'),
-		listMenu = document.querySelector('.list-menu-float'),
-		itemBtns = document.querySelectorAll('.add-edit-more span:first-child');
+	let header = document.querySelector('.header');
+	let headerMenu = header.querySelector('.header-menu');
+	let listMenu = document.querySelector('.list-menu-float');
+	let itemBtns = document.querySelectorAll('.add-edit-more span:first-child');
 
 	// Apply changes as required
 
-	if(view === 'owner') {
+	if( view === 'owner' ){
 		document.body.setAttribute('data-owner', 1);
 		
 		headerMenu.innerHTML = `<div class="btn-menu">
@@ -214,23 +226,24 @@ function setView(view) {
         </div>`;
 		headerMenu.classList.remove('other');
 
-		if(!listMenu) {
+		if( !listMenu ){
 			let div = document.createElement('div');
 			div.className = 'list-menu-float';
 			div.innerHTML = listMenuInner;
 			listMenu = div;
 			document.body.insertBefore(listMenu, document.getElementById('list-container'));
-		} else {
+		}
+		else {
 			listMenu.innerHTML = listMenuInner;
 		}
 		
-		for(btn of itemBtns) {
+		for( btn of itemBtns ){
 			btn.className = 'edit';
 			btn.firstChild.textContent = 'Edit';
 		}
 	}
 
-	else if(view.startsWith('visitor')) {
+	else if( view.startsWith('visitor') ){
 		document.body.setAttribute('data-owner', '');
 
 		headerMenu.innerHTML = `<div class="btn-menu">Viewing <a class="username" href="/profile/Example" onclick="return false;">Example</a>'s
@@ -258,13 +271,13 @@ function setView(view) {
 		
 		let headerInfo = headerMenu.querySelector('.header-info');
 
-		for(btn of itemBtns) {
+		for( let btn of itemBtns ){
 			btn.className = 'add';
 			btn.firstChild.textContent = 'Add';
 		}
 
-		if(view === 'visitor:user') {
-			if(!listMenu) {
+		if( view === 'visitor:user' ){
+			if( !listMenu ){
 				let div = document.createElement('div');
 				div.className = 'list-menu-float';
 				div.innerHTML = listMenuInner;
@@ -273,12 +286,15 @@ function setView(view) {
 			}
 			listMenu.querySelector('.setting').remove();
 			listMenu.querySelector('.export').remove();
-			headerInfo.innerHTML = `4
-				<a href="/sharedanime.php?u1=Example&u2=Example2" onclick="return false;">Shared Anime</a>,
-				0% Affinity
-				- <a href="/history/Example" onclick="return false;"><i class="fa-solid fa-clock-rotate-left"></i> History</a>`;
+			headerInfo.innerHTML = `
+                      4
+            <a href="/sharedanime.php?u1=Example&amp;u2=Example" onclick="return false;">Shared Anime</a>,
+            0% Affinity
+            - <a href="https://myanimelist.net/profile/Example/statistics" onclick="return false;"><i class="fa-solid fa-chart-column"></i> Statistics</a>
+            - <a href="/history/Example" onclick="return false;"><i class="fa-solid fa-clock-rotate-left"></i> History</a>
+                  `;
 		}
-		else if(view === 'visitor:guest') {
+		else if( view === 'visitor:guest' ){
 			listMenu.remove();
 			headerInfo.innerHTML = `<a href="/login.php" onclick="return false;">Log in</a> -
 				<a href="/register.php" onclick="return false;">Create an Anime List</a>`;
@@ -290,33 +306,35 @@ function setView(view) {
 }
 
 let cover = document.getElementById('cover-image-container');
-function toggleCover(set = undefined) {
-	if(set === true) {
+function toggleCover( set = undefined ){
+	if( set === true ){
 		cover.classList.remove('hide');
-	} else if(set === false) {
+	}
+	else if( set === false ){
 		cover.classList.add('hide');
-	} else {
+	}
+	else {
 		cover.classList.toggle('hide');
 	}
 }
 
 let stats = document.getElementsByClassName('list-stats')[0];
-function toggleStats() {
+function toggleStats(  ){
 	stats.style.overflow = 'hidden';
 	stats.style.marginTop = '0';
 	stats.style.marginBottom = '0';
 	stats.style.paddingTop = '0';
 	stats.style.paddingBottom = '0';
 	
-	let visible = { height: '30px' },
-		invisible = { height: '0px' },
-		timing = {
-			duration: 100,
-			easing: 'cubic-bezier(.02, .01, .47, 1)'
-		},
-		display = stats.style.display;
+	let visible = { height: '30px' };
+	let invisible = { height: '0px' };
+	let display = stats.style.display;
+	let timing = {
+		duration: 100,
+		easing: 'cubic-bezier(.02, .01, .47, 1)'
+	};
 
-	if(!display || display === 'none') {
+	if( !display || display === 'none' ){
 		stats.style.display = 'block';
 
 		stats.animate([
@@ -345,8 +363,8 @@ document.getElementById('show-stats-button').addEventListener('click', () => {
 
 // Search Box
 
-let searchBox = document.getElementById('search-box'),
-	searchInput = searchBox.getElementsByTagName('input')[0];
+let searchBox = document.getElementById('search-box');
+let searchInput = searchBox.getElementsByTagName('input')[0];
 
 // Activate
 document.getElementById('search-button').addEventListener('click', () => {

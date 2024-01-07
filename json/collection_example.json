@@ -1,11 +1,18 @@
 {
-	"json_version": 0.2,
+	"json_version": 0.3,
 	"themes": [
 		{
 			"name": "Example",
 			"author": "Your Name Here",
 			"type": "modern",
-			"url": "json/theme_example.json"
+			"url": "json/theme_example.json",
+			"image": "https://example.com/direct_link_to_image.jpg",
+			"date": "2023-02-16",
+			"tags": {
+				"custom category": ["tag1"],
+				"other": ["tag2"]
+			},
+			"flags": ["beta"]
 		}
 	]
 }

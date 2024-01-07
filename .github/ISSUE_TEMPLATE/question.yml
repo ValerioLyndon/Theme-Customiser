@@ -1,0 +1,21 @@
+name: Question/discussion
+description: For more casual questions or otherwise.
+labels: [question]
+body:
+- type: checkboxes
+  attributes:
+    label: Has this question been asked already?
+    description: 
+    options:
+    - label: I have searched the existing issues and this is a new question.
+      required: true
+- type: textarea
+  attributes:
+    label: What did you want to know/discuss?
+    description: 
+    placeholder: |
+      Will you support ___?
+      How do I ___?
+      Can I ___?
+  validations:
+    required: true

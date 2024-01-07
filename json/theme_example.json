@@ -1,5 +1,5 @@
 {
-	"json_version": 0.2,
+	"json_version": 0.3,
 	"data": {
 		"name": "Example",
 		"author": "Your Name Here",
@@ -7,6 +7,9 @@
 		"type": "modern",
 		"help": "https://example.com",
 		"supports": ["animelist"],
+		"background": false,
+		"style": [1,2,3,4,5,6,7,8,9,10],
+		"flags": ["beta"],
 		"columns": {
 			"mode": "whitelist",
 			"animelist": {
@@ -15,6 +18,18 @@
 				"Genre": null,
 				"Tags": null,
 				"Image": true
+			}
+		},
+		"preview": {
+			"category": 7,
+			"cover": false,
+			"columns": {
+				"animelist": {
+					"Score": true,
+					"Episodes": true,
+					"Tags": true,
+					"Image": true
+				}
 			}
 		},
 		"options": {
@@ -31,11 +46,17 @@
 				"type": "textarea/content",
 				"replacements": [[".textarea::before { content: \"\"; }", ".selector::before { content: {{{insert}}}; }"]]
 			},
+			"text_qualifiers": {
+				"name": "Example text qualifier",
+				"description": "There are various other qualifiers for various purposes. See the wiki for all of them.",
+				"type": "text/image_url",
+				"replacements": [[".text { content: \"previoustext\" }", ".text { content: \"replacement\" }"]]
+			},
 			"toggle": {
 				"name": "Example toggle.",
 				"description": "Options can be toggles too! These require three replacement options: find, replace when disabled, and replace when enabled.",
 				"type": "toggle",
-				"replacements": [["--avatar:none;", "--avatar:{{{insert}}};"]],
+				"replacements": [["--avatar:url(https://example.com/image.jpg);", "--avatar:none;", "--avatar:url(https://example.com/mynewimage.jpg);"]],
 				"default": false
 			},
 			"value": {
@@ -51,10 +72,26 @@
 				"type": "text/size",
 				"replacements": [["find", "{{{insert}}}"]]
 			},
+			"range": {
+				"name": "Example range value.",
+				"description": "Range values are a powerful tool for any number you want to keep within set values. Positions, transparency, blur, and more. You can suffix the values inside replacements, ex. % or px.",
+				"type": "range",
+				"min": 0,
+				"max": 90,
+				"step": 0.5,
+				"default": 80,
+				"replacements": [["top: 80%", "top: {{{insert}}}%"]]
+			},
 			"color": {
 				"name": "Example color value.",
 				"description": "You should label colour values with the \"color\" type, as it has a preview of the colour on the right and runs a validation check to see if it's valid.",
 				"type": "color",
+				"replacements": [["find", "{{{insert}}}"]]
+			},
+			"advanced_color": {
+				"name": "Example advanced color value.",
+				"description": "For advanced colour use, you may utilise extra qualifiers for return values.",
+				"type": "color/insert/hsl&strip_alpha",
 				"replacements": [["find", "{{{insert}}}"]]
 			}
 		},
@@ -89,6 +126,19 @@
 					"bottom": ".selector { property: value; }"
 				},
 				"conflicts": ["mod"]
+			},
+			"mod3": {
+				"name": "Example global mod",
+				"css": {"bottom": ".selector { property: value; }"},
+				"options": {
+					"i-affect-everything": {
+						"name": "Global change.",
+						"description": "Mod options with the \"global\" flag will have their replacements applied to all CSS including the base theme and other mods, not just the mod itself!",
+						"type": "text",
+						"replacements": ["this text may be from the base theme, or any other mod", "{{{insert}}}"],
+						"flags": ["global"]
+					}
+				}
 			},
 			"informational": {
 				"name": "Example informational/external mod",

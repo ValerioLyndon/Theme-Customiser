@@ -25,7 +25,7 @@ permalink: /theme
 							<i class="top-nav__icon fa fa-arrow-left"></i>
 							<span class="top-nav__text">Browse</span>
 						</a>
-						<a class="top-nav__link" onclick="toggleEle('#js-pp-import')">
+						<a id="js-tutorial-import" class="top-nav__link" onclick="toggleEle('#js-pp-import')">
 							<i class="top-nav__icon fa-solid fa-file-import"></i>
 							<span class="top-nav__text">Import Settings</span>
 						</a>
@@ -63,12 +63,12 @@ permalink: /theme
 							<div class="options__item" id="js-preview-options__cover">
 								<b class="options__title">Cover Image</b>
 								<input id="js-preview__cover" type="checkbox" class="o-hidden" checked="checked">
-								<label class="toggle" for="js-preview__cover" onclick="postToIframe(['cover', !document.getElementById('js-preview__cover').checked])" data-info="This option is not editable due to the recommended theme settings."></label>
+								<label class="toggle" for="js-preview__cover" onclick="postToPreview(['cover', !document.getElementById('js-preview__cover').checked])" data-info="This option is not editable due to the recommended theme settings."></label>
 							</div>
 
 							<div class="options__item">
 								<b class="options__title">Select View</b>
-								<select id="js-preview__view" class="select" onchange="postToIframe(['view', this.value])">
+								<select id="js-preview__view" class="select" onchange="postToPreview(['view', this.value])">
 									<option value="owner">List Owner</option>
 									<option value="visitor:user">List Visitor (Logged-in)</option>
 									<option value="visitor:guest">List Visitor (Logged-out)</option>
@@ -81,9 +81,9 @@ permalink: /theme
 
 			<div class="sidebar" id="js-sidebar">
 				<form class="sidebar__inner" id="js-theme" method="dialog" novalidate="novalidate" target="_self">
-					<div class="sidebar__decorative"></div>
+					<div class="rounds rounds--right"></div>
 
-					<div class="sidebar__section">
+					<div class="sidebar__section sidebar__section--top">
 						<h1 class="sub-title">Customise your theme</h1>
 						<h2 class="title o-clear"><span id="js-title">Loading theme...</span> <span class="theme-tag o-hidden" id="js-theme-tag"></span></h2>
 						<h3 class="sub-sub-title">By <span id="js-author">unknown author</span></h3>
@@ -158,7 +158,7 @@ permalink: /theme
 
 					<div class="sidebar__section">
 						<button type="button" class="button" onclick="toggleEle('#js-pp-export')">Export settings</button>
-						<button type="button" class="button" onclick="resetSettings()">Reset settings</button>
+						<button type="button" class="button" onclick="resetSettings()" id="js-tutorial-reset">Reset settings</button>
 						<button type="button" class="button" onclick="clearCache()">Clear cache</button>
 					</div>
 
@@ -181,6 +181,8 @@ permalink: /theme
 			</div>
 
 			<div class="preview">
+				<div class="rounds rounds--left"></div>
+				
 				<a class="slider" id="js-toggle-drawer" onclick="splitSlide()">
 					<i class="slider__icon fa-solid fa-chevron-left"></i>
 					
@@ -294,11 +296,11 @@ permalink: /theme
 				<div class="popup__content">
 					<h4 class="popup__header">Import previous settings.</h4>
 					
-					<p class="popup-paragraph">
+					<p class="popup__paragraph">
 						Place a customiser settings object or your full theme CSS into this textbox and then click "Import Settings".
 					</p>
 
-					<textarea id="js-pp-import-code" class="input input--textarea"></textarea>
+					<textarea id="js-pp-import-code" class="input input--textarea" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="{&quot;data&quot;:&quot;https://example.com/theme.json&quot;}"></textarea>
 					<button type="button" class="button button--highlighted" onclick="importPreviousSettings()">Import Settings</button>
 				</div>
 			</div>
@@ -310,11 +312,11 @@ permalink: /theme
 				<div class="popup__content">
 					<h4 class="popup__header">Export current settings.</h4>
 					
-					<p class="popup-paragraph">
+					<p class="popup__paragraph">
 						You can store this text for later use or share it with others. Be sure to keep the text in its entirety. Losing even one letter would require repairing before import.
 					</p>
 
-					<textarea id="js-export-code" class="input input--code" readonly="readonly"></textarea>
+					<textarea id="js-export-code" class="input input--textarea-tall input--code" readonly="readonly"></textarea>
 					<button type="button" class="button button--highlighted js-swappable-text" onclick="navigator.clipboard.writeText(document.getElementById('js-export-code').textContent);">
 						<div class="swappable-text">
 							<div class="swappable-text__text">

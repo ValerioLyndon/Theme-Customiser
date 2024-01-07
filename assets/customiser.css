@@ -95,88 +95,12 @@ input:checked + .toggle:hover::after {
 }
 
 input:checked + .toggle.is-forced {
-	--hover-offset: 0;
 	background: #2ea251af;
 }
 input:checked + .toggle.is-forced::after {
+	--hover-offset: 0;
 	background: #2ea251;
-}
-
-.info-popup {
-	position: fixed;
-	z-index: 15;
-	width: 270px;
-	padding: 8px;
-	background: var(--background);
-	border: 2px solid var(--border-light);
-	border-radius: 4px;
-	box-shadow: 2px 3px 6px rgba(0,0,0,0.3);
-	color: var(--text);
-	opacity: 0;
-	transition: opacity 0.1s ease;
-	pointer-events: none;
-}
-.info-popup.is-visible {
-	opacity: 1;
-}
-
-/* decorative arrow */
-.info-popup::before,
-.info-popup::after {
-	content: "";
-	position: absolute;
-	border-style: solid;
-	border-color: transparent;
-}
-.info-popup::before {
-	border-width: 10px;
-}
-.info-popup::after {
-	border-width: 6px;
-}
-
-.info-popup.left::before {
-	right: 100%;
-	top: 12px;
-	border-right-color: var(--border-light);
-}
-.info-popup.left::after {
-	right: 100%;
-	top: 16px;
-	border-right-color: var(--background);
-}
-
-.info-popup.right::before {
-	left: 100%;
-	top: 12px;
-	border-left-color: var(--border-light);
-}
-.info-popup.right::after {
-	left: 100%;
-	top: 16px;
-	border-left-color: var(--background);
-}
-
-.info-popup.top::before {
-	left: calc(50% - 10px);
-	bottom: 100%;
-	border-bottom-color: var(--border-light);
-}
-.info-popup.top::after {
-	left: calc(50% - 6px);
-	bottom: 100%;
-	border-bottom-color: var(--background);
-}
-
-.info-popup.bottom::before {
-	left: calc(50% - 10px);
-	top: 100%;
-	border-top-color: var(--border-light);
-}
-.info-popup.bottom::after {
-	left: calc(50% - 6px);
-	top: 100%;
-	border-top-color: var(--background);
+	transform: translateX(16px);
 }
 
 
@@ -392,11 +316,16 @@ input:checked + .toggle.is-forced::after {
 	overflow-y: auto;
 	border-right: 2px solid var(--invert-background);
 	flex: 0 0 auto;
-	grid-area: left;
+	grid-area: sidebar;
 	transition:
 		margin-left 0.5s ease,
 		scrollbar-color .18s ease-out;
 	scrollbar-color: var(--invert-background) var(--invert-background);
+}
+.sidebar--right {
+	direction: rtl;
+	border-right: none;
+	border-left: 2px solid var(--invert-background);
 }
 .sidebar:hover {
 	scrollbar-color: var(--accent-text) var(--invert-background);
@@ -406,27 +335,27 @@ input:checked + .toggle.is-forced::after {
 }
 
 .sidebar__inner {
-	border-right: inherit;
+	direction: ltr;
+	border: inherit;
 	flex-grow: 1;
 }
 
 /* Rounded accent */
 
-.sidebar__decorative {
+.rounds {
 	position: sticky;
 	top: 0;
 	z-index: 1;
-	height: 20px;
-	margin-bottom: -5px;
+	height: 0;
 	background: linear-gradient(to bottom, var(--background), transparent);
 	pointer-events: none;
 }
 
 @supports (mask-image: url()) or (-webkit-mask-image: url()) {
-	.preview::after,
-	.sidebar__decorative::after {
-		content: "";
+	.rounds::before,
+	.rounds::after {
 		position: absolute;
+		top: 0;
 		width: 20px;
 		height: 20px;
 		background: var(--invert-background);
@@ -437,13 +366,14 @@ input:checked + .toggle.is-forced::after {
 		-webkit-mask-size: 40px 40px;
 		mask-size: 40px 40px;
 	}
-	.preview::after {
-		left: var(--sidebar-width);
-		top: 0;
+	.rounds--left::before {
+		content: "";
+		left: 0;
 		-webkit-mask-position: 0 0;
 		mask-position: 0 0;
 	}
-	.sidebar__decorative::after {
+	.rounds--right::after {
+		content: "";
 		right: 0;
 		-webkit-mask-position: -20px 0;
 		mask-position: -20px 0;
@@ -460,6 +390,9 @@ input:checked + .toggle.is-forced::after {
 }
 .sidebar__section--no-border {
 	border: 0;
+}
+.sidebar__section--top {
+	padding-top: 16px;
 }
 
 .theme-tag {
@@ -527,8 +460,8 @@ input:checked + .toggle.is-forced::after {
 
 .entry__textarea {
 	min-height: 1.3em;
-	height: 1.3em;
-	max-height: 10em;
+	height: 3.9em;
+	max-height: 70vh;
 }
 
 /* entry inputs */
@@ -540,16 +473,25 @@ input:checked + .toggle.is-forced::after {
 
 .entry__colour {
 	position: relative;
-	left: -6px;
-	width: 1.3em;
-	height: 1.3em;
-	background: url(../images/alpha.png) center repeat var(--border-light);;
-	border-radius: 50%;
-	overflow: hidden;
-	margin-left: -1.3em;
+	width: 54px;
+	height: 24px;
+	background: var(--border-light);
+	border-radius: 12px;
 	margin-bottom: 8px;
-	flex: 0 0 auto;
-	order: 2;
+	cursor: pointer;
+	overflow: hidden;
+}
+
+.entry__colour:not(.entry__colour--strip-alpha)::before {
+	content: "";
+	position: absolute;
+	right: 0;
+	top: 0;
+	z-index: -1;
+	width: 55%;
+	height: 24px;
+	border-radius: 12px;
+	background: url(../picker/alpha.png) repeat;
 }
 .entry__colour::after {
 	position: absolute;
@@ -561,11 +503,17 @@ input:checked + .toggle.is-forced::after {
 	background-color: inherit;
 }
 
+.entry__info {
+	color: var(--text-light);
+	font-size: 9px;
+	margin: 0 0 8px 8px;
+}
+
 .entry__reset {
 	background: none;
 	border-color: transparent;
 	flex: 0 0 auto;
-	margin: 0 0 8px;
+	margin: 0 0 8px auto;
 	order: 3;
 	opacity: 0.1;
 	transition: opacity 0.2s ease;
@@ -793,7 +741,10 @@ input:checked + .toggle.is-forced::after {
 	height: 100%;
 	flex: 1 1 auto;
 	overflow: hidden;
-	grid-area: right;
+	grid-area: main;
+}
+.preview--left {
+	grid-area: sidebar;
 }
 
 .preview__window-wrapper {
@@ -808,6 +759,18 @@ input:checked + .toggle.is-forced::after {
 	width: 100%;
 	min-height: 100%;
 	border: none;
+}
+.preview__window--dynamic {
+	min-width: auto;
+}
+.preview__window--dimmed {
+	filter: brightness(0.5);
+	transition: filter 0.3s ease;
+}
+.preview__window--dimmed:hover {
+	filter: none;
+	transition-duration: 0.5s;
+	transition-delay: 0.1s;
 }
 
 
@@ -890,6 +853,35 @@ input:checked + .toggle.is-forced::after {
 }
 
 
+/* Colour picker */
+
+.dynamic-popup--picker {
+	z-index: 14;
+	width: 810px;
+	height: 510px;
+}
+.dynamic-popup--picker.is-visible {
+	pointer-events: auto;
+}
+
+.dynamic-popup__frame {
+	width: 100%;
+	height: 100%;
+	border: none;
+}
+
+.dynamic-popup__close {
+	position: absolute;
+	top: -16px;
+	right: -16px;
+	width: 30px;
+	height: 30px;
+	cursor: pointer;
+	border: 2px solid var(--border-light);
+	background: var(--background);
+	border-radius: 4px;
+	box-shadow: 1px 1.5px 3px rgba(0,0,0,.3);
+}
 
 /* Dummy Theme Unit to replicate MyAnimeList appearance */
 
