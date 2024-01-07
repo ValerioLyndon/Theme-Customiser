@@ -232,6 +232,18 @@ class ExtendedFilters extends BaseFilters {
 	}
 }
 
+// Display functions
+
+function setDisplay(type = 'grid'){
+	let browser = document.getElementById('js-theme-list');
+	browser.classList.forEach(cls=>{
+		if( cls.startsWith('is-') ){
+			browser.classList.remove(cls);
+		}
+	});
+	browser.classList.add(`is-${type}`);
+}
+
 // ==================
 // ONE-TIME FUNCTIONS
 // ==================
@@ -290,17 +302,14 @@ function renderCards( cardData ){
 
 		let card = document.createElement('div');
 		card.className = 'card';
-
-		let info = document.createElement('div');
-		info.className = 'card__info';
 		
-		let title = document.createElement('h3');
+		let title = document.createElement('h6');
 		title.className = 'card__title';
 		title.textContent = themeName;
 		
-		let author = document.createElement('span');
+		let author = document.createElement('div');
 		author.className = 'card__author';
-		author.textContent = `by ${themeAuthor}`;
+		author.textContent = themeAuthor;
 
 		let display = document.createElement('div');
 		display.className = 'card__display';
@@ -308,11 +317,10 @@ function renderCards( cardData ){
 		let tagArea = document.createElement('div');
 		tagArea.className = 'card__tag-list';
 
-		info.appendChild(title);
-		info.appendChild(author);
 		card.appendChild(display);
 		card.appendChild(tagArea);
-		card.appendChild(info);
+		card.appendChild(title);
+		card.appendChild(author);
 		cardParent.appendChild(card);
 
 		function addTag( name, colour ){
@@ -323,6 +331,7 @@ function renderCards( cardData ){
 				tag.style.cssText = `--tag-accent: ${colour};`;
 			}
 			tagArea.appendChild(tag);
+			return tag;
 		}
 
 		let typeName = capitalise(theme.type);
@@ -331,6 +340,10 @@ function renderCards( cardData ){
 		}
 		else {
 			addTag(typeName, '#72d3ea');
+		}
+
+		if( 'supports' in theme && theme.supports.length === 1 ){
+			addTag(`${capitalise(theme.supports[0])} Only`, '#d26666');
 		}
 
 		let releaseState = 'released';
@@ -344,10 +357,15 @@ function renderCards( cardData ){
 				releaseState = 'alpha';
 			}
 		}
-
-		if( 'supports' in theme && theme.supports.length === 1 ){
-			addTag(`${capitalise(theme.supports[0])} Only`, '#d26666');
-		}
+		
+		//if( 'tags' in theme ){
+		//	for( let category of Object.values(theme['tags']) ){
+		//		for( let tag of category ){
+		//			let ele = addTag(tag);
+		//			ele.classList.add('is-extended-tag');
+		//		}
+		//	}
+		//}
 		
 		if( 'image' in theme ){
 			let image = document.createElement('img');
