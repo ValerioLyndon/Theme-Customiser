@@ -231,7 +231,7 @@ function userConfirm( msg, options = {'Yes': {'value': true, 'type': 'suggested'
 			let btn = document.createElement('button');
 			btn.className = 'button';
 			if( details.type === 'suggested' ){
-				btn.classList.add('button--highlighted');
+				btn.classList.add('butted--highlighted');
 			}
 			else if( details.type === 'danger' ){
 				btn.classList.add('button--danger');
@@ -494,22 +494,28 @@ function importPreviousSettings( opts = undefined ){
 	return true;
 }
 
-function toggleEle( selector, btn = false, set = undefined ){
+function toggleEle( selector, visible = undefined, btn = false ){
 	let ele = document.querySelector(selector);
-	let cls = 'is-hidden';
-	let btnSelCls = 'is-active';
+	let hiddenCls = 'is-hidden';
+	let btnSelCls = 'button-highlighted';
 
-	if( set === true ){
-		ele.classList.add(cls);
-		if( btn ){ btn.classList.add(btnSelCls); }
-	}
-	else if( set === false ){
-		ele.classList.remove(cls);
+	if( visible === true ){
+		console.log(visible, 'visible');
+		ele.classList.remove(hiddenCls);
 		if( btn ){ btn.classList.remove(btnSelCls); }
+		return true;
+	}
+	else if( visible === false ){
+		console.log(visible, 'INvisible');
+		ele.classList.add(hiddenCls);
+		if( btn ){ btn.classList.add(btnSelCls); }
+		return false;
 	}
 	else {
-		ele.classList.toggle(cls);
+		console.log(visible, 'toggled');
+		ele.classList.toggle(hiddenCls);
 		if( btn ){ btn.classList.toggle(btnSelCls); }
+		return !(ele.classList.contains(hiddenCls));
 	}
 }
 
@@ -587,7 +593,7 @@ function pushFilter( thisId, tag, category = 'other' ){
 class BaseFilters {
 	constructor( items, selector = 'ID', saveToUrl = false ){
 		// Variables for all
-		this.toggle = document.getElementById('js-tags__button');
+		this.toggle = document.getElementById('js-tags__button') || document.createElement('button');
 		this.toggleCls = 'has-selected';
 		this.clearBtn = document.getElementById('js-tags__clear');
 		this.items = [...items];
@@ -627,19 +633,19 @@ class BaseFilters {
 			group.className = 'tag-cloud__group';
 
 			if( category === 'other' ){
-				group.style.order = 100;
+				group.style.order = 15;
 			}
 			else if( category === 'list type' ){
 				group.style.order = 1;
-				group.classList.add('tag-cloud__group--column');
-			}
-			else if( category === 'release state' ){
-				group.style.order = 3;
-				group.classList.add('tag-cloud__group--column');
 			}
 			else if( category === 'layout' ){
 				group.style.order = 2;
-				group.classList.add('tag-cloud__group--column');
+			}
+			else if( category === 'author' ){
+				group.style.order = 3;
+			}
+			else if( category === 'release state' ){
+				group.style.order = 4;
 			}
 			else {
 				group.style.order = 50;
