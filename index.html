@@ -23,80 +23,71 @@
 		<link rel="icon" type="image/png" href="./assets/favicon_256.png" sizes="256x256">
 	</head>
 	<body>
-		<main class="content content__browse" id="js-content">
-			<nav class="nav nav--header">
-				<div class="nav__split nav__split--left">
-					<a id="js-home" class="nav__link" href="./">
-						<i class="nav__link-icon fa-solid fa-home"></i>
-						<span class="nav__link-text nav__link-text--left">Homepage</span>
-					</a>
-					<a class="nav__link" href="https://github.com/ValerioLyndon/Theme-Customiser">
-						<i class="nav__link-icon fa-brands fa-github"></i>
-						<span class="nav__link-text nav__link-text--left">GitHub</span>
-					</a>
-				</div>
-				<div class="nav__split nav__split--right">
-					<a id="js-import" class="nav__link" onclick="toggleEle('#js-pp-import')">
-						<i class="nav__link-icon fa-solid fa-file-import"></i>
-						<span class="nav__link-text nav__link-text--right">Import Settings</span>
-					</a>
-				</div>
-				<div class="nav__split nav__split--center">
-					<h1 class="title">Browse Themes</h1>
-				</div>
-			</nav>
+		<main class="content browse" id="js-content">
+			<div class="main-content pad-m">
+				<nav class="l-row l-wrap pad-m">
+					<h1 class="sitename">
+						<a href="./" class="sitename__link js-home">
+							<img class="sitename__logo" src="./assets/favicon_32.png" style="vertical-align: top;">
+							Theme Customiser
+						</a>
+						 / Browse
+					</h1>
 
-			<div class="filter">
-				<div class="filter__row filter__row--center">
-					<div class="dropdown o-hidden" id="js-sorts-parent">
-						<button class="button button--unusable">
-							<i class="fa-solid fa-sort"></i> Sort
-						</button>
-						<div id="js-sorts" class="dropdown__box"></div>
+					<div class="l-align-end top-nav">
+						<a id="js-import" class="top-nav__link" onclick="toggleEle('#js-pp-import')">
+							<i class="top-nav__icon fa-solid fa-file-import"></i>
+							<span class="top-nav__text">Import Settings</span>
+						</a>
+						<a id="js-tags__button" class="top-nav__link" href="#" onclick="let toggle = toggleEle('.js-filters'); localStorage.setItem('filters-open', toggle);">
+							<i class="top-nav__icon fa-solid fa-tags"></i>
+							<span class="top-nav__text">Filters</span>
+						</a>
 					</div>
+				</nav>
 
-					<input class="input input--search o-hidden" type="search" placeholder="Search titles..." id="js-search" />
+				<div class="browser" id="js-theme-list"></div>
 
-					<button class="button o-hidden" id="js-tags__button" onclick="toggleEle('#js-tags__cloud', this)">
-						<i class="fa-solid fa-tags"></i> Filters
-					</button>
-
-					<button class="button o-hidden" id="js-tags__clear" onclick="document.getElementById('js-search').value = '';">
-						<i class="fa-solid fa-xmark"></i> Clear All
-					</button>
-				</div>
-
-				<div class="filter__row">
-					<div class="tag-cloud tag-cloud--center is-hidden" id="js-tags__cloud">
-						<small class="tag-cloud__blurb">Select a subject that interests you to narrow results.</small>
+				<footer class="footer pad-m">
+					<div class="footer__row">
+						<a href="https://github.com/ValerioLyndon/Theme-Customiser/issues" class="hyperlink">Feedback/Help</a>
+						<span class="footer__separator">•</span>
+						<a href="https://github.com/ValerioLyndon/Theme-Customiser" class="hyperlink">Source Code</a>
+						<span class="footer__separator">•</span>
+						<a href="https://github.com/ValerioLyndon/Theme-Customiser/wiki" class="hyperlink">Use this with your design</a>
+						<span class="footer__separator">•</span>
+						<a href="./dev" class="hyperlink">Developer Mode</a>
 					</div>
-				</div>
+					<div class="footer__row">
+						<small class="footer__tiny-text">This website utilises Google Analytics. <a class="hyperlink" onclick="toggleEle('#js-pp-analytics'); gtag('event', 'viewed_analytics_disclaimer');">More info.</a></small>
+					</div>
+				</footer>
 			</div>
 
-			<div class="browser" id="js-theme-list">
-				
-			</div>
-			<!--<div class="" id="js-data-list">
-				
-			</div>-->
+			<div class="filters js-filters pad-m is-hidden">
+				<button class="button o-hidden" id="js-tags__clear" onclick="document.getElementById('js-search').value = '';">
+					<i class="fa-solid fa-xmark"></i> Clear All Filters
+				</button>
 
-			<footer class="footer">
-				<div class="footer__row">
-					<span class="footer__text">Theme Customiser</span>
-				</div> 
-				<div class="footer__row">
-					<a href="https://github.com/ValerioLyndon/Theme-Customiser/issues" class="hyperlink" onclick="gtag('event', 'visit_issues', {'where': 'footer'})">Feedback/Help</a>
-					<span class="footer__separator">•</span>
-					<a href="https://github.com/ValerioLyndon/Theme-Customiser" class="hyperlink" onclick="gtag('event', 'visit_code', {'where': 'footer'})">Source Code</a>
-					<span class="footer__separator">•</span>
-					<a href="https://github.com/ValerioLyndon/Theme-Customiser/wiki" class="hyperlink" onclick="gtag('event', 'visit_wiki', {'where': 'footer'})">Use this with your design</a>
-					<span class="footer__separator">•</span>
-					<a href="./dev" class="hyperlink">Developer Mode</a>
+				<h3 class="section-header">Search</h3>
+
+				<input class="input input--search o-hidden" type="search" placeholder="Search titles..." id="js-search" />
+
+				<hr class="divider"></hr>
+
+				<div class="o-hidden" id="js-sorts-parent">
+					<h3 class="section-header">Sort</h3>
+					<div class="list" id="js-sorts"></div>
+
+					<hr class="divider"></hr>
 				</div>
-				<div class="footer__row">
-					<small class="footer__tiny-text">This website utilises Google Analytics. <a class="hyperlink" onclick="toggleEle('#js-pp-analytics'); gtag('event', 'viewed_analytics_disclaimer');">More info.</a></small>
+
+				<h3 class="section-header">Filter</h3>
+
+				<div class="tag-cloud" id="js-tags__cloud">
+					<small class="tag-cloud__blurb">Select a subject that interests you to narrow results.</small>
 				</div>
-			</footer>
+			</div>
 		</main>
 
 		<div class="loading-screen" id="js-loader">

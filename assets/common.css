@@ -5,6 +5,7 @@ Classes also have various prefixes to define their purpose.
 
 List of prefixes: 
     | no prefix. Generic block. 
+l   | layout. Defines basic block structure and spacing.
 is  | is-something. Implies a togglable state
 has | has-something. Implies a togglable state
 ^   | ^ is & has do nothing on their own and are applied over other classes.
@@ -108,6 +109,31 @@ body {
 }
 
 
+
+/* Divider */
+
+.divider {
+	border: none;
+	border-bottom: 2px dotted var(--border-heavy);
+	margin: 16px 0;
+}
+
+
+/* Text */
+
+.section-header {
+	margin: 0 0 8px;
+	font-size: 1.3em;
+	font-weight: 700;
+}
+
+.header-text {
+	display: block;
+	margin-bottom: 4px;
+	font-weight: 700;
+}
+
+
 /* Hyperlink Buttons */
 
 .hyper-button {
@@ -168,6 +194,7 @@ body {
 }
 .input--search {
 	width: 200px;
+	max-width: calc(100% - 16px - 6px);
 	padding: 3px 6px;
 	margin: 0 6px 6px 0;
 }
@@ -182,26 +209,75 @@ body {
 /* CONTENT */
 
 .content {
-	min-height: 100vh;
+	height: 100vh;
 	opacity: 0;
 	transition: opacity 200ms ease;
 }
 .content.is-loaded {
 	opacity: 1;
 }
-.content__customiser {
-	display: grid;
-	height: 100vh;
-	grid-template-rows: auto 1fr;
-	grid-template-columns: 0fr auto;
-	grid-template-areas: "top top" "sidebar main";
+
+
+/* Top Nav */
+
+.top-nav {
+	display: flex;
 }
-.content__browse {
-	padding-bottom: 32px;
+
+.top-nav__link {
+	display: flex;
+	gap: 9px;
+	height: 30px;
+	padding: 0 9px;
+	background: var(--invert-background);
+	border-radius: 20px;
+	margin-right: 7.5px;
+	align-items: center;
+	color: var(--accent-text);
+	text-decoration: none;
+	white-space: nowrap;
+	cursor: pointer;
+	transition: all 0.1s ease-out;
+}
+.top-nav__link:hover {
+	background: color-mix(in hsl, var(--invert-background), var(--accent-box));
+}
+.top-nav__link:active {
+	transform: scale(0.93);
+}
+.top-nav__link.has-selected {
+	background: var(--accent);
+}
+
+.top-nav__icon {
+	color: var(--accent-text);
+	font-size: 24px;
 }
 
 
 /* Header */
+
+.sitename {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 2em;
+	margin: 0;
+}
+
+.sitename__link {
+	display: flex;
+	align-items: center;
+	color: var(--text);
+	text-decoration: none;
+}
+.sitename__link[href]:hover {
+	color: var(--accent);
+}
+
+.sitename__logo {
+	margin-right: 8px;
+}
 
 .title {
 	margin: 0;
@@ -269,20 +345,7 @@ body {
 
 .tag-cloud__group {
 	display: flex;
-	width: fit-content;
 	flex-flow: row wrap;
-	max-width: 400px;
-	padding: 5px;
-	flex: 0 1 auto;
-}
-.tag-cloud__group:only-of-type {
-	max-width: initial;
-	padding: 0;
-	flex: 1 1 auto;
-}
-.tag-cloud__group--column {
-	flex-flow: column wrap;
-	align-items: flex-start;
 }
 
 .tag-cloud__blurb {
@@ -301,20 +364,22 @@ body {
 	margin-top: 8px;
 	margin-bottom: 4px;
 	text-align: left;
-	text-indent: 5px;
+	text-indent: 8px;
 }
 
 .tag-cloud__tag {
-	height: 24px;
+	max-width: 100%;
+	min-height: 24px;
 	padding: 2px 8px;
 	background: none;
 	border: 2px solid var(--border-light);
-	border-radius: 50px;
+	border-radius: 12px;
 	margin-right: 4px;
 	margin-bottom: 4px;
 	flex: 0 0 auto;
 	font: inherit;
 	line-height: 16px;
+	text-align: left;
 	white-space: pre-wrap;
 	cursor: pointer;
 	transition-property: background-color, color, border-color;

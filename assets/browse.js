@@ -71,7 +71,6 @@ class ExtendedFilters extends BaseFilters {
 			let link = document.createElement('a');
 			let icon = document.createElement('i');
 
-			div.className = 'dropdown__item';
 			link.className = 'hyper-button';
 			link.id = `sort:${key}`;
 			link.textContent = `${info.label} `;
@@ -389,6 +388,12 @@ var cards = [];
 
 // This function initialises all the other parts of the code that are needed.
 function pageSetup( ){
+	// Set state of filter sidebar to match previous load
+	let filterToggle = localStorage.getItem('filters-open');
+	if( filterToggle !== null ){
+		toggleEle('.js-filters', (filterToggle === "true"));
+	}
+
 	// Accepts array of URLs to fetch then returns a promise once they have all loaded.
 	function fetchAllFiles( arrayOfUrls ){
 		const files = [];
@@ -539,7 +544,7 @@ if( !query.get('dynamic') ) {
 	loader.text('Fetching data files...');
 
 	if( collectionUrls.length === 0 && megaUrls.length === 0 ){
-		document.getElementById('js-home').classList.add('o-hidden');
+		document.querySelector('.js-home').removeAttribute('href');
 		megaUrls.push('json/default.json');
 	}
 
@@ -576,20 +581,20 @@ window.addEventListener(
 // Tutorial
 
 function startBrowseTutorial( ){
-	var tutorial = new InfoPopup;
+	var popup = new InfoPopup;
 	startTutorial([
-		() => { tutorial.text('Welcome to the Theme Customiser browse page!<br/><br/>Click anywhere to continue.<br/>To escape, click "Dismiss".'); tutorial.show([document.scrollingElement.scrollWidth/2, 150], 'none'); },
+		() => { popup.text('Welcome to the Theme Customiser browse page!<br/><br/>Click anywhere to continue.<br/>To escape, click "Dismiss".'); popup.show([document.scrollingElement.scrollWidth/2, 150], 'none'); },
 		() => {
 			if( document.querySelector('#js-search:not(.o-hidden)') ){
-				tutorial.text('Looking for something in particular? Use the filters and search to narrow results.');
-				tutorial.show(document.getElementById('js-search'), 'top');
+				popup.text('Looking for something in particular? Use the filters to narrow results.');
+				popup.show(document.querySelector('#js-tags__button'), 'top');
 			}
 			else {
 				return false;
 			}
 		},
-		() => { tutorial.text('Trying to import a pre-made configuration? Click on this button to bring up the Import popup.'); tutorial.show(document.getElementById('js-import'), 'right'); },
-		() => { tutorial.text('Once you\'ve found an interesting design, just click on it! The guide will continue on the theme page.'); tutorial.show([document.scrollingElement.scrollWidth/2, 220], 'left'); },
-		() => { tutorial.destruct(); }
+		() => { popup.text('Trying to import a pre-made configuration? Click on this button to bring up the Import popup.'); popup.show(document.getElementById('js-import'), 'top'); },
+		() => { popup.text('Once you\'ve found an interesting design, just click on it! The guide will continue on the theme page.'); popup.show([document.scrollingElement.scrollWidth/2, 150], 'none'); },
+		() => { popup.destruct(); }
 	]);
 }

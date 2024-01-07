@@ -40,6 +40,15 @@
 	cursor: help;
 }
 
+/* Content */
+
+.customiser {
+	display: grid;
+	grid-template-rows: auto 1fr;
+	grid-template-columns: 0fr auto;
+	grid-template-areas: "top top" "sidebar main";
+}
+
 /* Select */
 
 .select {
@@ -190,41 +199,6 @@ input:checked + .toggle.is-forced::after {
 	flex-shrink: 0;
 }
 
-
-/* Top Nav */
-
-.top-nav {
-	display: flex;
-}
-
-.top-nav__link {
-	display: flex;
-	height: 30px;
-	padding: 0 9px;
-	border-radius: 20px;
-	margin-right: 7.5px;
-	align-items: center;
-	color: var(--accent-text);
-	text-decoration: none;
-	white-space: nowrap;
-	cursor: pointer;
-	transition: all 0.1s ease-out;
-}
-.top-nav__link:hover {
-	background: var(--accent-box);
-}
-.top-nav__link:active {
-	transform: scale(0.93);
-}
-
-.top-nav__icon {
-	color: var(--accent-text);
-	font-size: 24px;
-}
-
-.top-nav__text {
-	margin-left: 9px;
-}
 
 /* Options */
 
