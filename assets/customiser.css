@@ -204,6 +204,8 @@ input:checked + .toggle.is-forced::after {
 
 .options {
 	position: relative;
+	display: grid;
+	place-content: center;
 }
 
 .options__container {

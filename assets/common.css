@@ -225,28 +225,32 @@ body {
 }
 
 .top-nav__link {
+	margin-right: 7.5px;
+	border-radius: 20px;
+	cursor: pointer;
+	text-decoration: none;
+}
+.top-nav__link-inner {
+	--bg: var(--invert-background);
 	display: flex;
 	gap: 9px;
 	height: 30px;
 	padding: 0 9px;
-	background: var(--invert-background);
+	background: var(--bg);
 	border-radius: 20px;
-	margin-right: 7.5px;
 	align-items: center;
 	color: var(--accent-text);
-	text-decoration: none;
 	white-space: nowrap;
-	cursor: pointer;
 	transition: all 0.1s ease-out;
 }
-.top-nav__link:hover {
-	background: color-mix(in hsl, var(--invert-background), var(--accent-box));
+.top-nav__link:hover .top-nav__link-inner {
+	background: color-mix(in hsl, var(--bg), var(--accent-box));
 }
-.top-nav__link:active {
+.top-nav__link:active .top-nav__link-inner {
 	transform: scale(0.93);
 }
-.top-nav__link.has-selected {
-	background: var(--accent);
+.top-nav__link.has-selected .top-nav__link-inner {
+	--bg: var(--accent);
 }
 
 .top-nav__icon {

@@ -27,12 +27,16 @@
 
 					<div class="l-align-end top-nav">
 						<a id="js-import" class="top-nav__link" onclick="toggleEle('#js-pp-import')">
-							<i class="top-nav__icon fa-solid fa-file-import"></i>
-							<span class="top-nav__text">Import Settings</span>
+							<div class="top-nav__link-inner">
+								<i class="top-nav__icon fa-solid fa-file-import"></i>
+								<span class="top-nav__text">Import Settings</span>
+							</div>
 						</a>
 						<a id="js-tags__button" class="top-nav__link" href="#" onclick="let toggle = toggleEle('.js-filters'); localStorage.setItem('filters-open', toggle);">
-							<i class="top-nav__icon fa-solid fa-tags"></i>
-							<span class="top-nav__text">Filters</span>
+							<div class="top-nav__link-inner">
+								<i class="top-nav__icon fa-solid fa-tags"></i>
+								<span class="top-nav__text">Filters</span>
+							</div>
 						</a>
 					</div>
 				</nav>
