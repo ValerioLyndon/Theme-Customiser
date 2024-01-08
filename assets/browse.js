@@ -128,8 +128,10 @@ class ExtendedFilters extends BaseFilters {
 		if( this.saveToUrl && input.length > 0 ){
 			query.set('search', input);
 		}
-		else {
+		if( input.length === 0 ) {
 			query.remove('search');
+			this.resetSearch();
+			return;
 		}
 
 		// parse query
@@ -139,13 +141,11 @@ class ExtendedFilters extends BaseFilters {
 
 		let failMatches = search.matchAll(exclusionRegex);
 		let exclusions = Array.from(failMatches).map( match => match[1] );
-		search = search.replaceAll(exclusionRegex, '').trim();
 
 		let phraseMatches = search.matchAll(phraseRegex);
 		let phrases = Array.from(phraseMatches).map( match => match[1] );
-		search = search.replaceAll(phraseRegex, '').trim();
 
-		let words = search.split(' ');
+		let words = search.replaceAll(exclusionRegex, '').replaceAll(phraseRegex, '').replaceAll(/["']/g, '').split(' ');
 
 		this.searchTimeout = setTimeout(()=>{
 			for( let item of this.items ){
@@ -153,7 +153,8 @@ class ExtendedFilters extends BaseFilters {
 				for( let attr of this.searchAttributes ){
 					any += item.dataset[attr].toLowerCase();
 				}
-				if( this.passesSearch(any, phrases, words, exclusions) ){
+				let score = this.searchScore(any, search, phrases, words, exclusions);
+				if( score > 0 ){
 					item.classList.remove(this.itemSearchCls);
 				}
 				else {
@@ -163,31 +164,59 @@ class ExtendedFilters extends BaseFilters {
 		}, 350);
 	}
 
-	passesSearch( input, phrases, words, exclusions ){
-		console.log(phrases, words, exclusions);
+	searchScore( input, search, phrases, words, exclusions ){
+		let score = 0;
+		console.log(search)
 
 		// cannot match any exclusions
 		for( let str of exclusions ){
 			if( input.includes(str) ){
-				return false;
+				score -= 15;
 			}
 		}
 
 		// must match all phrases
 		for( let phrase of phrases ){
-			console.log(phrase, input)
-			console.log((phrase === input))
 			if(! input.includes(phrase) ){
-				return false;
+				score -= phrase.length;
+			}
+			else {
+				score += phrase.length < 3 ? phrase.length * 2 : phrase.length * 1.5;
 			}
 		}
 
 		// can match any word
 		for( let word of words ){
 			if( input.includes(word) ){
-				return true;
+				score += 5;
 			}
 		}
+		
+		// score based on similarity
+		let letterCount = {};
+		for( let letter of search ){
+			if( letter in letterCount ){
+				letterCount[letter]++;
+			}
+			else {
+				letterCount[letter] = 1;
+			}
+		}
+		let similarity = 0;
+		for( let letter of input ){
+			if( letter in letterCount && letterCount[letter] > 0 ){
+				similarity++;
+				letterCount[letter]--;
+			}
+		}
+		// take away the leftovers
+		Object.values(letterCount).map((letters)=>{
+			similarity -= letters;
+		});
+		similarity = similarity / input.length;
+
+		// multiply 
+		return score * similarity;
 	}
 
 	sort( key, forceOrder, updateUrl = true ) {
