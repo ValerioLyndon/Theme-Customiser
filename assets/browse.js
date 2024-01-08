@@ -189,7 +189,6 @@ class ExtendedFilters extends BaseFilters {
 		// if entire query matches, bump up score
 		if( input.includes(search) ){
 			score += 1 * (10 + (search.length / 2));
-			console.log(input, 'added', score)
 		}
 
 		// can match any word
@@ -197,8 +196,11 @@ class ExtendedFilters extends BaseFilters {
 			if( word.length < 1 ){
 				continue;
 			}
-			else if( word.length > 0 && words.includes(word) ){
+			else if( words.includes(word) ){
 				score += 7;
+			}
+			else {
+				score -= .05 * input.length * search.length;
 			}
 		}
 		for( let word of words ){
