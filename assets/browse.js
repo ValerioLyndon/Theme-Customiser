@@ -13,6 +13,7 @@ class ExtendedFilters extends BaseFilters {
 		this.searchBar = document.getElementById('js-search');
 		this.searchAttributes = ['title'];
 		this.itemSearchCls = 'is-hidden-by-search';
+		this.searchTimeout = setTimeout(null, 0);
 
 		// Sort Variables
 		this.sortContainer = document.getElementById('js-sorts');
@@ -122,6 +123,8 @@ class ExtendedFilters extends BaseFilters {
 
 	// Search
 	search( input ){
+		clearTimeout(this.searchTimeout);
+
 		if( this.saveToUrl && input.length > 0 ){
 			query.set('search', input);
 		}
@@ -129,21 +132,60 @@ class ExtendedFilters extends BaseFilters {
 			query.remove('search');
 		}
 
-		for( let item of this.items ){
-			let match = false;
-			for( let attr of this.searchAttributes ){
-				let attrValue = item.dataset[attr];
+		// parse query
+		const exclusionRegex = /(?:^|\s)+-(\w+)/g;
+		const phraseRegex = /"([^"]+)"/g;
+		let search = input.toLowerCase();
 
-				if( attrValue && attrValue.toLowerCase().includes( input.toLowerCase() ) ){
-					match = true;
-					break;
+		let failMatches = search.matchAll(exclusionRegex);
+		let exclusions = Array.from(failMatches).map( match => match[1] );
+		search = search.replaceAll(exclusionRegex, '').trim();
+
+		let phraseMatches = search.matchAll(phraseRegex);
+		let phrases = Array.from(phraseMatches).map( match => match[1] );
+		search = search.replaceAll(phraseRegex, '').trim();
+
+		let words = search.split(' ');
+
+		this.searchTimeout = setTimeout(()=>{
+			for( let item of this.items ){
+				let any = '';
+				for( let attr of this.searchAttributes ){
+					any += item.dataset[attr].toLowerCase();
+				}
+				if( this.passesSearch(any, phrases, words, exclusions) ){
+					item.classList.remove(this.itemSearchCls);
+				}
+				else {
+					item.classList.add(this.itemSearchCls);
 				}
 			}
-			if( match ){
-				item.classList.remove(this.itemSearchCls);
+		}, 350);
+	}
+
+	passesSearch( input, phrases, words, exclusions ){
+		console.log(phrases, words, exclusions);
+
+		// cannot match any exclusions
+		for( let str of exclusions ){
+			if( input.includes(str) ){
+				return false;
 			}
-			else {
-				item.classList.add(this.itemSearchCls);
+		}
+
+		// must match all phrases
+		for( let phrase of phrases ){
+			console.log(phrase, input)
+			console.log((phrase === input))
+			if(! input.includes(phrase) ){
+				return false;
+			}
+		}
+
+		// can match any word
+		for( let word of words ){
+			if( input.includes(word) ){
+				return true;
 			}
 		}
 	}
