@@ -957,7 +957,6 @@ function pageSetup( ){
 	document.getElementsByTagName('title')[0].textContent = `Theme Customiser - ${theme.name}`;
 	document.getElementById('js-title').textContent = theme.name ? theme.name : 'Untitled';
 	document.getElementById('js-author').textContent = theme.author ? theme.author : 'Unknown Author';
-	document.getElementById('js-theme-credit').textContent = theme.author ? `Customising "${theme.name}" by ${theme.author}` : `Customising "${theme.name}"`;
 
 	// Theme flags
 	if( theme.flags ){

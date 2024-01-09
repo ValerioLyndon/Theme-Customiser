@@ -305,26 +305,23 @@ body {
 .footer__row {
 	display: block;
 	padding: 4px 0;
-	text-align: center;
 }
-
-.footer__subtle-text {
-	font-size: 1.1em;
+.footer__row--horizontal {
+	display: flex;
+	flex-direction: row;
+	flex-flow: row wrap;
+	justify-content: center;
+	gap: 16px;
+}
+.footer__row--vertical {
+	display: flex;
+	flex-flow: column wrap;
+	align-items: start;
+	gap: 4px;
 }
 
 .footer__subtle-text {
 	font-size: 0.9em;
-}
-
-.footer__separator {
-	display: inline-block;
-	width: 6px;
-	height: 6px;
-	background: #4a4a4a;
-	border-radius: 50%;
-	margin: 0 3px;
-	color: transparent;
-	vertical-align: middle;
 }
 
 
