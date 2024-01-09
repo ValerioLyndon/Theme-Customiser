@@ -797,9 +797,12 @@ window.addEventListener(
 				}
 			}
 			else if( type === 'json' ){
-				theme = content.data;
-				userSettings.theme = theme.name;
-				pageSetup();
+				processJson(content, '', 'theme')
+				.then((processedJson) => {
+					theme = processedJson.data;
+					userSettings.theme = theme.name;
+					pageSetup();
+				})
 			}
 			else {
 				console.log('[ERROR] Malformed request sent to customiser.js. No action taken.')
@@ -1109,12 +1112,31 @@ function pageSetup( ){
 			6: '"Plan to Watch" or "Plan to Read"'
 		}
 
+		let categories = 'a specific starting category, but an error occured! Please try out the options until one looks good';
+		if( theme.category.length > 3){
+			let inverted = Object.keys(categoryDict)
+							.filter(id=>theme.category.find(id2=>parseInt(id) === parseInt(id2)) === undefined)
+							.map(id=>categoryDict[id]);
+			categories = `any starting category that <b>isn't</b> ${inverted.join(' or ')}`;
+		}
+		else if( theme.category.length === 1 ){
+			categories = 'the starting category ' + categoryDict[theme.category[0]];
+		}
+		else {
+			categories = 'one of these starting categories: ';
+			theme.category.forEach((id, index)=>{
+				let joiner = index+1 === theme.category.length ? ', or ' : ', ';
+				let text = index === 0 ? categoryDict[id] : joiner + categoryDict[id];
+				categories += text;
+			});
+		}
+
 		// recommended config
 		let categoryConfigHtml = document.createElement('div');
 		categoryConfigHtml.className = 'popup__section';
 		categoryConfigHtml.innerHTML = `
 			<h5 class="popup__sub-header">Starting category.</h5>
-			<p class="popup__paragraph">This theme recommends a specific starting category of ${categoryDict[theme.category]}. You can set this in your <a class="hyperlink" href="https://myanimelist.net/editprofile.php?go=listpreferences" target="_blank">list preferences</a> by finding the "Default Status Selected" dropdown menus.</p>
+			<p class="popup__paragraph">This theme recommends ${categories}. You can set this in your <a class="hyperlink" href="https://myanimelist.net/editprofile.php?go=listpreferences" target="_blank">list preferences</a> by finding the "Default Status Selected" dropdown menus.</p>
 		`;
 		configList.appendChild(categoryConfigHtml);
 	}
@@ -1374,7 +1396,7 @@ function pageSetup( ){
 		theme.preview.columns = theme.columns;
 	}
 	if( !('category' in theme.preview) && 'category' in theme ){
-		theme.preview.category = theme.category;
+		theme.preview.category = theme.category[0];
 	}
 	if( !('style' in theme.preview) && 'style' in theme ){
 		theme.preview.style = theme.style;
