@@ -1,5 +1,11 @@
 'use strict';
 
+// Utility Functions
+
+function inObj( object, string ) {
+	return Object.keys(object).includes(string);
+}
+
 class LoadingScreen {
 	constructor( ){
 		this.pageContent = document.getElementById('js-content');
@@ -887,7 +893,7 @@ const megaUrls = query.getAll('m');
 const collectionUrls = query.getAll('c');
 const themeUrls = query.getAll('t');
 // Define current application version to process all theme & collection JSON.
-const jsonVersion = 0.3;
+const jsonVersion = 0.4;
 
 loader.log('Page initialised.', false);
 
@@ -920,9 +926,15 @@ function processJson( json, url, toReturn ){
 
 		else if( ver < jsonVersion ){
 			console.log('The loaded JSON has been processed as legacy JSON. This can cause slowdowns or errors. If you are the JSON author, please see the GitHub page for assistance updating.');
-			if( ver === 0.1 ){
-				json = updateToBeta2(json, url, toReturn);
-				ver = 0.2;
+			if( ver <= 0.1 ){
+				json = updateToBeta3(json, url, toReturn);
+				ver = 0.3;
+				// skips from 0.2 to 0.3 because current code can handle both the same.
+				// the version change from .2 to .3 was because it would break older version of the Customiser
+			}
+			if( ver <= 0.3 ){
+				json = updateToBeta4(json);
+				ver = 0.4;
 			}
 		}
 
@@ -1005,7 +1017,7 @@ if( dataUrls.length > 0 ){
 	throw new Error();
 }
 
-function updateToBeta2( json, url, toReturn ){
+function updateToBeta3( json, url, toReturn ){
 	if( toReturn === 'collection' ){
 		let newJson = {
 			'themes': []
@@ -1022,7 +1034,7 @@ function updateToBeta2( json, url, toReturn ){
 		}
 		if( Object.keys(json).length > 0 ){
 			return {
-				'json_version': 0.2,
+				'json_version': 0.3,
 				'data': Object.values(json)[0]
 			};
 		}
@@ -1030,6 +1042,14 @@ function updateToBeta2( json, url, toReturn ){
 			return false;
 		}
 	}
+}
+
+function updateToBeta4( json ){
+	json.json_version = 0.4;
+	if( inObj(json,'data') && inObj(json.data,'category') ){
+		json.data.category = [json.data.category];
+	}
+	return json;
 }
 
 

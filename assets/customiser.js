@@ -797,9 +797,12 @@ window.addEventListener(
 				}
 			}
 			else if( type === 'json' ){
-				theme = content.data;
-				userSettings.theme = theme.name;
-				pageSetup();
+				processJson(content, '', 'theme')
+				.then((processedJson) => {
+					theme = processedJson.data;
+					userSettings.theme = theme.name;
+					pageSetup();
+				})
 			}
 			else {
 				console.log('[ERROR] Malformed request sent to customiser.js. No action taken.')
@@ -1110,10 +1113,6 @@ function pageSetup( ){
 			6: '"Plan to Watch" or "Plan to Read"'
 		}
 
-		if( !(theme.category instanceof Array) ){
-			theme.category = [theme.category];
-		}
-
 		let categories = 'a specific starting category, but an error occured! Please try out the options until one looks good';
 		if( theme.category.length > 3){
 			let inverted = Object.keys(categoryDict)
@@ -1398,7 +1397,7 @@ function pageSetup( ){
 		theme.preview.columns = theme.columns;
 	}
 	if( !('category' in theme.preview) && 'category' in theme ){
-		theme.preview.category = theme.category instanceof Array ? theme.category[0] : theme.category;
+		theme.preview.category = theme.category[0];
 	}
 	if( !('style' in theme.preview) && 'style' in theme ){
 		theme.preview.style = theme.style;
