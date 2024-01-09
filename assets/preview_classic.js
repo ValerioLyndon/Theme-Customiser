@@ -227,6 +227,7 @@ let menuHtml = {
 				<td id="mal_cs_links">
 					<div>
 						<a onclick="return false;" href="/addtolist.php?hidenav=1" class="List_LightBox">Add to List</a>
+						<a onclick="return false;" href="https://myanimelist.net/profile/Example/statistics">Statistics</a>
 						<a onclick="return false;" href="/">Home</a>
 					</div>
 					<div>
@@ -280,6 +281,7 @@ let menuHtml = {
 				<td id="mal_cs_links">
 					<div>
 						<a onclick="return false;" href="/addtolist.php?hidenav=1" class="List_LightBox">Add to List</a>
+						<a onclick="return false;" href="https://myanimelist.net/profile/Example/statistics">Statistics</a>
 						<a onclick="return false;" href="/">Home</a>
 					</div>
 					<div>
@@ -300,7 +302,8 @@ let menuHtml = {
 														<span title="Affinity">0% Affinity</span>
 							-
 															<a onclick="return false;" href="/mangalist/Example">Manga List</a>
-														<a onclick="return false;" href="/history/Example">History</a>
+                            <a onclick="return false;" href="https://myanimelist.net/profile/Example/statistics">Statistics</a>
+              <a onclick="return false;" href="/history/Example">History</a>
 						</div>
 									</td>
 						<td id="mal_cs_powered" valign="top" align="right">
