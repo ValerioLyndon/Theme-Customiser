@@ -304,29 +304,25 @@ body {
 
 .footer__row {
 	display: block;
-	max-width: 600px;
-	padding: 4px;
-	margin: 0 auto;
-	text-align: center;
+	padding: 4px 0;
+}
+.footer__row--horizontal {
+	display: flex;
+	flex-direction: row;
+	flex-flow: row wrap;
+	justify-content: center;
+	gap: 16px;
+}
+.footer__row--vertical {
+	display: flex;
+	flex-flow: column wrap;
+	align-items: start;
+	gap: 4px;
 }
 
-.footer__subtle-text {
-	font-size: 0.9em;
-}
 .footer__tiny-text {
 	font-size: 0.8em;
 	color: var(--text-light);
-}
-
-.footer__separator {
-	display: inline-block;
-	width: 6px;
-	height: 6px;
-	background: #4a4a4a;
-	border-radius: 50%;
-	margin: 0 3px;
-	color: transparent;
-	vertical-align: middle;
 }
 
 
