@@ -13,8 +13,8 @@ class LoadingScreen {
 		this.icon = document.getElementById('js-loader-icon');
 		this.titleText = document.getElementById('js-loader-text');
 		this.subText = document.getElementById('js-loader-subtext');
-		this.subText2 = document.getElementById('js-loader-subsubtext');
 		this.console = document.getElementById('js-loader-console');
+		this.consoleBtn = document.getElementById('js-loader-log-btn');
 		this.messages = document.getElementById('js-loader-console-messages');
 		this.home = document.getElementById('js-loader-home');
 		this.stop = false;
@@ -89,14 +89,14 @@ class LoadingScreen {
 	}
 
 	failed( reason_array ){
+		this.log(reason_array[0]);
+		this.log(`Bailing out with code "${reason_array[1]}".`);
 		// only runs once
 		if( !this.stop ){
 			this.icon.className = 'loading-screen__cross';
-			this.titleText.textContent = 'Page Failure.';
+			this.titleText.textContent = 'Something broke!';
 			this.subText.textContent = reason_array[0];
-			this.subText2.classList.remove('o-hidden');
-			this.subText2.textContent = `Code: ${reason_array[1]}`;
-			this.console.classList.remove('o-hidden');
+			this.consoleBtn.classList.remove('o-hidden');
 			this.home.classList.remove('o-hidden');
 			this.stop = true;
 			return new Error(reason_array[1]);
@@ -393,13 +393,13 @@ function fetchFile( path, cacheResult = true ){
 						resolve(request.responseText);
 					}
 					else {
-						console.log(`[ERROR] Failed while fetching "${path}". Code: request.status.${request.status}`);
+						loader.log(`[ERROR] Failed while fetching "${path}".`, true);
 						reject([`Encountered a problem while loading a resource.`, `request.status.${request.status}`]);
 					}
 				}
 			}
 			request.onerror = (e) => {
-				console.log(`[ERROR] Failed while fetching "${path}". Code: request.error`);
+				loader.log(`[ERROR] Failed while fetching "${path}".`, true);
 				reject(['Encountered a problem while loading a resource.', 'request.error']);
 			}
 		}
@@ -506,19 +506,16 @@ function toggleEle( selector, visible = undefined, btn = false ){
 	let btnSelCls = 'button-highlighted';
 
 	if( visible === true ){
-		console.log(visible, 'visible');
 		ele.classList.remove(hiddenCls);
 		if( btn ){ btn.classList.remove(btnSelCls); }
 		return true;
 	}
 	else if( visible === false ){
-		console.log(visible, 'INvisible');
 		ele.classList.add(hiddenCls);
 		if( btn ){ btn.classList.add(btnSelCls); }
 		return false;
 	}
 	else {
-		console.log(visible, 'toggled');
 		ele.classList.toggle(hiddenCls);
 		if( btn ){ btn.classList.toggle(btnSelCls); }
 		return !(ele.classList.contains(hiddenCls));
@@ -925,7 +922,7 @@ function processJson( json, url, toReturn ){
 		}
 
 		else if( ver < jsonVersion ){
-			console.log('The loaded JSON has been processed as legacy JSON. This can cause slowdowns or errors. If you are the JSON author, please see the GitHub page for assistance updating.');
+			console.log('The loaded JSON has been processed as legacy JSON. This can *potentially* cause errors or slowdowns. If are the JSON author and encounter an issue, please see the GitHub page for assistance updating.');
 			if( ver <= 0.1 ){
 				json = updateToBeta3(json, url, toReturn);
 				ver = 0.3;
@@ -1076,7 +1073,7 @@ function startTutorial( steps ){
 	overlay.appendChild(progress);
 
 	let dismiss = document.createElement('a');
-	dismiss.className = 'tutorial__dismiss hyper-button';
+	dismiss.className = 'tutorial__dismiss hyperlink';
 	dismiss.addEventListener('click', () => {
 		steps[steps.length-1]();
 		finish();

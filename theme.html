@@ -342,11 +342,11 @@ permalink: /theme
 
 		<div class="loading-screen" id="js-loader">
 			<div class="loading-screen__spinner" id="js-loader-icon"></div>
-			<div class="loading-screen__text" id="js-loader-text">Loading...</div>
-			<div class="loading-screen__subtext" id="js-loader-subtext">JavaScript must be enabled.</div>
-			<div class="loading-screen__subtext o-hidden" id="js-loader-subsubtext">JavaScript must be enabled.</div>
-			<a class="loading-screen__hyperlink hyperlink o-hidden" id="js-loader-home" href="https://github.com/ValerioLyndon/Theme-Customiser">Go to project page.</a>
-			<div class="loading-screen__console o-hidden" id="js-loader-console">
+			<div class="loading-screen__item loading-screen__title" id="js-loader-text">Loading...</div>
+			<div class="loading-screen__item loading-screen__description" id="js-loader-subtext">JavaScript must be enabled.</div>
+			<a class="loading-screen__item hyperlink o-hidden" id="js-loader-home" href="./">Back to main page.</a>
+			<a class="loading-screen__item hyperlink o-hidden" id="js-loader-log-btn" onclick="toggleEle('#js-loader-console')">View logs.</a>
+			<div class="loading-screen__console is-hidden" id="js-loader-console">
 				<div class="loading-screen__console-header">
 					Timeline
 					<button type="button" class=" loading-screen__console-button button js-swappable-text" id="js-copy-output" onclick="navigator.clipboard.writeText(document.getElementById('js-loader-console-messages').outerText);">
