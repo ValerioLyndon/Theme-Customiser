@@ -962,7 +962,7 @@ function processJson( json, url, toReturn ){
 		}
 
 		else if( ver < jsonVersion ){
-			console.log('The loaded JSON has been processed as legacy JSON. This can *potentially* cause errors or slowdowns. If are the JSON author and encounter an issue, please see the GitHub page for assistance updating.');
+			console.log('The loaded JSON has been processed as legacy JSON. This can *potentially* cause errors or slowdowns. If you are the JSON author and encounter an issue, please see the GitHub page for assistance updating.');
 			if( ver <= 0.1 ){
 				json = updateToBeta3(json, url, toReturn);
 				ver = 0.3;
