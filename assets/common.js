@@ -8,20 +8,24 @@ function inObj( object, string ) {
 
 class LoadingScreen {
 	constructor( ){
-		this.pageContent = document.getElementById('js-content');
-		this.parent = document.getElementById('js-loader');
-		this.icon = document.getElementById('js-loader-icon');
-		this.titleText = document.getElementById('js-loader-text');
-		this.subText = document.getElementById('js-loader-subtext');
-		this.subText2 = document.getElementById('js-loader-subsubtext');
-		this.console = document.getElementById('js-loader-console');
-		this.messages = document.getElementById('js-loader-console-messages');
-		this.home = document.getElementById('js-loader-home');
 		this.stop = false;
+		
+		this.loader = document.createElement('div');
+		this.loader.className = 'loading-screen';
+		this.icon = document.createElement('div');
+		this.icon.className = 'loading-screen__spinner';
+		this.title = document.createElement('h1');
+		this.title.className = 'loading-screen__item loading-screen__title';
+		this.title.text = 'Loading...';
+		this.messages = document.createElement('div');
+		this.messages.className = 'loading-screen__message-boxes';
+
+		this.loader.append(this.icon, this.title);
+		document.body.append(this.loader);
 	}
 
 	text( txt ){
-		this.titleText.textContent = txt;
+		this.title.textContent = txt;
 		this.log(txt, false);
 	}
 
@@ -80,24 +84,60 @@ class LoadingScreen {
 	}
 
 	loaded( ){
-		this.pageContent.classList.add('is-loaded');
-		this.parent.classList.add('is-hidden');
+		document.getElementById('js-content').classList.add('is-loaded');
+		this.loader.classList.add('is-hidden');
 		var that = this;
 		setTimeout(() => {
-			that.parent.classList.add('o-hidden');
+			that.loader.classList.add('o-hidden');
 		}, 1500)
 	}
 
 	failed( reason_array ){
+		this.log(reason_array[0]);
+		this.log(`Bailing out with code "${reason_array[1]}".`);
 		// only runs once
 		if( !this.stop ){
 			this.icon.className = 'loading-screen__cross';
-			this.titleText.textContent = 'Page Failure.';
-			this.subText.textContent = reason_array[0];
-			this.subText2.classList.remove('o-hidden');
-			this.subText2.textContent = `Code: ${reason_array[1]}`;
-			this.console.classList.remove('o-hidden');
-			this.home.classList.remove('o-hidden');
+			this.title.textContent = 'Something broke!';
+
+			let description = document.createElement('p');
+			description.className = 'loading-screen__item loading-screen__description';
+			description.textContent = reason_array[0];
+			let link = document.createElement('a');
+			link.className = 'loading-screen__item hyperlink';
+			link.href = './';
+			link.textContent = 'Back to main page.';
+			let logs = document.createElement('div');
+			logs.className = 'loading-screen__console is-hidden';
+			let logHeader = document.createElement('div');
+			logHeader.className = 'loading-screen__console-header';
+			logHeader.textContent = 'Timeline';
+			let copyLogs = document.createElement('button');
+			copyLogs.className = 'loading-screen__console-button button js-swappable-text';
+			copyLogs.innerHTML =
+				`<div class="swappable-text">
+					<div class="swappable-text__text">
+						Copy Logs
+						<br />
+						Copied.
+					</div>
+				</div>`;
+			let openLogs = document.createElement('a');
+			openLogs.className = 'loading-screen__item hyperlink';
+			openLogs.textContent = 'Open logs.';
+			this.logs = document.getElementById('js-loader-console');
+
+			copyLogs.addEventListener('click', ()=>{
+				navigator.clipboard.writeText(this.messages.outerText);
+			});
+			openLogs.addEventListener('click', ()=>{
+				toggleEle(logs);
+			});
+
+			logHeader.append(copyLogs);
+			logs.append(logHeader, this.messages);
+			this.loader.append(description, link, openLogs, logs);
+
 			this.stop = true;
 			gtag('event', 'exception', {
 				'description': reason_array[0],
@@ -397,13 +437,13 @@ function fetchFile( path, cacheResult = true ){
 						resolve(request.responseText);
 					}
 					else {
-						console.log(`[ERROR] Failed while fetching "${path}". Code: request.status.${request.status}`);
+						loader.log(`[ERROR] Failed while fetching "${path}".`, true);
 						reject([`Encountered a problem while loading a resource.`, `request.status.${request.status}`]);
 					}
 				}
 			}
 			request.onerror = (e) => {
-				console.log(`[ERROR] Failed while fetching "${path}". Code: request.error`);
+				loader.log(`[ERROR] Failed while fetching "${path}".`, true);
 				reject(['Encountered a problem while loading a resource.', 'request.error']);
 			}
 		}
@@ -506,25 +546,22 @@ function importPreviousSettings( opts = undefined ){
 	return true;
 }
 
-function toggleEle( selector, visible = undefined, btn = false ){
-	let ele = document.querySelector(selector);
+function toggleEle( element, visible = undefined, btn = false ){
+	let ele = typeof element === 'string' ? document.querySelector(element) : element;
 	let hiddenCls = 'is-hidden';
 	let btnSelCls = 'button-highlighted';
 
 	if( visible === true ){
-		console.log(visible, 'visible');
 		ele.classList.remove(hiddenCls);
 		if( btn ){ btn.classList.remove(btnSelCls); }
 		return true;
 	}
 	else if( visible === false ){
-		console.log(visible, 'INvisible');
 		ele.classList.add(hiddenCls);
 		if( btn ){ btn.classList.add(btnSelCls); }
 		return false;
 	}
 	else {
-		console.log(visible, 'toggled');
 		ele.classList.toggle(hiddenCls);
 		if( btn ){ btn.classList.toggle(btnSelCls); }
 		return !(ele.classList.contains(hiddenCls));
@@ -931,7 +968,7 @@ function processJson( json, url, toReturn ){
 		}
 
 		else if( ver < jsonVersion ){
-			console.log('The loaded JSON has been processed as legacy JSON. This can cause slowdowns or errors. If you are the JSON author, please see the GitHub page for assistance updating.');
+			console.log('The loaded JSON has been processed as legacy JSON. This can *potentially* cause errors or slowdowns. If are the JSON author and encounter an issue, please see the GitHub page for assistance updating.');
 			if( ver <= 0.1 ){
 				json = updateToBeta3(json, url, toReturn);
 				ver = 0.3;
@@ -1086,7 +1123,7 @@ function startTutorial( steps ){
 	overlay.appendChild(progress);
 
 	let dismiss = document.createElement('a');
-	dismiss.className = 'tutorial__dismiss hyper-button';
+	dismiss.className = 'tutorial__dismiss hyperlink';
 	dismiss.addEventListener('click', () => {
 		steps[steps.length-1]();
 		finish();

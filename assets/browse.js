@@ -71,10 +71,10 @@ class ExtendedFilters extends BaseFilters {
 			let link = document.createElement('a');
 			let icon = document.createElement('i');
 
-			link.className = 'hyper-button';
+			link.className = 'hyperlink hyperlink--plain';
 			link.id = `sort:${key}`;
 			link.textContent = `${info.label} `;
-			icon.className = 'hyper-button__icon fa-solid fa-sort-asc o-hidden';
+			icon.className = 'icon fa-solid fa-sort-asc o-hidden';
 
 			link.appendChild(icon);
 			div.appendChild(link);
