@@ -8,20 +8,24 @@ function inObj( object, string ) {
 
 class LoadingScreen {
 	constructor( ){
-		this.pageContent = document.getElementById('js-content');
-		this.parent = document.getElementById('js-loader');
-		this.icon = document.getElementById('js-loader-icon');
-		this.titleText = document.getElementById('js-loader-text');
-		this.subText = document.getElementById('js-loader-subtext');
-		this.console = document.getElementById('js-loader-console');
-		this.consoleBtn = document.getElementById('js-loader-log-btn');
-		this.messages = document.getElementById('js-loader-console-messages');
-		this.home = document.getElementById('js-loader-home');
 		this.stop = false;
+		
+		this.loader = document.createElement('div');
+		this.loader.className = 'loading-screen';
+		this.icon = document.createElement('div');
+		this.icon.className = 'loading-screen__spinner';
+		this.title = document.createElement('h1');
+		this.title.className = 'loading-screen__item loading-screen__title';
+		this.title.text = 'Loading...';
+		this.messages = document.createElement('div');
+		this.messages.className = 'loading-screen__message-boxes';
+
+		this.loader.append(this.icon, this.title);
+		document.body.append(this.loader);
 	}
 
 	text( txt ){
-		this.titleText.textContent = txt;
+		this.title.textContent = txt;
 		this.log(txt, false);
 	}
 
@@ -80,11 +84,11 @@ class LoadingScreen {
 	}
 
 	loaded( ){
-		this.pageContent.classList.add('is-loaded');
-		this.parent.classList.add('is-hidden');
+		document.getElementById('js-content').classList.add('is-loaded');
+		this.loader.classList.add('is-hidden');
 		var that = this;
 		setTimeout(() => {
-			that.parent.classList.add('o-hidden');
+			that.loader.classList.add('o-hidden');
 		}, 1500)
 	}
 
@@ -94,10 +98,46 @@ class LoadingScreen {
 		// only runs once
 		if( !this.stop ){
 			this.icon.className = 'loading-screen__cross';
-			this.titleText.textContent = 'Something broke!';
-			this.subText.textContent = reason_array[0];
-			this.consoleBtn.classList.remove('o-hidden');
-			this.home.classList.remove('o-hidden');
+			this.title.textContent = 'Something broke!';
+
+			let description = document.createElement('p');
+			description.className = 'loading-screen__item loading-screen__description';
+			description.textContent = reason_array[0];
+			let link = document.createElement('a');
+			link.className = 'loading-screen__item hyperlink';
+			link.href = './';
+			link.textContent = 'Back to main page.';
+			let logs = document.createElement('div');
+			logs.className = 'loading-screen__console is-hidden';
+			let logHeader = document.createElement('div');
+			logHeader.className = 'loading-screen__console-header';
+			logHeader.textContent = 'Timeline';
+			let copyLogs = document.createElement('button');
+			copyLogs.className = 'loading-screen__console-button button js-swappable-text';
+			copyLogs.innerHTML =
+				`<div class="swappable-text">
+					<div class="swappable-text__text">
+						Copy Logs
+						<br />
+						Copied.
+					</div>
+				</div>`;
+			let openLogs = document.createElement('a');
+			openLogs.className = 'loading-screen__item hyperlink';
+			openLogs.textContent = 'Open logs.';
+			this.logs = document.getElementById('js-loader-console');
+
+			copyLogs.addEventListener('click', ()=>{
+				navigator.clipboard.writeText(this.messages.outerText);
+			});
+			openLogs.addEventListener('click', ()=>{
+				toggleEle(logs);
+			});
+
+			logHeader.append(copyLogs);
+			logs.append(logHeader, this.messages);
+			this.loader.append(description, link, openLogs, logs);
+
 			this.stop = true;
 			return new Error(reason_array[1]);
 		}
@@ -500,8 +540,8 @@ function importPreviousSettings( opts = undefined ){
 	return true;
 }
 
-function toggleEle( selector, visible = undefined, btn = false ){
-	let ele = document.querySelector(selector);
+function toggleEle( element, visible = undefined, btn = false ){
+	let ele = typeof element === 'string' ? document.querySelector(element) : element;
 	let hiddenCls = 'is-hidden';
 	let btnSelCls = 'button-highlighted';
 
