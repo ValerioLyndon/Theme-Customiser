@@ -411,43 +411,32 @@ class InfoPopup extends DynamicPopup {
 	}
 }
 
-// Fetches and returns resources in the form of a Promise.
+// Fetches and returns resources.
 // If cacheResult is true, the result is stored and later fetched from localStorage.
-function fetchFile( path, cacheResult = true ){
-	return new Promise((resolve, reject) => {
-		// Checks if item has previously been fetched and returns the cached result if so
-		let cache = sessionStorage.getItem(path);
+async function fetchFile( path, cacheResult = true ){
+	let cache = sessionStorage.getItem(path);
+	if( cacheResult && cache ){
+		console.log(`[info] Retrieving cached result for ${path}`);
+		return cache;
+	}
 
-		if( cacheResult && cache ){
-			console.log(`[info] Retrieving cached result for ${path}`);
-			resolve(cache);
+	console.log(`[info] Fetching ${path}`);
+	try {
+		const response = await fetch(path);
+		if( !response.ok ){
+			throw new Error(`Status ${response.status}`);
 		}
-		else {
-			console.log(`[info] Fetching ${path}`);
-			var request = new XMLHttpRequest();
-			request.open("GET", path, true);
-			request.send(null);
-			request.onreadystatechange = () => {
-				if( request.readyState === 4 ){
-					if( request.status === 200 ){
-						// Cache result on success and then return it
-						if( cacheResult ){
-							sessionStorage.setItem(path, request.responseText);
-						}
-						resolve(request.responseText);
-					}
-					else {
-						loader.log(`[ERROR] Failed while fetching "${path}".`, true);
-						reject([`Encountered a problem while loading a resource.`, `request.status.${request.status}`]);
-					}
-				}
-			}
-			request.onerror = (e) => {
-				loader.log(`[ERROR] Failed while fetching "${path}".`, true);
-				reject(['Encountered a problem while loading a resource.', 'request.error']);
-			}
+		const text = await response.text();
+
+		if( cacheResult ){
+			sessionStorage.setItem(path, text);
 		}
-	});
+		return text;
+	}
+	catch( error ){
+		loader.log(`[ERROR] Failed while fetching "${path}".\n${error}`, true);
+		return ['Encountered a problem while loading a resource.', 'request.error'];
+	}
 }
 
 function importPreviousSettings( opts = undefined ){
@@ -968,7 +957,7 @@ function processJson( json, url, toReturn ){
 		}
 
 		else if( ver < jsonVersion ){
-			console.log('The loaded JSON has been processed as legacy JSON. This can *potentially* cause errors or slowdowns. If are the JSON author and encounter an issue, please see the GitHub page for assistance updating.');
+			console.log('The loaded JSON has been processed as legacy JSON. This can *potentially* cause errors or slowdowns. If you are the JSON author and encounter an issue, please see the GitHub page for assistance updating.');
 			if( ver <= 0.1 ){
 				json = updateToBeta3(json, url, toReturn);
 				ver = 0.3;

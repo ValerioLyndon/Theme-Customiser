@@ -956,7 +956,13 @@ function pageSetup( ){
 	// Basic theme information / HTML changes
 	document.getElementsByTagName('title')[0].textContent = `Theme Customiser - ${theme.name}`;
 	document.getElementById('js-title').textContent = theme.name ? theme.name : 'Untitled';
-	document.getElementById('js-author').textContent = theme.author ? theme.author : 'Unknown Author';
+	const authorEle = document.querySelector('.js-author');
+	authorEle.textContent = theme.author ? theme.author : 'Unknown Author';
+	if( 'author_url' in theme ){
+		authorEle.href = theme.author_url;
+		authorEle.target = '_blank';
+		authorEle.classList.add('hyperlink');
+	}
 
 	// Theme flags
 	if( theme.flags ){
