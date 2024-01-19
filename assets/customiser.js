@@ -518,7 +518,7 @@ async function updateCss(  ){
 				insert = insert.split('(')[1].split(')')[0];
 			}
 			catch {
-				console.log('[WARN] Failed to process "insert" type due to missing parentheses.');
+				console.log(`[WARN] Failed to process "insert" type of option "${optData.name}" due to missing parentheses.`);
 			}
 			if( subQualifier.includes('strip_alpha') ){
 				let arr = insert.split(',');
