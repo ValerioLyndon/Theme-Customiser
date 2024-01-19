@@ -927,16 +927,10 @@ function pageSetup( ){
 	loader.text('Rendering page...');
 
 	// Set preview to correct type and add iframe to page
-	let framePath = './preview/';
-	if( theme.type === 'classic' ){
-		framePath += 'classic/';
-	}
-	else {
-		framePath += 'modern/';
-	}
-	if( theme.supports?.length === 0 && theme.supports?.includes('mangalist') ){
+	let framePath = `./preview/${theme.type}/`;
+	if( theme.supports.length === 1 && theme.supports[0] === 'mangalist' ){
 		//framePath += 'mangalist.html';
-		console.log('[info] Detected mangalist only, but this feature is not yet supported.');
+		console.log('[info] Detected mangalist only, but manga preview is not yet supported.');
 		framePath += 'animelist.html';
 	}
 	else {
@@ -945,21 +939,11 @@ function pageSetup( ){
 	iframe.src = framePath;
 	preview.appendChild(iframe);
 
-	// Test for basic JSON values to assist list designers debug.
-	if( !theme.css ){
-		console.log('[warn] Theme did not define any CSS.');
-		theme.css = '';
-	}
-	if( !theme.type ){
-		console.log('[warn] Theme did not define a list type, assuming "modern".');
-		theme.type = 'modern';
-	}
-
 	// Basic theme information / HTML changes
 	document.getElementsByTagName('title')[0].textContent = `Theme Customiser - ${theme.name}`;
-	document.getElementById('js-title').textContent = theme.name ? theme.name : 'Untitled';
+	document.getElementById('js-title').textContent = theme.name;
 	const authorEle = document.querySelector('.js-author');
-	authorEle.textContent = theme.author ? theme.author : 'Unknown Author';
+	authorEle.textContent = theme.author;
 	if( 'author_url' in theme ){
 		authorEle.href = theme.author_url;
 		authorEle.target = '_blank';
@@ -1036,19 +1020,14 @@ function pageSetup( ){
 
 	// Help links
 	if( theme.help ){
-		if( theme.help.startsWith('http') || theme.help.startsWith('mailto:') ){
-			let help = document.getElementsByClassName('js-help');
-			let helpLinks = document.getElementsByClassName('js-help-href');
+		let help = document.getElementsByClassName('js-help');
+		let helpLinks = document.getElementsByClassName('js-help-href');
 
-			for( let ele of help ){
-				ele.classList.remove('o-hidden');
-			}
-			for( let link of helpLinks ){
-				link.href = theme.help;
-			}
+		for( let ele of help ){
+			ele.classList.remove('o-hidden');
 		}
-		else {
-			messenger.warn('The help URL provided by the theme was ignored due to being invalid. Only HTTP and MAILTO protocols are accepted.');
+		for( let link of helpLinks ){
+			link.href = theme.help;
 		}
 	}
 
@@ -1534,7 +1513,7 @@ function pageSetup( ){
 	loader.text('Fetching CSS...');
 
 	// Get theme CSS
-	let fetchThemeCss = returnCss(theme.css);
+	let fetchThemeCss = theme?.css ? returnCss(theme.css) : '';
 
 	fetchThemeCss.catch((reason) => {
 		loader.failed(reason);

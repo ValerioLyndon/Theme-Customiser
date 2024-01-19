@@ -32,6 +32,10 @@ function parseBool( variable ){
 	return isBool(variable) ? variable : variable === 'true' ? true : variable === 'false' ? false : variable;
 }
 
+function isValidUrl( string ){
+	return /^https?:\/\//.test(string) || string.startsWith('mailto:');
+}
+
 class LoadingScreen {
 	constructor( ){
 		this.stop = false;
@@ -1058,29 +1062,46 @@ function normaliseJson( json ){
 		if( 'name' in json.data && !isString(json.data.name) ){
 			throw new Error(`"name" value must be a string.`);
 		}
+		if( !('name' in json.data) ){
+			json.data.name = 'Untitled';
+		}
 		
 		if( 'author' in json.data && !isString(json.data.author) ){
 			throw new Error(`"author" value must be a string.`);
 		}
-		
-		if( 'author_url' in json.data && !isString(json.data.author_url) ){
-			throw new Error(`"author_url" value must be a string.`);
+		if( !('author' in json.data) ){
+			json.data.author = 'Unknown Author';
 		}
 		
-		if( 'help' in json.data && !isString(json.data.help) ){
-			throw new Error(`"help" value must be a string.`);
-		}
-		
-		if( 'sponsor' in json.data && !isString(json.data.sponsor) ){
-			throw new Error(`"sponsor" value must be a string.`);
-		}
-		
-		// check for tomfoolery
-		for( let url of [json.data.author_url, json.data.help, json.data.sponsor] ){
-			if( isString(url) && url.startsWith('javascript') ){
-				throw new Error(`Refrain from injecting JavaScript.`);
+		if( 'author_url' in json.data ){
+			if( !isString(json.data.author_url) ){
+				throw new Error(`"author_url" value must be a string.`);
 			}
-		}
+			if(  !isValidUrl(json.data.author_url) ){
+				console.log(`"author_url" key was ignored due to an invalid value. Value must start with "https://" or "mailto:".`);
+				delete json.data.author_url;
+			}
+		} 
+		
+		if( 'help' in json.data ){
+			if( !isString(json.data.help) ){
+				throw new Error(`"help" value must be a string.`);
+			}
+			if( !isValidUrl(json.data.help) ){
+				console.log(`"help" key was ignored due to an invalid value. Value must start with "https://" or "mailto:".`);
+				delete json.data.help;
+			}
+		} 
+		
+		if( 'sponsor' in json.data ){
+			if( !isString(json.data.sponsor) ){
+				throw new Error(`"sponsor" value must be a string.`);
+			}
+			if( !isValidUrl(json.data.sponsor) ){
+				console.log(`"sponsor" key was ignored due to an invalid value. Value must start with "https://" or "mailto:".`);
+				delete json.data.sponsor;
+			}
+		} 
 		
 		if( 'css' in json.data && !isString(json.data.css) ){
 			throw new Error(`"css" value must be a string (url or CSS).`);
@@ -1088,6 +1109,10 @@ function normaliseJson( json ){
 		
 		if( 'type' in json.data && !(['modern','classic'].includes(json.data.type)) ){
 			throw new Error(`"type" value is unrecognised.`);
+		}
+		if( !('type' in json.data) ){
+			console.log('no list type specified, assuming modern');
+			json.data.type = 'modern';
 		}
 		
 		if( 'supports' in json.data ){
@@ -1098,6 +1123,9 @@ function normaliseJson( json ){
 				throw new Error(`"supports" value is unrecognised.`);
 			}
 		}
+		if( !('supports' in json.data ) ){
+			json.data.supports = ['animelist', 'mangalist'];
+		}
 
 		if( 'options' in json.data ){
 			json.data.options = normaliseOptions( json.data.options );
@@ -1106,6 +1134,9 @@ function normaliseJson( json ){
 		if( 'mods' in json.data ){
 			if( !isDict(json.data.mods) || Object.values(json.data.mods).find(mod=>!isDict(mod)) !== undefined ){
 				throw new Error(`"mods" value must be a dictionary of dictionaries.`);
+			}
+			for( let [id, mod] of Object.entries(json.data.mods) ){
+				// TODO
 			}
 		}
 
