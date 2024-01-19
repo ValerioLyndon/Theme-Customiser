@@ -174,8 +174,6 @@ function updateOption( optId, funcConfig = {} ){
 			optData = theme.options[optId];
 		}
 
-		let defaultValue = optData.default;
-
 		if( val === undefined ){
 			if( input.type === 'checkbox' ){
 				val = input.checked;
@@ -186,7 +184,7 @@ function updateOption( optId, funcConfig = {} ){
 		}
 
 		// Add to userSettings unless matches default value
-		if( val === defaultValue || optData.type === 'range' && val === '' ){
+		if( val === optData.default || optData.type === 'range' && val === '' ){
 			if( funcConfig.parentModId ){
 				delete userSettings.mods[funcConfig.parentModId][optId];
 			}
@@ -530,7 +528,7 @@ async function updateCss(  ){
 		}
 
 		if( type === 'select' ){
-			var replacements = optData.selections[insert].replacements;
+			var replacements = optData.selections[insert]?.replacements;
 		}
 		else {
 			var replacements = optData.replacements;
@@ -1625,11 +1623,6 @@ function pageSetup( ){
 
 // Render mods and options and returns the DOM element. Used inside pageSetup()
 function renderCustomisation( entryType, entry, parentEntry = [undefined, undefined] ){
-	function fail( reason ){
-		let parentText = parentId ? ` of "${parentId}"` : '';
-		console.log(`[ERROR] Failed to render ${entryType} "${entryId}"${parentText}: ${reason}`);
-	}
-
 	let entryId = entry[0];
 	let entryData = entry[1];
 	let parentId = parentEntry[0];
@@ -1675,44 +1668,10 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 		inputRow.className = 'entry__inputs';
 		div.appendChild(inputRow);
 
-		// Validate JSON
-
-		if( !entryData.type ){
-			return `Option must have a "type" key.`;
-		}
-
 		let split = entryData.type.split('/');
 		let type = split[0];
 		let qualifier = split[1];
 		let subQualifier = split[2];
-
-		if( type === 'select' && !entryData.selections ){
-			fail(`Option of type "select" must contain a "selections" key.`);
-			return;
-		}
-		else if( type !== 'select' && !entryData.replacements ){
-			fail('Option must contain a "replacements" key.');
-			return;
-		}
-
-		// Set default value if needed
-
-		let defaultValue = '';
-		if( entryData.default === undefined && entryData.type === 'toggle' ){
-			defaultValue = false;
-		}
-		if( entryData.default === undefined && entryData.type === 'color' ){
-			defaultValue = '#d8d8d8';
-		}
-		else if( entryData.default !== undefined ){
-			defaultValue = entryData.default;
-		}
-		if( parentId ){
-			theme.mods[parentId].options[entryId].default = defaultValue;
-		}
-		else {
-			theme.options[entryId].default = defaultValue;
-		}
 
 		// Help Links
 
@@ -1734,9 +1693,9 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 			if( type === 'textarea' ){
 				input = document.createElement('textarea');
 				input.className = 'input entry__textarea input--textarea';
-				input.innerHTML = defaultValue;
+				input.innerHTML = entryData.default;
 			}
-			input.value = defaultValue;
+			input.value = entryData.default;
 
 			if( qualifier === 'value' ){
 				input.placeholder = 'Your value here.';
@@ -1772,9 +1731,9 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 			swatch.className = 'entry__colour js-swatch';
 			inputRow.appendChild(swatch);
 
-			swatch.setAttribute('value', defaultValue);
-			input.value = defaultValue;
-			swatch.style.backgroundColor = defaultValue;
+			swatch.setAttribute('value', entryData.default);
+			input.value = entryData.default;
+			swatch.style.backgroundColor = entryData.default;
 
 			let toReturn = 'rgb';
 			if( subQualifier && subQualifier.includes('hsl') ){
@@ -1832,7 +1791,7 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 			range.type = 'range';
 			range.id = `${htmlId}-range`;
 			range.className = 'range';
-			range.setAttribute('value', defaultValue);
+			range.setAttribute('value', entryData.default);
 			range.addEventListener('input', () => {
 				input.value = range.value;
 				updateOption(entryId, {'parentModId': parentId});
@@ -1908,11 +1867,11 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 
 		// Add functionality to all the options & finalise type-specific features
 
-		if( type === 'toggle' && defaultValue == true ){
+		if( type === 'toggle' && entryData.default == true ){
 			input.setAttribute('checked', 'checked');
 		}
 		else if( !(type === 'toggle') ){
-			input.setAttribute('value', defaultValue);
+			input.setAttribute('value', entryData.default);
 		}
 
 		input.addEventListener('input', () => {

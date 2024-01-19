@@ -1035,25 +1035,110 @@ function normaliseJson( json ){
 	return json;
 }
 
+const strictJson = false; 
 function normaliseOptions( options ){
 	for( let [id, opt] of Object.entries(options) ){
+		if( 'name' in opt && typeof opt.name !== 'string' ){
+			throw new Error(`Option "${id}": "name" value must be a string.`);
+		}
+
+		if( 'description' in opt && typeof opt.description !== 'string' ){
+			throw new Error(`Option "${id}": "description" value must be a string.`);
+		}
+
 		if( !('type' in opt) ){
-			throw new Error(`Option "${id}": missing "type".`);
+			throw new Error(`Option "${id}": missing "type" key.`);
 		}
-		if( 'replacements' in options ){
-			if( !(opt.replacements instanceof Array) || opt.replacements.find(repl=>!(repl instanceof Array)) !== undefined ){
-				throw new Error(`Option "${id}": "replacements" must be an array of arrays.`);
+		if( typeof opt.type !== 'string' ){
+			throw new Error(`Option "${id}": "type" value must be a string.`);
+		}
+		let typeSplit = opt.type.split('/');
+		if( !(['text', 'textarea', 'color', 'range', 'toggle', 'select'].includes(typeSplit[0])) ){
+			throw new Error(`Option "${id}": "type" value is unrecognised.`);
+		}
+		if( typeSplit[0].startsWith('text/') && !(['content', 'image_url', 'size', 'value', 'url_fragment'].includes(typeSplit[1])) ){
+			throw new Error(`Option "${id}": "type" qualifier value is unrecognised.`);
+		}
+		// TODO: color type validations
+
+		if( opt.type !== 'range' && ('min' in opt || 'max' in opt || 'step' in opt) ){
+			console.log(`Option "${id}": a "min", "max", or "step" key was ignored as the "type" value is not "range".`)
+		}
+
+		if( 'replacements' in opt ){
+			opt.replacements = normaliseReplacements(opt.replacements, id, opt.type);
+		}
+		
+		if( opt.type === 'select' ){
+			if( 'replacements' in opt ){
+				console.log(`Option "${id}": "replacements" key was ignored as the "type" value is "select". Use the "selections" key.`)
 			}
-			if( opt.type === 'toggle' && opt.replacements.find(repl=>repl.length !== 3) ){
-				throw new Error(`Option "${id}": a replacement for "toggle" type options must contain 3 strings.`);
+			if( !('selections' in opt) ){
+				throw new Error(`Option "${id}": "select" type options require a "selections" key.`);
 			}
-			if( opt.replacements.find(repl=>repl.length !== 2) ){
-				throw new Error(`Option "${id}": a replacement must contain 2 strings.`);
+			if( !(opt.selections instanceof Object) || opt.selections instanceof Array
+			   || Object.values(opt.selections).find(sel=>!(sel instanceof Object) || sel instanceof Array) !== undefined ){
+				throw new Error(`Option "${id}": "selections" value must be a dictionary of dictionaries.`);
+			}
+			if( Object.values(opt.selections).find(sel=>!('label' in sel)) !== undefined || typeof sel.label !== 'string' ){
+				throw new Error(`Option "${id}": "selections" values must contain a "label" key with a string value.`);
+			}
+			Object.values(opt.selections).map(sel=>{
+				if( 'replacements' in sel ){
+					sel.replacements = normaliseReplacements(sel.replacements, id, opt.type);
+				}
+				return sel;
+			});
+		}
+
+		if( 'default' in opt ){
+			if( opt.type === 'toggle' ){
+				if( !strictJson ){
+					opt.default = opt.default === 'true' ? true : opt.default === 'false' ? false : opt.default;
+				}
+				if( typeof opt.default !== 'boolean' ){
+					throw new Error(`Option "${id}": "default" value must be a boolean when "type" value is "toggle".`);
+				}
+			}
+			if( opt.type === 'range' ){
+				if( !strictJson ){
+					opt.default = parseFloat(opt.default);
+				}
+				if( typeof opt.default !== 'number' ){
+					throw new Error(`Option "${id}": "default" value must be a number when "type" value is "range".`);
+				}
+			}
+			if( opt.type === 'select' && !(Object.keys(opt.selections).includes(opt.default)) ){
+				throw new Error(`Option "${id}": "default" value must match one of your "selections" keys.`);
 			}
 		}
+		// add some fallback default values when it's not defined
+		else if( opt.type === 'toggle' ) {
+			opt.default = false;
+		}
+		else if( opt.type === 'color' ) {
+			opt.default = '#d8d8d8';
+		}
+		else if( opt.type.startsWith('text') ) {
+			opt.default = '';
+		}
+
 		options[id] = opt;
 	}
 	return options;
+}
+
+function normaliseReplacements( replacements, id, type ){
+	if( !(replacements instanceof Array) || replacements.find(repl=>!(repl instanceof Array)) !== undefined ){
+		throw new Error(`Option "${id}": "replacements" value must be an array of arrays.`);
+	}
+	if( type === 'toggle' && replacements.find(repl=>repl.length !== 3) !== undefined ){
+		throw new Error(`Option "${id}": "replacements" set must contain 3 strings when "type" value is "toggle".`);
+	}
+	if( type !== 'toggle' && replacements.find(repl=>repl.length !== 2) ){
+		throw new Error(`Option "${id}": "replacement" set must contain 2 strings.`);
+	}
+	return replacements;
 }
 
 
