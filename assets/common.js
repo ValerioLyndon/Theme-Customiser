@@ -1287,7 +1287,7 @@ function normaliseOptions( options ){
 			if( !isDict(opt.selections) || Object.values(opt.selections).find(sel=>!isDict(sel)) !== undefined ){
 				throw new Error(`Option "${id}": "selections" value must be a dictionary of dictionaries.`);
 			}
-			if( Object.values(opt.selections).find(sel=>!('label' in sel)) !== undefined || !isString(sel.label) ){
+			if( Object.values(opt.selections).find(sel=>!('label' in sel) || !isString(sel.label)) !== undefined ){
 				throw new Error(`Option "${id}": "selections" values must contain a "label" key with a string value.`);
 			}
 			Object.values(opt.selections).map(sel=>{
