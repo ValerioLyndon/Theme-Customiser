@@ -934,6 +934,7 @@ let dataUrls = query.getAll('data');
 // Check for legacy JSON and process as needed
 function processJson( json, url, toReturn ){
 	return new Promise((resolve, reject) => {
+		let processed;
 		loader.text('Updating JSON...');
 
 		var ver = 0;
@@ -978,14 +979,12 @@ function processJson( json, url, toReturn ){
 				json.themes = arrayThemes;
 			}
 			try {
-				let normalised = normaliseJson(json);
-				resolve(normalised);
+				processed = normaliseJson(json);
 			}
 			catch(e) {
 				loader.log(e, true);
 				reject(['Data failed validation.', 'json.invalid']);
 			}
-			return;
 		}
 		// If a collection is linked under a theme query, check for valid values
 		// This code is legacy leftovers from v0 that sadly is still needed
@@ -1002,8 +1001,7 @@ function processJson( json, url, toReturn ){
 				fetchFile(themeUrl)
 				.then((result) => {
 					try {
-						resolve(JSON.parse(result));
-						return;
+						processed = JSON.parse(result);
 					}
 					catch {
 						reject(['Encountered a problem while parsing theme information.', 'invalid.name']);
@@ -1021,15 +1019,55 @@ function processJson( json, url, toReturn ){
 			reject(['The linked theme could not be parsed.', 'lacking.data']);
 			return;
 		}
+		resolve(processed);
 	});
 }
 
 
 // json validation
 function normaliseJson( json ){
+
 	if( 'data' in json ){
+		if( 'name' in json.data && typeof json.data.name !== 'string' ){
+			throw new Error(`"name" value must be a string.`);
+		}
+		
+		if( 'author' in json.data && typeof json.data.author !== 'string' ){
+			throw new Error(`"author" value must be a string.`);
+		}
+		
+		if( 'author_url' in json.data && typeof json.data.author_url !== 'string' ){
+			throw new Error(`"author_url" value must be a string.`);
+		}
+		
+		if( 'help' in json.data && typeof json.data.help !== 'string' ){
+			throw new Error(`"help" value must be a string.`);
+		}
+		
+		if( 'sponsor' in json.data && typeof json.data.sponsor !== 'string' ){
+			throw new Error(`"sponsor" value must be a string.`);
+		}
+		
+		// check for tomfoolery
+		for( let url of [json.data.author_url, json.data.help, json.data.sponsor] ){
+			if( typeof url === 'string' && url.startsWith('javascript') ){
+				throw new Error(`Refrain from injecting JavaScript.`);
+			}
+		}
+		
+		if( 'type' in json.data && !(['modern','classic'].includes(json.data.type)) ){
+			throw new Error(`"type" value is unrecognised.`);
+		}
+
 		if( 'options' in json.data ){
 			json.data.options = normaliseOptions( json.data.options );
+		}
+
+		if( 'mods' in json.data ){
+			if( !(json.data.mods instanceof Object) || json.data.mods instanceof Array
+			   || Object.values(json.data.mods).find(mod=>!(mod instanceof Object) || mod instanceof Array) !== undefined ){
+				throw new Error(`"mods" value must be a dictionary of dictionaries.`);
+			}
 		}
 	}
 	return json;

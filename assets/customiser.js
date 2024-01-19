@@ -801,6 +801,10 @@ window.addEventListener(
 					userSettings.theme = theme.name;
 					pageSetup();
 				})
+				.catch((reason) => {
+					loader.failed(reason);
+					throw new Error(reason[0]);
+				});
 			}
 			else {
 				console.log('[ERROR] Malformed request sent to customiser.js. No action taken.')
