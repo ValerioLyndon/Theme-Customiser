@@ -1199,11 +1199,14 @@ function normaliseDisplay( display ){
 	}
 	
 	if( 'category' in display ){
-		if( permissive ){
-			display.category = parseInt(display.category);
+		if( !isArray(display.category) ){
+			throw new Error(`"category" value must be an array.`);
 		}
-		if( !isInt(display.category) || !([1,2,3,4,6,7].includes(display.category)) ){
-			throw new Error(`"category" value must be one of: 1,2,3,4,6,7.`);
+		if( permissive ){
+			display.category = display.category.map(cat=>parseInt(cat));
+		}
+		if( display.category.find(cat=>!isInt(cat) || !([1,2,3,4,6,7].includes(cat))) !== undefined ){
+			throw new Error(`"category" array values must be any of: 1,2,3,4,6,7.`);
 		}
 	}
 

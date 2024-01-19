@@ -1381,7 +1381,7 @@ function pageSetup( ){
 
 	// Category
 	if( 'category' in theme.preview ){
-		postToPreview(['category', theme.preview.category])
+		postToPreview(['category', theme.preview.category[0]])
 	}
 	
 	// Style
