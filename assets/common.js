@@ -6,6 +6,32 @@ function inObj( object, string ) {
 	return Object.keys(object).includes(string);
 }
 
+function isString( variable ){
+	return typeof variable === 'string';
+}
+function isNumber( variable ){
+	return typeof variable === 'number';
+}
+function isInt( variable ){
+	return isNumber(variable) && !variable.toString().includes('.');
+}
+function isFloat( variable ){
+	return isNumber(variable) && variable.toString().includes('.');
+}
+function isBool( variable ){
+	return typeof variable === 'boolean';
+}
+function isArray( variable ){
+	return variable instanceof Array;
+}
+function isDict( variable ){
+	return variable instanceof Object && variable?.toString() === '[object Object]';
+}
+
+function parseBool( variable ){
+	return isBool(variable) ? variable : variable === 'true' ? true : variable === 'false' ? false : variable;
+}
+
 class LoadingScreen {
 	constructor( ){
 		this.stop = false;
@@ -1025,38 +1051,52 @@ function processJson( json, url, toReturn ){
 
 
 // json validation
-function normaliseJson( json ){
+const permissive = true; 
 
+function normaliseJson( json ){
 	if( 'data' in json ){
-		if( 'name' in json.data && typeof json.data.name !== 'string' ){
+		if( 'name' in json.data && !isString(json.data.name) ){
 			throw new Error(`"name" value must be a string.`);
 		}
 		
-		if( 'author' in json.data && typeof json.data.author !== 'string' ){
+		if( 'author' in json.data && !isString(json.data.author) ){
 			throw new Error(`"author" value must be a string.`);
 		}
 		
-		if( 'author_url' in json.data && typeof json.data.author_url !== 'string' ){
+		if( 'author_url' in json.data && !isString(json.data.author_url) ){
 			throw new Error(`"author_url" value must be a string.`);
 		}
 		
-		if( 'help' in json.data && typeof json.data.help !== 'string' ){
+		if( 'help' in json.data && !isString(json.data.help) ){
 			throw new Error(`"help" value must be a string.`);
 		}
 		
-		if( 'sponsor' in json.data && typeof json.data.sponsor !== 'string' ){
+		if( 'sponsor' in json.data && !isString(json.data.sponsor) ){
 			throw new Error(`"sponsor" value must be a string.`);
 		}
 		
 		// check for tomfoolery
 		for( let url of [json.data.author_url, json.data.help, json.data.sponsor] ){
-			if( typeof url === 'string' && url.startsWith('javascript') ){
+			if( isString(url) && url.startsWith('javascript') ){
 				throw new Error(`Refrain from injecting JavaScript.`);
 			}
 		}
 		
+		if( 'css' in json.data && !isString(json.data.css) ){
+			throw new Error(`"css" value must be a string (url or CSS).`);
+		}
+		
 		if( 'type' in json.data && !(['modern','classic'].includes(json.data.type)) ){
 			throw new Error(`"type" value is unrecognised.`);
+		}
+		
+		if( 'supports' in json.data ){
+			if( !(typeof json.data.supports instanceof Array) ){
+				throw new Error(`"supports" value must be an array.`);
+			}
+			if( json.data.supports.find(str=>['animelist','mangalist'].includes(str)) === undefined ){
+				throw new Error(`"supports" value is unrecognised.`);
+			}
 		}
 
 		if( 'options' in json.data ){
@@ -1064,23 +1104,123 @@ function normaliseJson( json ){
 		}
 
 		if( 'mods' in json.data ){
-			if( !(json.data.mods instanceof Object) || json.data.mods instanceof Array
-			   || Object.values(json.data.mods).find(mod=>!(mod instanceof Object) || mod instanceof Array) !== undefined ){
+			if( !isDict(json.data.mods) || Object.values(json.data.mods).find(mod=>!isDict(mod)) !== undefined ){
 				throw new Error(`"mods" value must be a dictionary of dictionaries.`);
 			}
 		}
+
+		if( 'flags' in json.data && (!isArray(json.data.flags) || json.data.flags.find(flag=>!isString(flag)) !== undefined) ){
+			throw new Error(`"flags" value must be an array of strings.`);
+		}
+
+		if( 'preview' in json.data ){
+			if( !isDict(json.data.preview) ){
+				throw new Error(`"preview" value must be a dictionary.`);
+			}
+			json.data.preview = normaliseDisplay(json.data.preview);
+		}
+		else {
+			json.data.preview = {};
+		}
+
+		json.data = normaliseDisplay(json.data);
+
+		// autofill empty preview keys
+		for( let [key, val] of Object.entries(json.data) ){
+			if( !inObj(json.data.preview, key) ){
+				json.data.preview[key] = val;
+			}
+		}
+		console.log(json.data.preview);
 	}
+
 	return json;
 }
 
-const strictJson = false; 
+function normaliseDisplay( display ){
+	if( 'cover' in display ){
+		if( permissive ){
+			display.cover = parseBool(display.cover);
+		}
+		if( !isBool(display.cover) ){
+			throw new Error(`"cover" value must be a boolean.`);
+		}
+	}
+	
+	if( 'background' in display ){
+		if( permissive ){
+			display.background = parseBool(display.background);
+		}
+		if( !isBool(display.background) ){
+			throw new Error(`"background" value must be a boolean.`);
+		}
+	}
+		
+	if( 'style' in display ){
+		if( !isArray(display.style) || display.style.length === 0 ){
+			throw new Error(`"style" value must be an array of integers and cannot be empty.`);
+		}
+		if( permissive ){
+			display.style.map(num=>parseInt(num));
+		}
+		if( display.style.find(num=>!isInt(num)) !== undefined ){
+			throw new Error(`"style" value must be an array of integers and cannot be empty.`);
+		}
+	}
+	
+	if( 'category' in display ){
+		if( permissive ){
+			display.category = parseInt(display.category);
+		}
+		if( !isInt(display.category) || !([1,2,3,4,6,7].includes(display.category)) ){
+			throw new Error(`"category" value must be one of: 1,2,3,4,6,7.`);
+		}
+	}
+
+	if( 'columns' in display ){
+		// add default columns mode
+		display.columns.mode = 'mode' in display.columns ? display.columns.mode : 'whitelist';
+		if( !isDict(display.columns) ){
+			throw new Error(`"columns" value must be a dictionary.`);
+		}
+		if( !isString(display.columns.mode) || !(['whitelist','greylist','blacklist'].includes(display.columns.mode)) ){
+			throw new Error('"mode" value must be one of: "whitelist", "greylist", "blacklist".');
+		}
+		if( !('animelist' in display.columns) && !('mangalist' in display.columns) ){
+			throw new Error('"columns" key requires an "animelist" key, "mangalist" key, or both.');
+		}
+		if( 'animelist' in display.columns ){
+;			display.columns.animelist = normaliseColumns(display.columns.animelist);
+		}
+		if( 'mangalist' in display.columns ){
+;			display.columns.mangalist = normaliseColumns(display.columns.mangalist);
+		}
+	}
+	return display;
+}
+
+function normaliseColumns( columns ){
+	if( !isDict(columns) ){
+		throw new Error('"anime/mangalist" "columns" key must be a dictionary of booleans.');
+	}
+	if( permissive ){
+		for( let [key, val] of Object.entries(columns) ){
+			columns[key] = parseBool(val);
+		}
+	}
+	if( Object.values(columns).find(col=>!isBool(col)) !== undefined ){
+		throw new Error('"anime/mangalist" "columns" key must be a dictionary of booleans.');
+	}
+	return columns;
+}
+
 function normaliseOptions( options ){
 	for( let [id, opt] of Object.entries(options) ){
-		if( 'name' in opt && typeof opt.name !== 'string' ){
+		if( 'name' in opt && !isString(opt.name) ){
 			throw new Error(`Option "${id}": "name" value must be a string.`);
 		}
 
-		if( 'description' in opt && typeof opt.description !== 'string' ){
+		if( 'description' in opt && !isString(opt.description) ){
 			throw new Error(`Option "${id}": "description" value must be a string.`);
 		}
 
@@ -1114,11 +1254,10 @@ function normaliseOptions( options ){
 			if( !('selections' in opt) ){
 				throw new Error(`Option "${id}": "select" type options require a "selections" key.`);
 			}
-			if( !(opt.selections instanceof Object) || opt.selections instanceof Array
-			   || Object.values(opt.selections).find(sel=>!(sel instanceof Object) || sel instanceof Array) !== undefined ){
+			if( !isDict(opt.selections) || Object.values(opt.selections).find(sel=>!isDict(sel)) !== undefined ){
 				throw new Error(`Option "${id}": "selections" value must be a dictionary of dictionaries.`);
 			}
-			if( Object.values(opt.selections).find(sel=>!('label' in sel)) !== undefined || typeof sel.label !== 'string' ){
+			if( Object.values(opt.selections).find(sel=>!('label' in sel)) !== undefined || !isString(sel.label) ){
 				throw new Error(`Option "${id}": "selections" values must contain a "label" key with a string value.`);
 			}
 			Object.values(opt.selections).map(sel=>{
@@ -1131,15 +1270,15 @@ function normaliseOptions( options ){
 
 		if( 'default' in opt ){
 			if( opt.type === 'toggle' ){
-				if( !strictJson ){
-					opt.default = opt.default === 'true' ? true : opt.default === 'false' ? false : opt.default;
+				if( permissive ){
+					opt.default = parseBool(opt.default);
 				}
 				if( typeof opt.default !== 'boolean' ){
 					throw new Error(`Option "${id}": "default" value must be a boolean when "type" value is "toggle".`);
 				}
 			}
 			if( opt.type === 'range' ){
-				if( !strictJson ){
+				if( permissive ){
 					opt.default = parseFloat(opt.default);
 				}
 				if( typeof opt.default !== 'number' ){

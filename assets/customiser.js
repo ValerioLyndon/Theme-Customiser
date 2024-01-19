@@ -1390,26 +1390,6 @@ function pageSetup( ){
 
 	// Set preview options and post to preview iframe
 
-	if( !theme.preview ){
-		theme.preview = {};
-	}
-	// Inherit settings from regular config.
-	if( !('cover' in theme.preview) && 'cover' in theme ){
-		theme.preview.cover = theme.cover;
-	}
-	if( !('background' in theme.preview) && 'background' in theme ){
-		theme.preview.background = theme.background;
-	}
-	if( !('columns' in theme.preview) && 'columns' in theme ){
-		theme.preview.columns = theme.columns;
-	}
-	if( !('category' in theme.preview) && 'category' in theme ){
-		theme.preview.category = theme.category[0];
-	}
-	if( !('style' in theme.preview) && 'style' in theme ){
-		theme.preview.style = theme.style;
-	}
-
 	// Cover
 	if( 'cover' in theme.preview ){
 		let val = theme.preview.cover;
@@ -1431,13 +1411,12 @@ function pageSetup( ){
 	}
 
 	// Columns
-	var tempcolumns = {};
 
-	// Set correct columns
+	var tempcolumns = {};
 	let mode = 'whitelist';
 	let tempListType = theme.supports[0];
 	if( 'columns' in theme.preview ){
-		mode = 'mode' in theme.preview.columns ? theme.preview.columns.mode : 'whitelist';
+		mode = theme.preview.columns.mode;
 		tempcolumns = theme.preview.columns;
 	}
 	else {
