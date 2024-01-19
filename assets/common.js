@@ -1131,7 +1131,6 @@ function normaliseJson( json ){
 				json.data.preview[key] = val;
 			}
 		}
-		console.log(json.data.preview);
 	}
 
 	return json;
