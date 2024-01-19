@@ -977,11 +977,19 @@ function processJson( json, url, toReturn ){
 				}
 				json.themes = arrayThemes;
 			}
-			resolve(json);
+			try {
+				let normalised = normaliseJson(json);
+				resolve(normalised);
+			}
+			catch(e) {
+				loader.log(e, true);
+				reject(['Data failed validation.', 'json.invalid']);
+			}
 			return;
 		}
 		// If a collection is linked under a theme query, check for valid values
-		else if( json.themes && Object.values(json.themes).length > 0 ){
+		// This code is legacy leftovers from v0 that sadly is still needed
+		else if( 'themes' in json && Object.values(json.themes).length > 0 ){
 			let themeUrl = false;
 			if( json.themes[toReturn] ){
 				themeUrl = json.themes[toReturn]['url'];
@@ -1014,6 +1022,38 @@ function processJson( json, url, toReturn ){
 			return;
 		}
 	});
+}
+
+
+// json validation
+function normaliseJson( json ){
+	if( 'data' in json ){
+		if( 'options' in json.data ){
+			json.data.options = normaliseOptions( json.data.options );
+		}
+	}
+	return json;
+}
+
+function normaliseOptions( options ){
+	for( let [id, opt] of Object.entries(options) ){
+		if( !('type' in opt) ){
+			throw new Error(`Option "${id}": missing "type".`);
+		}
+		if( 'replacements' in options ){
+			if( !(opt.replacements instanceof Array) || opt.replacements.find(repl=>!(repl instanceof Array)) !== undefined ){
+				throw new Error(`Option "${id}": "replacements" must be an array of arrays.`);
+			}
+			if( opt.type === 'toggle' && opt.replacements.find(repl=>repl.length !== 3) ){
+				throw new Error(`Option "${id}": a replacement for "toggle" type options must contain 3 strings.`);
+			}
+			if( opt.replacements.find(repl=>repl.length !== 2) ){
+				throw new Error(`Option "${id}": a replacement must contain 2 strings.`);
+			}
+		}
+		options[id] = opt;
+	}
+	return options;
 }
 
 
