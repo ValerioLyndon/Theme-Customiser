@@ -955,95 +955,99 @@ let path = window.location.pathname;
 let dataUrls = query.getAll('data');
 
 // Check for legacy JSON and process as needed
-function processJson( json, url, toReturn ){
-	return new Promise((resolve, reject) => {
-		let processed;
-		loader.text('Updating JSON...');
+async function processJson( json, url, toReturn ){
+	loader.text('Updating JSON...');
 
-		var ver = 0;
-		if( !("json_version" in json) || isNaN(parseFloat(json.json_version)) ){
-			ver = 0.1;
+	var ver = 0;
+	if( !("json_version" in json) || isNaN(parseFloat(json.json_version)) ){
+		ver = 0.1;
+	}
+	else {
+		ver = parseFloat(json.json_version);
+	}
+
+	// Else, continue to process.
+	if( ver > jsonVersion ){
+		messenger.send('Detected JSON version beyond what is supported by this instance. Attempting to process as normal. If any bugs or failures occur, try using the main instance at valeriolyndon.github.io.');
+		console.log('Detected JSON version beyond what is supported by this instance. Attempting to process as normal. If any bugs or failures occur, try updating your fork from the main instance at valeriolyndon.github.io.');
+	}
+	else if( ver < jsonVersion ){
+		console.log('The loaded JSON has been processed as legacy JSON. This can *potentially* cause errors or slowdowns. If you are the JSON author and encounter an issue, please see the GitHub page for assistance updating.');
+		if( ver <= 0.1 ){
+			json = updateToBeta3(json, url, toReturn);
+			ver = 0.3;
+			// skips from 0.2 to 0.3 because current code can handle both the same.
+			// the version change from .2 to .3 was because it would break older version of the Customiser
+		}
+		if( ver <= 0.3 ){
+			json = updateToBeta4(json);
+			ver = 0.4;
+		}
+	}
+
+	// Process as normal once format has been updated
+	
+	// Process as collection or fetch correct theme from collection
+	if( (toReturn === 'collection' && 'themes' in json) || 'data' in json ){
+		// Convert legacy dictionary to array
+		if( 'themes' in json && !isArray(json.themes) ){
+			json.themes = Object.values(json.themes);
+		}
+		try {
+			json = normaliseJson(json);
+		}
+		catch(e) {
+			loader.log(e, true);
+			throw new Error(['Data failed validation.', 'json.invalid']);
+		}
+	}
+	// If a collection is linked under a theme query, check for valid values
+	// This code is legacy leftovers from v0 that sadly is still needed
+	else if( 'themes' in json && Object.values(json.themes).length > 0 ){
+		let themeUrl = false;
+		if( toReturn in json.themes && 'url' in json.themes[toReturn] ){
+			themeUrl = json.themes[toReturn]['url'];
+		}
+		else if( 'url' in json.themes[0] ){
+			themeUrl = Object.values(json.themes)[0]['url'];
 		}
 		else {
-			ver = parseFloat(json.json_version);
+			throw new Error(['Failed to fetch legacy theme URL. If you\'re visiting the correct URL, ask the theme maintainer for help.', 'faulty.legacy.url']);
 		}
 
-		// Else, continue to process.
-		if( ver > jsonVersion ){
-			messenger.send('Detected JSON version beyond what is supported by this instance. Attempting to process as normal. If any bugs or failures occur, try using the main instance at valeriolyndon.github.io.');
-			console.log('Detected JSON version beyond what is supported by this instance. Attempting to process as normal. If any bugs or failures occur, try updating your fork from the main instance at valeriolyndon.github.io.');
+		themeUrls.push(themeUrl);
+		if( userSettings ){
+			userSettings.data = themeUrl;
 		}
+		query.delete('c');
+		query.delete('q');
+		query.append('t', themeUrl);
 
-		else if( ver < jsonVersion ){
-			console.log('The loaded JSON has been processed as legacy JSON. This can *potentially* cause errors or slowdowns. If you are the JSON author and encounter an issue, please see the GitHub page for assistance updating.');
-			if( ver <= 0.1 ){
-				json = updateToBeta3(json, url, toReturn);
-				ver = 0.3;
-				// skips from 0.2 to 0.3 because current code can handle both the same.
-				// the version change from .2 to .3 was because it would break older version of the Customiser
-			}
-			if( ver <= 0.3 ){
-				json = updateToBeta4(json);
-				ver = 0.4;
-			}
+		let theme;
+		try {
+			theme = await fetchFile(themeUrl);
 		}
-
-		// Process as normal once format has been updated
-		
-		// Process as collection or fetch correct theme from collection
-		if(toReturn === 'collection' && 'themes' in json
-		|| 'data' in json){
-			// Convert legacy dictionary to array
-			if( json.themes && !Array.isArray(json.themes) ){
-				let arrayThemes = [];
-				for( let t of Object.values(json.themes) ){
-					arrayThemes.push(t);
-				}
-				json.themes = arrayThemes;
-			}
-			try {
-				processed = normaliseJson(json);
-			}
-			catch(e) {
-				loader.log(e, true);
-				reject(['Data failed validation.', 'json.invalid']);
-			}
+		catch {
+			throw new Error(['Failed to fetch legacy theme URL. If you\'re visiting the correct URL, ask the theme maintainer for help.', 'faulty.legacy']);
 		}
-		// If a collection is linked under a theme query, check for valid values
-		// This code is legacy leftovers from v0 that sadly is still needed
-		else if( 'themes' in json && Object.values(json.themes).length > 0 ){
-			let themeUrl = false;
-			if( json.themes[toReturn] ){
-				themeUrl = json.themes[toReturn]['url'];
-			}
-			else {
-				themeUrl = Object.values(json.themes)[0]['url'];
-			}
-
-			if( themeUrl ){
-				fetchFile(themeUrl)
-				.then((result) => {
-					try {
-						processed = JSON.parse(result);
-					}
-					catch {
-						reject(['Encountered a problem while parsing theme information.', 'invalid.name']);
-						return;
-					}
-				})
-				.catch(() => {
-					reject(['Failed to fetch legacy theme URL. If you\'re visiting the correct URL, ask the theme maintainer for help.', 'faulty.legacy']);
-					return;
-				});
-			}
+		try {
+			json = JSON.parse(theme);
 		}
-		else {
-			loader.log('[ERROR] Failed to parse JSON due to lack of useable key. CODE: lacking.data');
-			reject(['The linked theme could not be parsed.', 'lacking.data']);
-			return;
+		catch {
+			throw new Error(['Encountered a problem while parsing theme information.', 'processjson.parse']);
 		}
-		resolve(processed);
-	});
+	}
+	else {
+		loader.log('[ERROR] Failed to parse JSON due to lack of useable key. CODE: lacking.data');
+		throw new Error(['The linked theme could not be parsed.', 'lacking.data']);
+	}
+	try {
+		return normaliseJson(json);
+	}
+	catch(e) {
+		loader.log(e, true);
+		throw new Error(['Data failed validation.', 'json.invalid']);
+	}
 }
 
 
