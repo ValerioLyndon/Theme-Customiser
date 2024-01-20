@@ -1600,7 +1600,7 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 
 	div.className = 'entry';
 	head.className = 'entry__head';
-	headLeft.textContent = entryData.name ? entryData.name : 'Untitled';
+	headLeft.textContent = entryData.name;
 	headLeft.className = 'entry__name';
 	headRight.className = 'entry__action-box';
 	expando.className = 'expando js-expando';

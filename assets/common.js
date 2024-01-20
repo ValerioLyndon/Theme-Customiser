@@ -1128,7 +1128,7 @@ function normaliseJson( json ){
 		}
 
 		if( 'options' in json.data ){
-			json.data.options = normaliseOptions( json.data.options );
+			json.data.options = normaliseOptions(json.data.options);
 		}
 
 		if( 'mods' in json.data ){
@@ -1136,12 +1136,86 @@ function normaliseJson( json ){
 				throw new Error(`"mods" value must be a dictionary of dictionaries.`);
 			}
 			for( let [id, mod] of Object.entries(json.data.mods) ){
-				// TODO
+				if( 'name' in mod && !isString(mod.name) ){
+					throw new Error(`Mod "${id}": "name" value must be a string.`);
+				}
+				if( !('name' in mod) ){
+					mod.name = 'Untitled';
+				}
+
+				if( 'description' in mod && !isString(mod.description) ){
+					throw new Error(`Mod "${id}": "description" value must be a string.`);
+				}
+
+				if( 'css' in mod ){
+					if( !isDict(mod.css) || Object.values(mod.css).find(css=>!isString(css)) !== undefined ){
+						throw new Error(`Mod "${id}": "css" value must be a dictionary of strings.`);
+					}
+					if( !permissive && Object.keys(mod.css).find(key=>!(['import','top','bottom'].includes(key))) ){
+						throw new Error(`Mod "${id}": "css" value is unrecognised. Must be one of "bottom", "top", "import".`);
+					}
+				}
+
+				if( 'url' in mod ){
+					if( !isString(mod.url) ){
+						throw new Error(`Mod "${id}": "url" value must be a string.`);
+					}
+					if( !isValidUrl(mod.url) ){
+						console.log(`Mod "${id}": "url" key was ignored due to an invalid value. Value must start with "https://" or "mailto:".`);
+						delete mod.url;
+					}
+				}
+
+				if( 'requires' in mod ){
+					if( !isArray(mod.requires) || mod.requires.find(req=>!isString(req)) !== undefined ){
+						throw new Error(`Mod "${id}": "requires" value must be an array of mod ID strings.`);
+					}
+					if( mod.requires.find(req=>!(Object.keys(json.data.mods).includes(req))) ){
+						throw new Error(`Mod "${id}": "requires" string must match one of your mod keys.`);
+					}
+				}
+
+				if( 'conflicts' in mod ){
+					if( !isArray(mod.conflicts) || mod.conflicts.find(req=>!isString(req)) !== undefined ){
+						throw new Error(`Mod "${id}": "conflicts" value must be an array of mod ID strings.`);
+					}
+					if( mod.conflicts.find(req=>!(Object.keys(json.data.mods).includes(req))) ){
+						throw new Error(`Mod "${id}": "conflicts" string must match one of your mod keys.`);
+					}
+				}
+
+				if( 'options' in mod ){
+					mod.options = normaliseOptions(mod.options);
+				}
+
+				if( 'tags' in mod ){
+					try {
+						mod.tags = normaliseTags(mod.tags);
+					}
+					catch(e) {
+						e.message = `Mod "${id}": ${e.message}`;
+						throw e;
+					}
+				}
+
+				if( 'flags' in mod ){
+					if( !isArray(mod.flags) || mod.flags.find(flag=>!isString(flag)) !== undefined ){
+						throw new Error(`Mod "${id}": "flags" value must be an array of strings.`);
+					}
+					if( !permissive && mod.flags.find(flag=>!(['hidden'].includes(flag))) !== undefined ){
+						throw new Error(`Mod "${id}": "flags" value is unrecognised. Must be ["hidden"].`)
+					}
+				}
 			}
 		}
 
-		if( 'flags' in json.data && (!isArray(json.data.flags) || json.data.flags.find(flag=>!isString(flag)) !== undefined) ){
-			throw new Error(`"flags" value must be an array of strings.`);
+		if( 'flags' in json.data ){
+			if( !isArray(json.data.flags) || json.data.flags.find(flag=>!isString(flag)) !== undefined ){
+				throw new Error(`"flags" value must be an array of strings.`);
+			}
+			if( !permissive && json.data.flags.find(flag=>!(['beta','alpha'].includes(flag))) !== undefined ){
+				throw new Error(`"flags" value is unrecognised. Must be any of "beta", "alpha".`);
+			}
 		}
 
 		if( 'preview' in json.data ){
@@ -1165,6 +1239,26 @@ function normaliseJson( json ){
 	}
 
 	return json;
+}
+
+function normaliseTags( tags ){
+	if( isArray(tags) ){
+		if( tags.find(tag=>!isString(tag)) !== undefined ){
+			throw new Error(`tags inside the "tags" key must be strings.`);
+		}
+	}
+	else if( isDict(tags) ){
+		for( let group of Object.values(tags) ){
+			if( group.find(tag=>!isString(tag)) !== undefined ){
+				throw new Error(`tags inside the "tags" key must be strings.`);
+			}
+		}
+	}
+	else {
+		throw new Error(`"tags" value must be either an array of strings or a dictionary of arrays of keys.`)
+	}
+
+	return tags;
 }
 
 function normaliseDisplay( display ){
@@ -1248,6 +1342,9 @@ function normaliseColumns( columns ){
 }
 
 function normaliseOptions( options ){
+	if( !isDict(options) || Object.values(options).find(opt=>!isDict(opt)) !== undefined ){
+		throw new Error('"options" value must be a dictionary of dictionaries');
+	}
 	for( let [id, opt] of Object.entries(options) ){
 		if( 'name' in opt && !isString(opt.name) ){
 			throw new Error(`Option "${id}": "name" value must be a string.`);
