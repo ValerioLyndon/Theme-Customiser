@@ -393,8 +393,13 @@ function pageSetup( ){
 	function fetchAllFiles( arrayOfUrls ){
 		const files = [];
 		for( let i = 0; i < arrayOfUrls.length; i++ ){
-			if( typeof arrayOfUrls[i] === 'string' ){
-				files.push(fetchFile(arrayOfUrls[i], false));
+			if( isString(arrayOfUrls[i]) ){
+				try {
+					files.push(fetchFile(arrayOfUrls[i], false));
+				}
+				catch(e){
+					loader.log(`[ERROR] Failed while fetching "${arrayOfUrls[i]}".\n${e.message}`, true);
+				}
 			}
 			// this codes' only purpose is to allow dev tools to directly inject JSON into the page through window.addEventListener
 			else {
@@ -462,7 +467,7 @@ function pageSetup( ){
 			}
 			
 			if( collectionFailures >= files.length ){
-				loader.failed(['Encountered a problem while parsing collection information.', 'json.parse']);
+				loader.failed(new Error('Encountered a problem while parsing collection information.', {cause:'json.parse'}));
 				throw new Error('too many failures');
 			}
 			else if( collectionFailures > 0 ){
@@ -485,7 +490,7 @@ function pageSetup( ){
 				}
 
 				if( jsonFailures >= files.length ){
-					loader.failed(['Encountered a problem while parsing collection information.', 'invalid.json']);
+					loader.failed(new Error('Encountered a problem while parsing collection information.', {cause:'invalid.json'}));
 					throw new Error('too many failures');
 				}
 				else if( jsonFailures > 0 ){

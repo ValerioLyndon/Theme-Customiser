@@ -125,9 +125,14 @@ class LoadingScreen {
 		}, 1500)
 	}
 
-	failed( reason_array ){
-		this.log(reason_array[0]);
-		this.log(`Bailing out with code "${reason_array[1]}".`);
+	failed( err ){
+		this.log(err.message);
+		if( err.cause !== undefined ){
+			this.log(`Bailing out with code "${err.cause}".`);
+		}
+		else {
+			this.log(`Bailing out.`);
+		}
 		// only runs once
 		if( !this.stop ){
 			this.icon.className = 'loading-screen__cross';
@@ -135,7 +140,7 @@ class LoadingScreen {
 
 			let description = document.createElement('p');
 			description.className = 'loading-screen__item loading-screen__description';
-			description.textContent = reason_array[0];
+			description.textContent = err.message;
 			let link = document.createElement('a');
 			link.className = 'loading-screen__item hyperlink';
 			link.href = './';
@@ -172,7 +177,6 @@ class LoadingScreen {
 			this.loader.append(description, link, openLogs, logs);
 
 			this.stop = true;
-			return new Error(reason_array[1]);
 		}
 	}
 }
@@ -450,22 +454,16 @@ async function fetchFile( path, cacheResult = true ){
 	}
 
 	console.log(`[info] Fetching ${path}`);
-	try {
-		const response = await fetch(path);
-		if( !response.ok ){
-			throw new Error(`Status ${response.status}`);
-		}
-		const text = await response.text();
+	const response = await fetch(path);
+	if( !response.ok ){
+		throw new Error(`Status ${response.status}`);
+	}
+	const text = await response.text();
 
-		if( cacheResult ){
-			sessionStorage.setItem(path, text);
-		}
-		return text;
+	if( cacheResult ){
+		sessionStorage.setItem(path, text);
 	}
-	catch( error ){
-		loader.log(`[ERROR] Failed while fetching "${path}".\n${error}`, true);
-		return ['Encountered a problem while loading a resource.', 'request.error'];
-	}
+	return text;
 }
 
 function importPreviousSettings( opts = undefined ){
@@ -998,7 +996,7 @@ async function processJson( json, url, toReturn ){
 		}
 		catch(e) {
 			loader.log(e, true);
-			throw new Error(['Data failed validation.', 'json.invalid']);
+			throw new Error('Data failed validation.', {cause:'json.invalid'});
 		}
 	}
 	// If a collection is linked under a theme query, check for valid values
@@ -1028,25 +1026,25 @@ async function processJson( json, url, toReturn ){
 			theme = await fetchFile(themeUrl);
 		}
 		catch {
-			throw new Error(['Failed to fetch legacy theme URL. If you\'re visiting the correct URL, ask the theme maintainer for help.', 'faulty.legacy']);
+			throw new Error('Failed to fetch legacy theme URL. If you\'re visiting the correct URL, ask the theme maintainer for help.', {cause:'faulty.legacy'});
 		}
 		try {
 			json = JSON.parse(theme);
 		}
 		catch {
-			throw new Error(['Encountered a problem while parsing theme information.', 'processjson.parse']);
+			throw new Error('Encountered a problem while parsing theme information.', {cause:'processjson.parse'});
 		}
 	}
 	else {
 		loader.log('[ERROR] Failed to parse JSON due to lack of useable key. CODE: lacking.data');
-		throw new Error(['The linked theme could not be parsed.', 'lacking.data']);
+		throw new Error('The linked theme could not be parsed.', {cause:'lacking.data'});
 	}
 	try {
 		return Validate.json(json);
 	}
 	catch(e) {
 		loader.log(e, true);
-		throw new Error(['Data failed validation.', 'json.invalid']);
+		throw new Error('Data failed validation.', {cause:'json.invalid'});
 	}
 }
 
@@ -1469,19 +1467,20 @@ class Validate {
 			if( !('type' in opt) ){
 				throw new Error(`Option "${id}": missing "type" key.`);
 			}
-			if( typeof opt.type !== 'string' ){
+			if( !isString(opt.type) ){
 				throw new Error(`Option "${id}": "type" value must be a string.`);
 			}
-			let typeSplit = opt.type.split('/');
-			if( !(['text', 'textarea', 'color', 'range', 'toggle', 'select'].includes(typeSplit[0])) ){
+			const typeCore = opt.type.split('/')[0];
+			const typeQualifier = opt.type.split('/')[1];
+			if( !(['text', 'textarea', 'color', 'range', 'toggle', 'select'].includes(typeCore)) ){
 				throw new Error(`Option "${id}": "type" value is unrecognised.`);
 			}
-			if( typeSplit[0].startsWith('text/') && !(['content', 'image_url', 'size', 'value', 'url_fragment'].includes(typeSplit[1])) ){
+			if( typeCore === 'text' && !(['content', 'image_url', 'size', 'value', 'url_fragment'].includes(typeQualifier)) ){
 				throw new Error(`Option "${id}": "type" qualifier value is unrecognised.`);
 			}
 			// TODO: color type validations
 
-			if( opt.type !== 'range' && ('min' in opt || 'max' in opt || 'step' in opt) ){
+			if( typeCore !== 'range' && ('min' in opt || 'max' in opt || 'step' in opt) ){
 				if( this.permissive ){
 					console.log(`Option "${id}": a "min", "max", or "step" key was ignored as the "type" value is not "range".`);
 				}
@@ -1491,12 +1490,20 @@ class Validate {
 			}
 
 			if( 'replacements' in opt ){
-				opt.replacements = Validate.replacements(opt.replacements, id, opt.type);
+				opt.replacements = Validate.replacements(opt.replacements, id, typeCore);
 			}
-			
-			if( opt.type === 'select' ){
+			else if( typeCore !== 'select' ){
+				throw new Error(`Option "${id}": "replacements" key is required for type "${typeCore}".`);
+			}
+
+			if( typeCore === 'select' ){
 				if( 'replacements' in opt ){
-					console.log(`Option "${id}": "replacements" key was ignored as the "type" value is "select". Use the "selections" key.`)
+					if( this.permissive ){
+						console.log(`Option "${id}": "replacements" key was ignored as the "type" value is "select". Use the "selections" key instead.`)
+					}
+					else {
+						throw new Error(`Option "${id}": "replacements" key cannot be used when "type" value is "select". Use the "selections" key instead.`);
+					}
 				}
 				if( !('selections' in opt) ){
 					throw new Error(`Option "${id}": "select" type options require a "selections" key.`);
@@ -1509,14 +1516,14 @@ class Validate {
 				}
 				Object.values(opt.selections).map(sel=>{
 					if( 'replacements' in sel ){
-						sel.replacements = Validate.replacements(sel.replacements, id, opt.type);
+						sel.replacements = Validate.replacements(sel.replacements, id, typeCore);
 					}
 					return sel;
 				});
 			}
 
 			if( 'default' in opt ){
-				if( opt.type === 'toggle' ){
+				if( typeCore === 'toggle' ){
 					if( this.permissive ){
 						opt.default = parseBool(opt.default);
 					}
@@ -1524,7 +1531,7 @@ class Validate {
 						throw new Error(`Option "${id}": "default" value must be a boolean when "type" value is "toggle".`);
 					}
 				}
-				if( opt.type === 'range' ){
+				if( typeCore === 'range' ){
 					if( this.permissive ){
 						opt.default = parseFloat(opt.default);
 					}
@@ -1532,18 +1539,18 @@ class Validate {
 						throw new Error(`Option "${id}": "default" value must be a number when "type" value is "range".`);
 					}
 				}
-				if( opt.type === 'select' && !(Object.keys(opt.selections).includes(opt.default)) ){
+				if( typeCore === 'select' && !(Object.keys(opt.selections).includes(opt.default)) ){
 					throw new Error(`Option "${id}": "default" value must match one of your "selections" keys.`);
 				}
 			}
 			// add some fallback default values when it's not defined
-			else if( opt.type === 'toggle' ) {
+			else if( typeCore === 'toggle' ) {
 				opt.default = false;
 			}
-			else if( opt.type.startsWith('color') ) {
+			else if( typeCore === 'color' ) {
 				opt.default = '#d8d8d8';
 			}
-			else if( opt.type.startsWith('text') ) {
+			else if( typeCore.startsWith('text') ) {
 				opt.default = '';
 			}
 
@@ -1552,15 +1559,21 @@ class Validate {
 		return options;
 	}
 
-	static replacements( replacements, id, type ){
+	static replacements( replacements, id, typeCore ){
 		if( !(replacements instanceof Array) || replacements.find(repl=>!(repl instanceof Array)) !== undefined ){
 			throw new Error(`Option "${id}": "replacements" value must be an array of arrays.`);
 		}
-		if( type === 'toggle' && replacements.find(repl=>repl.length !== 3) !== undefined ){
+		if( replacements.length === 0 ){
+			throw new Error(`Option "${id}": "replacements" value must have at least one set.`);
+		}
+		if( typeCore === 'toggle' && replacements.find(repl=>repl.length !== 3) !== undefined ){
 			throw new Error(`Option "${id}": "replacements" set must contain 3 strings when "type" value is "toggle".`);
 		}
-		if( type !== 'toggle' && replacements.find(repl=>repl.length !== 2) ){
-			throw new Error(`Option "${id}": "replacement" set must contain 2 strings.`);
+		if( typeCore !== 'toggle' && replacements.find(repl=>repl.length !== 2) !== undefined ){
+			throw new Error(`Option "${id}": "replacements" set must contain 2 strings.`);
+		}
+		if( replacements.find(repl=>repl[0].length === 0) !== undefined ){
+			throw new Error(`Option "${id}": the first string of a "replacements" set cannot be empty.`);
 		}
 		return replacements;
 	}

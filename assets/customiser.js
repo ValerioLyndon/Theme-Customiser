@@ -137,21 +137,17 @@ function createBB( text ){
 }
 
 // Determines if a string is CSS or a URL to fetch. If a URL, fetches then returns the contents for use in CSS. 
-function returnCss( string ){
-	return new Promise((resolve, reject) => {
-		if( string.startsWith('http') ){
-			fetchFile(string)
-				.then((response) => {
-					resolve(response);
-				})
-				.catch((response) => {
-					reject(response);
-				})
+async function returnCss( string ){
+	if( isValidHttp(string) ){
+		try {
+			return await fetchFile(string);
 		}
-		else {
-			resolve(string);
+		catch(e) {
+			messenger.error(`Failed while fetching "${string}".\n${e.message}`);
+			return string;
 		}
-	});
+	}
+	return string;
 }
 
 // Updates the userSettings with the option's value.
@@ -598,9 +594,9 @@ async function updateCss(  ){
 				try {
 					var modCss = await returnCss(resource);
 				}
-				catch ( failure ){
-					console.log(`[ERROR] Failed applying CSS of mod ${modId}: ${failure}`);
-					messenger.error(`Failed to return CSS for mod "${modId}". Try waiting 30s then disabling and re-enabling the mod. If this continues to happen, check with the author if the listed resource still exists.`, failure[1] ? failure[1] : 'returnCss');
+				catch( err ){
+					console.log(`[ERROR] Failed applying CSS of mod ${modId}: ${err.message}`);
+					messenger.error(`Failed to return CSS for mod "${modId}". Try waiting 30s then disabling and re-enabling the mod. If this continues to happen, check with the author if the listed resource still exists.`, err.cause ? err.cause : 'returnCss');
 				}
 				
 				let globalOpts = [];
@@ -798,9 +794,9 @@ window.addEventListener(
 					userSettings.theme = theme.name;
 					pageSetup();
 				})
-				.catch((reason) => {
-					loader.failed(reason);
-					throw new Error(reason[0]);
+				.catch((err) => {
+					loader.failed(err);
+					throw null;
 				});
 			}
 			else {
@@ -879,7 +875,7 @@ if( !query.get('dynamic') ) {
 	}
 	// Back to regular URL processing
 	else if( themeUrls.length === 0 ){
-		loader.failed(['No theme was specified in the URL. Did you follow a broken link?', 'select']);
+		loader.failed(new Error('No theme was specified in the URL. Did you follow a broken link?', {cause:'select'}));
 		throw new Error('select');
 	}
 
@@ -894,7 +890,7 @@ if( !query.get('dynamic') ) {
 		}
 		catch( e ){
 			loader.logJsonError(`[ERROR] Failed to parse theme JSON.`, json, e, fetchUrl);
-			loader.failed(['Encountered a problem while parsing theme information.', 'json.parse']);
+			loader.failed(new Error('Encountered a problem while parsing theme information.', {cause:'json.parse'}));
 			throw new Error('json.parse');
 		}
 
@@ -904,14 +900,14 @@ if( !query.get('dynamic') ) {
 			userSettings.theme = selectedTheme === 'theme' ? theme.name : selectedTheme;
 			pageSetup();
 		})
-		.catch((reason) => {
-			loader.failed(reason);
-			throw new Error(reason[0]);
+		.catch((err) => {
+			loader.failed(err);
+			throw null;
 		});
 	})
-	.catch((reason) => {
-		loader.failed(reason);
-		throw new Error(reason);
+	.catch((err) => {
+		loader.failed(err);
+		throw null;
 	});
 }
 
@@ -1505,14 +1501,8 @@ function pageSetup( ){
 	loader.text('Fetching CSS...');
 
 	// Get theme CSS
-	let fetchThemeCss = theme?.css ? returnCss(theme.css) : '';
-
-	fetchThemeCss.catch((reason) => {
-		loader.failed(reason);
-		throw new Error(reason);
-	});
-
-	fetchThemeCss.then((css) => {
+	returnCss('css' in theme ? theme.css : '')
+	.then((css) => {
 		// Update Preview
 		baseCss = css;
 	
@@ -1572,6 +1562,10 @@ function pageSetup( ){
 			loader.text('Loading preview...');
 			console.log('[info] Awaiting preview before completing page load.');
 		}
+	})
+	.catch((err) => {
+		loader.failed(err);
+		throw null;
 	});
 }
 
