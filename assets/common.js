@@ -1540,7 +1540,7 @@ class Validate {
 			else if( opt.type === 'toggle' ) {
 				opt.default = false;
 			}
-			else if( opt.type === 'color' ) {
+			else if( opt.type.startsWith('color') ) {
 				opt.default = '#d8d8d8';
 			}
 			else if( opt.type.startsWith('text') ) {
