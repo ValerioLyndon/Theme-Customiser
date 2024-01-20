@@ -137,21 +137,17 @@ function createBB( text ){
 }
 
 // Determines if a string is CSS or a URL to fetch. If a URL, fetches then returns the contents for use in CSS. 
-function returnCss( string ){
-	return new Promise((resolve, reject) => {
-		if( string.startsWith('http') ){
-			fetchFile(string)
-				.then((response) => {
-					resolve(response);
-				})
-				.catch((response) => {
-					reject(response);
-				})
+async function returnCss( string ){
+	if( isValidHttp(string) ){
+		try {
+			return await fetchFile(string);
 		}
-		else {
-			resolve(string);
+		catch(e) {
+			messenger.error(`Failed while fetching "${string}".\n${e.message}`);
+			return string;
 		}
-	});
+	}
+	return string;
 }
 
 // Updates the userSettings with the option's value.
@@ -174,8 +170,6 @@ function updateOption( optId, funcConfig = {} ){
 			optData = theme.options[optId];
 		}
 
-		let defaultValue = optData.default;
-
 		if( val === undefined ){
 			if( input.type === 'checkbox' ){
 				val = input.checked;
@@ -186,7 +180,7 @@ function updateOption( optId, funcConfig = {} ){
 		}
 
 		// Add to userSettings unless matches default value
-		if( val === defaultValue || optData.type === 'range' && val === '' ){
+		if( val === optData.default || optData.type === 'range' && val === '' ){
 			if( funcConfig.parentModId ){
 				delete userSettings.mods[funcConfig.parentModId][optId];
 			}
@@ -286,9 +280,6 @@ function updateMod( modId, funcConfig = {} ){
 		if( mod.conflicts ){
 			for( let conflict of mod.conflicts ){
 				if( conflict in theme.mods ){
-					// before we clean up the conflicts, create clone for use disabling infoOn function 
-					let tempConflicts = structuredClone(currentConflicts);
-
 					if( val ){
 						if( !currentConflicts[conflict] ){
 							currentConflicts[conflict] = {};
@@ -518,7 +509,7 @@ async function updateCss(  ){
 				insert = insert.split('(')[1].split(')')[0];
 			}
 			catch {
-				console.log('[WARN] Failed to process "insert" type due to missing parentheses.');
+				console.log(`[WARN] Failed to process "insert" type of option "${optData.name}" due to missing parentheses.`);
 			}
 			if( subQualifier.includes('strip_alpha') ){
 				let arr = insert.split(',');
@@ -530,7 +521,7 @@ async function updateCss(  ){
 		}
 
 		if( type === 'select' ){
-			var replacements = optData.selections[insert].replacements;
+			var replacements = optData.selections[insert]?.replacements;
 		}
 		else {
 			var replacements = optData.replacements;
@@ -603,9 +594,9 @@ async function updateCss(  ){
 				try {
 					var modCss = await returnCss(resource);
 				}
-				catch ( failure ){
-					console.log(`[ERROR] Failed applying CSS of mod ${modId}: ${failure}`);
-					messenger.error(`Failed to return CSS for mod "${modId}". Try waiting 30s then disabling and re-enabling the mod. If this continues to happen, check with the author if the listed resource still exists.`, failure[1] ? failure[1] : 'returnCss');
+				catch( err ){
+					console.log(`[ERROR] Failed applying CSS of mod ${modId}: ${err.message}`);
+					messenger.error(`Failed to return CSS for mod "${modId}". Try waiting 30s then disabling and re-enabling the mod. If this continues to happen, check with the author if the listed resource still exists.`, err.cause ? err.cause : 'returnCss');
 				}
 				
 				let globalOpts = [];
@@ -803,6 +794,10 @@ window.addEventListener(
 					userSettings.theme = theme.name;
 					pageSetup();
 				})
+				.catch((err) => {
+					loader.failed(err);
+					throw null;
+				});
 			}
 			else {
 				console.log('[ERROR] Malformed request sent to customiser.js. No action taken.')
@@ -880,7 +875,7 @@ if( !query.get('dynamic') ) {
 	}
 	// Back to regular URL processing
 	else if( themeUrls.length === 0 ){
-		loader.failed(['No theme was specified in the URL. Did you follow a broken link?', 'select']);
+		loader.failed(new Error('No theme was specified in the URL. Did you follow a broken link?', {cause:'select'}));
 		throw new Error('select');
 	}
 
@@ -895,7 +890,7 @@ if( !query.get('dynamic') ) {
 		}
 		catch( e ){
 			loader.logJsonError(`[ERROR] Failed to parse theme JSON.`, json, e, fetchUrl);
-			loader.failed(['Encountered a problem while parsing theme information.', 'json.parse']);
+			loader.failed(new Error('Encountered a problem while parsing theme information.', {cause:'json.parse'}));
 			throw new Error('json.parse');
 		}
 
@@ -905,14 +900,14 @@ if( !query.get('dynamic') ) {
 			userSettings.theme = selectedTheme === 'theme' ? theme.name : selectedTheme;
 			pageSetup();
 		})
-		.catch((reason) => {
-			loader.failed(reason);
-			throw new Error(reason[0]);
+		.catch((err) => {
+			loader.failed(err);
+			throw null;
 		});
 	})
-	.catch((reason) => {
-		loader.failed(reason);
-		throw new Error(reason);
+	.catch((err) => {
+		loader.failed(err);
+		throw null;
 	});
 }
 
@@ -925,16 +920,10 @@ function pageSetup( ){
 	loader.text('Rendering page...');
 
 	// Set preview to correct type and add iframe to page
-	let framePath = './preview/';
-	if( theme.type === 'classic' ){
-		framePath += 'classic/';
-	}
-	else {
-		framePath += 'modern/';
-	}
-	if( theme.supports?.length === 0 && theme.supports?.includes('mangalist') ){
+	let framePath = `./preview/${theme.type}/`;
+	if( theme.supports.length === 1 && theme.supports[0] === 'mangalist' ){
 		//framePath += 'mangalist.html';
-		console.log('[info] Detected mangalist only, but this feature is not yet supported.');
+		console.log('[info] Detected mangalist only, but manga preview is not yet supported.');
 		framePath += 'animelist.html';
 	}
 	else {
@@ -943,21 +932,11 @@ function pageSetup( ){
 	iframe.src = framePath;
 	preview.appendChild(iframe);
 
-	// Test for basic JSON values to assist list designers debug.
-	if( !theme.css ){
-		console.log('[warn] Theme did not define any CSS.');
-		theme.css = '';
-	}
-	if( !theme.type ){
-		console.log('[warn] Theme did not define a list type, assuming "modern".');
-		theme.type = 'modern';
-	}
-
 	// Basic theme information / HTML changes
 	document.getElementsByTagName('title')[0].textContent = `Theme Customiser - ${theme.name}`;
-	document.getElementById('js-title').textContent = theme.name ? theme.name : 'Untitled';
+	document.getElementById('js-title').textContent = theme.name;
 	const authorEle = document.querySelector('.js-author');
-	authorEle.textContent = theme.author ? theme.author : 'Unknown Author';
+	authorEle.textContent = theme.author;
 	if( 'author_url' in theme ){
 		authorEle.href = theme.author_url;
 		authorEle.target = '_blank';
@@ -1034,19 +1013,14 @@ function pageSetup( ){
 
 	// Help links
 	if( theme.help ){
-		if( theme.help.startsWith('http') || theme.help.startsWith('mailto:') ){
-			let help = document.getElementsByClassName('js-help');
-			let helpLinks = document.getElementsByClassName('js-help-href');
+		let help = document.getElementsByClassName('js-help');
+		let helpLinks = document.getElementsByClassName('js-help-href');
 
-			for( let ele of help ){
-				ele.classList.remove('o-hidden');
-			}
-			for( let link of helpLinks ){
-				link.href = theme.help;
-			}
+		for( let ele of help ){
+			ele.classList.remove('o-hidden');
 		}
-		else {
-			messenger.warn('The help URL provided by the theme was ignored due to being invalid. Only HTTP and MAILTO protocols are accepted.');
+		for( let link of helpLinks ){
+			link.href = theme.help;
 		}
 	}
 
@@ -1086,19 +1060,14 @@ function pageSetup( ){
 
 	if( theme.supports?.length === 1 ){
 		let type = theme.supports[0];
-		if( ['animelist','mangalist'].includes(type) ){
-			configNotice.classList.remove('o-hidden');
-			let typeHtml = document.createElement('div');
-			typeHtml.className = 'popup__section';
-			typeHtml.innerHTML = `
-				<h5 class="popup__sub-header">List type.</h5>
-				<p class="popup__paragraph">This theme was designed only for <b>${type}s</b>. Use on ${type === 'animelist' ? 'mangalist' : 'animelist'}s may have unexpected results.</p>
-			`;
-			configList.appendChild(typeHtml);
-		}
-		else {
-			messenger.warn('The supported list was ignored due to being invalid. The only accepted values are "animelist" and "mangalist".');
-		}
+		configNotice.classList.remove('o-hidden');
+		let typeHtml = document.createElement('div');
+		typeHtml.className = 'popup__section';
+		typeHtml.innerHTML = `
+			<h5 class="popup__sub-header">List type.</h5>
+			<p class="popup__paragraph">This theme was designed only for <b>${type}s</b>. Use on ${type === 'animelist' ? 'mangalist' : 'animelist'}s may have unexpected results.</p>
+		`;
+		configList.appendChild(typeHtml);
 	}
 	else {
 		theme.supports = ['animelist','mangalist'];
@@ -1388,26 +1357,6 @@ function pageSetup( ){
 
 	// Set preview options and post to preview iframe
 
-	if( !theme.preview ){
-		theme.preview = {};
-	}
-	// Inherit settings from regular config.
-	if( !('cover' in theme.preview) && 'cover' in theme ){
-		theme.preview.cover = theme.cover;
-	}
-	if( !('background' in theme.preview) && 'background' in theme ){
-		theme.preview.background = theme.background;
-	}
-	if( !('columns' in theme.preview) && 'columns' in theme ){
-		theme.preview.columns = theme.columns;
-	}
-	if( !('category' in theme.preview) && 'category' in theme ){
-		theme.preview.category = theme.category[0];
-	}
-	if( !('style' in theme.preview) && 'style' in theme ){
-		theme.preview.style = theme.style;
-	}
-
 	// Cover
 	if( 'cover' in theme.preview ){
 		let val = theme.preview.cover;
@@ -1420,7 +1369,7 @@ function pageSetup( ){
 
 	// Category
 	if( 'category' in theme.preview ){
-		postToPreview(['category', theme.preview.category])
+		postToPreview(['category', theme.preview.category[0]])
 	}
 	
 	// Style
@@ -1429,13 +1378,12 @@ function pageSetup( ){
 	}
 
 	// Columns
-	var tempcolumns = {};
 
-	// Set correct columns
+	var tempcolumns = {};
 	let mode = 'whitelist';
 	let tempListType = theme.supports[0];
 	if( 'columns' in theme.preview ){
-		mode = 'mode' in theme.preview.columns ? theme.preview.columns.mode : 'whitelist';
+		mode = theme.preview.columns.mode;
 		tempcolumns = theme.preview.columns;
 	}
 	else {
@@ -1553,14 +1501,8 @@ function pageSetup( ){
 	loader.text('Fetching CSS...');
 
 	// Get theme CSS
-	let fetchThemeCss = returnCss(theme.css);
-
-	fetchThemeCss.catch((reason) => {
-		loader.failed(reason);
-		throw new Error(reason);
-	});
-
-	fetchThemeCss.then((css) => {
+	returnCss('css' in theme ? theme.css : '')
+	.then((css) => {
 		// Update Preview
 		baseCss = css;
 	
@@ -1620,16 +1562,15 @@ function pageSetup( ){
 			loader.text('Loading preview...');
 			console.log('[info] Awaiting preview before completing page load.');
 		}
+	})
+	.catch((err) => {
+		loader.failed(err);
+		throw null;
 	});
 }
 
 // Render mods and options and returns the DOM element. Used inside pageSetup()
 function renderCustomisation( entryType, entry, parentEntry = [undefined, undefined] ){
-	function fail( reason ){
-		let parentText = parentId ? ` of "${parentId}"` : '';
-		console.log(`[ERROR] Failed to render ${entryType} "${entryId}"${parentText}: ${reason}`);
-	}
-
 	let entryId = entry[0];
 	let entryData = entry[1];
 	let parentId = parentEntry[0];
@@ -1645,7 +1586,7 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 
 	div.className = 'entry';
 	head.className = 'entry__head';
-	headLeft.textContent = entryData.name ? entryData.name : 'Untitled';
+	headLeft.textContent = entryData.name;
 	headLeft.className = 'entry__name';
 	headRight.className = 'entry__action-box';
 	expando.className = 'expando js-expando';
@@ -1675,44 +1616,10 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 		inputRow.className = 'entry__inputs';
 		div.appendChild(inputRow);
 
-		// Validate JSON
-
-		if( !entryData.type ){
-			return `Option must have a "type" key.`;
-		}
-
 		let split = entryData.type.split('/');
 		let type = split[0];
 		let qualifier = split[1];
 		let subQualifier = split[2];
-
-		if( type === 'select' && !entryData.selections ){
-			fail(`Option of type "select" must contain a "selections" key.`);
-			return;
-		}
-		else if( type !== 'select' && !entryData.replacements ){
-			fail('Option must contain a "replacements" key.');
-			return;
-		}
-
-		// Set default value if needed
-
-		let defaultValue = '';
-		if( entryData.default === undefined && entryData.type === 'toggle' ){
-			defaultValue = false;
-		}
-		if( entryData.default === undefined && entryData.type === 'color' ){
-			defaultValue = '#d8d8d8';
-		}
-		else if( entryData.default !== undefined ){
-			defaultValue = entryData.default;
-		}
-		if( parentId ){
-			theme.mods[parentId].options[entryId].default = defaultValue;
-		}
-		else {
-			theme.options[entryId].default = defaultValue;
-		}
 
 		// Help Links
 
@@ -1734,9 +1641,9 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 			if( type === 'textarea' ){
 				input = document.createElement('textarea');
 				input.className = 'input entry__textarea input--textarea';
-				input.innerHTML = defaultValue;
+				input.innerHTML = entryData.default;
 			}
-			input.value = defaultValue;
+			input.value = entryData.default;
 
 			if( qualifier === 'value' ){
 				input.placeholder = 'Your value here.';
@@ -1772,9 +1679,9 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 			swatch.className = 'entry__colour js-swatch';
 			inputRow.appendChild(swatch);
 
-			swatch.setAttribute('value', defaultValue);
-			input.value = defaultValue;
-			swatch.style.backgroundColor = defaultValue;
+			swatch.setAttribute('value', entryData.default);
+			input.value = entryData.default;
+			swatch.style.backgroundColor = entryData.default;
 
 			let toReturn = 'rgb';
 			if( subQualifier && subQualifier.includes('hsl') ){
@@ -1832,7 +1739,7 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 			range.type = 'range';
 			range.id = `${htmlId}-range`;
 			range.className = 'range';
-			range.setAttribute('value', defaultValue);
+			range.setAttribute('value', entryData.default);
 			range.addEventListener('input', () => {
 				input.value = range.value;
 				updateOption(entryId, {'parentModId': parentId});
@@ -1908,11 +1815,11 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 
 		// Add functionality to all the options & finalise type-specific features
 
-		if( type === 'toggle' && defaultValue == true ){
+		if( type === 'toggle' && entryData.default == true ){
 			input.setAttribute('checked', 'checked');
 		}
 		else if( !(type === 'toggle') ){
-			input.setAttribute('value', defaultValue);
+			input.setAttribute('value', entryData.default);
 		}
 
 		input.addEventListener('input', () => {
@@ -2012,9 +1919,7 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 
 		// Add mod tag to list of tags
 		if( entryData.tags ){
-			let tempTags = formatFilters(entryData.tags);
-
-			for( let [category, categoryTags] of Object.entries(tempTags) ){
+			for( let [category, categoryTags] of Object.entries(entryData.tags) ){
 				for( let tag of categoryTags ){
 					pushFilter(entryId, tag, category);
 				}

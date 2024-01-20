@@ -238,14 +238,9 @@ class ExtendedFilters extends BaseFilters {
 function renderCards( cardData ){
 	// Render theme list
 	for( let theme of cardData ){
-		let themeName = theme.name ? theme.name : 'Untitled';
-		let themeAuthor = theme.author ? theme.author : 'Untitled';
+		let themeName = theme.name;
+		let themeAuthor = theme.author;
 		let thisId = itemCount;
-
-		if( !('url' in theme) ){
-			loader.log(`[ERROR] Skipping theme ${themeName} due to missing "url" key.`);
-			continue;
-		}
 
 		let cardParent = document.createElement('a');
 		cardParent.className = 'browser__card';
@@ -259,6 +254,7 @@ function renderCards( cardData ){
 		cardParent.href = cardUrl;
 		cardParent.dataset.title = themeName;
 		cardParent.id = `card:${thisId}`;
+
 		if( 'date_added' in theme ){
 			if( !sorts.includes('dateAdded') ){
 				sorts.push('dateAdded');
@@ -269,6 +265,7 @@ function renderCards( cardData ){
 		else {
 			cardParent.dataset.dateAdded = '0000-00-00';
 		}
+
 		if( 'date' in theme ){
 			if( !sorts.includes('date') ){
 				sorts.push('date');
@@ -279,13 +276,12 @@ function renderCards( cardData ){
 		else {
 			cardParent.dataset.date = '0000-00-00';
 		}
-		if( 'author' in theme ){
-			if( !sorts.includes('author') ){
-				sorts.push('author');
-			}
 
-			cardParent.dataset.author = theme.author;
+		if( theme.author !== 'Unknown' && !sorts.includes('author') ){
+			sorts.push('author');
 		}
+
+		cardParent.dataset.author = theme.author;
 
 		let card = document.createElement('div');
 		card.className = 'card';
@@ -343,7 +339,7 @@ function renderCards( cardData ){
 			}
 		}
 
-		if( 'supports' in theme && theme.supports.length === 1 ){
+		if( theme.supports.length === 1 ){
 			addTag(`${capitalise(theme.supports[0])} Only`, '#d26666');
 		}
 		
@@ -362,12 +358,11 @@ function renderCards( cardData ){
 		cards.push(cardParent);
 
 		// Add tags to sortable list
-		let tempTags = formatFilters(theme.tags);
 		pushFilter(thisId, theme.type, 'list type');
 		pushFilter(thisId, themeAuthor, 'author');
 		pushFilter(thisId, releaseState, 'release state');
 
-		for( let [category, tags] of Object.entries(tempTags) ){
+		for( let [category, tags] of Object.entries(theme.tags) ){
 			for( let tag of tags ){
 				pushFilter(thisId, tag, category);
 			}
@@ -398,8 +393,13 @@ function pageSetup( ){
 	function fetchAllFiles( arrayOfUrls ){
 		const files = [];
 		for( let i = 0; i < arrayOfUrls.length; i++ ){
-			if( typeof arrayOfUrls[i] === 'string' ){
-				files.push(fetchFile(arrayOfUrls[i], false));
+			if( isString(arrayOfUrls[i]) ){
+				try {
+					files.push(fetchFile(arrayOfUrls[i], false));
+				}
+				catch(e){
+					loader.log(`[ERROR] Failed while fetching "${arrayOfUrls[i]}".\n${e.message}`, true);
+				}
 			}
 			// this codes' only purpose is to allow dev tools to directly inject JSON into the page through window.addEventListener
 			else {
@@ -467,7 +467,7 @@ function pageSetup( ){
 			}
 			
 			if( collectionFailures >= files.length ){
-				loader.failed(['Encountered a problem while parsing collection information.', 'json.parse']);
+				loader.failed(new Error('Encountered a problem while parsing collection information.', {cause:'json.parse'}));
 				throw new Error('too many failures');
 			}
 			else if( collectionFailures > 0 ){
@@ -490,7 +490,7 @@ function pageSetup( ){
 				}
 
 				if( jsonFailures >= files.length ){
-					loader.failed(['Encountered a problem while parsing collection information.', 'invalid.json']);
+					loader.failed(new Error('Encountered a problem while parsing collection information.', {cause:'invalid.json'}));
 					throw new Error('too many failures');
 				}
 				else if( jsonFailures > 0 ){
