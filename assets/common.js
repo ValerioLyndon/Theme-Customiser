@@ -33,7 +33,10 @@ function parseBool( variable ){
 }
 
 function isValidUrl( string ){
-	return /^https?:\/\//.test(string) || string.startsWith('mailto:');
+	return isValidHttp(string) || string.startsWith('mailto:');
+}
+function isValidHttp( string ){
+	return /^https?:\/\//.test(string);
 }
 
 class LoadingScreen {
@@ -1045,9 +1048,96 @@ function processJson( json, url, toReturn ){
 
 
 // json validation
-const permissive = true; 
+const permissive = true;
 
 function normaliseJson( json ){
+	if( 'collections' in json && (!isArray(json.collections) || json.collections.find(str=>!isString(str)||!isValidHttp(str)) !== undefined) ){
+		throw new Error(`"collections" key must be an array of *valid* URL strings.`);
+	}
+
+	if( 'themes' in json ){
+		if( !isArray(json.themes) || Object.values(json.themes).find(theme=>!isDict(theme)) !== undefined ){
+			throw new Error(`"themes" value must be an array of dictionaries.`);
+		}
+		for( let theme of json.themes ){
+			if( 'name' in theme && !isString(theme.name) ){
+				throw new Error(`Theme "${theme.name}": "name" value must be a string.`);
+			}
+			if( !('name' in theme) ){
+				theme.name = 'Untitled';
+			}
+			
+			if( 'author' in theme && !isString(theme.author) ){
+				throw new Error(`Theme "${theme.name}": "author" value must be a string.`);
+			}
+			if( !('author' in theme) ){
+				theme.name = 'Unknown';
+			}
+
+			if( 'image' in theme ){
+				if( !isString(theme.image) ){
+					throw new Error(`Theme "${theme.name}": "image" value must be a string.`);
+				}
+				if( !isValidHttp(theme.image) ){
+					throw new Error(`Theme "${theme.name}": "image" value must be an http protocol URL.`);
+				}
+			}
+			
+			if( 'url' in theme ){
+				if( !isString(theme.url) ){
+					throw new Error(`Theme "${theme.name}": "url" value must be a string.`);
+				}
+				if( !isValidHttp(theme.url) ){
+					throw new Error(`Theme "${theme.name}": "url" value must be an http protocol URL.`);
+				}
+			}
+			else {
+				throw new Error(`Theme "${theme.name}": "url" key is required.`);
+			}
+
+			if( 'date' in theme && !/\d{4}-\d{2}-\d{2}/.test(theme.date) ){
+				throw new Error(`Theme "${theme.name}": "date" value must be formatted as "YYYY-MM-DD".`);
+			}
+
+			if( 'date_added' in theme && !/\d{4}-\d{2}-\d{2}/.test(theme.date_added) ){
+				throw new Error(`Theme "${theme.name}": "date_added" value must be formatted as "YYYY-MM-DD".`);
+			}
+		
+			if( 'type' in theme && !(['modern','classic'].includes(theme.type)) ){
+				throw new Error(`Theme "${theme.name}": "type" value is unrecognised.`);
+			}
+			if( !('type' in theme) ){
+				console.log(`Theme "${theme.name}": no list type specified, assuming modern`);
+				theme.type = 'modern';
+			}
+			
+			if( 'supports' in theme ){
+				if( !isArray(theme.supports) ){
+					throw new Error(`Theme "${theme.name}": "supports" value must be an array.`);
+				}
+				if( theme.supports.find(str=>['animelist','mangalist'].includes(str)) === undefined ){
+					throw new Error(`Theme "${theme.name}": "supports" value is unrecognised.`);
+				}
+			}
+			if( !('supports' in theme ) ){
+				theme.supports = ['animelist', 'mangalist'];
+			}
+
+			if( 'tags' in theme ){
+				theme.tags = normaliseTags(theme.tags);
+			}
+
+			if( 'flags' in theme ){
+				if( !isArray(theme.flags) || theme.flags.find(flag=>!isString(flag)) !== undefined ){
+					throw new Error(`Theme "${theme.name}": "flags" value must be an array of strings.`);
+				}
+				if( !permissive && theme.flags.find(flag=>!(['beta','alpha'].includes(flag))) !== undefined ){
+					throw new Error(`Theme "${theme.name}": "flags" value is unrecognised. Must be any of "beta", "alpha".`);
+				}
+			}
+		}
+	}
+
 	if( 'data' in json ){
 		if( 'name' in json.data && !isString(json.data.name) ){
 			throw new Error(`"name" value must be a string.`);
@@ -1106,7 +1196,7 @@ function normaliseJson( json ){
 		}
 		
 		if( 'supports' in json.data ){
-			if( !(typeof json.data.supports instanceof Array) ){
+			if( !isArray(json.data.supports) ){
 				throw new Error(`"supports" value must be an array.`);
 			}
 			if( json.data.supports.find(str=>['animelist','mangalist'].includes(str)) === undefined ){

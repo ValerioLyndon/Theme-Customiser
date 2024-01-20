@@ -1064,19 +1064,14 @@ function pageSetup( ){
 
 	if( theme.supports?.length === 1 ){
 		let type = theme.supports[0];
-		if( ['animelist','mangalist'].includes(type) ){
-			configNotice.classList.remove('o-hidden');
-			let typeHtml = document.createElement('div');
-			typeHtml.className = 'popup__section';
-			typeHtml.innerHTML = `
-				<h5 class="popup__sub-header">List type.</h5>
-				<p class="popup__paragraph">This theme was designed only for <b>${type}s</b>. Use on ${type === 'animelist' ? 'mangalist' : 'animelist'}s may have unexpected results.</p>
-			`;
-			configList.appendChild(typeHtml);
-		}
-		else {
-			messenger.warn('The supported list was ignored due to being invalid. The only accepted values are "animelist" and "mangalist".');
-		}
+		configNotice.classList.remove('o-hidden');
+		let typeHtml = document.createElement('div');
+		typeHtml.className = 'popup__section';
+		typeHtml.innerHTML = `
+			<h5 class="popup__sub-header">List type.</h5>
+			<p class="popup__paragraph">This theme was designed only for <b>${type}s</b>. Use on ${type === 'animelist' ? 'mangalist' : 'animelist'}s may have unexpected results.</p>
+		`;
+		configList.appendChild(typeHtml);
 	}
 	else {
 		theme.supports = ['animelist','mangalist'];

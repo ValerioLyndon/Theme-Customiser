@@ -238,14 +238,9 @@ class ExtendedFilters extends BaseFilters {
 function renderCards( cardData ){
 	// Render theme list
 	for( let theme of cardData ){
-		let themeName = theme.name ? theme.name : 'Untitled';
-		let themeAuthor = theme.author ? theme.author : 'Untitled';
+		let themeName = theme.name;
+		let themeAuthor = theme.author;
 		let thisId = itemCount;
-
-		if( !('url' in theme) ){
-			loader.log(`[ERROR] Skipping theme ${themeName} due to missing "url" key.`);
-			continue;
-		}
 
 		let cardParent = document.createElement('a');
 		cardParent.className = 'browser__card';
@@ -259,6 +254,7 @@ function renderCards( cardData ){
 		cardParent.href = cardUrl;
 		cardParent.dataset.title = themeName;
 		cardParent.id = `card:${thisId}`;
+
 		if( 'date_added' in theme ){
 			if( !sorts.includes('dateAdded') ){
 				sorts.push('dateAdded');
@@ -269,6 +265,7 @@ function renderCards( cardData ){
 		else {
 			cardParent.dataset.dateAdded = '0000-00-00';
 		}
+
 		if( 'date' in theme ){
 			if( !sorts.includes('date') ){
 				sorts.push('date');
@@ -279,13 +276,12 @@ function renderCards( cardData ){
 		else {
 			cardParent.dataset.date = '0000-00-00';
 		}
-		if( 'author' in theme ){
-			if( !sorts.includes('author') ){
-				sorts.push('author');
-			}
 
-			cardParent.dataset.author = theme.author;
+		if( theme.author !== 'Unknown' && !sorts.includes('author') ){
+			sorts.push('author');
 		}
+
+		cardParent.dataset.author = theme.author;
 
 		let card = document.createElement('div');
 		card.className = 'card';
@@ -343,7 +339,7 @@ function renderCards( cardData ){
 			}
 		}
 
-		if( 'supports' in theme && theme.supports.length === 1 ){
+		if( theme.supports.length === 1 ){
 			addTag(`${capitalise(theme.supports[0])} Only`, '#d26666');
 		}
 		
