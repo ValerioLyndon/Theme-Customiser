@@ -1052,9 +1052,13 @@ async function processJson( json, url, toReturn ){
 
 
 // json validation
-const permissive = true;
+var permissive = true;
 
 function normaliseJson( json ){
+	if( !('themes' in json) && !('data' in json) && !('collections' in json) ){
+		throw new Error(`JSON has no readable data. Add a "data", "themes", or "collections" key.`);
+	}
+
 	if( 'collections' in json && (!isArray(json.collections) || json.collections.find(str=>!isString(str)||!isValidHttp(str)) !== undefined) ){
 		throw new Error(`"collections" key must be an array of *valid* URL strings.`);
 	}
@@ -1108,7 +1112,7 @@ function normaliseJson( json ){
 			}
 		
 			if( 'type' in theme && !(['modern','classic'].includes(theme.type)) ){
-				throw new Error(`Theme "${theme.name}": "type" value is unrecognised.`);
+				throw new Error(`Theme "${theme.name}": "type" value is unrecognised. Must be "modern" or "classic".`);
 			}
 			if( !('type' in theme) ){
 				console.log(`Theme "${theme.name}": no list type specified, assuming modern`);
@@ -1161,9 +1165,14 @@ function normaliseJson( json ){
 			if( !isString(json.data.author_url) ){
 				throw new Error(`"author_url" value must be a string.`);
 			}
-			if(  !isValidUrl(json.data.author_url) ){
-				console.log(`"author_url" key was ignored due to an invalid value. Value must start with "https://" or "mailto:".`);
-				delete json.data.author_url;
+			if( !isValidUrl(json.data.author_url) ){
+				if( permissive ){
+					console.log(`"author_url" key was ignored due to an invalid value. Value must start with "https://" or "mailto:".`);
+					delete json.data.author_url;
+				}
+				else {
+					throw new Error('"author_url" key must be a valid URL of protocol "http" or "mailto".');
+				}
 			}
 		} 
 		
@@ -1172,8 +1181,13 @@ function normaliseJson( json ){
 				throw new Error(`"help" value must be a string.`);
 			}
 			if( !isValidUrl(json.data.help) ){
-				console.log(`"help" key was ignored due to an invalid value. Value must start with "https://" or "mailto:".`);
-				delete json.data.help;
+				if( permissive ){
+					console.log(`"help" key was ignored due to an invalid value. Value must start with "https://" or "mailto:".`);
+					delete json.data.help;
+				}
+				else {
+					throw new Error('"help" key must be a valid URL of protocol "http" or "mailto".');
+				}
 			}
 		} 
 		
@@ -1182,8 +1196,13 @@ function normaliseJson( json ){
 				throw new Error(`"sponsor" value must be a string.`);
 			}
 			if( !isValidUrl(json.data.sponsor) ){
-				console.log(`"sponsor" key was ignored due to an invalid value. Value must start with "https://" or "mailto:".`);
-				delete json.data.sponsor;
+				if( permissive ){
+					console.log(`"sponsor" key was ignored due to an invalid value. Value must start with "https://" or "mailto:".`);
+					delete json.data.sponsor;
+				}
+				else {
+					throw new Error('"sponsor" key must be a valid URL of protocol "http" or "mailto".');
+				}
 			}
 		} 
 		
@@ -1235,7 +1254,7 @@ function normaliseJson( json ){
 					if( !isDict(mod.css) || Object.values(mod.css).find(css=>!isString(css)) !== undefined ){
 						throw new Error(`Mod "${id}": "css" value must be a dictionary of strings.`);
 					}
-					if( !permissive && Object.keys(mod.css).find(key=>!(['import','top','bottom'].includes(key))) ){
+					if( !permissive && Object.keys(mod.css).find(key=>!(['import','top','bottom'].includes(key))) !== undefined ){
 						throw new Error(`Mod "${id}": "css" value is unrecognised. Must be one of "bottom", "top", "import".`);
 					}
 				}
@@ -1245,8 +1264,13 @@ function normaliseJson( json ){
 						throw new Error(`Mod "${id}": "url" value must be a string.`);
 					}
 					if( !isValidUrl(mod.url) ){
-						console.log(`Mod "${id}": "url" key was ignored due to an invalid value. Value must start with "https://" or "mailto:".`);
-						delete mod.url;
+						if( permissive ){
+							console.log(`Mod "${id}": "url" key was ignored due to an invalid value. Value must start with "https://" or "mailto:".`);
+							delete mod.url;
+						}
+						else {
+							throw new Error('Mod "${id}": "url" key must be a valid URL of protocol "http" or "mailto".');
+						}
 					}
 				}
 
@@ -1413,7 +1437,7 @@ function normaliseDisplay( display ){
 
 function normaliseColumns( columns ){
 	if( !isDict(columns) ){
-		throw new Error('"anime/mangalist" "columns" key must be a dictionary of booleans.');
+		throw new Error('"anime/mangalist" "columns" key must be a dictionary.');
 	}
 	if( permissive ){
 		for( let [key, val] of Object.entries(columns) ){
@@ -1455,7 +1479,12 @@ function normaliseOptions( options ){
 		// TODO: color type validations
 
 		if( opt.type !== 'range' && ('min' in opt || 'max' in opt || 'step' in opt) ){
-			console.log(`Option "${id}": a "min", "max", or "step" key was ignored as the "type" value is not "range".`)
+			if( permissive ){
+				console.log(`Option "${id}": a "min", "max", or "step" key was ignored as the "type" value is not "range".`);
+			}
+			else {
+				throw new Error(`Option "${id}": "min", "max", and "step" keys can only be used when the "type" value is "range".`);
+			}
 		}
 
 		if( 'replacements' in opt ){

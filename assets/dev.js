@@ -66,8 +66,6 @@ class AdvancedEditor {
 			catch{}
 		}
 
-		// let linted = this.rawText.value
-		// 	.replaceAll(/([[{,][^[{]*?)(\"[^"]*\"[^":,]*)(:)/g, '$1<span style="color:#75bfff">$2</span>$3');
 		this.lineContainer.replaceChildren();
 		this.visibleText.replaceChildren();
 
@@ -234,24 +232,34 @@ function validate( ){
 
 	// version
 	if( !('json_version' in json) ){
-		fail(`JSON must have a "json_version" key. Please place one at the start of the file. Example:\n<code class="code code--block">{\n\t"json_version": 0.3\n}</code>`)
+		fail(`JSON must have a "json_version" key. Please place one at the start of the file. Example:\n<code class="code code--block">{\n\t"json_version": 0.3\n}</code>`);
+		return false;
 	}
 	else if( json['json_version'] < jsonVersion ){
-		warn(`JSON's version, as defined by "json_version" key, is behind the current version of ${jsonVersion}. Please use <a class="hyperlink" onclick="toggleEle('#js-pp-update-json')">JSON updater</a>.`)
+		warn(`JSON's version, as defined by "json_version" key, is behind the current version of ${jsonVersion}. Please use <a class="hyperlink" onclick="toggleEle('#js-pp-update-json')">JSON updater</a>.`);
+		return false;
 	}
 	else if( json['json_version'] > jsonVersion ){
-		warn(`JSON's version, as defined by "json_version" key, is <b>ahead</b> of the version ${jsonVersion} supported by this Customiser instance.`)
+		warn(`JSON's version, as defined by "json_version" key, is <b>ahead</b> of the version ${jsonVersion} supported by this Customiser instance.`);
+		return false;
 	}
 
 	// json type
 	else if( !('themes' in json) && !('data' in json) && !('collections' in json) ){
-		fail(`JSON has no readable data. Please add a <code class="code">data</code> key for theme JSON, <code class="code">themes</code> key for collection JSON, or <code class="code">collection</code> key for mega collection JSON.`)
+		fail(`JSON has no readable data. Please add a <code class="code">data</code> key for theme JSON, <code class="code">themes</code> key for collection JSON, or <code class="code">collections</code> key for mega collection JSON.`);
+		return false;
 	}
 
-	// if everything good
-	else {
-		good( json );
+	try {
+		permissive = false;
+		normaliseJson(json);
 	}
+	catch( e ){
+		fail(e);
+		return false;
+	}
+
+	good( json );
 }
 
 var editor = new AdvancedEditor( document.getElementById('js-json'), validate );
