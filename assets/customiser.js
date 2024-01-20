@@ -284,9 +284,6 @@ function updateMod( modId, funcConfig = {} ){
 		if( mod.conflicts ){
 			for( let conflict of mod.conflicts ){
 				if( conflict in theme.mods ){
-					// before we clean up the conflicts, create clone for use disabling infoOn function 
-					let tempConflicts = structuredClone(currentConflicts);
-
 					if( val ){
 						if( !currentConflicts[conflict] ){
 							currentConflicts[conflict] = {};
@@ -1933,9 +1930,7 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 
 		// Add mod tag to list of tags
 		if( entryData.tags ){
-			let tempTags = formatFilters(entryData.tags);
-
-			for( let [category, categoryTags] of Object.entries(tempTags) ){
+			for( let [category, categoryTags] of Object.entries(entryData.tags) ){
 				for( let tag of categoryTags ){
 					pushFilter(entryId, tag, category);
 				}

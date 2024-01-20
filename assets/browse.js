@@ -362,12 +362,11 @@ function renderCards( cardData ){
 		cards.push(cardParent);
 
 		// Add tags to sortable list
-		let tempTags = formatFilters(theme.tags);
 		pushFilter(thisId, theme.type, 'list type');
 		pushFilter(thisId, themeAuthor, 'author');
 		pushFilter(thisId, releaseState, 'release state');
 
-		for( let [category, tags] of Object.entries(tempTags) ){
+		for( let [category, tags] of Object.entries(theme.tags) ){
 			for( let tag of tags ){
 				pushFilter(thisId, tag, category);
 			}

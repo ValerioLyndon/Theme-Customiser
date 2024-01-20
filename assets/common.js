@@ -616,16 +616,6 @@ function sortKeys( dict ){
 
 var tags = {};
 
-function formatFilters( filters ){
-	if( filters instanceof Array ){
-		return {'other': filters};
-	}
-	if( filters instanceof Object ){
-		return filters;
-	}
-	return {};
-}
-
 function pushFilter( thisId, tag, category = 'other' ){
 	if( !tags[category] ){
 		tags[category] = {};
@@ -1243,19 +1233,20 @@ function normaliseJson( json ){
 
 function normaliseTags( tags ){
 	if( isArray(tags) ){
-		if( tags.find(tag=>!isString(tag)) !== undefined ){
+		tags = {'other': tags};
+	}
+	if( !isDict(tags) ){
+		throw new Error(`"tags" value must be either an array of strings or a dictionary of arrays of keys.`)
+	}
+
+	for( let group of Object.values(tags) ){
+		if( group.find(tag=>!isString(tag)) !== undefined ){
 			throw new Error(`tags inside the "tags" key must be strings.`);
 		}
 	}
-	else if( isDict(tags) ){
-		for( let group of Object.values(tags) ){
-			if( group.find(tag=>!isString(tag)) !== undefined ){
-				throw new Error(`tags inside the "tags" key must be strings.`);
-			}
-		}
-	}
-	else {
-		throw new Error(`"tags" value must be either an array of strings or a dictionary of arrays of keys.`)
+	
+	if( Object.values(tags).find(group=>group.find(tag=>!isString(tag)) !== undefined) !== undefined ){
+		throw new Error(`tags inside the "tags" key must be strings.`);
 	}
 
 	return tags;
