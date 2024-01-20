@@ -251,8 +251,8 @@ function validate( ){
 	}
 
 	try {
-		permissive = false;
-		normaliseJson(json);
+		Validate.permissive = false;
+		Validate.json(json);
 	}
 	catch( e ){
 		fail(e);

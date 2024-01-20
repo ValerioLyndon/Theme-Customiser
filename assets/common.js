@@ -994,7 +994,7 @@ async function processJson( json, url, toReturn ){
 			json.themes = Object.values(json.themes);
 		}
 		try {
-			json = normaliseJson(json);
+			json = Validate.json(json);
 		}
 		catch(e) {
 			loader.log(e, true);
@@ -1042,7 +1042,7 @@ async function processJson( json, url, toReturn ){
 		throw new Error(['The linked theme could not be parsed.', 'lacking.data']);
 	}
 	try {
-		return normaliseJson(json);
+		return Validate.json(json);
 	}
 	catch(e) {
 		loader.log(e, true);
@@ -1051,516 +1051,527 @@ async function processJson( json, url, toReturn ){
 }
 
 
-// json validation
-var permissive = true;
+// json validation class. takes JSON arguments and corrects issues, logs warnings, or errors on fatal issues
+class Validate {
+	// if true, will correct malformed json and allow minor issues with warnings
+	// if false, will error on any issue no matter how small
+	static permissive = true;
 
-function normaliseJson( json ){
-	if( !('themes' in json) && !('data' in json) && !('collections' in json) ){
-		throw new Error(`JSON has no readable data. Add a "data", "themes", or "collections" key.`);
-	}
-
-	if( 'collections' in json && (!isArray(json.collections) || json.collections.find(str=>!isString(str)||!isValidHttp(str)) !== undefined) ){
-		throw new Error(`"collections" key must be an array of *valid* URL strings.`);
-	}
-
-	if( 'themes' in json ){
-		if( !isArray(json.themes) || Object.values(json.themes).find(theme=>!isDict(theme)) !== undefined ){
-			throw new Error(`"themes" value must be an array of dictionaries.`);
+	static json( json ){
+		if( !('themes' in json) && !('data' in json) && !('collections' in json) ){
+			throw new Error(`JSON has no readable data. Add a "data", "themes", or "collections" key.`);
 		}
-		for( let theme of json.themes ){
-			if( 'name' in theme && !isString(theme.name) ){
-				throw new Error(`Theme "${theme.name}": "name" value must be a string.`);
+
+		if( 'collections' in json && (!isArray(json.collections) || json.collections.find(str=>!isString(str)||!isValidHttp(str)) !== undefined) ){
+			throw new Error(`"collections" key must be an array of *valid* URL strings.`);
+		}
+
+		if( 'themes' in json ){
+			if( !isArray(json.themes) || Object.values(json.themes).find(theme=>!isDict(theme)) !== undefined ){
+				throw new Error(`"themes" value must be an array of dictionaries.`);
 			}
-			if( !('name' in theme) ){
-				theme.name = 'Untitled';
+			for( let theme of json.themes ){
+				if( 'name' in theme && !isString(theme.name) ){
+					throw new Error(`Theme "${theme.name}": "name" value must be a string.`);
+				}
+				if( !('name' in theme) ){
+					theme.name = 'Untitled';
+				}
+				
+				if( 'author' in theme && !isString(theme.author) ){
+					throw new Error(`Theme "${theme.name}": "author" value must be a string.`);
+				}
+				if( !('author' in theme) ){
+					theme.name = 'Unknown';
+				}
+
+				if( 'image' in theme ){
+					if( !isString(theme.image) ){
+						throw new Error(`Theme "${theme.name}": "image" value must be a string.`);
+					}
+					if( !isValidHttp(theme.image) ){
+						throw new Error(`Theme "${theme.name}": "image" value must be an http protocol URL.`);
+					}
+				}
+				
+				if( 'url' in theme ){
+					if( !isString(theme.url) ){
+						throw new Error(`Theme "${theme.name}": "url" value must be a string.`);
+					}
+					if( !isValidHttp(theme.url) ){
+						throw new Error(`Theme "${theme.name}": "url" value must be an http protocol URL.`);
+					}
+				}
+				else {
+					throw new Error(`Theme "${theme.name}": "url" key is required.`);
+				}
+
+				if( 'date' in theme && !/\d{4}-\d{2}-\d{2}/.test(theme.date) ){
+					throw new Error(`Theme "${theme.name}": "date" value must be formatted as "YYYY-MM-DD".`);
+				}
+
+				if( 'date_added' in theme && !/\d{4}-\d{2}-\d{2}/.test(theme.date_added) ){
+					throw new Error(`Theme "${theme.name}": "date_added" value must be formatted as "YYYY-MM-DD".`);
+				}
+			
+				if( 'type' in theme && !(['modern','classic'].includes(theme.type)) ){
+					throw new Error(`Theme "${theme.name}": "type" value is unrecognised. Must be "modern" or "classic".`);
+				}
+				if( !('type' in theme) ){
+					console.log(`Theme "${theme.name}": no list type specified, assuming modern`);
+					theme.type = 'modern';
+				}
+				
+				if( 'supports' in theme ){
+					if( !isArray(theme.supports) ){
+						throw new Error(`Theme "${theme.name}": "supports" value must be an array.`);
+					}
+					if( theme.supports.find(str=>['animelist','mangalist'].includes(str)) === undefined ){
+						throw new Error(`Theme "${theme.name}": "supports" value is unrecognised.`);
+					}
+				}
+				if( !('supports' in theme ) ){
+					theme.supports = ['animelist', 'mangalist'];
+				}
+
+				if( 'tags' in theme ){
+					theme.tags = Validate.tags(theme.tags);
+				}
+
+				if( 'flags' in theme ){
+					if( !isArray(theme.flags) || theme.flags.find(flag=>!isString(flag)) !== undefined ){
+						throw new Error(`Theme "${theme.name}": "flags" value must be an array of strings.`);
+					}
+					if( !this.permissive && theme.flags.find(flag=>!(['beta','alpha'].includes(flag))) !== undefined ){
+						throw new Error(`Theme "${theme.name}": "flags" value is unrecognised. Must be any of "beta", "alpha".`);
+					}
+				}
+			}
+		}
+
+		if( 'data' in json ){
+			if( 'name' in json.data && !isString(json.data.name) ){
+				throw new Error(`"name" value must be a string.`);
+			}
+			if( !('name' in json.data) ){
+				json.data.name = 'Untitled';
 			}
 			
-			if( 'author' in theme && !isString(theme.author) ){
-				throw new Error(`Theme "${theme.name}": "author" value must be a string.`);
+			if( 'author' in json.data && !isString(json.data.author) ){
+				throw new Error(`"author" value must be a string.`);
 			}
-			if( !('author' in theme) ){
-				theme.name = 'Unknown';
+			if( !('author' in json.data) ){
+				json.data.author = 'Unknown Author';
+			}
+			
+			if( 'author_url' in json.data ){
+				if( !isString(json.data.author_url) ){
+					throw new Error(`"author_url" value must be a string.`);
+				}
+				if( !isValidUrl(json.data.author_url) ){
+					if( this.permissive ){
+						console.log(`"author_url" key was ignored due to an invalid value. Value must start with "https://" or "mailto:".`);
+						delete json.data.author_url;
+					}
+					else {
+						throw new Error('"author_url" key must be a valid URL of protocol "http" or "mailto".');
+					}
+				}
+			} 
+			
+			if( 'help' in json.data ){
+				if( !isString(json.data.help) ){
+					throw new Error(`"help" value must be a string.`);
+				}
+				if( !isValidUrl(json.data.help) ){
+					if( this.permissive ){
+						console.log(`"help" key was ignored due to an invalid value. Value must start with "https://" or "mailto:".`);
+						delete json.data.help;
+					}
+					else {
+						throw new Error('"help" key must be a valid URL of protocol "http" or "mailto".');
+					}
+				}
+			} 
+			
+			if( 'sponsor' in json.data ){
+				if( !isString(json.data.sponsor) ){
+					throw new Error(`"sponsor" value must be a string.`);
+				}
+				if( !isValidUrl(json.data.sponsor) ){
+					if( this.permissive ){
+						console.log(`"sponsor" key was ignored due to an invalid value. Value must start with "https://" or "mailto:".`);
+						delete json.data.sponsor;
+					}
+					else {
+						throw new Error('"sponsor" key must be a valid URL of protocol "http" or "mailto".');
+					}
+				}
+			} 
+			
+			if( 'css' in json.data && !isString(json.data.css) ){
+				throw new Error(`"css" value must be a string (url or CSS).`);
+			}
+			
+			if( 'type' in json.data && !(['modern','classic'].includes(json.data.type)) ){
+				throw new Error(`"type" value is unrecognised.`);
+			}
+			if( !('type' in json.data) ){
+				console.log('no list type specified, assuming modern');
+				json.data.type = 'modern';
+			}
+			
+			if( 'supports' in json.data ){
+				if( !isArray(json.data.supports) ){
+					throw new Error(`"supports" value must be an array.`);
+				}
+				if( json.data.supports.find(str=>['animelist','mangalist'].includes(str)) === undefined ){
+					throw new Error(`"supports" value is unrecognised.`);
+				}
+			}
+			if( !('supports' in json.data ) ){
+				json.data.supports = ['animelist', 'mangalist'];
 			}
 
-			if( 'image' in theme ){
-				if( !isString(theme.image) ){
-					throw new Error(`Theme "${theme.name}": "image" value must be a string.`);
+			if( 'options' in json.data ){
+				json.data.options = Validate.options(json.data.options);
+			}
+
+			if( 'mods' in json.data ){
+				if( !isDict(json.data.mods) || Object.values(json.data.mods).find(mod=>!isDict(mod)) !== undefined ){
+					throw new Error(`"mods" value must be a dictionary of dictionaries.`);
 				}
-				if( !isValidHttp(theme.image) ){
-					throw new Error(`Theme "${theme.name}": "image" value must be an http protocol URL.`);
+				for( let [id, mod] of Object.entries(json.data.mods) ){
+					if( 'name' in mod && !isString(mod.name) ){
+						throw new Error(`Mod "${id}": "name" value must be a string.`);
+					}
+					if( !('name' in mod) ){
+						mod.name = 'Untitled';
+					}
+
+					if( 'description' in mod && !isString(mod.description) ){
+						throw new Error(`Mod "${id}": "description" value must be a string.`);
+					}
+
+					if( 'css' in mod ){
+						if( !isDict(mod.css) || Object.values(mod.css).find(css=>!isString(css)) !== undefined ){
+							throw new Error(`Mod "${id}": "css" value must be a dictionary of strings.`);
+						}
+						if( !this.permissive && Object.keys(mod.css).find(key=>!(['import','top','bottom'].includes(key))) !== undefined ){
+							throw new Error(`Mod "${id}": "css" value is unrecognised. Must be one of "bottom", "top", "import".`);
+						}
+					}
+
+					if( 'url' in mod ){
+						if( !isString(mod.url) ){
+							throw new Error(`Mod "${id}": "url" value must be a string.`);
+						}
+						if( !isValidUrl(mod.url) ){
+							if( this.permissive ){
+								console.log(`Mod "${id}": "url" key was ignored due to an invalid value. Value must start with "https://" or "mailto:".`);
+								delete mod.url;
+							}
+							else {
+								throw new Error('Mod "${id}": "url" key must be a valid URL of protocol "http" or "mailto".');
+							}
+						}
+					}
+
+					if( 'requires' in mod ){
+						if( !isArray(mod.requires) || mod.requires.find(req=>!isString(req)) !== undefined ){
+							throw new Error(`Mod "${id}": "requires" value must be an array of mod ID strings.`);
+						}
+						if( mod.requires.find(req=>!(Object.keys(json.data.mods).includes(req))) ){
+							throw new Error(`Mod "${id}": "requires" string must match one of your mod keys.`);
+						}
+					}
+
+					if( 'conflicts' in mod ){
+						if( !isArray(mod.conflicts) || mod.conflicts.find(req=>!isString(req)) !== undefined ){
+							throw new Error(`Mod "${id}": "conflicts" value must be an array of mod ID strings.`);
+						}
+						if( mod.conflicts.find(req=>!(Object.keys(json.data.mods).includes(req))) ){
+							throw new Error(`Mod "${id}": "conflicts" string must match one of your mod keys.`);
+						}
+					}
+
+					if( 'options' in mod ){
+						mod.options = Validate.options(mod.options);
+					}
+
+					if( 'tags' in mod ){
+						try {
+							mod.tags = Validate.tags(mod.tags);
+						}
+						catch(e) {
+							e.message = `Mod "${id}": ${e.message}`;
+							throw e;
+						}
+					}
+
+					if( 'flags' in mod ){
+						if( !isArray(mod.flags) || mod.flags.find(flag=>!isString(flag)) !== undefined ){
+							throw new Error(`Mod "${id}": "flags" value must be an array of strings.`);
+						}
+						if( !this.permissive && mod.flags.find(flag=>!(['hidden'].includes(flag))) !== undefined ){
+							throw new Error(`Mod "${id}": "flags" value is unrecognised. Must be ["hidden"].`)
+						}
+					}
 				}
 			}
-			
-			if( 'url' in theme ){
-				if( !isString(theme.url) ){
-					throw new Error(`Theme "${theme.name}": "url" value must be a string.`);
+
+			if( 'flags' in json.data ){
+				if( !isArray(json.data.flags) || json.data.flags.find(flag=>!isString(flag)) !== undefined ){
+					throw new Error(`"flags" value must be an array of strings.`);
 				}
-				if( !isValidHttp(theme.url) ){
-					throw new Error(`Theme "${theme.name}": "url" value must be an http protocol URL.`);
+				if( !this.permissive && json.data.flags.find(flag=>!(['beta','alpha'].includes(flag))) !== undefined ){
+					throw new Error(`"flags" value is unrecognised. Must be any of "beta", "alpha".`);
 				}
+			}
+
+			if( 'preview' in json.data ){
+				if( !isDict(json.data.preview) ){
+					throw new Error(`"preview" value must be a dictionary.`);
+				}
+				json.data.preview = Validate.display(json.data.preview);
 			}
 			else {
-				throw new Error(`Theme "${theme.name}": "url" key is required.`);
+				json.data.preview = {};
 			}
 
-			if( 'date' in theme && !/\d{4}-\d{2}-\d{2}/.test(theme.date) ){
-				throw new Error(`Theme "${theme.name}": "date" value must be formatted as "YYYY-MM-DD".`);
-			}
+			json.data = Validate.display(json.data);
 
-			if( 'date_added' in theme && !/\d{4}-\d{2}-\d{2}/.test(theme.date_added) ){
-				throw new Error(`Theme "${theme.name}": "date_added" value must be formatted as "YYYY-MM-DD".`);
-			}
-		
-			if( 'type' in theme && !(['modern','classic'].includes(theme.type)) ){
-				throw new Error(`Theme "${theme.name}": "type" value is unrecognised. Must be "modern" or "classic".`);
-			}
-			if( !('type' in theme) ){
-				console.log(`Theme "${theme.name}": no list type specified, assuming modern`);
-				theme.type = 'modern';
-			}
-			
-			if( 'supports' in theme ){
-				if( !isArray(theme.supports) ){
-					throw new Error(`Theme "${theme.name}": "supports" value must be an array.`);
-				}
-				if( theme.supports.find(str=>['animelist','mangalist'].includes(str)) === undefined ){
-					throw new Error(`Theme "${theme.name}": "supports" value is unrecognised.`);
-				}
-			}
-			if( !('supports' in theme ) ){
-				theme.supports = ['animelist', 'mangalist'];
-			}
-
-			if( 'tags' in theme ){
-				theme.tags = normaliseTags(theme.tags);
-			}
-
-			if( 'flags' in theme ){
-				if( !isArray(theme.flags) || theme.flags.find(flag=>!isString(flag)) !== undefined ){
-					throw new Error(`Theme "${theme.name}": "flags" value must be an array of strings.`);
-				}
-				if( !permissive && theme.flags.find(flag=>!(['beta','alpha'].includes(flag))) !== undefined ){
-					throw new Error(`Theme "${theme.name}": "flags" value is unrecognised. Must be any of "beta", "alpha".`);
+			// autofill empty preview keys
+			for( let [key, val] of Object.entries(json.data) ){
+				if( !inObj(json.data.preview, key) ){
+					json.data.preview[key] = val;
 				}
 			}
 		}
+
+		return json;
 	}
 
-	if( 'data' in json ){
-		if( 'name' in json.data && !isString(json.data.name) ){
-			throw new Error(`"name" value must be a string.`);
+	static tags( tags ){
+		if( isArray(tags) ){
+			tags = {'other': tags};
 		}
-		if( !('name' in json.data) ){
-			json.data.name = 'Untitled';
+		if( !isDict(tags) ){
+			throw new Error(`"tags" value must be either an array of strings or a dictionary of arrays of keys.`)
+		}
+
+		for( let group of Object.values(tags) ){
+			if( group.find(tag=>!isString(tag)) !== undefined ){
+				throw new Error(`tags inside the "tags" key must be strings.`);
+			}
 		}
 		
-		if( 'author' in json.data && !isString(json.data.author) ){
-			throw new Error(`"author" value must be a string.`);
-		}
-		if( !('author' in json.data) ){
-			json.data.author = 'Unknown Author';
-		}
-		
-		if( 'author_url' in json.data ){
-			if( !isString(json.data.author_url) ){
-				throw new Error(`"author_url" value must be a string.`);
-			}
-			if( !isValidUrl(json.data.author_url) ){
-				if( permissive ){
-					console.log(`"author_url" key was ignored due to an invalid value. Value must start with "https://" or "mailto:".`);
-					delete json.data.author_url;
-				}
-				else {
-					throw new Error('"author_url" key must be a valid URL of protocol "http" or "mailto".');
-				}
-			}
-		} 
-		
-		if( 'help' in json.data ){
-			if( !isString(json.data.help) ){
-				throw new Error(`"help" value must be a string.`);
-			}
-			if( !isValidUrl(json.data.help) ){
-				if( permissive ){
-					console.log(`"help" key was ignored due to an invalid value. Value must start with "https://" or "mailto:".`);
-					delete json.data.help;
-				}
-				else {
-					throw new Error('"help" key must be a valid URL of protocol "http" or "mailto".');
-				}
-			}
-		} 
-		
-		if( 'sponsor' in json.data ){
-			if( !isString(json.data.sponsor) ){
-				throw new Error(`"sponsor" value must be a string.`);
-			}
-			if( !isValidUrl(json.data.sponsor) ){
-				if( permissive ){
-					console.log(`"sponsor" key was ignored due to an invalid value. Value must start with "https://" or "mailto:".`);
-					delete json.data.sponsor;
-				}
-				else {
-					throw new Error('"sponsor" key must be a valid URL of protocol "http" or "mailto".');
-				}
-			}
-		} 
-		
-		if( 'css' in json.data && !isString(json.data.css) ){
-			throw new Error(`"css" value must be a string (url or CSS).`);
-		}
-		
-		if( 'type' in json.data && !(['modern','classic'].includes(json.data.type)) ){
-			throw new Error(`"type" value is unrecognised.`);
-		}
-		if( !('type' in json.data) ){
-			console.log('no list type specified, assuming modern');
-			json.data.type = 'modern';
-		}
-		
-		if( 'supports' in json.data ){
-			if( !isArray(json.data.supports) ){
-				throw new Error(`"supports" value must be an array.`);
-			}
-			if( json.data.supports.find(str=>['animelist','mangalist'].includes(str)) === undefined ){
-				throw new Error(`"supports" value is unrecognised.`);
-			}
-		}
-		if( !('supports' in json.data ) ){
-			json.data.supports = ['animelist', 'mangalist'];
-		}
-
-		if( 'options' in json.data ){
-			json.data.options = normaliseOptions(json.data.options);
-		}
-
-		if( 'mods' in json.data ){
-			if( !isDict(json.data.mods) || Object.values(json.data.mods).find(mod=>!isDict(mod)) !== undefined ){
-				throw new Error(`"mods" value must be a dictionary of dictionaries.`);
-			}
-			for( let [id, mod] of Object.entries(json.data.mods) ){
-				if( 'name' in mod && !isString(mod.name) ){
-					throw new Error(`Mod "${id}": "name" value must be a string.`);
-				}
-				if( !('name' in mod) ){
-					mod.name = 'Untitled';
-				}
-
-				if( 'description' in mod && !isString(mod.description) ){
-					throw new Error(`Mod "${id}": "description" value must be a string.`);
-				}
-
-				if( 'css' in mod ){
-					if( !isDict(mod.css) || Object.values(mod.css).find(css=>!isString(css)) !== undefined ){
-						throw new Error(`Mod "${id}": "css" value must be a dictionary of strings.`);
-					}
-					if( !permissive && Object.keys(mod.css).find(key=>!(['import','top','bottom'].includes(key))) !== undefined ){
-						throw new Error(`Mod "${id}": "css" value is unrecognised. Must be one of "bottom", "top", "import".`);
-					}
-				}
-
-				if( 'url' in mod ){
-					if( !isString(mod.url) ){
-						throw new Error(`Mod "${id}": "url" value must be a string.`);
-					}
-					if( !isValidUrl(mod.url) ){
-						if( permissive ){
-							console.log(`Mod "${id}": "url" key was ignored due to an invalid value. Value must start with "https://" or "mailto:".`);
-							delete mod.url;
-						}
-						else {
-							throw new Error('Mod "${id}": "url" key must be a valid URL of protocol "http" or "mailto".');
-						}
-					}
-				}
-
-				if( 'requires' in mod ){
-					if( !isArray(mod.requires) || mod.requires.find(req=>!isString(req)) !== undefined ){
-						throw new Error(`Mod "${id}": "requires" value must be an array of mod ID strings.`);
-					}
-					if( mod.requires.find(req=>!(Object.keys(json.data.mods).includes(req))) ){
-						throw new Error(`Mod "${id}": "requires" string must match one of your mod keys.`);
-					}
-				}
-
-				if( 'conflicts' in mod ){
-					if( !isArray(mod.conflicts) || mod.conflicts.find(req=>!isString(req)) !== undefined ){
-						throw new Error(`Mod "${id}": "conflicts" value must be an array of mod ID strings.`);
-					}
-					if( mod.conflicts.find(req=>!(Object.keys(json.data.mods).includes(req))) ){
-						throw new Error(`Mod "${id}": "conflicts" string must match one of your mod keys.`);
-					}
-				}
-
-				if( 'options' in mod ){
-					mod.options = normaliseOptions(mod.options);
-				}
-
-				if( 'tags' in mod ){
-					try {
-						mod.tags = normaliseTags(mod.tags);
-					}
-					catch(e) {
-						e.message = `Mod "${id}": ${e.message}`;
-						throw e;
-					}
-				}
-
-				if( 'flags' in mod ){
-					if( !isArray(mod.flags) || mod.flags.find(flag=>!isString(flag)) !== undefined ){
-						throw new Error(`Mod "${id}": "flags" value must be an array of strings.`);
-					}
-					if( !permissive && mod.flags.find(flag=>!(['hidden'].includes(flag))) !== undefined ){
-						throw new Error(`Mod "${id}": "flags" value is unrecognised. Must be ["hidden"].`)
-					}
-				}
-			}
-		}
-
-		if( 'flags' in json.data ){
-			if( !isArray(json.data.flags) || json.data.flags.find(flag=>!isString(flag)) !== undefined ){
-				throw new Error(`"flags" value must be an array of strings.`);
-			}
-			if( !permissive && json.data.flags.find(flag=>!(['beta','alpha'].includes(flag))) !== undefined ){
-				throw new Error(`"flags" value is unrecognised. Must be any of "beta", "alpha".`);
-			}
-		}
-
-		if( 'preview' in json.data ){
-			if( !isDict(json.data.preview) ){
-				throw new Error(`"preview" value must be a dictionary.`);
-			}
-			json.data.preview = normaliseDisplay(json.data.preview);
-		}
-		else {
-			json.data.preview = {};
-		}
-
-		json.data = normaliseDisplay(json.data);
-
-		// autofill empty preview keys
-		for( let [key, val] of Object.entries(json.data) ){
-			if( !inObj(json.data.preview, key) ){
-				json.data.preview[key] = val;
-			}
-		}
-	}
-
-	return json;
-}
-
-function normaliseTags( tags ){
-	if( isArray(tags) ){
-		tags = {'other': tags};
-	}
-	if( !isDict(tags) ){
-		throw new Error(`"tags" value must be either an array of strings or a dictionary of arrays of keys.`)
-	}
-
-	for( let group of Object.values(tags) ){
-		if( group.find(tag=>!isString(tag)) !== undefined ){
+		if( Object.values(tags).find(group=>group.find(tag=>!isString(tag)) !== undefined) !== undefined ){
 			throw new Error(`tags inside the "tags" key must be strings.`);
 		}
-	}
-	
-	if( Object.values(tags).find(group=>group.find(tag=>!isString(tag)) !== undefined) !== undefined ){
-		throw new Error(`tags inside the "tags" key must be strings.`);
+
+		return tags;
 	}
 
-	return tags;
-}
-
-function normaliseDisplay( display ){
-	if( 'cover' in display ){
-		if( permissive ){
-			display.cover = parseBool(display.cover);
-		}
-		if( !isBool(display.cover) ){
-			throw new Error(`"cover" value must be a boolean.`);
-		}
-	}
-	
-	if( 'background' in display ){
-		if( permissive ){
-			display.background = parseBool(display.background);
-		}
-		if( !isBool(display.background) ){
-			throw new Error(`"background" value must be a boolean.`);
-		}
-	}
-		
-	if( 'style' in display ){
-		if( !isArray(display.style) || display.style.length === 0 ){
-			throw new Error(`"style" value must be an array of integers and cannot be empty.`);
-		}
-		if( permissive ){
-			display.style.map(num=>parseInt(num));
-		}
-		if( display.style.find(num=>!isInt(num)) !== undefined ){
-			throw new Error(`"style" value must be an array of integers and cannot be empty.`);
-		}
-	}
-	
-	if( 'category' in display ){
-		if( !isArray(display.category) ){
-			throw new Error(`"category" value must be an array.`);
-		}
-		if( permissive ){
-			display.category = display.category.map(cat=>parseInt(cat));
-		}
-		if( display.category.find(cat=>!isInt(cat) || !([1,2,3,4,6,7].includes(cat))) !== undefined ){
-			throw new Error(`"category" array values must be any of: 1,2,3,4,6,7.`);
-		}
-	}
-
-	if( 'columns' in display ){
-		// add default columns mode
-		display.columns.mode = 'mode' in display.columns ? display.columns.mode : 'whitelist';
-		if( !isDict(display.columns) ){
-			throw new Error(`"columns" value must be a dictionary.`);
-		}
-		if( !isString(display.columns.mode) || !(['whitelist','greylist','blacklist'].includes(display.columns.mode)) ){
-			throw new Error('"mode" value must be one of: "whitelist", "greylist", "blacklist".');
-		}
-		if( !('animelist' in display.columns) && !('mangalist' in display.columns) ){
-			throw new Error('"columns" key requires an "animelist" key, "mangalist" key, or both.');
-		}
-		if( 'animelist' in display.columns ){
-;			display.columns.animelist = normaliseColumns(display.columns.animelist);
-		}
-		if( 'mangalist' in display.columns ){
-;			display.columns.mangalist = normaliseColumns(display.columns.mangalist);
-		}
-	}
-	return display;
-}
-
-function normaliseColumns( columns ){
-	if( !isDict(columns) ){
-		throw new Error('"anime/mangalist" "columns" key must be a dictionary.');
-	}
-	if( permissive ){
-		for( let [key, val] of Object.entries(columns) ){
-			columns[key] = parseBool(val);
-		}
-	}
-	if( Object.values(columns).find(col=>!isBool(col)) !== undefined ){
-		throw new Error('"anime/mangalist" "columns" key must be a dictionary of booleans.');
-	}
-	return columns;
-}
-
-function normaliseOptions( options ){
-	if( !isDict(options) || Object.values(options).find(opt=>!isDict(opt)) !== undefined ){
-		throw new Error('"options" value must be a dictionary of dictionaries');
-	}
-	for( let [id, opt] of Object.entries(options) ){
-		if( 'name' in opt && !isString(opt.name) ){
-			throw new Error(`Option "${id}": "name" value must be a string.`);
-		}
-
-		if( 'description' in opt && !isString(opt.description) ){
-			throw new Error(`Option "${id}": "description" value must be a string.`);
-		}
-
-		if( !('type' in opt) ){
-			throw new Error(`Option "${id}": missing "type" key.`);
-		}
-		if( typeof opt.type !== 'string' ){
-			throw new Error(`Option "${id}": "type" value must be a string.`);
-		}
-		let typeSplit = opt.type.split('/');
-		if( !(['text', 'textarea', 'color', 'range', 'toggle', 'select'].includes(typeSplit[0])) ){
-			throw new Error(`Option "${id}": "type" value is unrecognised.`);
-		}
-		if( typeSplit[0].startsWith('text/') && !(['content', 'image_url', 'size', 'value', 'url_fragment'].includes(typeSplit[1])) ){
-			throw new Error(`Option "${id}": "type" qualifier value is unrecognised.`);
-		}
-		// TODO: color type validations
-
-		if( opt.type !== 'range' && ('min' in opt || 'max' in opt || 'step' in opt) ){
-			if( permissive ){
-				console.log(`Option "${id}": a "min", "max", or "step" key was ignored as the "type" value is not "range".`);
+	static display( display ){
+		if( 'cover' in display ){
+			if( this.permissive ){
+				display.cover = parseBool(display.cover);
 			}
-			else {
-				throw new Error(`Option "${id}": "min", "max", and "step" keys can only be used when the "type" value is "range".`);
+			if( !isBool(display.cover) ){
+				throw new Error(`"cover" value must be a boolean.`);
+			}
+		}
+		
+		if( 'background' in display ){
+			if( this.permissive ){
+				display.background = parseBool(display.background);
+			}
+			if( !isBool(display.background) ){
+				throw new Error(`"background" value must be a boolean.`);
+			}
+		}
+			
+		if( 'style' in display ){
+			if( !isArray(display.style) || display.style.length === 0 ){
+				throw new Error(`"style" value must be an array of integers and cannot be empty.`);
+			}
+			if( this.permissive ){
+				display.style.map(num=>parseInt(num));
+			}
+			if( display.style.find(num=>!isInt(num)) !== undefined ){
+				throw new Error(`"style" value must be an array of integers and cannot be empty.`);
+			}
+		}
+		
+		if( 'category' in display ){
+			if( !isArray(display.category) ){
+				throw new Error(`"category" value must be an array.`);
+			}
+			if( this.permissive ){
+				display.category = display.category.map(cat=>parseInt(cat));
+			}
+			if( display.category.find(cat=>!isInt(cat) || !([1,2,3,4,6,7].includes(cat))) !== undefined ){
+				throw new Error(`"category" array values must be any of: 1,2,3,4,6,7.`);
 			}
 		}
 
-		if( 'replacements' in opt ){
-			opt.replacements = normaliseReplacements(opt.replacements, id, opt.type);
+		if( 'columns' in display ){
+			// add default columns mode
+			display.columns.mode = 'mode' in display.columns ? display.columns.mode : 'whitelist';
+			if( !isDict(display.columns) ){
+				throw new Error(`"columns" value must be a dictionary.`);
+			}
+			if( !isString(display.columns.mode) || !(['whitelist','greylist','blacklist'].includes(display.columns.mode)) ){
+				throw new Error('"mode" value must be one of: "whitelist", "greylist", "blacklist".');
+			}
+			if( !('animelist' in display.columns) && !('mangalist' in display.columns) ){
+				throw new Error('"columns" key requires an "animelist" key, "mangalist" key, or both.');
+			}
+			if( 'animelist' in display.columns ){
+				display.columns.animelist = Validate.columns(display.columns.animelist);
+			}
+			if( 'mangalist' in display.columns ){
+				display.columns.mangalist = Validate.columns(display.columns.mangalist);
+			}
 		}
-		
-		if( opt.type === 'select' ){
+		return display;
+	}
+
+	static columns( columns ){
+		if( !isDict(columns) ){
+			throw new Error('"anime/mangalist" "columns" key must be a dictionary.');
+		}
+		if( this.permissive ){
+			for( let [key, val] of Object.entries(columns) ){
+				columns[key] = parseBool(val);
+			}
+		}
+		if( Object.values(columns).find(col=>!isBool(col)) !== undefined ){
+			throw new Error('"anime/mangalist" "columns" key must be a dictionary of booleans.');
+		}
+		return columns;
+	}
+
+	static options( options ){
+		if( !isDict(options) || Object.values(options).find(opt=>!isDict(opt)) !== undefined ){
+			throw new Error('"options" value must be a dictionary of dictionaries');
+		}
+		for( let [id, opt] of Object.entries(options) ){
+			if( 'name' in opt && !isString(opt.name) ){
+				throw new Error(`Option "${id}": "name" value must be a string.`);
+			}
+
+			if( 'description' in opt && !isString(opt.description) ){
+				throw new Error(`Option "${id}": "description" value must be a string.`);
+			}
+
+			if( !('type' in opt) ){
+				throw new Error(`Option "${id}": missing "type" key.`);
+			}
+			if( typeof opt.type !== 'string' ){
+				throw new Error(`Option "${id}": "type" value must be a string.`);
+			}
+			let typeSplit = opt.type.split('/');
+			if( !(['text', 'textarea', 'color', 'range', 'toggle', 'select'].includes(typeSplit[0])) ){
+				throw new Error(`Option "${id}": "type" value is unrecognised.`);
+			}
+			if( typeSplit[0].startsWith('text/') && !(['content', 'image_url', 'size', 'value', 'url_fragment'].includes(typeSplit[1])) ){
+				throw new Error(`Option "${id}": "type" qualifier value is unrecognised.`);
+			}
+			// TODO: color type validations
+
+			if( opt.type !== 'range' && ('min' in opt || 'max' in opt || 'step' in opt) ){
+				if( this.permissive ){
+					console.log(`Option "${id}": a "min", "max", or "step" key was ignored as the "type" value is not "range".`);
+				}
+				else {
+					throw new Error(`Option "${id}": "min", "max", and "step" keys can only be used when the "type" value is "range".`);
+				}
+			}
+
 			if( 'replacements' in opt ){
-				console.log(`Option "${id}": "replacements" key was ignored as the "type" value is "select". Use the "selections" key.`)
+				opt.replacements = Validate.replacements(opt.replacements, id, opt.type);
 			}
-			if( !('selections' in opt) ){
-				throw new Error(`Option "${id}": "select" type options require a "selections" key.`);
-			}
-			if( !isDict(opt.selections) || Object.values(opt.selections).find(sel=>!isDict(sel)) !== undefined ){
-				throw new Error(`Option "${id}": "selections" value must be a dictionary of dictionaries.`);
-			}
-			if( Object.values(opt.selections).find(sel=>!('label' in sel) || !isString(sel.label)) !== undefined ){
-				throw new Error(`Option "${id}": "selections" values must contain a "label" key with a string value.`);
-			}
-			Object.values(opt.selections).map(sel=>{
-				if( 'replacements' in sel ){
-					sel.replacements = normaliseReplacements(sel.replacements, id, opt.type);
+			
+			if( opt.type === 'select' ){
+				if( 'replacements' in opt ){
+					console.log(`Option "${id}": "replacements" key was ignored as the "type" value is "select". Use the "selections" key.`)
 				}
-				return sel;
-			});
-		}
+				if( !('selections' in opt) ){
+					throw new Error(`Option "${id}": "select" type options require a "selections" key.`);
+				}
+				if( !isDict(opt.selections) || Object.values(opt.selections).find(sel=>!isDict(sel)) !== undefined ){
+					throw new Error(`Option "${id}": "selections" value must be a dictionary of dictionaries.`);
+				}
+				if( Object.values(opt.selections).find(sel=>!('label' in sel) || !isString(sel.label)) !== undefined ){
+					throw new Error(`Option "${id}": "selections" values must contain a "label" key with a string value.`);
+				}
+				Object.values(opt.selections).map(sel=>{
+					if( 'replacements' in sel ){
+						sel.replacements = Validate.replacements(sel.replacements, id, opt.type);
+					}
+					return sel;
+				});
+			}
 
-		if( 'default' in opt ){
-			if( opt.type === 'toggle' ){
-				if( permissive ){
-					opt.default = parseBool(opt.default);
+			if( 'default' in opt ){
+				if( opt.type === 'toggle' ){
+					if( this.permissive ){
+						opt.default = parseBool(opt.default);
+					}
+					if( typeof opt.default !== 'boolean' ){
+						throw new Error(`Option "${id}": "default" value must be a boolean when "type" value is "toggle".`);
+					}
 				}
-				if( typeof opt.default !== 'boolean' ){
-					throw new Error(`Option "${id}": "default" value must be a boolean when "type" value is "toggle".`);
+				if( opt.type === 'range' ){
+					if( this.permissive ){
+						opt.default = parseFloat(opt.default);
+					}
+					if( typeof opt.default !== 'number' ){
+						throw new Error(`Option "${id}": "default" value must be a number when "type" value is "range".`);
+					}
+				}
+				if( opt.type === 'select' && !(Object.keys(opt.selections).includes(opt.default)) ){
+					throw new Error(`Option "${id}": "default" value must match one of your "selections" keys.`);
 				}
 			}
-			if( opt.type === 'range' ){
-				if( permissive ){
-					opt.default = parseFloat(opt.default);
-				}
-				if( typeof opt.default !== 'number' ){
-					throw new Error(`Option "${id}": "default" value must be a number when "type" value is "range".`);
-				}
+			// add some fallback default values when it's not defined
+			else if( opt.type === 'toggle' ) {
+				opt.default = false;
 			}
-			if( opt.type === 'select' && !(Object.keys(opt.selections).includes(opt.default)) ){
-				throw new Error(`Option "${id}": "default" value must match one of your "selections" keys.`);
+			else if( opt.type === 'color' ) {
+				opt.default = '#d8d8d8';
 			}
-		}
-		// add some fallback default values when it's not defined
-		else if( opt.type === 'toggle' ) {
-			opt.default = false;
-		}
-		else if( opt.type === 'color' ) {
-			opt.default = '#d8d8d8';
-		}
-		else if( opt.type.startsWith('text') ) {
-			opt.default = '';
-		}
+			else if( opt.type.startsWith('text') ) {
+				opt.default = '';
+			}
 
-		options[id] = opt;
+			options[id] = opt;
+		}
+		return options;
 	}
-	return options;
+
+	static replacements( replacements, id, type ){
+		if( !(replacements instanceof Array) || replacements.find(repl=>!(repl instanceof Array)) !== undefined ){
+			throw new Error(`Option "${id}": "replacements" value must be an array of arrays.`);
+		}
+		if( type === 'toggle' && replacements.find(repl=>repl.length !== 3) !== undefined ){
+			throw new Error(`Option "${id}": "replacements" set must contain 3 strings when "type" value is "toggle".`);
+		}
+		if( type !== 'toggle' && replacements.find(repl=>repl.length !== 2) ){
+			throw new Error(`Option "${id}": "replacement" set must contain 2 strings.`);
+		}
+		return replacements;
+	}
 }
 
-function normaliseReplacements( replacements, id, type ){
-	if( !(replacements instanceof Array) || replacements.find(repl=>!(repl instanceof Array)) !== undefined ){
-		throw new Error(`Option "${id}": "replacements" value must be an array of arrays.`);
-	}
-	if( type === 'toggle' && replacements.find(repl=>repl.length !== 3) !== undefined ){
-		throw new Error(`Option "${id}": "replacements" set must contain 3 strings when "type" value is "toggle".`);
-	}
-	if( type !== 'toggle' && replacements.find(repl=>repl.length !== 2) ){
-		throw new Error(`Option "${id}": "replacement" set must contain 2 strings.`);
-	}
-	return replacements;
-}
+
+
+
+
+
+
 
 
 // json v0.0 > v0.1
