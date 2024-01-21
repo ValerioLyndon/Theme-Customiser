@@ -49,12 +49,14 @@ permalink: /dev
 					</nav>
 				</div>
 				<div class="topbar__section o-hidden">
-					<nav class="top-nav">
+					<div class="top-nav">
 						<a class="top-nav__link">
-							<i class="top-nav__icon fa-solid fa-arrow-rotate-right"></i>
-							<span class="top-nav__text">Reload Preview</span>
+							<div class="top-nav__link-inner">
+								<i class="top-nav__icon fa-solid fa-arrow-rotate-right"></i>
+								<span class="top-nav__text">Reload Preview</span>
+							</div>
 						</a>
-					</nav>
+					</div>
 				</div>
 			</div>
 
@@ -74,7 +76,6 @@ permalink: /dev
 					</div>
 
 					<div class="sidebar__section sidebar__section--no-border" id="js-json">
-						<p class="info-box info-box--indented info-box--error o-hidden" id="js-json-notice"></p>
 						<button type="button" class="button button--highlighted" id="js-render">
 							Refresh Preview
 						</button>
@@ -86,6 +87,7 @@ permalink: /dev
 							<label class="toggle" for="js-auto-render"></label>
 							<span class="toggle-with-text__text">Auto Refresh</span>
 						</label>
+						<p class="info-box info-box--indented info-box--error o-hidden" id="js-json-notice"></p>
 					</div>
 				</div>
 			</div>

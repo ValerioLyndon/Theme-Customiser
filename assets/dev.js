@@ -10,22 +10,23 @@ function sanitiseForHtml( text ){
 
 class AdvancedEditor {
 	constructor( parent = document.body, onChange = () => {} ){
-		this.onChange = onChange;
+		this.delay = setTimeout(null, 0);
+		this.onChange = ()=>{
+			clearTimeout(this.delay);
+			this.delay = setTimeout(()=>{
+				onChange();
+			}, 300);
+		}
+		this.lines = [];
 		// setup HTML
 		this.container = document.createElement('div');
 		this.container.className = 'advanced-editor';
 		this.rawText = document.createElement('textarea');
 		this.rawText.className = 'advanced-editor__interactable-text';
 		this.rawText.wrap = 'off';
-		this.scrollSync = document.createElement('div');
-		this.visibleText = document.createElement('div');
-		this.visibleText.className = 'advanced-editor__visible-text';
-		this.lineContainer = document.createElement('div');
 		this.lineContainer = document.createElement('div');
 		this.lineContainer.className = 'advanced-editor__line-container';
-		this.scrollSync.append(this.lineContainer);
-		this.scrollSync.append(this.visibleText);
-		this.container.append(this.scrollSync);
+		this.container.append(this.lineContainer);
 		this.container.append(this.rawText);
 		parent.prepend(this.container);
 
@@ -34,12 +35,12 @@ class AdvancedEditor {
 		this.selectionEnd = this.rawText.selectionEnd;
 
 		// add basic functions
-		this.rawText.addEventListener('input', () => {
-			this.setVisible();
+		this.rawText.addEventListener('input', ev => {
+			this.updateDisplay(ev);
 			this.onChange();
 		});
 		this.rawText.addEventListener('scroll', () => {
-			this.scrollSync.style.transform = `translate(${-this.rawText.scrollLeft}px, ${-this.rawText.scrollTop}px)`;
+			this.lineContainer.style.transform = `translate(${-this.rawText.scrollLeft}px, ${-this.rawText.scrollTop}px)`;
 		});
 		let keyPress = this.onKeyPress.bind(this);
 		this.rawText.addEventListener('focusin', () => {
@@ -50,67 +51,46 @@ class AdvancedEditor {
 		});
 	}
 
-	setVisible( ){
-		// check for errors and get location numbers
-		let errorLine = -1;
-		let errorChar = -1;
-		try {
-			JSON.parse(this.rawText.value);
-		}
-		catch( e ){
-			try {
-				let match = e.toString().match(/line ([0-9]*) column ([0-9]*)/);
-				errorLine = match[1];
-				errorChar = match[2];
-			}
-			catch{}
+	updateDisplay( event ){
+		const lines = this.rawText.value.split('\n');
+		const maxLines = 1 > lines.length ? 1 : lines.length > this.lines.length ? lines.length : this.lines.length;
+
+		// if the update only affects one line, reduce lag by only updating that one
+		let startLine = 0;
+		let endLine = maxLines;
+		// checks if the operation was added via normal input and if it added a line
+		if( event && event.inputType === 'insertText' && lines.length === this.lineCount ){
+			let substr = this.rawText.value.substring(0, this.selStart);
+			startLine = (substr.match(/\n/g) || []).length;
+			endLine = startLine + 1;
 		}
 
-		this.lineContainer.replaceChildren();
-		this.visibleText.replaceChildren();
-
-		let lines = this.rawText.value.split('\n');
-		for( let i = 0; i < lines.length; i++ ){
-			let num = document.createElement('div');
-			let text = lines[i];
-			num.className = 'advanced-editor__line-num';
-			num.textContent = i+1;
-			this.lineContainer.append(num);
-
-			let line = document.createElement('div');
-			line.className = 'advanced-editor__line';
-			line.id = `js-advanced-editor-${i+1}`;
-
-			// sanitise text before changing HTML
-			text = sanitiseForHtml(text);
-
-			// if this is an error line, insert error info
-			if( i === errorLine-1 && errorChar > -1 ){
-				line.classList.add('advanced-editor__line--error');
-				text = 
-					text.substring(0, errorChar-1)
-					+ '<span class="advanced-editor__error-char">'
-					+ text.substring(errorChar-1, errorChar)
-					+ '</span>'
-					+ text.substring(errorChar, text.length);
+		for( let i = startLine; i < endLine; i++ ){
+			// if dom line is no longer needed, remove
+			if( i >= lines.length ){
+				this.lineContainer.children[lines.length].remove();
+				this.lines.pop(lines.length);
+				continue;
 			}
 
-			// stylise tabs
-			text = text.replaceAll('\t', '<span class="advanced-editor__tab">\t</span>');
-			// stylise trailing space
-			if( text.endsWith(' ') ){
-				text = text.replace(/( +)$/, (match) => {
-					let str = '';
-					for( let char of match ){
-						str += '<span class="advanced-editor__trailing"> </span>';
-					}
-					return str;
-				});
+			// if dom line does not exist, add
+			const newText = lines[i];
+			const newLine = this.renderLine(newText);
+
+			if( i >= this.lines.length ){
+				this.lineContainer.append(newLine);
+				this.lines.push(newText);
+				continue;
 			}
-			
-			// commit line
-			line.innerHTML = text;
-			this.visibleText.append(line);
+
+			// if both lines exist, compare raw and dom texts to determine if it needs updating
+			const domText = this.lines[i];
+			if( newText === domText ){
+				continue;
+			}
+
+			this.lineContainer.children[i].replaceWith(newLine);
+			this.lines[i] = newText;
 		}
 		
 		let w = 18;
@@ -126,10 +106,43 @@ class AdvancedEditor {
 		this.container.style.cssText = `--advanced-editor__line-width: ${w}px`;
 	}
 
+	renderLine( text ){
+		let line = document.createElement('div');
+		line.className = 'advanced-editor__line';
+
+		let lineNum = document.createElement('div');
+		lineNum.className = 'advanced-editor__line-num';
+		this.lineContainer.append(lineNum);
+		
+		let lineText = document.createElement('div');
+		lineText.className = 'advanced-editor__line-text';
+
+		text = sanitiseForHtml(text);
+
+		// stylise tabs
+		text = text.replaceAll('\t', '<span class="advanced-editor__tab">\t</span>');
+		// stylise trailing space
+		if( text.endsWith(' ') ){
+			text = text.replace(/( +)$/, (match) => {
+				let str = '';
+				for( let char of match ){
+					str += '<span class="advanced-editor__trailing"> </span>';
+				}
+				return str;
+			});
+		}
+
+		// commit line
+		lineText.innerHTML = text;
+		line.append(lineNum,lineText);
+
+		return line;
+	}
+
 	value( text ){
-		if( typeof text === 'string' ){
+		if( isString(text) ){
 			this.rawText.value = text;
-			this.setVisible();
+			this.updateDisplay();
 		}
 		return this.rawText.value;
 	}
@@ -157,6 +170,9 @@ class AdvancedEditor {
 	onKeyPress( keyPress ){
 		let key = keyPress['key'];
 
+		this.selStart = this.rawText.selectionStart;
+		this.lineCount = this.rawText.value.split('\n').length;
+
 		// handle 
 		if( key === 'Tab' ) {
 			keyPress.preventDefault();
@@ -166,8 +182,7 @@ class AdvancedEditor {
 		else if( key === 'Enter' ){
 			keyPress.preventDefault();
 
-			let cursorPos = this.rawText.selectionStart;
-			let currentLine = this.value().substr( 0, cursorPos ).match(/\n([^\n]*)$/);
+			let currentLine = this.value().substr( 0, this.selStart ).match(/\n([^\n]*)$/);
 			let startingWhitespace = currentLine && currentLine[1] ? currentLine[1].match(/^\s*/) : false;
 			
 			if( startingWhitespace ){
