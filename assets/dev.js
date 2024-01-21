@@ -376,24 +376,30 @@ function updatePopupJson( ){
 	}
 
 	processJson( json, '', toReturn )
-	.then( (processedJson) => {
-		if( processedJson === false ){
-			messenger.error('Failed to update the JSON.', 'process.generic');
-		}
-		else if( typeof processedJson === 'string' ){
-			messenger.error(processedJson, 'process.caught');
-		}
-		else {
-			output.value = JSON.stringify(processedJson, undefined, '\t');
-		}
+	.then( processedJson =>{
+		output.value = JSON.stringify(processedJson, undefined, '\t');
+	})
+	.catch( err =>{
+		messenger.error(`Failed to update the JSON.`, err.message);
 	});
 }
 
-function formatPopupCss( ){
-	let css = document.getElementById('js-format-text__in').value,
-		output = document.getElementById('js-format-text__out');
+function encodeJson( ){
+	let raw = document.getElementById('js-format-text__in').value,
+		formattedEle = document.getElementById('js-format-text__out');
 
-	output.value = JSON.stringify(css);
+	let formatted = JSON.stringify(raw);
+	formattedEle.value = formatted.substring(1, formatted.length-1);
+}
+
+function decodeJson( ){
+	let rawEle = document.getElementById('js-format-text__in'),
+		formatted = document.getElementById('js-format-text__out').value;
+
+	if( formatted[0] !== '"' || formatted[formatted.length-1] !== '"' ){
+		formatted = '"' + formatted + '"';
+	}
+	rawEle.value = JSON.parse(formatted);
 }
 
 

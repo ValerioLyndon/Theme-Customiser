@@ -129,23 +129,25 @@ permalink: /dev
 		<div class="popup is-hidden" id="js-pp-format-text">
 			<div class="popup__inner">
 				<div class="popup__invisibutton" onclick="toggleEle('#js-pp-format-text')"></div>
-				<div class="popup__content" id="js-theme-config">
+				<div class="popup__content popup__content--wide" id="js-theme-config">
 					<h4 class="popup__header">Format text for use in JSON</h4>
 
 					<p class="popup-paragraph">
-						Formatting text for use with JSON can be kind of a pain, so this tool can do it for you. This should work for all strings such as CSS, Regular Expressions, and anything else you may want to input.
+						Formatting text for use with JSON can be kind of a pain, so this tool can do it for you. This should work for all text such as CSS, Regular Expressions, and anything else. Regular text goes on the left, encoded text goes on the right.
 					</p>
 
 					<div class="l-split">
 						<div class="l-split__left">
-							<h6 class="popup__sub-header">Input</h6>
-							<textarea id="js-format-text__in" class="input input--textarea-tall" autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
-							<button type="button" class="button button--highlighted" onclick="formatPopupCss()">Format CSS</button>
+							<h6 class="popup__sub-header">Raw</h6>
+							<textarea id="js-format-text__in" class="input input--textarea-tall" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Regular text can be encoded from here."></textarea>
+							<button type="button" class="button button--highlighted" onclick="encodeJson()">Encode Raw</button>
+							<button type="button" class="button button--highlighted" onclick="navigator.clipboard.writeText(document.getElementById('js-format-text__in').value);">Copy</button>
 						</div>
 						<div class="l-split__right">
-							<h6 class="popup__sub-header">Output</h6>
-							<textarea id="js-format-text__out" class="input input--textarea-tall" readonly="readonly"></textarea>
-							<button type="button" class="button button--highlighted" onclick="navigator.clipboard.writeText(document.getElementById('js-format-text__out').value);">Copy Output</button>
+							<h6 class="popup__sub-header">Formatted</h6>
+							<textarea id="js-format-text__out" class="input input--textarea-tall" placeholder="Formatted text can be decoded from here."></textarea>
+							<button type="button" class="button button--highlighted" onclick="decodeJson()">Decode Formatted</button>
+							<button type="button" class="button button--highlighted" onclick="navigator.clipboard.writeText(document.getElementById('js-format-text__out').value);">Copy</button>
 						</div>
 					</div>
 				</div>
