@@ -1475,7 +1475,7 @@ class Validate {
 			if( !(['text', 'textarea', 'color', 'range', 'toggle', 'select'].includes(typeCore)) ){
 				throw new Error(`Option "${id}": "type" value is unrecognised.`);
 			}
-			if( typeCore === 'text' && !(['content', 'image_url', 'size', 'value', 'url_fragment'].includes(typeQualifier)) ){
+			if( typeCore === 'text' && typeQualifier !== undefined && !(['content', 'image_url', 'size', 'value', 'url_fragment'].includes(typeQualifier)) ){
 				throw new Error(`Option "${id}": "type" qualifier value is unrecognised.`);
 			}
 			// TODO: color type validations
