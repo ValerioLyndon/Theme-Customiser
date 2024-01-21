@@ -1341,7 +1341,7 @@ class Validate {
 
 			// autofill empty preview keys
 			for( let [key, val] of Object.entries(json.data) ){
-				if( !inObj(json.data.preview, key) ){
+				if( ['cover','background','style','category','columns'].includes(key) && !inObj(json.data.preview, key) ){
 					json.data.preview[key] = val;
 				}
 			}
