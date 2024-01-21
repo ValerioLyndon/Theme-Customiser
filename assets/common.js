@@ -135,6 +135,7 @@ class LoadingScreen {
 		}
 		// only runs once
 		if( !this.stop ){
+			document.getElementsByTagName('title')[0].textContent = `Theme Customiser - an error occured`;
 			this.icon.className = 'loading-screen__cross';
 			this.title.textContent = 'Something broke!';
 
@@ -1442,11 +1443,11 @@ class Validate {
 		}
 		if( this.permissive ){
 			for( let [key, val] of Object.entries(columns) ){
-				columns[key] = parseBool(val);
+				columns[key] = val === null || val === 'null' ? null : parseBool(val);
 			}
 		}
-		if( Object.values(columns).find(col=>!isBool(col)) !== undefined ){
-			throw new Error('"anime/mangalist" "columns" key must be a dictionary of booleans.');
+		if( Object.values(columns).find(col=>!isBool(col) && col !== null) !== undefined ){
+			throw new Error('"anime/mangalist" "columns" key must be a dictionary of booleans or null values.');
 		}
 		return columns;
 	}
@@ -1560,11 +1561,26 @@ class Validate {
 	}
 
 	static replacements( replacements, id, typeCore ){
-		if( !(replacements instanceof Array) || replacements.find(repl=>!(repl instanceof Array)) !== undefined ){
-			throw new Error(`Option "${id}": "replacements" value must be an array of arrays.`);
+		if( !isArray(replacements) ){
+			throw new Error(`Option "${id}": "replacements" value must be an array.`);
+		}
+		if( replacements.find(repl=>!isArray(repl)) !== undefined ){
+			if( this.permissive && replacements.find(repl=>!isString(repl)) === undefined ){
+				console.log(`Option "${id}": "replacements" value must be an array of arrays. Encase your strings inside a second array to fix this error.`);
+				replacements = [replacements];
+			}
+			else {
+				throw new Error(`Option "${id}": "replacements" value must be an array of arrays.`);
+			}
 		}
 		if( replacements.length === 0 ){
-			throw new Error(`Option "${id}": "replacements" value must have at least one set.`);
+			if( this.permissive ){
+				console.log(`Option "${id}": replacements must have at least one set.`);
+				replacements = typeCore === 'toggle' ? [['','','']] : [['','']];
+			}
+			else {
+				throw new Error(`Option "${id}": "replacements" value must have at least one set.`);
+			}
 		}
 		if( typeCore === 'toggle' && replacements.find(repl=>repl.length !== 3) !== undefined ){
 			throw new Error(`Option "${id}": "replacements" set must contain 3 strings when "type" value is "toggle".`);
@@ -1573,7 +1589,12 @@ class Validate {
 			throw new Error(`Option "${id}": "replacements" set must contain 2 strings.`);
 		}
 		if( replacements.find(repl=>repl[0].length === 0) !== undefined ){
-			throw new Error(`Option "${id}": the first string of a "replacements" set cannot be empty.`);
+			if( this.permissive ){
+				console.log(`Option "${id}": the first string of a "replacements" set cannot be empty.`);
+			}
+			else {
+				throw new Error(`Option "${id}": the first string of a "replacements" set cannot be empty.`);
+			}
 		}
 		return replacements;
 	}
