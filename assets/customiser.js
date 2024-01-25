@@ -1225,11 +1225,15 @@ function pageSetup( ){
 	let coverHtml = document.getElementById('js-install-cover');
 	let backgroundHtml = document.getElementById('js-install-background');
 	let coverCheck = document.getElementById('js-preview__cover');
+	let coverField = document.getElementById('js-preview__cover-url');
+	let backgroundField = document.getElementById('js-preview__background-url');
 
 	if( theme.type === 'classic' ){
 		coverHtml.remove();
 		backgroundHtml.remove();
-		document.getElementById('js-preview-options__cover').remove();
+		coverField.parentNode.remove();
+		backgroundField.parentNode.remove();
+		coverCheck.parentNode.remove();
 	}
 	else {
 		let hasCustomInstall = false;
@@ -1302,18 +1306,25 @@ function pageSetup( ){
 			hasCustomInstall = true;
 
 			let choice = theme.cover === true ? 'Yes' : 'No';
-			let extra = '';
+			let extraConfig = '';
+			let extraInstall = '';
 
 			if( choice === 'Yes' ){
-				extra = `Be sure to upload an image by using the "Browse..." button.`;
+				extraConfig = `Be sure to upload an image by using the "Browse..." button.`;
+			}
+			if( 'cover_url' in theme ){
+				extraConfig += ` Use <a class="hyperlink" href="${theme.cover_url}" target="_blank">this image</a>.`;
+				extraInstall += ` This theme recommends <a class="hyperlink" href="${theme.cover_url}" target="_blank">this image</a>.`;
 			}
 			
-			customInstallTexts.push(`Set the "Show cover image" option to "<b>${choice}</b>".`);
+			customInstallTexts.push(`Set the "Show cover image" option to "<b>${choice}</b>".${extraConfig}`);
 			coverHtml.innerHTML = `
 				<p class="popup__paragraph">
-					In the sidebar, find the "Cover Image" area. Click to expand it if necessary. Set the "Show cover image" option to "<b>${choice}</b>". ${extra}
+					In the sidebar, find the "Cover Image" area. Click to expand it if necessary. Set the "Show cover image" option to "<b>${choice}</b>".${extraInstall}
 				</p>
 			`;
+
+			
 		}
 		else {
 			coverHtml.remove();
@@ -1322,16 +1333,22 @@ function pageSetup( ){
 		if( 'background' in theme ){
 			hasCustomInstall = true;
 
-			let choice = theme.background === true ? 'Yes' : 'No',
-				extra = '';
-			if( choice === 'Yes' ){
-				extra = `Be sure to upload an image by using the "Browse..." button.`;
-			}
+			let choice = theme.background === true ? 'Yes' : 'No';
+			let extraConfig = '';
+			let extraInstall = '';
 
-			customInstallTexts.push(`Set the "Show background image" option to "<b>${choice}</b>".`);
+			if( choice === 'Yes' ){
+				extraConfig = `Be sure to upload an image by using the "Browse..." button.`;
+			}
+			if( 'background_url' in theme ){
+				extraConfig += ` Use <a class="hyperlink" href="${theme.background_url}" target="_blank">this image</a>.`;
+				extraInstall += ` This theme recommends <a class="hyperlink" href="${theme.background_url}" target="_blank">this image</a>.`;
+			}
+			
+			customInstallTexts.push(`Set the "Show background image" option to "<b>${choice}</b>".${extraConfig}`);
 			backgroundHtml.innerHTML = `
 				<p class="popup__paragraph">
-					In the sidebar, find the "Background Image" area. Click to expand it if necessary. Set the "Show background image" option to "<b>${choice}</b>". ${extra}
+					In the sidebar, find the "Background Image" area. Click to expand it if necessary. Set the "Show background image" option to "<b>${choice}</b>".${extraInstall}
 				</p>
 			`;
 		}
@@ -1359,12 +1376,26 @@ function pageSetup( ){
 
 	// Cover
 	if( 'cover' in theme.preview ){
-		let val = theme.preview.cover;
 		// change toggle value unless it was already changed by regular settings
 		if( coverCheck.disabled === false ){
-			coverCheck.checked = val;
+			coverCheck.checked = theme.preview.cover;
 		}
-		postToPreview(['cover', val]);
+		postToPreview(['cover', theme.preview.cover]);
+	}
+	if( 'background' in theme.preview ){
+		postToPreview(['background', theme.preview.background]);
+	}
+	if( 'cover_url' in theme.preview ){
+		coverField.value = theme.preview.cover_url;
+		postToPreview(['cover_url', theme.preview.cover_url]);
+	}
+	if( 'background_url' in theme.preview ){
+		backgroundField.value = theme.preview.background_url;
+		postToPreview(['background_url', theme.preview.background_url]);
+	}
+	// disable background by default because most themes look better without it.
+	else if( theme.preview?.background !== true ) {
+		postToPreview(['background_url', false]);
 	}
 
 	// Category

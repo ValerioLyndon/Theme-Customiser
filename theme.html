@@ -53,7 +53,7 @@ permalink: /theme
 						</a>
 					</nav>
 				</div>
-				<div class="topbar__section">
+				<div class="topbar__section topbar__section--right">
 					<div class="discrepancy-notice">
 						<div class="discrepancy-notice__title">
 							Preview will differ from the final outcome.
@@ -72,10 +72,20 @@ permalink: /theme
 						</a>
 
 						<div id="js-preview-options-container" class="options__container is-hidden">
-							<div class="options__item" id="js-preview-options__cover">
+							<div class="options__item">
 								<b class="options__title">Cover Image</b>
 								<input id="js-preview__cover" type="checkbox" class="o-hidden" checked="checked">
 								<label class="toggle" for="js-preview__cover" onclick="postToPreview(['cover', !document.getElementById('js-preview__cover').checked])" data-info="This option is not editable due to the recommended theme settings."></label>
+							</div>
+
+							<div class="options__item">
+								<b class="options__title">Cover URL</b>
+								<input id="js-preview__cover-url" type="text" class="input" placeholder="https://example.com/yourimage.jpg" oninput="postToPreview(['cover_url', this.value])">
+							</div>
+
+							<div class="options__item">
+								<b class="options__title">Background URL</b>
+								<input id="js-preview__background-url" type="text" class="input" placeholder="https://example.com/yourimage.jpg" oninput="postToPreview(['background_url', this.value])">
 							</div>
 
 							<div class="options__item">

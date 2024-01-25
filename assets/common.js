@@ -1373,21 +1373,27 @@ class Validate {
 	}
 
 	static display( display ){
-		if( 'cover' in display ){
-			if( this.permissive ){
-				display.cover = parseBool(display.cover);
-			}
-			if( !isBool(display.cover) ){
-				throw new Error(`"cover" value must be a boolean.`);
+		const boolean_keys = ['cover', 'background'];
+		for( let key of boolean_keys ){
+			if( key in display ){
+				if( this.permissive ){
+					display[key] = parseBool(display[key]);
+				}
+				if( !isBool(display[key]) ){
+					throw new Error(`"${key}" value must be a boolean.`);
+				}
 			}
 		}
-		
-		if( 'background' in display ){
-			if( this.permissive ){
-				display.background = parseBool(display.background);
-			}
-			if( !isBool(display.background) ){
-				throw new Error(`"background" value must be a boolean.`);
+
+		const url_keys = ['cover_url', 'background_url'];
+		for( let key of url_keys ){
+			if( key in display ){
+				if( !isString(display[key]) ){
+					throw new Error(`"${key}" value must be a string.`);
+				}
+				if( !isValidHttp(display[key]) ){
+					throw new Error(`"${key}" string values must be a valid URL of protocol "http".`);
+				}
 			}
 		}
 			
