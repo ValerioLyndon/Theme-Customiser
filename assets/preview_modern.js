@@ -237,7 +237,7 @@ function setView( view ){
 			listMenu.innerHTML = listMenuInner;
 		}
 		
-		for( btn of itemBtns ){
+		for( let btn of itemBtns ){
 			btn.className = 'edit';
 			btn.firstChild.textContent = 'Edit';
 		}
@@ -316,6 +316,47 @@ function toggleCover( set = undefined ){
 	else {
 		cover.classList.toggle('hide');
 	}
+}
+
+function setCover( string = '' ){
+	if( string === '' ){
+		string = 'https://cdn.myanimelist.net/s/common/uploaded_files/1455540405-b2e2bf20e11b68631e8439b44d9a51c7.png';
+	}
+	document.querySelector('#cover-image').src = string;
+}
+
+var backgroundState = false;
+function toggleBackground( set = undefined ){
+	const style = document.querySelector('#default-css');
+	if( set === true ){
+		// set background to default
+		setBackground(true);
+	}
+	else if( set === false ){
+		setBackground(false);
+	}
+	else {
+		// invert current state
+		backgroundState = backgroundState === true ? false : true;
+		toggleBackground(backgroundState);
+	}
+}
+
+function setBackground( url = true ){
+	let ruleset = '';
+	if( url !== false ){
+		if( url === true || url === '' ){
+			url = 'https://cdn.myanimelist.net/s/common/uploaded_files/1455540188-934a8b8942494df1086f9402bbb5330b.png';
+		}
+		ruleset = `
+			background-image: url(${url});
+			background-attachment: fixed;
+			background-position: center top;
+			background-repeat: repeat\\2D x;
+		`;
+	}
+	const style = document.querySelector('#default-css');
+	style.textContent = style.textContent.replace(/(body\.ownlist\s*\{)[^}]*\}/, `$1${ruleset}}`);
 }
 
 let stats = document.getElementsByClassName('list-stats')[0];

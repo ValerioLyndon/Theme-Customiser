@@ -39,6 +39,15 @@ window.addEventListener(
 			else if( type === 'cover' ){
 				toggleCover(content);
 			}
+			else if( type === 'background' ){
+				toggleBackground(content);
+			}
+			else if( type === 'cover_url' ){
+				setCover(content);
+			}
+			else if( type === 'background_url' ){
+				setBackground(content);
+			}
 			else if( type === 'style' ){
 				console.log(`This option is still to do. Style #${content}`);
 				//changeStyle(content);

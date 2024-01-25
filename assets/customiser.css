@@ -198,6 +198,9 @@ input:checked + .toggle.is-forced::after {
 	align-items: center;
 	flex-shrink: 0;
 }
+.topbar__section--right {
+	margin-left: auto;
+}
 
 
 /* Options */
@@ -213,7 +216,9 @@ input:checked + .toggle.is-forced::after {
 	top: 50px;
 	right: 0;
 	display: flex;
-	padding: 15px;
+	flex-flow: column wrap;
+	align-items: start;
+	padding: 16px;
 	background: var(--background);
 	border: 2px solid var(--accent);
 	border-radius: 8px;
@@ -229,7 +234,7 @@ input:checked + .toggle.is-forced::after {
 }
 
 .options__item + .options__item {
-	margin-left: 15px;
+	margin-top: 8px;
 }
 
 .options__title {
