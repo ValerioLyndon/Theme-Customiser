@@ -1105,12 +1105,13 @@ class Validate {
 					throw new Error(`Theme "${theme.name}": "url" key is required.`);
 				}
 
-				if( 'date' in theme && !/\d{4}-\d{2}-\d{2}/.test(theme.date) ){
-					throw new Error(`Theme "${theme.name}": "date" value must be formatted as "YYYY-MM-DD".`);
+				const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+				if( 'date' in theme && !dateRegex.test(theme.date) ){
+					throw new Error(`Theme "${theme?.name}": "date" value must be formatted as "YYYY-MM-DD".`);
 				}
 
-				if( 'date_added' in theme && !/\d{4}-\d{2}-\d{2}/.test(theme.date_added) ){
-					throw new Error(`Theme "${theme.name}": "date_added" value must be formatted as "YYYY-MM-DD".`);
+				if( 'date_added' in theme && !dateRegex.test(theme.date_added) ){
+					throw new Error(`Theme "${theme?.name}": "date_added" value must be formatted as "YYYY-MM-DD".`);
 				}
 			
 				if( 'type' in theme && !(['modern','classic'].includes(theme.type)) ){
