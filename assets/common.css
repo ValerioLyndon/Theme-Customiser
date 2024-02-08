@@ -863,33 +863,49 @@ body {
 	z-index: 14;
 	background: rgba(0,0,0,0.6);
 	transition: opacity .5s ease;
+	cursor: default;
 }
 .tutorial.is-hidden {
 	opacity: 0;
 	pointer-events: none;
 }
 
-.tutorial__progress {
-	--progress: 0%;
+.tutorial__info {
 	position: fixed;
 	left: 50%;
-	bottom: 50px;
+	bottom: 24px;
 	width: 80%;
 	max-width: 400px;
-	height: 16px;
-	background: linear-gradient(to right, var(--accent) var(--progress), var(--background) 0);
-	border: 2px solid var(--border-light);
+	background: var(--background);
 	border-radius: 8px;
-	transform: translateX(-50%);
+	box-shadow: 0 2px 6px #0008;
+	padding: 8px;
+	transform: translate(-50%, var(--offset,0px));
+	transition: opacity .5s ease, transform .25s ease;
 }
 
-.tutorial__dismiss {
-	position: fixed;
-	left: 50%;
-	bottom: 80px;
-	color: var(--background);
-	font-size: 20px;
-	transform: translateX(-50%);
+.tutorial__split {
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 4px;
+}
+
+.tutorial__progress {
+	height: 4px;
+	background: linear-gradient(to right, var(--accent) var(--progress, 0%), var(--border-light) 0);
+	border-radius: 2px;
+}
+
+.tutorial__welcome {
+	height: 2.6em;
+	margin-top: 4px;
+	line-height: 1.3em;
+	overflow: hidden;
+	transition: height .25s ease;
+}
+.tutorial__welcome.is-hidden {
+	height: 0;
+	margin-top: 0;
 }
 
 

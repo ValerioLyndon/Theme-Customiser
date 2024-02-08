@@ -36,13 +36,13 @@ permalink: /theme
 								<span class="top-nav__text">Browse</span>
 							</div>
 						</a>
-						<a id="js-tutorial-import" class="top-nav__link" onclick="toggleEle('#js-pp-import')">
+						<a class="top-nav__link js-tutorial-import" onclick="toggleEle('#js-pp-import')">
 							<div class="top-nav__link-inner">
 								<i class="top-nav__icon fa-solid fa-file-import"></i>
 								<span class="top-nav__text">Import Settings</span>
 							</div>
 						</a>
-						<a class="top-nav__link" onclick="toggleEle('#js-pp-export')">
+						<a class="top-nav__link js-tutorial-export" onclick="toggleEle('#js-pp-export')">
 							<div class="top-nav__link-inner">
 								<i class="top-nav__icon fa-solid fa-file-arrow-down"></i>
 								<span class="top-nav__text">Export Settings</span>
@@ -194,7 +194,7 @@ permalink: /theme
 
 					<div class="sidebar__section">
 						<button type="button" class="button" onclick="toggleEle('#js-pp-export')">Export settings</button>
-						<button type="button" class="button" onclick="resetSettings()" id="js-tutorial-reset">Reset settings</button>
+						<button type="button" class="button js-tutorial-reset" onclick="resetSettings()">Reset settings</button>
 						<button type="button" class="button" onclick="clearCache()">Clear cache</button>
 					</div>
 
