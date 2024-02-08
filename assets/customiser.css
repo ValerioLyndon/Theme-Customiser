@@ -127,6 +127,7 @@ input:checked + .toggle.is-forced::after {
 	content: "";
 	position: absolute;
 	bottom: 0;
+	z-index: 2;
 	width: 100%;
 	height: 40px;
 	background: linear-gradient(0deg, var(--background) 25px, transparent);
@@ -145,6 +146,7 @@ input:checked + .toggle.is-forced::after {
 .expando__button {
 	position: absolute;
 	bottom: 0;
+	left: var(--margin);
 	z-index: 3;
 	padding: 3px 6px;
 	background: none;
@@ -156,10 +158,6 @@ input:checked + .toggle.is-forced::after {
 	font-family: inherit;
 	cursor: pointer;
 }
-.expando.is-innert .expando__button {
-	display: none;
-}
-
 .expando__button--subtle {
 	font-weight: 400;
 }

@@ -62,6 +62,102 @@ function splitSlide(  ){
 	sidebar.classList.toggle('is-aside');
 }
 
+// Class to create smoothly-expanding areas.
+class Expando {
+	constructor( child, limit = 100, attrs = {} ){
+		this.attrs = {};
+		this.attrs.subtle = 'subtle' in attrs ? attrs.subtle : false;
+		this.attrs.margin = 'margin' in attrs ? attrs.margin : 0;
+
+		this.expanded = false;
+		this.limit = parseInt(limit);
+		this.btnHtmlCollapsed = `<i class="fa-solid fa-caret-down" aria-hidden="true"></i> See more...`;
+		this.btnHtmlExpanded = `<i class="fa-solid fa-caret-up" aria-hidden="true"></i> See less.`;
+
+		this.root = document.createElement('div');
+		this.root.className = 'expando';
+		this.root.setAttribute('style', `--margin: ${attrs.margin}px`);
+
+		// Place child inside of expando
+		child.replaceWith(this.root);
+		this.root.append(child);
+
+		// calculate height if already in DOM, or wait for later if not
+		
+		Expando.uncalculated.push(this);
+	}
+
+	calculate( ){
+		if( !document.body.contains(this.root) ){
+			return false;
+		}
+
+		// don't bother making it an expando unless it's more than 25 over the limit, because the expando buttons themselves add 25 pixels extra
+		if( this.root.scrollHeight < (this.limit + 25) ){
+			//TODO: this should return false *before* swapping out the expando parent ideally, but due to how the CSS works we have to do it after.
+			this.root.classList.add('is-innert');
+			return true;
+		}
+
+		this.root.style.height = `${this.limit}px`;
+		this.btn = document.createElement('button');
+		this.btn.className = 'expando__button';
+		this.btn.innerHTML = this.btnHtmlCollapsed;
+		this.btn.addEventListener('click', ()=>{ this.toggle(); });
+		if( this.attrs.subtle === true ){
+			this.btn.classList.add('expando__button--subtle');
+		}
+
+		this.root.append(this.btn);
+		return true;
+	}
+
+	toggle( ){
+		let animTiming = {
+			duration: 300 + this.root.scrollHeight / 3,
+			iterations: 1,
+			easing: 'ease'
+		};
+
+		if( this.expanded ){
+			this.expanded = false;
+			let animFrames = [
+				{ height: `${this.root.scrollHeight}px` },
+				{ height: `${this.limit}px` }
+			];
+			this.root.style.height = `${this.limit}px`;
+			this.root.style.paddingBottom = `0px`;
+			this.root.classList.remove('is-expanded');
+			this.root.animate(animFrames, animTiming);
+			this.btn.innerHTML = this.btnHtmlCollapsed;
+		}
+		else {
+			this.expanded = true;
+			let animFrames = [
+				{ height: `${this.limit}px`},
+				{ height: `${this.root.scrollHeight + 25}px`,
+				  paddingBottom: '25px' }
+			];
+			this.root.style.height = `auto`;
+			this.root.style.paddingBottom = `25px`;
+			this.root.classList.add('is-expanded');
+			this.root.animate(animFrames, animTiming);
+			this.btn.innerHTML = this.btnHtmlExpanded;
+		}
+	}
+
+	// method to calculate all expandos right before page load. This is done because scrollHeigh is always 0 until the elements are in the DOM
+	static uncalculated = [];
+	static calculateAll( ){
+		for( let i = 0; i < Expando.uncalculated.length; i++ ){
+			if( Expando.uncalculated[i].calculate() ){
+				Expando.uncalculated.shift();
+				i--;
+			}
+		}
+	}
+}
+
 // Creates and returns an HTML DOM element containing processed BB Code
 function createBB( text ){
 	// Sanitise input from HTML characters
@@ -961,7 +1057,7 @@ function pageSetup( ){
 
 	// Options & Mods
 
-	let optionsEle = document.getElementById('js-options');
+	let optionsEle = document.querySelector('.js-options-anchor');
 	if( theme.options ){
 		for( const opt of Object.entries(theme.options) ){
 			let renderedOpt = renderCustomisation('option', opt);
@@ -971,11 +1067,11 @@ function pageSetup( ){
 		}
 	}
 	else {
-		optionsEle.parentNode.remove();
+		document.querySelector('.js-options-deletion-point').remove();
 	}
 
 	let mods = [];
-	let modsEle = document.getElementById('js-mods');
+	let modsEle = document.querySelector('.js-mods-anchor');
 	if( theme.mods ){
 		for( const mod of Object.entries(theme.mods) ){
 			let renderedMod = renderCustomisation('mod', mod);
@@ -986,7 +1082,7 @@ function pageSetup( ){
 		}
 	}
 	else {
-		modsEle.parentNode.remove();
+		document.querySelector('.js-mods-deletion-point').remove();
 	}
 
 	// Tag links
@@ -1465,56 +1561,11 @@ function pageSetup( ){
 
 	// Add expando functions
 
-	let expandos = document.getElementsByClassName('js-expando');
-
-	function toggleExpando(  ){
-		let parent = this.parentNode;
-		let expandedHeight = parent.scrollHeight;
-		let collapsedHeight = parent.dataset.expandoLimit;
-		let expanded = parent.classList.contains('is-expanded');
-		let animTiming = {
-			duration: 300 + expandedHeight / 3,
-			iterations: 1,
-			easing: 'ease'
-		};
-
-		if( expanded ){
-			let animFrames = [
-				{ height: `${expandedHeight}px` },
-				{ height: `${collapsedHeight}px` }
-			];
-			parent.style.height = `${collapsedHeight}px`;
-			parent.style.paddingBottom = `0px`;
-			parent.classList.remove('is-expanded');
-			parent.animate(animFrames, animTiming);
-			this.innerHTML = '<i class="fa-solid fa-caret-down"></i> See more...';
-		}
-		else {
-			let animFrames = [
-				{ height: `${collapsedHeight}px`},
-				{ height: `${expandedHeight + 25}px`,
-				  paddingBottom: '25px' }
-			];
-			parent.style.height = `auto`;
-			parent.style.paddingBottom = `25px`;
-			parent.classList.add('is-expanded');
-			parent.animate(animFrames, animTiming);
-			this.innerHTML = '<i class="fa-solid fa-caret-up"></i> See less.';
-		}
+	let needsExpando = document.getElementsByClassName('js-make-expando');
+	for( let ele of needsExpando ){
+		new Expando(ele, ele.dataset.expandoLimit, {'margin': ele.dataset.expandoMargin});
 	}
-
-	for( let expando of expandos ){
-		let limit = expando.dataset.expandoLimit;
-		// don't bother making it an expando unless it's more than 25 over the limit, because the expando buttons themselves add 25 pixels extra
-		if( expando.scrollHeight < (parseInt(limit) + 25) ){
-			expando.classList.add('is-innert');
-		}
-		else {
-			expando.style.height = `${limit}px`;
-			let btn = expando.getElementsByClassName('js-expando-button')[0];
-			btn.addEventListener('click', toggleExpando.bind(btn));
-		}
-	}
+	Expando.calculateAll();
 
 	// Add swappable text functions
 
@@ -1616,28 +1667,24 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 	let head = document.createElement('div');
 	let headLeft = document.createElement('b');
 	let headRight = document.createElement('div');
-	let expando = document.createElement('div');
 	let desc = document.createElement('div');
+	let expando = new Expando(desc, 100, {subtle: true, margin: 16});
 
 	div.className = 'entry';
 	head.className = 'entry__head';
 	headLeft.textContent = entryData.name;
 	headLeft.className = 'entry__name';
 	headRight.className = 'entry__action-box';
-	expando.className = 'expando js-expando';
-	expando.dataset.expandoLimit = '100';
-	expando.innerHTML = '<button class="expando__button expando__button--subtle js-expando-button"><i class="fa-solid fa-caret-down"></i> See more...</button>';
 	desc.className = 'entry__desc';
 
 	// Add HTML as necessary
 
-	head.appendChild(headLeft);
-	head.appendChild(headRight);
-	div.appendChild(head);
-	expando.appendChild(desc);
+	head.append(headLeft);
+	head.append(headRight);
+	div.append(head);
 	if( entryData.description ){
-		desc.appendChild(createBB(entryData.description));
-		div.appendChild(expando);
+		desc.append(createBB(entryData.description));
+		div.append(expando.root);
 	}
 
 	// Option & Mod Specific HTML
@@ -1649,7 +1696,7 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 
 		let inputRow = document.createElement('div');
 		inputRow.className = 'entry__inputs';
-		div.appendChild(inputRow);
+		div.append(inputRow);
 
 		let split = entryData.type.split('/');
 		let type = split[0];
