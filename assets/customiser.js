@@ -1397,7 +1397,7 @@ function pageSetup( ){
 		postToPreview(['background_url', theme.preview.background_url]);
 	}
 	// disable background by default because most themes look better without it.
-	else if( theme.preview?.background !== true ) {
+	else if( theme.preview?.background !== true && theme.type === 'modern' ) {
 		postToPreview(['background_url', false]);
 	}
 
