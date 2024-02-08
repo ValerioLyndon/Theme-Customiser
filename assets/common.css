@@ -897,9 +897,8 @@ body {
 }
 
 .tutorial__welcome {
-	height: 2.6em;
+	height: var(--height);
 	margin-top: 4px;
-	line-height: 1.3em;
 	overflow: hidden;
 	transition: height .25s ease;
 }
