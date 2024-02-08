@@ -521,7 +521,7 @@ async function updateCss(  ){
 		}
 
 		if( type === 'select' ){
-			var replacements = optData.selections[insert]?.replacements;
+			var replacements = 'replacements' in optData.selections[insert] ? optData.selections[insert].replacements : [];
 		}
 		else {
 			var replacements = optData.replacements;
