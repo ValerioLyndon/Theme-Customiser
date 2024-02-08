@@ -1738,6 +1738,7 @@ class Tutorial {
 		this.root.setAttribute('style', '--offset: calc(24px + -50vh - 50%)');
 		document.body.appendChild(this.root);
 		document.body.classList.add('is-not-scrollable');
+		this.welcome.setAttribute('style', `--height: ${this.welcome.getBoundingClientRect().height}px`);
 		this.root.addEventListener('click', ()=>{
 			this.welcome.classList.add('is-hidden');
 			this.root.removeAttribute('style');
