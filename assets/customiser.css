@@ -129,32 +129,32 @@ input:checked + .toggle.is-forced::after {
 	bottom: 0;
 	width: 100%;
 	height: 40px;
-	background: linear-gradient(to top, var(--background), transparent);
-	transition: opacity 0.2s ease-in;
+	background: linear-gradient(0deg, var(--background) 25px, transparent);
+	transition: scale 0.2s ease-in;
+	transform-origin: bottom;
 	pointer-events: none;
 }
-.expando.is-innert::after,
+.expando.is-innert::after {
+	content: none;
+}
 .expando.is-expanded::after {
-	opacity: 0;
+	scale: 1 .625;
+	transition-delay: 0.1s;
 }
 
 .expando__button {
 	position: absolute;
 	bottom: 0;
-	left: 50%;
 	z-index: 3;
 	padding: 3px 6px;
-	background: var(--background);
+	background: none;
 	border: none;
-	border-radius: 7px 7px 0 0;
-	box-shadow: 0 3px 5px 3px var(--background);
 	margin: 0;
 	color: inherit;
 	font-size: 14px;
 	font-weight: bold;
 	font-family: inherit;
 	cursor: pointer;
-	transform: translateX(-50%);
 }
 .expando.is-innert .expando__button {
 	display: none;
@@ -433,8 +433,11 @@ input:checked + .toggle.is-forced::after {
 }
 
 .entry__desc {
-	margin: 0 0 8px;
 	font-size: 0.9em;
+}
+
+.entry .expando {	
+	margin: 0 0 8px;
 }
 
 .entry__help {

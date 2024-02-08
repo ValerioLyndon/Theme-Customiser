@@ -1487,7 +1487,7 @@ function pageSetup( ){
 			parent.style.paddingBottom = `0px`;
 			parent.classList.remove('is-expanded');
 			parent.animate(animFrames, animTiming);
-			this.textContent = 'Expand';
+			this.innerHTML = '<i class="fa-solid fa-caret-down"></i> See more...';
 		}
 		else {
 			let animFrames = [
@@ -1499,7 +1499,7 @@ function pageSetup( ){
 			parent.style.paddingBottom = `25px`;
 			parent.classList.add('is-expanded');
 			parent.animate(animFrames, animTiming);
-			this.textContent = 'Collapse';
+			this.innerHTML = '<i class="fa-solid fa-caret-up"></i> See less.';
 		}
 	}
 
@@ -1625,7 +1625,7 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 	headRight.className = 'entry__action-box';
 	expando.className = 'expando js-expando';
 	expando.dataset.expandoLimit = '100';
-	expando.innerHTML = '<button class="expando__button expando__button--subtle js-expando-button">Expand</button>';
+	expando.innerHTML = '<button class="expando__button expando__button--subtle js-expando-button"><i class="fa-solid fa-caret-down"></i> See more...</button>';
 	desc.className = 'entry__desc';
 
 	// Add HTML as necessary
