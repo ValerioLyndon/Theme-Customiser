@@ -377,13 +377,21 @@ input:checked + .toggle.is-forced::after {
 }
 
 .theme-tag {
+	display: inline-block;
 	height: 24px;
 	padding: 3px 6px;
-	border: 2px solid var(--accent-text);
+	border: 2px solid var(--text);
 	border-radius: 4px;
+	margin-top: 6px;
 	font-size: 12px;
 	font-weight: 900;
-	vertical-align: middle;
+	vertical-align: top;
+}
+
+.theme-desc {
+	display: block;
+	margin-top: 6px;
+	color: var(--text-light);
 }
 
 .sidebar__header {
