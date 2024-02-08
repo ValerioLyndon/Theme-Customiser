@@ -1505,7 +1505,8 @@ function pageSetup( ){
 
 	for( let expando of expandos ){
 		let limit = expando.dataset.expandoLimit;
-		if( expando.scrollHeight < limit ){
+		// don't bother making it an expando unless it's more than 25 over the limit, because the expando buttons themselves add 25 pixels extra
+		if( expando.scrollHeight < (parseInt(limit) + 25) ){
 			expando.classList.add('is-innert');
 		}
 		else {
