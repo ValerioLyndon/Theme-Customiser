@@ -581,20 +581,29 @@ window.addEventListener(
 // Tutorial
 
 function startBrowseTutorial( ){
-	var popup = new InfoPopup;
-	startTutorial([
-		() => { popup.text('Welcome to the Theme Customiser browse page!<br/><br/>Click anywhere to continue.<br/>To escape, click "Dismiss".'); popup.show([document.scrollingElement.scrollWidth/2, 150], 'none'); },
+	let popup = new InfoPopup;
+	let steps = [
 		() => {
-			if( document.querySelector('#js-search:not(.o-hidden)') ){
-				popup.text('Looking for something in particular? Use the filters to narrow results.');
-				popup.show(document.querySelector('#js-tags__button'), 'top');
-			}
-			else {
-				return false;
-			}
+			let target = document.getElementById('js-import');
+			popup.text('Trying to import a pre-made configuration? Click on this button to bring up the Import popup.');
+			popup.show(target, 'top');
+			tutorial.highlightElement(target);
+
 		},
-		() => { popup.text('Trying to import a pre-made configuration? Click on this button to bring up the Import popup.'); popup.show(document.getElementById('js-import'), 'top'); },
-		() => { popup.text('Once you\'ve found an interesting design, just click on it! The guide will continue on the theme page.'); popup.show([document.scrollingElement.scrollWidth/2, 150], 'none'); },
+		() => {
+			popup.text('Once you\'ve found an interesting design, just click on it! The guide will continue on the theme page.');
+			popup.show([document.scrollingElement.scrollWidth/2, 150], 'none');
+		},
 		() => { popup.destruct(); }
-	]);
+	];
+	if( document.querySelector('#js-search:not(.o-hidden)') ){	
+		steps.unshift(() => {	
+			let target = document.querySelector('#js-tags__button');
+			popup.text('Looking for something in particular? Use the filters to narrow results.');
+			popup.show(target, 'top');
+			tutorial.highlightElement(target);
+		});
+	}
+	let tutorial = new Tutorial('the Theme Customiser', steps);
+	tutorial.start();
 }
