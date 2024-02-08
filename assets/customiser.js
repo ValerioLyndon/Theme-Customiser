@@ -945,14 +945,17 @@ function pageSetup( ){
 
 	// Theme flags
 	if( theme.flags ){
-		let themeTag = document.getElementById('js-theme-tag');
+		let tags = document.querySelectorAll('.js-theme-tag');
+		let notice = document.querySelector('.js-theme-wip');
 		if( theme.flags.includes('beta') ){
-			themeTag.textContent = 'BETA';
-			themeTag.classList.remove('o-hidden');
+			tags[0].textContent = 'BETA';
+			tags[0].classList.remove('o-hidden');
+			notice.classList.remove('o-hidden');
 		}
 		else if( theme.flags.includes('alpha') ){
-			themeTag.textContent = 'ALPHA';
-			themeTag.classList.remove('o-hidden');
+			tags[0].textContent = 'ALPHA';
+			tags[0].classList.remove('o-hidden');
+			notice.classList.remove('o-hidden');
 		}
 	}
 
