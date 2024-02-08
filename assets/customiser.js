@@ -521,7 +521,7 @@ async function updateCss(  ){
 		}
 
 		if( type === 'select' ){
-			var replacements = optData.selections[insert]?.replacements;
+			var replacements = 'replacements' in optData.selections[insert] ? optData.selections[insert].replacements : [];
 		}
 		else {
 			var replacements = optData.replacements;
@@ -1983,71 +1983,79 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 
 // Tutorial for new users. Activated upon page load.
 function startThemeTutorial( ){
-	var tutorial = new InfoPopup;
+	let popup = new InfoPopup;
 	let sidebar = document.getElementById('js-sidebar');
 	let options = document.getElementById('js-options');
 	let mods = document.getElementById('js-mods');
-	startTutorial([
-		() => { tutorial.text('Welcome to your first theme! <br/><br/>Click anywhere to continue.<br/>To escape, click "Dismiss".'); tutorial.show([document.scrollingElement.scrollWidth/2, document.scrollingElement.scrollHeight/2], 'none'); },
-		() => {
-			let target = null;
 
-			if( options ){
-				target = options;
-			}
-			else if( mods ){
-				target = mods;
-			}
-			else {
-				return false;
-			}
-
-			tutorial.text(`To customise the theme, use the available options and/or mods in the sidebar. Toggle them using the sliders or change their values with the input fields.`);
-			tutorial.show(target, 'left');
+	let steps = [
+		() => {
+			popup.text('You can preview the theme, including any options you change, in the window on the right.<br/><br/>To give yourself some more space, click the arrow to minimise the sidebar.');
+			let target = document.getElementById('js-toggle-drawer');
+			popup.show(target, 'left');
+			tutorial.highlightElement(target);
 		},
 		() => {
-			if( options || mods ){
-				sidebar.scrollTo( {'left': 0, 'top': sidebar.scrollHeight, 'behaviour': 'instant'} );
-				tutorial.text(`If at any point you want to start over, just hit the reset button.`);
-				tutorial.show(document.getElementById('js-tutorial-reset'), 'left');
-			}
-			else {
-				return false;
-			}
-		},
-		() => {
-			tutorial.text('You can preview the theme, including any options you change, in the window on the right.<br/><br/>To give yourself some more space, click the arrow to minimise the sidebar.');
-			tutorial.show(document.getElementById('js-toggle-drawer'), 'left');
-		},
-		() => {
+			let targets = [
+				document.querySelector('#js-copy-output'),
+				document.querySelector('.js-installation-btn')
+			];
 			sidebar.scrollTo( {'left': 0, 'top': sidebar.scrollHeight, 'behaviour': 'instant'} );
-			tutorial.text('Once you\'re ready, you can copy the customised CSS for use on MyAnimeList. A full install guide is located under "How do I install this?"');
-			tutorial.show(document.getElementById('js-copy-output'), 'left');
+			popup.text(`Once you're ready, you can copy the customised CSS for use on MyAnimeList. A full install guide is located under "${targets[1].textContent}"`);
+			popup.show(targets[1], 'left');
+			tutorial.highlightElement(...targets);
 		},
 		() => {
 			sidebar.scrollTo( {'left': 0, 'top': 0, 'behaviour': 'instant'} );
-			tutorial.text('Want to share your configuration or import your previous one? Use the Import and Export buttons at the top.');
-			tutorial.show(document.getElementById('js-tutorial-import'), 'top');
+			popup.text('Want to share your configuration or import your previous one? Use the Import and Export buttons at the top.');
+			let targets = [
+				document.querySelector('.js-tutorial-import'),
+				document.querySelector('.js-tutorial-export')
+			];
+			popup.show(targets[0], 'top');
+			tutorial.highlightElement(...targets);
 		},
 		() => {
-			let help = document.querySelector('nav .js-help:not(.o-hidden)');
-			if( help ){
-				tutorial.text('Need extra help with the theme? Check the Theme Help link for an author-provided resource.'); tutorial.show(help, 'top');
-			}
-			else {
-				return false;
-			}
+			popup.text('Have fun customising!');
+			popup.show([document.scrollingElement.scrollWidth/2, document.scrollingElement.scrollHeight/2], 'none');
+		},
+		() => { popup.destruct() }
+	];
+
+	if( options || mods ){
+		steps.unshift(() => {
+			sidebar.scrollTo( {'left': 0, 'top': 0, 'behaviour': 'instant'} );
+			let targets = options && mods ? [options,mods] : options ? [options] : [mods];
+			tutorial.highlightElement(...targets);
+			popup.text(`To customise the theme, use the available options and/or mods in the sidebar. Toggle them using the sliders or change their values with the input fields.`);
+			popup.show(options || mods, 'left');
 		},
 		() => {
-			let sponsor = document.querySelector('#js-sponsor:not(.o-hidden)');
-			if( sponsor ){
-				tutorial.text('Loved this author\'s work? Visit their page to see how you can support them.'); tutorial.show(sponsor, 'top');
-			}
-			else {
-				return false;
-			}
-		},
-		() => { tutorial.text('Have fun customising!'); tutorial.show([document.scrollingElement.scrollWidth/2, document.scrollingElement.scrollHeight/2], 'none'); },
-		() => { tutorial.destruct() }
-	]);
+			sidebar.scrollTo( {'left': 0, 'top': sidebar.scrollHeight, 'behaviour': 'instant'} );
+			popup.text(`If at any point you want to start over, just hit the reset button.`);
+			let target = document.querySelector('.js-tutorial-reset');
+			popup.show(target, 'left');
+			tutorial.highlightElement(target);
+		});
+	}
+
+	let help = document.querySelector('nav .js-help:not(.o-hidden)');
+	if( help ){
+		steps.splice(steps.length-2, 0, ()=>{
+			popup.text('Need extra help with the theme? Check the Theme Help link for an author-provided resource.');
+			popup.show(help, 'top');
+			tutorial.highlightElement(help);
+		});
+	}
+
+	let sponsor = document.querySelector('#js-sponsor:not(.o-hidden)');
+	if( sponsor ){
+		steps.splice(steps.length-2, 0, ()=>{
+			popup.text('Loved this author\'s work? Visit their page to see how you can support them.'); popup.show(sponsor, 'top');
+			tutorial.highlightElement(sponsor);
+		});
+	}
+
+	let tutorial = new Tutorial('your first theme', steps);
+	tutorial.start();
 }

@@ -450,15 +450,38 @@ else {
 validate(editor.value());
 renderPreview();
 setRenderTimer();
-var tutorial = new InfoPopup;
-startTutorial([
+let popup = new InfoPopup;
+let tutorial = new Tutorial('the Customiser\'s developer mode', [
 	() => {
-		tutorial.text('Welcome to the Customiser\'s developer mode. This is meant for assistance in interfacing a CSS theme with the Customiser, <b>not</b> for creating new CSS themes.<br><br>Please see the documentation for correct use of this tool.');
-		tutorial.show([document.scrollingElement.scrollWidth/2, 150], 'none');
+		popup.text('The developer mode is meant for assistance in interfacing a CSS theme with the Customiser, <b>not</b> for creating new CSS themes.');
+		popup.show([document.scrollingElement.scrollWidth/2, 150], 'none');
+	},
+	()=>{
+		let target = document.querySelector('.js-tutorial-docs')
+		popup.text('I highly recommended reading the documentation for guidance on writing JSON.');
+		popup.show(target, 'top');
+		tutorial.highlightElement(target);
+	},
+	()=>{
+		let target = document.querySelector('.js-tutorial-tools')
+		popup.text('You will find a few tools in the top bar which make common tasks easier.');
+		popup.show(target, 'top');
+		tutorial.highlightElement(target);
+	},
+	()=>{
+		let target = document.querySelector('.js-tutorial-update')
+		popup.text('It\'s much quicker to use the built-in updating tool than manually keeping up with the most recent changes. Just be sure to read the wiki for any issues you encounter!');
+		popup.show(target, 'top');
+		tutorial.highlightElement(target);
+	},
+	()=>{
+		popup.text('Thanks for checking out the dev tools! If you make anything, please reach out so that it can be added to the default collections.');
+		popup.show([document.scrollingElement.scrollWidth/2, 150], 'none');
 	},
 	() => {
-		tutorial.destruct();
+		popup.destruct();
 	}
 ]);
+tutorial.start();
 
 loader.loaded();

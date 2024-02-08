@@ -1678,77 +1678,153 @@ function updateToBeta4( json ){
 
 
 // Tutorial Function
-// accepts an array of functions that will be executred in chronological order.
+// accepts an array of functions that will be executed in chronological order.
 // For example:
 // [
 //    () => { console.log('step1') },
 //    () => { console.log('step2') }
 // ]
 // The last step should always be a clean-up step. If you don't have any clean-up requirements, just put a blank function there.
-// If any step returns false, it will be skipped.
-function startTutorial( steps ){
-	document.body.classList.add('is-not-scrollable');
-	let path = query.url.pathname;
+// You should initiate the class with steps and then initiate it via tutorial.start()
+// You can move around the tutorial by using tutorial.proceed(stepnum)
+class Tutorial {
+	constructor( welcomeText = 'the tutorial', steps ){
+		this.steps = steps.length > 0 ? steps : [];
+		this.storageKey = `tutorial-${query.url.pathname}`;
+		this.position = 0;
+		this.length = this.steps.length - 1;
+		this.percent = ()=>this.position / this.length * 100;
+		
+		// setup DOM
+		this.root = document.createElement('div');
+		this.root.className = 'tutorial';
 
-	let overlay = document.createElement('div');
-	overlay.className = 'tutorial';
-	document.body.appendChild(overlay);
+		let info = document.createElement('div');
+		info.className = 'tutorial__info';
 
-	let progress = document.createElement('div');
-	let progressMax = steps.length - 2;
-	progress.className = 'tutorial__progress';
-	overlay.appendChild(progress);
+		let split = document.createElement('div');
+		split.className = 'tutorial__split';
 
-	let dismiss = document.createElement('a');
-	dismiss.className = 'tutorial__dismiss hyperlink';
-	dismiss.addEventListener('click', () => {
-		steps[steps.length-1]();
-		finish();
-	});
-	dismiss.textContent = 'Dismiss';
-	overlay.appendChild(dismiss);
+		let text = document.createElement('div');
+		this.stepText = document.createElement('span');
+		this.stepText.textContent = '0';
+		text.append('Tutorial — Step ', this.stepText, ` of ${this.length}`);
 
-	let position = 0;
-	function proceed( e ){
-		if( e && e.target && e.target === dismiss ){
-			return;
+		let dismiss = document.createElement('a');
+		dismiss.className = 'hyperlink';
+		dismiss.addEventListener('click', () => {
+			this.finish();
+		});
+		dismiss.textContent = 'Skip Tutorial';
+		
+		this.progress = document.createElement('div');
+		this.progress.className = 'tutorial__progress';
+
+		this.welcome = document.createElement('div');
+		this.welcome.className = 'tutorial__welcome';
+		this.welcome.textContent = `Welcome to ${welcomeText}! Click anywhere to continue, or click "Skip Tutorial" at any time to exit.`;
+
+		this.root.append(info);
+		info.append(split, this.progress, this.welcome);
+		split.append(text, dismiss);
+	}
+
+	start(  ){
+		if( localStorage.getItem(this.storageKey) ){
+			return false;
 		}
 
-		// set tutorial html
-		let percent = (position) / progressMax * 100;
-		progress.setAttribute('style', `--progress: ${percent}%`);
+		// setup DOM
+		this.root.setAttribute('style', '--offset: calc(24px + -50vh - 50%)');
+		document.body.appendChild(this.root);
+		document.body.classList.add('is-not-scrollable');
+		this.welcome.setAttribute('style', `--height: ${this.welcome.getBoundingClientRect().height}px`);
+		this.root.addEventListener('click', ()=>{
+			this.welcome.classList.add('is-hidden');
+			this.root.removeAttribute('style');
+			this.proceed();
+			this.root.addEventListener('click', ()=>{ this.proceed(); });
+		}, {once : true});
+	}
+
+	proceed( newPosition ){
+		this.position = isInt(newPosition) ? newPosition : this.position+1;
+		// clear any existing highlights
+		this.resetHighlight();
+		// update DOM
+		this.progress.setAttribute('style', `--progress: ${this.percent()}%`);
+		this.stepText.textContent = this.position;
 
 		// execute step
-		let outcome = false;
-		if( typeof steps[position] === 'function' ){
-			outcome = steps[position]();
-		}
+		this.steps[this.position-1]();
 
 		// continue loop or finish up
-		if( position >= steps.length-1 ){
-			finish();
-		}
-		position++;
-
-		if( outcome === false ){
-			proceed();
+		if( this.position >= this.steps.length ){
+			this.finish();
 		}
 	}
 
-	function finish( ){
-		overlay.classList.add('is-hidden');
-		localStorage.setItem(`tutorial-${path}`, true);
+	finish( ){
+		// perform cleanup function if it hasn't been done yet
+		if( this.position !== this.length ){
+			this.proceed(this.length);
+		}
+		// remember it's finished
+		localStorage.setItem(this.storageKey, true);
+		// cleanup DOM
+		this.root.classList.add('is-hidden');
 		document.body.classList.remove('is-not-scrollable');
 	}
 
-	overlay.addEventListener('click', proceed);
-	
-	if( localStorage.getItem(`tutorial-${path}`) ){
-		finish();
-		return false;
+	resetHighlight( ){
+		this.root.style.cssText = '';
 	}
-	else {
-		proceed();
+
+	highlightCircle( x, y, size = 75 ){
+		this.root.style.mask = `radial-gradient(circle ${size}px at ${x}px ${y}px, transparent calc(100% - 5px), black)`;
+	}
+
+	highlightBlock( left, top, right, bottom, blur = 5 ){
+		this.root.style.maskImage = `
+			linear-gradient(90deg,
+				#000        ${left-blur}px,
+				#0004       ${left}px
+			),
+			linear-gradient(180deg,
+				#000        ${top-blur}px,
+				transparent ${top}px
+			),
+			linear-gradient(270deg,
+				#000        calc(100% - ${right+blur}px),
+				transparent calc(100% - ${right}px)
+			),
+			linear-gradient(0deg,
+				#000        calc(100% - ${bottom+blur}px),
+				transparent calc(100% - ${bottom}px)
+			)
+		`;
+	}
+
+	highlightElement( ...elements ){
+		let pos = {};
+		if( elements.length === 1 ){
+			pos = elements[0].getBoundingClientRect();
+		}
+		else {
+			pos = elements.reduce((previous, current)=>{
+				console.log(previous,current);
+				previous = previous instanceof HTMLElement ? previous.getBoundingClientRect() : previous;
+				current = current.getBoundingClientRect();
+				console.log(previous,current);
+				return {
+					'left': current.left < previous.left ? current.left : previous.left, 
+					'top': current.top < previous.top ? current.top : previous.top,
+					'right': current.right > previous.right ? current.right : previous.right,
+					'bottom': current.bottom > previous.bottom ? current.bottom : previous.bottom
+				};
+			});
+		}
+		this.highlightBlock(pos.left, pos.top, pos.right, pos.bottom);
 	}
 }
 
