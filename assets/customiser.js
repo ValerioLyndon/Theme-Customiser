@@ -1,5 +1,25 @@
 'use strict';
 
+// =================
+// UTILITY FUNCTIONS
+// =================
+
+// Sort any items in array1 that are also in array2 to have the exact same order
+function sortArrayToMatch( array1, array2 ){
+	return array1.sort((a, b) => {
+		let aIndex = array2.indexOf(a);
+		let bIndex = array2.indexOf(b);
+		
+		// if unique to this array, do nothing.
+		if( aIndex === -1 || bIndex === -1 ){
+			return 0;
+		}
+		
+		// elsewise, match the order of the original 
+		return aIndex - bIndex;
+	});
+}
+
 // ================
 // COMMON FUNCTIONS
 // ================
@@ -584,6 +604,13 @@ async function updateCss(  ){
 		let qualifier = split[1];
 		let subQualifier = split[2];
 
+		if( insert === undefined ){
+			insert = optData['default'];
+			if( type.startsWith('text') ){
+				return css;
+			}
+		}
+
 		// Process user input as called for by the qualifier
 		if( qualifier === 'content' ){
 			// formats text to be valid for CSS content statements
@@ -651,33 +678,16 @@ async function updateCss(  ){
 		return css;
 	}
 
-	// Sort any items in array1 that are also in array2 to have the exact same order
-	function sortArrayToMatch( array1, array2 ){
-		return array1.sort((a, b) => {
-			let aIndex = array2.indexOf(a);
-			let bIndex = array2.indexOf(b);
-			
-			// if unique to this array, do nothing.
-			if( aIndex === -1 || bIndex === -1 ){
-				return 0;
-			}
-			
-			// elsewise, match the order of the original 
-			return aIndex - bIndex;
-		});
-	}
-
 	// Options
 	// Sort options before to match the order of the JSON to prevent issues with incorrectly layered mods
-	if( userSettings?.options && theme?.options ){
-		let sortedOptIds = sortArrayToMatch(Object.keys(userSettings.options), Object.keys(theme.options));
-		for( let optId of sortedOptIds ){
-			newCss = await applyOptionToCss(newCss, theme.options[optId], userSettings.options[optId]);
+	if( 'options' in theme ){
+		for( let optId of Object.keys(theme.options) ){
+			newCss = await applyOptionToCss(newCss, theme.options[optId], optId in userSettings.options ? userSettings.options[optId] : undefined);
 		}
 	}
 
 	// Mods
-	if( theme?.mods && Object.keys(userSettings?.mods).length > 0 ){
+	if( 'mods' in theme && Object.keys(userSettings?.mods).length > 0 ){
 		// Sort mods before to match the order of the JSON to prevent issues with incorrectly layered mods
 		let sortedModIds = sortArrayToMatch(Object.keys(userSettings.mods), Object.keys(theme.mods));
 
@@ -697,16 +707,13 @@ async function updateCss(  ){
 				
 				let globalOpts = [];
 				if( 'options' in modData ){
-					// Sort options before to match the order of the JSON to prevent issues with incorrectly layered mods
-					let sortedOptIds = sortArrayToMatch(Object.keys(userSettings.mods[modId]), Object.keys(theme.mods[modId].options));
-
-					for( let optId of sortedOptIds ){
+					for( let optId of Object.keys(theme.mods[modId].options) ){
 						let optData = modData.options[optId];
 						if( optData.flags?.includes('global') ){
 							globalOpts.push([optData, val]);
 						}
 						else {
-							modCss = await applyOptionToCss(modCss, optData, userSettings.mods[modId][optId]);
+							modCss = await applyOptionToCss(modCss, optData, optId in userSettings.mods[modId] ? userSettings.mods[modId][optId] : undefined);
 						}
 					}
 				}
