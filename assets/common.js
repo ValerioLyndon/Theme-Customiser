@@ -1529,6 +1529,50 @@ class Validate {
 					`Option "${id}": "min", "max", and "step" keys can only be used when the "type" value is "range".`
 				);
 			}
+			if( typeCore === 'range' ){
+				for( let key of ['min','max','step'] ){
+					if( key in opt && !isNumber(opt[key]) ){
+						throw new Error(`Option "${id}": "${key}" value must be a number. Be sure you aren't accidentally typing a string (double-quoted text).`);
+					}
+				}
+
+				console.log('before',opt.min,opt.max,opt.step);
+				
+				let difference = 100;
+				let min = 0;
+				let max = 100;
+				let step = 1;
+
+				if( 'step' in opt && opt.step < 1 ){
+					difference = 1;
+				}
+
+				if( 'min' in opt && 'max' in opt ){
+					min = opt.min;
+					max = opt.max;
+				}
+				else if( 'min' in entryData ){
+					min = opt.min;
+					max = opt.min + difference;
+				}
+				else if( 'max' in entryData ){
+					max = opt.max;
+					min = opt.max - difference;
+				}
+				
+				if( 'step' in opt ){
+					step = opt.step;
+				}
+				else if( max - min <= 10 ){
+					step = 0.1;
+					step = 0.1;
+				}
+
+				opt.min = min;
+				opt.max = max;
+				opt.step = step;
+				console.log('after',opt.min,opt.max,opt.step);
+			}
 
 			if( 'replacements' in opt ){
 				opt.replacements = Validate.replacements(opt.replacements, id, typeCore);
@@ -1573,7 +1617,7 @@ class Validate {
 					if( this.permissive ){
 						opt.default = parseBool(opt.default);
 					}
-					if( typeof opt.default !== 'boolean' ){
+					if( !isBool(opt.default) ){
 						throw new Error(`Option "${id}": "default" value must be a boolean when "type" value is "toggle".`);
 					}
 				}
@@ -1581,7 +1625,7 @@ class Validate {
 					if( this.permissive ){
 						opt.default = parseFloat(opt.default);
 					}
-					if( typeof opt.default !== 'number' ){
+					if( !isNumber(opt.default) ){
 						throw new Error(`Option "${id}": "default" value must be a number when "type" value is "range".`);
 					}
 				}
@@ -1595,6 +1639,10 @@ class Validate {
 			}
 			else if( typeCore === 'color' ) {
 				opt.default = '#d8d8d8';
+			}
+			else if( typeCore.startsWith('range') ) {
+				opt.default = (opt.max - opt.min) / 2 + opt.min;
+				console.log(opt.max,opt.min,opt.default);
 			}
 			else if( typeCore.startsWith('text') ) {
 				opt.default = '';

@@ -1829,41 +1829,12 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 			});
 
 			inputRow.appendChild(range);
-
-			let difference = 100;
-			let min = 0;
-			let max = 100;
-
-			if( entryData.step < 1 ){
-				difference = 1;
-			}
-
-			if( 'min' in entryData && 'max' in entryData ){
-				min = entryData.min;
-				max = entryData.max;
-			}
-			else if( 'min' in entryData ){
-				min = entryData.min;
-				max = entryData.min + difference;
-			}
-			else if( 'max' in entryData ){
-				max = entryData.max;
-				min = entryData.max - difference;
-			}
-
-			input.setAttribute('min', min);
-			range.setAttribute('min', min);
-			input.setAttribute('max', max);
-			range.setAttribute('max', max);
-
-			if( entryData.step ){
-				input.setAttribute('step', entryData.step);
-				range.setAttribute('step', entryData.step);
-			}
-			else if( max - min <= 5 ){
-				input.setAttribute('step', 0.1);
-				range.setAttribute('step', 0.1);
-			}
+			input.setAttribute('min', entryData.min);
+			range.setAttribute('min', entryData.min);
+			input.setAttribute('max', entryData.max);
+			range.setAttribute('max', entryData.max);
+			input.setAttribute('step', entryData.step);
+			range.setAttribute('step', entryData.step);
 		}
 
 		// Toggle Options
