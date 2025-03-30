@@ -1,4 +1,7 @@
+'use strict';
+
 loader.text('Setting up developer tools...');
+Validate.permissive = false;
 
 function sanitiseForHtml( text ){
 	let dummy = document.createElement('div');
@@ -266,7 +269,6 @@ function validate( ){
 	}
 
 	try {
-		Validate.permissive = false;
 		Validate.json(json);
 	}
 	catch( e ){
@@ -365,9 +367,9 @@ function resetEditor( ){
 // Tools
 
 function updatePopupJson( ){
-	let text = document.getElementById('js-update-json__in').value,
-		output = document.getElementById('js-update-json__out'),
-		json = false;
+	let text = document.getElementById('js-update-json__in').value;
+	let output = document.getElementById('js-update-json__out');
+	let json = false;
 
 	output.value = '';
 
@@ -379,24 +381,12 @@ function updatePopupJson( ){
 		return false;
 	}
 
-	let toReturn = 'theme';
-	if( 'themes' in json ){
-		toReturn = 'collection';
+	try {
+		output.value = JSON.stringify(updateJson(json,false), undefined, '\t');
 	}
-	else if( 'collections' in json ){
-		toReturn = 'mega';
-	}
-	else {
-		toReturn = 'theme';
-	}
-
-	processJson( json, '', toReturn )
-	.then( processedJson =>{
-		output.value = JSON.stringify(processedJson, undefined, '\t');
-	})
-	.catch( err =>{
+	catch( err ){
 		messenger.error(`Failed to update the JSON.`, err.message);
-	});
+	};
 }
 
 function encodeJson( ){

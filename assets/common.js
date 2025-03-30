@@ -3,7 +3,10 @@
 // Utility Functions
 
 function inObj( object, string ) {
-	return Object.keys(object).includes(string);
+	return getKeys(object).includes(string);
+}
+function getKeys( object ){
+	return isArray(object) ? object : Object.keys(object);
 }
 
 function isString( variable ){
@@ -962,34 +965,9 @@ let dataUrls = query.getAll('data');
 
 // Check for legacy JSON and process as needed
 async function processJson( json, url, toReturn ){
-	loader.text('Updating JSON...');
+	loader.text('Processing JSON...');
 
-	var ver = 0;
-	if( !("json_version" in json) || isNaN(parseFloat(json.json_version)) ){
-		ver = 0.1;
-	}
-	else {
-		ver = parseFloat(json.json_version);
-	}
-
-	// Else, continue to process.
-	if( ver > jsonVersion ){
-		messenger.send('Detected JSON version beyond what is supported by this instance. Attempting to process as normal. If any bugs or failures occur, try using the main instance at valeriolyndon.github.io.');
-		console.log('Detected JSON version beyond what is supported by this instance. Attempting to process as normal. If any bugs or failures occur, try updating your fork from the main instance at valeriolyndon.github.io.');
-	}
-	else if( ver < jsonVersion ){
-		console.log('The loaded JSON has been processed as legacy JSON. This can *potentially* cause errors or slowdowns. If you are the JSON author and encounter an issue, please see the GitHub page for assistance updating.');
-		if( ver <= 0.1 ){
-			json = updateToBeta3(json, url, toReturn);
-			ver = 0.3;
-			// skips from 0.2 to 0.3 because current code can handle both the same.
-			// the version change from .2 to .3 was because it would break older version of the Customiser
-		}
-		if( ver <= 0.3 ){
-			json = updateToBeta4(json);
-			ver = 0.4;
-		}
-	}
+	json = updateJson(json);
 
 	// Process as normal once format has been updated
 	
@@ -1056,6 +1034,39 @@ async function processJson( json, url, toReturn ){
 	}
 }
 
+function updateJson( json, logs = true ){
+	var ver = 0;
+	if( !("json_version" in json) || isNaN(parseFloat(json.json_version)) ){
+		ver = 0.1;
+	}
+	else {
+		ver = parseFloat(json.json_version);
+	}
+
+	if( ver > jsonVersion && logs ){
+		messenger.send('Detected JSON version beyond what is supported by this instance. Attempting to process as normal. If any bugs or failures occur, try using the main instance at valeriolyndon.github.io.');
+		console.log('Detected JSON version beyond what is supported by this instance. Attempting to process as normal. If any bugs or failures occur, try updating your fork from the main instance at valeriolyndon.github.io.');
+	}
+	else if( ver < jsonVersion ){
+		if( logs ){
+			console.log('The loaded JSON has been processed as legacy JSON. This can *potentially* cause errors or slowdowns. If you are the JSON author and encounter an issue, please see the GitHub page for assistance updating.');
+		}
+		if( ver <= 0.1 ){
+			json = updateToBeta3(json, url, toReturn);
+			ver = 0.3;
+			// skips from 0.2 to 0.3 because current code can handle both the same.
+			// the version change from .2 to .3 was because it would break older version of the Customiser
+		}
+		if( ver <= 0.3 ){
+			json = updateToBeta4(json);
+			ver = 0.4;
+		}
+	}
+
+	return json;
+}
+
+
 
 // json validation class. takes JSON arguments and corrects issues, logs warnings, or errors on fatal issues
 class Validate {
@@ -1063,10 +1074,38 @@ class Validate {
 	// if false, will error on any issue no matter how small
 	static permissive = true;
 
+	static hasAll( object, keys ){
+		object = getKeys(object);
+		return keys.find(key=>!object.includes(key)) === undefined;
+	}
+
+	static hasOne( object, keys ){
+		object = getKeys(object);
+		return keys.find(key=>object.includes(key)) !== undefined;
+	}
+
+	static warnOnUnrecognised( object, validKeys ){
+		for( let key of getKeys(object) ){
+			if( !validKeys.includes(key) ){
+				Validate.nonFatalError(`"${key}" is not a recognised key.`);
+			}
+		}
+	}
+
+	static nonFatalError( message, errorMessage ){
+		if( Validate.permissive ){
+			console.log(message);
+		}
+		else {
+			throw new Error(errorMessage ? errorMessage : message);
+		}
+	}
+
 	static json( json ){
-		if( !('themes' in json) && !('data' in json) && !('collections' in json) ){
+		if( !Validate.hasOne(json, ['themes','data','collections']) ){
 			throw new Error(`JSON has no readable data. Add a "data", "themes", or "collections" key.`);
 		}
+		Validate.warnOnUnrecognised(json, ['json_version','themes','data','collections']);
 
 		if( 'collections' in json && (!isArray(json.collections) || json.collections.find(str=>!isString(str)||!isValidHttp(str)) !== undefined) ){
 			throw new Error(`"collections" key must be an array of *valid* URL strings.`);
@@ -1076,69 +1115,40 @@ class Validate {
 			if( !isArray(json.themes) || Object.values(json.themes).find(theme=>!isDict(theme)) !== undefined ){
 				throw new Error(`"themes" value must be an array of dictionaries.`);
 			}
-			for( let theme of json.themes ){
-				if( 'name' in theme && !isString(theme.name) ){
-					throw new Error(`Theme "${theme.name}": "name" value must be a string.`);
-				}
-				if( !('name' in theme) ){
-					theme.name = 'Untitled';
-				}
+			for( let i = 0; i < json.themes.length; i++ ){
+				let theme = json.themes[i];
 				
-				if( 'author' in theme && !isString(theme.author) ){
-					throw new Error(`Theme "${theme.name}": "author" value must be a string.`);
+				try {
+					Validate.warnOnUnrecognised(theme, ['name','author','type','url','image','date','date_added','tags','supports']);
+					theme = Validate.theme(theme);
 				}
-				if( !('author' in theme) ){
-					theme.name = 'Unknown';
+				catch( e ){
+					e.message = `Theme "${theme?.name}": ${e.message}`;
+					throw e;
 				}
 
-				if( 'image' in theme ){
-					if( !isString(theme.image) ){
-						throw new Error(`Theme "${theme.name}": "image" value must be a string.`);
-					}
-					if( !isValidHttp(theme.image) ){
-						throw new Error(`Theme "${theme.name}": "image" value must be an http protocol URL.`);
-					}
+				if( !Validate.hasAll(theme, ['url']) ){
+					Validate.nonFatalError(`Theme "${theme?.name}": "url" key is required.`);
+					json.themes.splice(i,1);
+					continue;
 				}
-				
-				if( 'url' in theme ){
-					if( !isString(theme.url) ){
-						throw new Error(`Theme "${theme.name}": "url" value must be a string.`);
+
+				for( let key of ['image','url'] ){
+					if( key in theme ){
+						if( !isString(theme[key]) ){
+							throw new Error(`Theme "${theme?.name}": "${key}" value must be a string.`);
+						}
+						if( !isValidHttp(theme[key]) ){
+							throw new Error(`Theme "${theme?.name}": "${key}" value must be an http protocol URL.`);
+						}
 					}
-					if( !isValidHttp(theme.url) ){
-						throw new Error(`Theme "${theme.name}": "url" value must be an http protocol URL.`);
-					}
-				}
-				else {
-					throw new Error(`Theme "${theme.name}": "url" key is required.`);
 				}
 
 				const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-				if( 'date' in theme && !dateRegex.test(theme.date) ){
-					throw new Error(`Theme "${theme?.name}": "date" value must be formatted as "YYYY-MM-DD".`);
-				}
-
-				if( 'date_added' in theme && !dateRegex.test(theme.date_added) ){
-					throw new Error(`Theme "${theme?.name}": "date_added" value must be formatted as "YYYY-MM-DD".`);
-				}
-			
-				if( 'type' in theme && !(['modern','classic'].includes(theme.type)) ){
-					throw new Error(`Theme "${theme.name}": "type" value is unrecognised. Must be "modern" or "classic".`);
-				}
-				if( !('type' in theme) ){
-					console.log(`Theme "${theme.name}": no list type specified, assuming modern`);
-					theme.type = 'modern';
-				}
-				
-				if( 'supports' in theme ){
-					if( !isArray(theme.supports) ){
-						throw new Error(`Theme "${theme.name}": "supports" value must be an array.`);
+				for( let key of ['date','date_added'] ){
+					if( key in theme && !dateRegex.test(theme[key]) ){
+						throw new Error(`Theme "${theme?.name}": "${key}" value must be formatted as "YYYY-MM-DD".`);
 					}
-					if( theme.supports.find(str=>['animelist','mangalist'].includes(str)) === undefined ){
-						throw new Error(`Theme "${theme.name}": "supports" value is unrecognised.`);
-					}
-				}
-				if( !('supports' in theme ) ){
-					theme.supports = ['animelist', 'mangalist'];
 				}
 
 				if( 'tags' in theme ){
@@ -1147,29 +1157,19 @@ class Validate {
 
 				if( 'flags' in theme ){
 					if( !isArray(theme.flags) || theme.flags.find(flag=>!isString(flag)) !== undefined ){
-						throw new Error(`Theme "${theme.name}": "flags" value must be an array of strings.`);
+						throw new Error(`Theme "${theme?.name}": "flags" value must be an array of strings.`);
 					}
 					if( !this.permissive && theme.flags.find(flag=>!(['beta','alpha'].includes(flag))) !== undefined ){
-						throw new Error(`Theme "${theme.name}": "flags" value is unrecognised. Must be any of "beta", "alpha".`);
+						throw new Error(`Theme "${theme?.name}": "flags" value is unrecognised. Must be any of "beta", "alpha".`);
 					}
 				}
 			}
 		}
 
 		if( 'data' in json ){
-			if( 'name' in json.data && !isString(json.data.name) ){
-				throw new Error(`"name" value must be a string.`);
-			}
-			if( !('name' in json.data) ){
-				json.data.name = 'Untitled';
-			}
-			
-			if( 'author' in json.data && !isString(json.data.author) ){
-				throw new Error(`"author" value must be a string.`);
-			}
-			if( !('author' in json.data) ){
-				json.data.author = 'Unknown Author';
-			}
+			Validate.warnOnUnrecognised(json.data, ['name','author','author_url','type','css','supports','help','sponsor','columns','cover','background','style','category','preview','options','mods','flags']);
+
+			json.data = Validate.theme(json.data);
 			
 			if( 'author_url' in json.data ){
 				if( !isString(json.data.author_url) ){
@@ -1184,7 +1184,7 @@ class Validate {
 						throw new Error('"author_url" key must be a valid URL of protocol "http" or "mailto".');
 					}
 				}
-			} 
+			}
 			
 			if( 'help' in json.data ){
 				if( !isString(json.data.help) ){
@@ -1214,30 +1214,10 @@ class Validate {
 						throw new Error('"sponsor" key must be a valid URL of protocol "http" or "mailto".');
 					}
 				}
-			} 
+			}
 			
 			if( 'css' in json.data && !isString(json.data.css) ){
 				throw new Error(`"css" value must be a string (url or CSS).`);
-			}
-			
-			if( 'type' in json.data && !(['modern','classic'].includes(json.data.type)) ){
-				throw new Error(`"type" value is unrecognised.`);
-			}
-			if( !('type' in json.data) ){
-				console.log('no list type specified, assuming modern');
-				json.data.type = 'modern';
-			}
-			
-			if( 'supports' in json.data ){
-				if( !isArray(json.data.supports) ){
-					throw new Error(`"supports" value must be an array.`);
-				}
-				if( json.data.supports.find(str=>['animelist','mangalist'].includes(str)) === undefined ){
-					throw new Error(`"supports" value is unrecognised.`);
-				}
-			}
-			if( !('supports' in json.data ) ){
-				json.data.supports = ['animelist', 'mangalist'];
 			}
 
 			if( 'options' in json.data ){
@@ -1249,6 +1229,14 @@ class Validate {
 					throw new Error(`"mods" value must be a dictionary of dictionaries.`);
 				}
 				for( let [id, mod] of Object.entries(json.data.mods) ){
+					try {
+						Validate.warnOnUnrecognised(mod, ["name","description","css","url","requires","conflicts","options","tags","flags"]);
+					}
+					catch( e ){
+						e.message = `Mod "${id}": ${e.message}`;
+						throw e;
+					}
+
 					if( 'name' in mod && !isString(mod.name) ){
 						throw new Error(`Mod "${id}": "name" value must be a string.`);
 					}
@@ -1284,21 +1272,14 @@ class Validate {
 						}
 					}
 
-					if( 'requires' in mod ){
-						if( !isArray(mod.requires) || mod.requires.find(req=>!isString(req)) !== undefined ){
-							throw new Error(`Mod "${id}": "requires" value must be an array of mod ID strings.`);
-						}
-						if( mod.requires.find(req=>!(Object.keys(json.data.mods).includes(req))) ){
-							throw new Error(`Mod "${id}": "requires" string must match one of your mod keys.`);
-						}
-					}
-
-					if( 'conflicts' in mod ){
-						if( !isArray(mod.conflicts) || mod.conflicts.find(req=>!isString(req)) !== undefined ){
-							throw new Error(`Mod "${id}": "conflicts" value must be an array of mod ID strings.`);
-						}
-						if( mod.conflicts.find(req=>!(Object.keys(json.data.mods).includes(req))) ){
-							throw new Error(`Mod "${id}": "conflicts" string must match one of your mod keys.`);
+					for( let key of ['requires','conflicts'] ){
+						if( key in mod ){
+							if( !isArray(mod[key]) || mod[key].find(reference=>!isString(reference)) !== undefined ){
+								throw new Error(`Mod "${id}": "${key}" value must be an array of mod ID strings.`);
+							}
+							if( mod[key].find(reference=>!(Object.keys(json.data.mods).includes(reference))) ){
+								throw new Error(`Mod "${id}": "${key}" string must match one of your mod keys.`);
+							}
 						}
 					}
 
@@ -1310,7 +1291,7 @@ class Validate {
 						try {
 							mod.tags = Validate.tags(mod.tags);
 						}
-						catch(e) {
+						catch( e ){
 							e.message = `Mod "${id}": ${e.message}`;
 							throw e;
 						}
@@ -1357,6 +1338,43 @@ class Validate {
 		}
 
 		return json;
+	}
+
+	// common keys shared between collection themes and theme pages
+	static theme( theme ){
+		for( let key of ['name','author'] ){
+			if( key in theme && !isString(theme[key]) ){
+				throw new Error(`"${key}" value must be a string.`);
+			}
+		}
+		if( !('name' in theme) ){
+			theme.name = 'Untitled';
+		}
+		if( !('author' in theme) ){
+			theme.name = 'Unknown';
+		}
+
+		if( 'type' in theme && !(['modern','classic'].includes(theme.type)) ){
+			throw new Error(`"type" value is unrecognised. Must be "modern" or "classic".`);
+		}
+		if( !('type' in theme) ){
+			console.log(`no list type specified, assuming modern`);
+			theme.type = 'modern';
+		}
+		
+		if( 'supports' in theme ){
+			if( !isArray(theme.supports) ){
+				throw new Error(`"supports" value must be an array.`);
+			}
+			if( theme.supports.find(str=>['animelist','mangalist'].includes(str)) === undefined ){
+				throw new Error(`"supports" value is unrecognised.`);
+			}
+		}
+		if( !('supports' in theme) ){
+			theme.supports = ['animelist', 'mangalist'];
+		}
+				
+		return theme;
 	}
 
 	static tags( tags ){
@@ -1470,7 +1488,16 @@ class Validate {
 		if( !isDict(options) || Object.values(options).find(opt=>!isDict(opt)) !== undefined ){
 			throw new Error('"options" value must be a dictionary of dictionaries');
 		}
+
 		for( let [id, opt] of Object.entries(options) ){
+			try {
+				Validate.warnOnUnrecognised(opt, ['name','description','type','replacements','selections','default','min','max','step']);
+			}
+			catch( e ){
+				e.message = `Option "${id}": ${e.message}`;
+				throw e;
+			}
+
 			if( 'name' in opt && !isString(opt.name) ){
 				throw new Error(`Option "${id}": "name" value must be a string.`);
 			}
@@ -1487,21 +1514,27 @@ class Validate {
 			}
 			const typeCore = opt.type.split('/')[0];
 			const typeQualifier = opt.type.split('/')[1];
+			const typeSubQual = opt.type.split('/')[2];
 			if( !(['text', 'textarea', 'color', 'range', 'toggle', 'select'].includes(typeCore)) ){
 				throw new Error(`Option "${id}": "type" value is unrecognised.`);
 			}
 			if( typeCore === 'text' && typeQualifier !== undefined && !(['content', 'image_url', 'size', 'value', 'url_fragment'].includes(typeQualifier)) ){
 				throw new Error(`Option "${id}": "type" qualifier value is unrecognised.`);
 			}
-			// TODO: color type validations
+			if( typeCore === 'color' && typeQualifier !== undefined ){
+				if( !(['insert'].includes(typeQualifier)) ){
+					throw new Error(`Option "${id}": "type" qualifier value is unrecognised. Must be "insert".`);
+				}
+				if( typeSubQual !== undefined && typeSubQual.split('&').find(sub=>!(['hsl','hex','rgb','strip_alpha'].includes(sub))) !== undefined ){
+					throw new Error(`Option "${id}": "type" sub-qualifier value is unrecognised. Must be "hsl" "hex", "rgb", or "strip_alpha".`);
+				}
+			}
 
 			if( typeCore !== 'range' && ('min' in opt || 'max' in opt || 'step' in opt) ){
-				if( this.permissive ){
-					console.log(`Option "${id}": a "min", "max", or "step" key was ignored as the "type" value is not "range".`);
-				}
-				else {
-					throw new Error(`Option "${id}": "min", "max", and "step" keys can only be used when the "type" value is "range".`);
-				}
+				Validate.nonFatalError(
+					`Option "${id}": a "min", "max", or "step" key was ignored as the "type" value is not "range".`,
+					`Option "${id}": "min", "max", and "step" keys can only be used when the "type" value is "range".`
+				);
 			}
 
 			if( 'replacements' in opt ){
@@ -1513,12 +1546,10 @@ class Validate {
 
 			if( typeCore === 'select' ){
 				if( 'replacements' in opt ){
-					if( this.permissive ){
-						console.log(`Option "${id}": "replacements" key was ignored as the "type" value is "select". Use the "selections" key instead.`)
-					}
-					else {
-						throw new Error(`Option "${id}": "replacements" key cannot be used when "type" value is "select". Use the "selections" key instead.`);
-					}
+					Validate.nonFatalError(
+						`Option "${id}": "replacements" key was ignored as the "type" value is "select". Use the "selections" key instead.`,
+						`Option "${id}": "replacements" key cannot be used when "type" value is "select". Use the "selections" key instead.`
+					);
 				}
 				if( !('selections' in opt) ){
 					throw new Error(`Option "${id}": "select" type options require a "selections" key.`);
@@ -1530,6 +1561,13 @@ class Validate {
 					throw new Error(`Option "${id}": "selections" values must contain a "label" key with a string value.`);
 				}
 				Object.values(opt.selections).map(sel=>{
+					try {
+						Validate.warnOnUnrecognised(getKeys(sel), ['label','replacements']);
+					}
+					catch( e ){
+						e.message = `Option "${id}" selections: ${e.message}`;
+						throw e;
+					}
 					if( 'replacements' in sel ){
 						sel.replacements = Validate.replacements(sel.replacements, id, typeCore);
 					}
@@ -1603,17 +1641,14 @@ class Validate {
 			throw new Error(`Option "${id}": "replacements" set must contain 2 strings.`);
 		}
 		if( replacements.find(repl=>repl[0].length === 0) !== undefined ){
-			if( this.permissive ){
-				console.log(`Option "${id}": the first string of a "replacements" set cannot be empty.`);
-			}
-			else {
-				throw new Error(`Option "${id}": the first string of a "replacements" set cannot be empty.`);
-			}
+			Validate.nonFatalError(
+				`Option "${id}": the first string of a "replacements" set cannot be empty.`,
+				`Option "${id}": the first string of a "replacements" set cannot be empty.`
+			);
 		}
 		return replacements;
 	}
 }
-
 
 
 

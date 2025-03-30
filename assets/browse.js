@@ -362,9 +362,11 @@ function renderCards( cardData ){
 		pushFilter(thisId, themeAuthor, 'author');
 		pushFilter(thisId, releaseState, 'release state');
 
-		for( let [category, tags] of Object.entries(theme.tags) ){
-			for( let tag of tags ){
-				pushFilter(thisId, tag, category);
+		if( 'tags' in theme ){
+			for( let [category, tags] of Object.entries(theme.tags) ){
+				for( let tag of tags ){
+					pushFilter(thisId, tag, category);
+				}
 			}
 		}
 		itemCount++;
