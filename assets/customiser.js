@@ -67,6 +67,7 @@ function sidebarToggleHide(  ){
 class Expando {
 	constructor( child, limit = 100, attrs = {} ){
 		this.attrs = {};
+		this.attrs.inline = 'inline' in attrs ? attrs.inline : false;
 		this.attrs.subtle = 'subtle' in attrs ? attrs.subtle : false;
 		this.attrs.margin = 'margin' in attrs ? attrs.margin : 0;
 
@@ -100,14 +101,25 @@ class Expando {
 			return true;
 		}
 
+		// set an absolute minimum to prevent ugliness
+		if( !this.attrs.inline && this.limit < 40 ){
+			this.limit = 40;
+		}
+
 		this.root.style.height = `${this.limit}px`;
 		this.btn = document.createElement('button');
 		this.btn.className = 'expando__button';
-		this.btn.innerHTML = this.btnHtmlCollapsed;
-		this.btn.addEventListener('click', ()=>{ this.toggle(); });
 		if( this.attrs.subtle === true ){
 			this.btn.classList.add('expando__button--subtle');
 		}
+		if( this.attrs.inline === true ){
+			this.root.classList.add('expando--inline');
+			this.btn.classList.add('expando__button--inline');
+			this.btnHtmlCollapsed = this.btnHtmlCollapsed.replace('See', 'Read');
+			this.btnHtmlExpanded = this.btnHtmlExpanded.replace('See', 'Read');
+		}
+		this.btn.innerHTML = this.btnHtmlCollapsed;
+		this.btn.addEventListener('click', ()=>{ this.toggle(); });
 
 		this.root.append(this.btn);
 		return true;
@@ -1744,15 +1756,12 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 	let head = document.createElement('div');
 	let headLeft = document.createElement('b');
 	let headRight = document.createElement('div');
-	let desc = document.createElement('div');
-	let expando = new Expando(desc, 100, {subtle: true, margin: 16});
 
 	div.className = 'entry';
 	head.className = 'entry__head';
 	headLeft.textContent = entryData.name;
 	headLeft.className = 'entry__name';
 	headRight.className = 'entry__action-box';
-	desc.className = 'entry__desc';
 
 	// Add HTML as necessary
 
@@ -1760,7 +1769,9 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 	head.append(headRight);
 	div.append(head);
 	if( entryData.description ){
-		div.append(expando.root);
+		let descExpando = new Expando(BB.create(entryData.description), 32, {inline: true, subtle: true, margin: 16});
+		descExpando.root.classList.add('entry__desc');
+		div.append(descExpando.root);
 	}
 
 	// Option & Mod Specific HTML
@@ -1778,10 +1789,6 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 		let type = split[0];
 		let qualifier = split[1];
 		let subQualifier = split[2];
-
-		// Description
-		
-		desc.append(BB.create(entryData.description));
 
 		// Help Links
 
@@ -2013,8 +2020,6 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 		// Basic Mod HTML & Functions
 
 		div.id = `mod-parent:${entryId}`;
-		
-		desc.append(BB.strip(entryData.description));
 
 		if( entryData.url ){
 			let link = document.createElement('a');
@@ -2068,7 +2073,7 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 		if( entryData.options ){
 			let detailsLink = document.createElement('a');
 			detailsLink.className = 'hyperlink entry__details js-info';
-			detailsLink.textContent = 'Details »';
+			detailsLink.textContent = 'Change options »';
 			detailsLink.addEventListener('click', ()=>{viewMod(entryId);});
 			div.append(detailsLink);
 		}
