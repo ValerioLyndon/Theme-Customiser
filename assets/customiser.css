@@ -127,16 +127,19 @@ input:checked + .toggle.is-forced::after {
 .expando {
 	--margin: 5px;
 	position: relative;
+	z-index: 0; /* anchors child z-index values to prevent overlap with nested expandos */
+	left: calc(var(--margin) * -1);
 	width: calc(100% + var(--margin) * 2);
 	padding: 0 var(--margin);
-	left: calc(var(--margin) * -1);
 	overflow: hidden;
 }
 .expando::after {
 	content: "";
 	position: absolute;
 	bottom: 0;
-	width: 100%;
+	left: 0;
+	right: 0;
+	z-index: 0;
 	height: 40px;
 	background: linear-gradient(0deg, var(--background) 25px, transparent);
 	transition: scale 0.2s ease-in;
@@ -158,7 +161,7 @@ input:checked + .toggle.is-forced::after {
 	position: absolute;
 	bottom: 0;
 	left: var(--margin);
-	z-index: 3;
+	z-index: 1;
 	padding: 3px 6px;
 	background: none;
 	border: none;
@@ -319,6 +322,9 @@ input:checked + .toggle.is-forced::after {
 }
 
 .sidebar {
+	/* flex display ensures .sidebar__inner display at max height */
+	display: flex;
+	flex-direction: column;
 	width: var(--sidebar-width);
 	overflow-x: hidden;
 	overflow-y: auto;
@@ -342,7 +348,6 @@ input:checked + .toggle.is-forced::after {
 }
 
 .sidebar__inner {
-	display: flow-root;
 	direction: ltr;
 	border: inherit;
 	flex-grow: 1;
@@ -947,4 +952,16 @@ input:checked + .toggle.is-forced::after {
 .dummy-theme-unit__label {
 	display: inline-block;
 	padding: 1px 4px;
+}
+
+
+
+/* option dummy div */
+
+.dummy {
+	position: fixed;
+	top: -9999px;
+	left: -9999px;
+	width: 100px;
+	height: 100px;
 }

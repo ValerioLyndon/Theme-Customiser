@@ -953,9 +953,9 @@ function resetSecondSidebar( ){
 }
 
 function viewMod( modId ){
-	let entry = theme['mods'][modId];
-
 	sidebarChangeDepth(true);
+
+	let optDiv = document.getElementById(`mod-opts-${modId}`);
 	
 	let sidebar = document.querySelector('.js-sidebar-2');
 	let buttonSection = document.createElement('div');
@@ -963,33 +963,42 @@ function viewMod( modId ){
 	let optSection = document.createElement('div');
 	optSection.className = 'sidebar__section sidebar__section--no-border';
 
-	let nameHeader = document.createElement('h2');
-	nameHeader.className = "sidebar__header";
-	nameHeader.textContent = entry.name;
-	let modDesc = BB.create(entry.description);
-	let optHeader = document.createElement('h3');
-	optHeader.className = 'sidebar__header';
-	optHeader.textContent = 'Change mod options';
-	optSection.append(nameHeader, modDesc, optHeader);
-
-	for( let opt of Object.entries(entry.options) ){
-		let renderedOpt = renderCustomisation('option', opt, entry);
-		if( renderedOpt ){
-			optSection.append(renderedOpt);
-		}
-	}
+	optSection.append(optDiv);
 
 	let backBtn = document.createElement('button');
 	backBtn.className = 'button';
 	backBtn.textContent = 'Back';
 	backBtn.addEventListener('click', ()=>{
 		sidebarChangeDepth(false);
+		document.getElementById('js-opts-dummy').append(optDiv);
 		resetSecondSidebar();
 	});
 	buttonSection.append(backBtn);
 
 	sidebar.append(buttonSection, optSection);
-	Expando.calculateAll();
+}
+
+function renderModOpts( modId, mod ){
+	let optDiv = document.createElement('div');
+	optDiv.id = `mod-opts-${modId}`;
+
+	let nameHeader = document.createElement('h2');
+	nameHeader.className = "sidebar__header";
+	nameHeader.textContent = mod.name;
+	let optHeader = document.createElement('h3');
+	optHeader.className = 'sidebar__header';
+	optHeader.textContent = 'Change mod options';
+	optDiv.append(nameHeader, optHeader);
+
+	console.log(mod);
+
+	for( let opt of Object.entries(mod.options) ){
+		let renderedOpt = renderCustomisation('option', opt, [modId, mod]);
+		if( renderedOpt ){
+			optDiv.append(renderedOpt);
+		}
+	}
+	document.getElementById('js-opts-dummy').append(optDiv);
 }
 
 
@@ -1963,6 +1972,7 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 		}
 
 		input.addEventListener('input', () => {
+			console.log('input', entryId, parentId)
 			updateOption(entryId, {'parentModId': parentId});
 			updateCss();
 		});
@@ -2076,6 +2086,8 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 			detailsLink.textContent = 'Change options »';
 			detailsLink.addEventListener('click', ()=>{viewMod(entryId);});
 			div.append(detailsLink);
+
+			renderModOpts(entryId, entryData);
 		}
 	}
 
