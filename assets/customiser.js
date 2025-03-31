@@ -54,7 +54,8 @@ class PickerPopup extends DynamicPopup {
 const picker = new PickerPopup;
 
 // Function for the slider button to hide or show the sidebar
-function splitSlide(  ){
+
+function sidebarToggleHide(  ){
 	let slider = document.getElementById('js-toggle-drawer');
 	let sidebar = document.getElementById('js-sidebar');
 
@@ -159,37 +160,38 @@ class Expando {
 }
 
 // Creates and returns an HTML DOM element containing processed BB Code
-function createBB( text ){
-	// Sanitise input from HTML characters
-
-	let dummy = document.createElement('div');
-	dummy.textContent = text;
-	text = dummy.innerHTML;
+class BB {
+	static sanitise( text ){
+		// Sanitise input from HTML characters
+		let dummy = document.createElement('div');
+		dummy.textContent = text;
+		return dummy.innerHTML
+	}
 
 	// Functions to convert BB text to HTML
 	// Each function gets passed a fullmatch and respective capture group arguments from the regexes
 
-	function bold( fullmatch, captureGroup ){
+	static bold( fullmatch, captureGroup ){
 		return '<b class="bb-bold">'+captureGroup+'</b>';
 	}
 
-	function italic( fullmatch, captureGroup ){
+	static italic( fullmatch, captureGroup ){
 		return '<i class="bb-italic">'+captureGroup+'</i>';
 	}
 
-	function underline( fullmatch, captureGroup ){
+	static underline( fullmatch, captureGroup ){
 		return '<span style="text-decoration:underline;" class="bb-underline">'+captureGroup+'</span>';
 	}
 
-	function strike( fullmatch, captureGroup ){
+	static strike( fullmatch, captureGroup ){
 		return '<span style="text-decoration:line-through;" class="bb-strike">'+captureGroup+'</span>';
 	}
     
-	function link( fullmatch, captureGroup1, captureGroup2 ){
+	static link( fullmatch, captureGroup1, captureGroup2 ){
 		return '<a href="'+captureGroup1.substr(1)+'" target="_blank" class="hyperlink">'+captureGroup2+'</a>';
 	}
 
-	function list( fullmatch, captureGroup1, captureGroup2 ){
+	static list( fullmatch, captureGroup1, captureGroup2 ){
 		let contents = captureGroup2.replaceAll('[*]', '</li><li class="bb-list-item">');
 		contents = contents.replace(/l>.*?<\/li>/, 'l>');
 		
@@ -210,26 +212,46 @@ function createBB( text ){
 	// BB Tags Array Sets. Each array contains:
 	// - a regex to find matches
 	// - a string or function reference to handle the conversion of that match from text to HTML
-	let bbTags = [
-		[/\n/ig, '<br>'],
-		[/\[b\]((?:(?!\[b\]).)*?)\[\/b\]/ig, bold],
-		[/\[i\]((?:(?!\[i\]).)*?)\[\/i\]/ig, italic],
-		[/\[u\]((?:(?!\[u\]).)*?)\[\/u\]/ig, underline],
-		[/\[s\]((?:(?!\[s\]).)*?)\[\/s\]/ig, strike],
-		[/\[url(=.*?)\]((?:(?!\[url\]).)*?)\[\/url\]/ig, link],
-		[/\[list(=.*?){0,1}\]((?:(?!\[list\]).)*?)\[\/list\]/ig, list]
+	static tags = [
+		[/(?<plaintext>\n)/ig, '<br>'],
+		[/\[b\](?<plaintext>(?:(?!\[b\]).)*?)\[\/b\]/ig, BB.bold],
+		[/\[i\](?<plaintext>(?:(?!\[i\]).)*?)\[\/i\]/ig, BB.italic],
+		[/\[u\](?<plaintext>(?:(?!\[u\]).)*?)\[\/u\]/ig, BB.underline],
+		[/\[s\](?<plaintext>(?:(?!\[s\]).)*?)\[\/s\]/ig, BB.strike],
+		[/\[url(=.*?)\](?<plaintext>(?:(?!\[url\]).)*?)\[\/url\]/ig, BB.link],
+		[/\[list(=.*?){0,1}\](?<plaintext>(?:(?!\[list\]).)*?)\[\/list\]/ig, BB.list]
 	];
 
-	// Convert BBCode using patterns defined above.
-	for( let bb of bbTags ){
-		text = text.replaceAll(bb[0], bb[1]);
+	static strip( text ){
+		text = BB.sanitise(text);
+
+		// Convert BBCode using patterns defined above.
+		for( let bb of BB.tags ){
+			text = text.replaceAll(bb[0], "$<plaintext>").replaceAll('[*]', ' • ');
+		}
+
+		return text
 	}
 
-	// Create HTML & return
-	let parent = document.createElement('p');
-	parent.classList.add('bb');
-	parent.innerHTML = text;
-	return parent;
+	static create( text ){
+		text = BB.sanitise(text);
+
+		// Convert BBCode using patterns defined above.
+		for( let bb of BB.tags ){
+			text = text.replaceAll(bb[0], bb[1]);
+		}
+
+		// Create HTML & return
+		let parent = document.createElement('p');
+		parent.classList.add('bb');
+		parent.innerHTML = text;
+		return parent;
+	}
+
+}
+
+function stripBB( text ){
+	
 }
 
 // Determines if a string is CSS or a URL to fetch. If a URL, fetches then returns the contents for use in CSS. 
@@ -902,6 +924,61 @@ window.addEventListener(
 	},
 	false
 );
+
+function sidebarChangeDepth( force ){
+	let wrapper = document.querySelector('.js-sidebar-wrapper');
+	if( force === true || wrapper.style.translate === '' ){
+		wrapper.style.translate = 'calc(var(--sidebar-width) * -1)';
+	}
+	else {
+		wrapper.style.translate = '';
+	}
+}
+
+function resetSecondSidebar( ){
+	let sidebar = document.querySelector('.js-sidebar-2');
+	sidebar.innerHTML = '';
+}
+
+function viewMod( modId ){
+	let entry = theme['mods'][modId];
+
+	sidebarChangeDepth(true);
+	
+	let sidebar = document.querySelector('.js-sidebar-2');
+	let buttonSection = document.createElement('div');
+	buttonSection.className = 'sidebar__section sidebar__section--top';
+	let optSection = document.createElement('div');
+	optSection.className = 'sidebar__section sidebar__section--no-border';
+
+	let nameHeader = document.createElement('h2');
+	nameHeader.className = "sidebar__header";
+	nameHeader.textContent = entry.name;
+	let modDesc = BB.create(entry.description);
+	let optHeader = document.createElement('h3');
+	optHeader.className = 'sidebar__header';
+	optHeader.textContent = 'Change mod options';
+	optSection.append(nameHeader, modDesc, optHeader);
+
+	for( let opt of Object.entries(entry.options) ){
+		let renderedOpt = renderCustomisation('option', opt, entry);
+		if( renderedOpt ){
+			optSection.append(renderedOpt);
+		}
+	}
+
+	let backBtn = document.createElement('button');
+	backBtn.className = 'button';
+	backBtn.textContent = 'Back';
+	backBtn.addEventListener('click', ()=>{
+		sidebarChangeDepth(false);
+		resetSecondSidebar();
+	});
+	buttonSection.append(backBtn);
+
+	sidebar.append(buttonSection, optSection);
+	Expando.calculateAll();
+}
 
 
 
@@ -1656,7 +1733,7 @@ function pageSetup( ){
 }
 
 // Render mods and options and returns the DOM element. Used inside pageSetup()
-function renderCustomisation( entryType, entry, parentEntry = [undefined, undefined] ){
+function renderCustomisation( entryType, entry, parentEntry = [undefined, undefined]){
 	let entryId = entry[0];
 	let entryData = entry[1];
 	let parentId = parentEntry[0];
@@ -1683,14 +1760,13 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 	head.append(headRight);
 	div.append(head);
 	if( entryData.description ){
-		desc.append(createBB(entryData.description));
 		div.append(expando.root);
 	}
 
 	// Option & Mod Specific HTML
 
 	if( entryType === 'option' ){
-		div.classList.add('entry__option');
+		div.classList.add('is-option');
 
 		let htmlId = parentId ? `mod:${parentId}:${entryId}` : `opt:${entryId}`;
 
@@ -1702,6 +1778,10 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 		let type = split[0];
 		let qualifier = split[1];
 		let subQualifier = split[2];
+
+		// Description
+		
+		desc.append(BB.create(entryData.description));
 
 		// Help Links
 
@@ -1924,6 +2004,8 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 	}
 
 	else if( entryType === 'mod' ){
+		div.classList.add('is-mod');
+
 		let htmlId = `mod:${entryId}`;
 
 		headLeft.classList.add('entry__name--emphasised');
@@ -1931,6 +2013,8 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 		// Basic Mod HTML & Functions
 
 		div.id = `mod-parent:${entryId}`;
+		
+		desc.append(BB.strip(entryData.description));
 
 		if( entryData.url ){
 			let link = document.createElement('a');
@@ -1982,17 +2066,11 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 		// Mod Options
 
 		if( entryData.options ){
-			let optDiv = document.createElement('div');
-			optDiv.className = 'entry__options';
-
-			for( let opt of Object.entries(entryData.options) ){
-				let renderedOpt = renderCustomisation('option', opt, entry);
-				if( renderedOpt ){
-					optDiv.appendChild(renderedOpt);
-				}
-			}
-
-			div.appendChild(optDiv);
+			let detailsLink = document.createElement('a');
+			detailsLink.className = 'hyperlink entry__details js-info';
+			detailsLink.textContent = 'Details »';
+			detailsLink.addEventListener('click', ()=>{viewMod(entryId);});
+			div.append(detailsLink);
 		}
 	}
 
