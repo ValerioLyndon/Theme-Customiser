@@ -165,21 +165,23 @@ permalink: /theme
 
 									<p class="info-box info-box--indented info-box--error o-hidden" id="js-output-notice"></p>
 								
-									<button type="button" class="button button--highlighted js-swappable-text" id="js-copy-output" onclick="navigator.clipboard.writeText(document.getElementById('js-output').textContent);">
-										<div class="swappable-text">
-											<div class="swappable-text__text">
-												Copy CSS
-												<br />
-												Copied!
+									<div class="code__actions">
+										<button type="button" class="button button--highlighted js-swappable-text" id="js-copy-output" onclick="navigator.clipboard.writeText(document.getElementById('js-output').textContent);">
+											<div class="swappable-text">
+												<div class="swappable-text__text">
+													Copy CSS
+													<br />
+													Copied!
+												</div>
 											</div>
-										</div>
-									</button>
+										</button>
 
-									<a class="hyperlink js-installation-btn">How do I install this?</a>
+										<a class="hyperlink js-installation-btn">How do I install this?</a>
+									</div>
 								</div>
 							</div>
 
-							<div class="sidebar__section">
+							<div class="sidebar__section button-row">
 								<button type="button" class="button" onclick="toggleEle('#js-pp-export')">Export settings</button>
 								<button type="button" class="button js-tutorial-reset" onclick="resetSettings()">Reset settings</button>
 								<button type="button" class="button" onclick="clearCache()">Clear cache</button>
@@ -332,7 +334,7 @@ permalink: /theme
 					</p>
 
 					<textarea id="js-pp-import-code" class="input input--textarea" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="{&quot;data&quot;:&quot;https://example.com/theme.json&quot;}"></textarea>
-					<button type="button" class="button button--highlighted" onclick="importPreviousSettings()">Import Settings</button>
+					<button type="button" class="button popup__button button--highlighted" onclick="importPreviousSettings()">Import Settings</button>
 				</div>
 			</div>
 		</div>
@@ -348,7 +350,7 @@ permalink: /theme
 					</p>
 
 					<textarea id="js-export-code" class="input input--textarea-tall input--code" readonly="readonly"></textarea>
-					<button type="button" class="button button--highlighted js-swappable-text" onclick="navigator.clipboard.writeText(document.getElementById('js-export-code').textContent);">
+					<button type="button" class="button popup__button button--highlighted js-swappable-text" onclick="navigator.clipboard.writeText(document.getElementById('js-export-code').textContent);">
 						<div class="swappable-text">
 							<div class="swappable-text__text">
 								Copy settings

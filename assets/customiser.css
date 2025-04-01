@@ -625,6 +625,12 @@ input:checked + .toggle.is-forced::after {
 }
 
 
+.code__actions {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin-top: 6px;
+}
 .code__title {
 	display: block;
 	border-radius: 4px 4px 0 0;
