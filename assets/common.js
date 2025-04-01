@@ -1100,6 +1100,10 @@ class Validate {
 		}
 		Validate.warnOnUnrecognised(json, ['json_version','themes','data','collections']);
 
+		if( !isNumber(json.json_version) ){
+			throw new Error(`"json_version" must be an integer or float value.`);
+		}
+
 		if( 'collections' in json && (!isArray(json.collections) || json.collections.find(str=>!isString(str)||!isValidHttp(str)) !== undefined) ){
 			throw new Error(`"collections" key must be an array of *valid* URL strings.`);
 		}
@@ -1139,6 +1143,9 @@ class Validate {
 
 				const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
 				for( let key of ['date','date_added'] ){
+					if( key in theme && !isString(theme[key]) ){
+						throw new Error(`Theme "${theme?.name}": "${key}" value must be a string.`);
+					}
 					if( key in theme && !dateRegex.test(theme[key]) ){
 						throw new Error(`Theme "${theme?.name}": "${key}" value must be formatted as "YYYY-MM-DD".`);
 					}
