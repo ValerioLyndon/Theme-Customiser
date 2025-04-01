@@ -2107,8 +2107,8 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 function startThemeTutorial( ){
 	let popup = new InfoPopup;
 	let sidebar = document.getElementById('js-sidebar');
-	let options = document.getElementById('js-options');
-	let mods = document.getElementById('js-mods');
+	let options = document.querySelector('.js-options-anchor');
+	let mods = document.querySelector('.js-mods-anchor');
 
 	let steps = [
 		() => {
