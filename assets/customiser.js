@@ -57,7 +57,7 @@ const picker = new PickerPopup;
 
 function sidebarToggleHide(  ){
 	let slider = document.getElementById('js-toggle-drawer');
-	let sidebar = document.getElementById('js-sidebar');
+	let sidebar = document.querySelector('.js-sidebar-container');
 
 	slider.classList.toggle('is-active');
 	sidebar.classList.toggle('is-aside');
@@ -94,8 +94,10 @@ class Expando {
 			return false;
 		}
 
+		let expandoPadding = this.attrs.inline ? 20 : 25;
+
 		// don't bother making it an expando unless it's more than 25 over the limit, because the expando buttons themselves add 25 pixels extra
-		if( this.root.scrollHeight < (this.limit + 25) ){
+		if( this.root.scrollHeight < (this.limit + expandoPadding) ){
 			//TODO: this should return false *before* swapping out the expando parent ideally, but due to how the CSS works we have to do it after.
 			this.root.classList.add('is-innert');
 			return true;
@@ -105,6 +107,10 @@ class Expando {
 		if( !this.attrs.inline && this.limit < 40 ){
 			this.limit = 40;
 		}
+		if( this.attrs.inline && this.limit < 32 ){
+			this.limit = 32;
+		}
+
 
 		this.root.style.height = `${this.limit}px`;
 		this.btn = document.createElement('button');
@@ -978,29 +984,6 @@ function viewMod( modId ){
 	sidebar.append(buttonSection, optSection);
 }
 
-function renderModOpts( modId, mod ){
-	let optDiv = document.createElement('div');
-	optDiv.id = `mod-opts-${modId}`;
-
-	let nameHeader = document.createElement('h2');
-	nameHeader.className = "sidebar__header";
-	nameHeader.textContent = mod.name;
-	let optHeader = document.createElement('h3');
-	optHeader.className = 'sidebar__header';
-	optHeader.textContent = 'Change mod options';
-	optDiv.append(nameHeader, optHeader);
-
-	console.log(mod);
-
-	for( let opt of Object.entries(mod.options) ){
-		let renderedOpt = renderCustomisation('option', opt, [modId, mod]);
-		if( renderedOpt ){
-			optDiv.append(renderedOpt);
-		}
-	}
-	document.getElementById('js-opts-dummy').append(optDiv);
-}
-
 
 
 // ONE-TIME SETUP & PAGE SETUP
@@ -1753,8 +1736,31 @@ function pageSetup( ){
 	});
 }
 
+function renderModOpts( modId, mod ){
+	let optDiv = document.createElement('div');
+	optDiv.id = `mod-opts-${modId}`;
+
+	let nameHeader = document.createElement('h2');
+	nameHeader.className = "sidebar__header";
+	nameHeader.textContent = mod.name;
+	let optHeader = document.createElement('h3');
+	optHeader.className = 'sidebar__header';
+	optHeader.textContent = `Change options: ${mod.name}`;
+	optDiv.append(optHeader);
+
+	console.log(mod);
+
+	for( let opt of Object.entries(mod.options) ){
+		let renderedOpt = renderCustomisation('option', opt, [modId, mod], 300);
+		if( renderedOpt ){
+			optDiv.append(renderedOpt);
+		}
+	}
+	return optDiv;
+}
+
 // Render mods and options and returns the DOM element. Used inside pageSetup()
-function renderCustomisation( entryType, entry, parentEntry = [undefined, undefined]){
+function renderCustomisation( entryType, entry, parentEntry = [undefined, undefined], expandoLimit = 16 ){
 	let entryId = entry[0];
 	let entryData = entry[1];
 	let parentId = parentEntry[0];
@@ -1778,7 +1784,7 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 	head.append(headRight);
 	div.append(head);
 	if( entryData.description ){
-		let descExpando = new Expando(BB.create(entryData.description), 32, {inline: true, subtle: true, margin: 16});
+		let descExpando = new Expando(BB.create(entryData.description), expandoLimit, {inline: true, subtle: true, margin: 16});
 		descExpando.root.classList.add('entry__desc');
 		div.append(descExpando.root);
 	}
@@ -2087,7 +2093,9 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 			detailsLink.addEventListener('click', ()=>{viewMod(entryId);});
 			div.append(detailsLink);
 
-			renderModOpts(entryId, entryData);
+			let dummy = document.getElementById('js-opts-dummy');
+			let opts = renderModOpts(entryId, entryData);
+			dummy.append(opts);
 		}
 	}
 

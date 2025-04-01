@@ -152,7 +152,6 @@ body {
 	padding: 4px;
 	border: 2px solid var(--border-light);
 	border-radius: 4px;
-	margin: 0 0 8px;
 	box-sizing: content-box;
 	resize: none;
 	font: inherit;

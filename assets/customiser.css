@@ -312,6 +312,10 @@ input:checked + .toggle.is-forced::after {
 	grid-area: sidebar;
 	width: var(--sidebar-width);
 	overflow-x: hidden;
+	transition: margin-left 0.5s ease;
+}
+.sidebar-container.is-aside {
+	margin-left: calc(var(--sidebar-width) * -1 + 4px);
 }
 
 .sidebar-container__wrapper {
@@ -330,9 +334,7 @@ input:checked + .toggle.is-forced::after {
 	overflow-y: auto;
 	border-right: 2px solid var(--invert-background);
 	flex: 0 0 auto;
-	transition:
-		margin-left 0.5s ease,
-		scrollbar-color .18s ease-out;
+	transition: scrollbar-color .18s ease-out;
 	scrollbar-color: var(--invert-background) var(--invert-background);
 }
 .sidebar--right {
@@ -342,9 +344,6 @@ input:checked + .toggle.is-forced::after {
 }
 .sidebar:hover {
 	scrollbar-color: var(--accent-text) var(--invert-background);
-}
-.sidebar.is-aside {
-	margin-left: calc(var(--sidebar-width) * -1 + 4px);
 }
 
 .sidebar__inner {
@@ -502,6 +501,7 @@ input:checked + .toggle.is-forced::after {
 .entry__inputs {
 	display: flex;
 	align-items: center;
+	margin-top: 4px;
 }
 
 .entry__colour {
@@ -510,7 +510,6 @@ input:checked + .toggle.is-forced::after {
 	height: 24px;
 	background: var(--border-light);
 	border-radius: 12px;
-	margin-bottom: 8px;
 	cursor: pointer;
 	overflow: hidden;
 }
@@ -546,7 +545,7 @@ input:checked + .toggle.is-forced::after {
 	background: none;
 	border-color: transparent;
 	flex: 0 0 auto;
-	margin: 0 0 8px auto;
+	margin: 0 0 0 auto;
 	order: 3;
 	opacity: 0.1;
 	transition: opacity 0.2s ease;
