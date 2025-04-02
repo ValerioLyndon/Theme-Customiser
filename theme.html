@@ -161,12 +161,14 @@ permalink: /theme
 
 							<p class="info-box info-box--indented info-box--error o-hidden" id="js-output-notice"></p>
 						
-							<button type="button" class="button button--highlighted js-swappable-text" id="js-copy-output" onclick="navigator.clipboard.writeText(document.getElementById('js-output').textContent);">
+							<button type="button" class="button button--highlighted js-tutorial-copy"
+							data-success-text="Copied!"
+							onclick="swapText(this,async()=>{return copy(document.getElementById('js-output').textContent)})">
 								<div class="swappable-text">
 									<div class="swappable-text__text">
 										Copy CSS
 										<br />
-										Copied!
+										<span></span>
 									</div>
 								</div>
 							</button>
@@ -334,12 +336,14 @@ permalink: /theme
 					</p>
 
 					<textarea id="js-export-code" class="input input--textarea-tall input--code" readonly="readonly"></textarea>
-					<button type="button" class="button button--highlighted js-swappable-text" onclick="navigator.clipboard.writeText(document.getElementById('js-export-code').textContent);">
+					<button type="button" class="button button--highlighted"
+					data-success-text="Copied!"
+					onclick="swapText(this,async()=>{return copy(document.getElementById('js-export-code').textContent)})">
 						<div class="swappable-text">
 							<div class="swappable-text__text">
 								Copy settings
 								<br />
-								Copied!
+								<span></span>
 							</div>
 						</div>
 					</button>

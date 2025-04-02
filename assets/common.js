@@ -155,13 +155,14 @@ class LoadingScreen {
 			logHeader.className = 'loading-screen__console-header';
 			logHeader.textContent = 'Timeline';
 			let copyLogs = document.createElement('button');
-			copyLogs.className = 'loading-screen__console-button button js-swappable-text';
+			copyLogs.className = 'loading-screen__console-button button';
+			copyLogs.dataset.successText = 'Copied!';
 			copyLogs.innerHTML =
 				`<div class="swappable-text">
 					<div class="swappable-text__text">
 						Copy Logs
 						<br />
-						Copied.
+						<span></span>
 					</div>
 				</div>`;
 			let openLogs = document.createElement('a');
@@ -170,7 +171,8 @@ class LoadingScreen {
 			this.logs = document.getElementById('js-loader-console');
 
 			copyLogs.addEventListener('click', ()=>{
-				navigator.clipboard.writeText(this.messages.outerText);
+				let that = this;
+				swapText(copyLogs, async()=>{return copy(that.messages.outerText)});
 			});
 			openLogs.addEventListener('click', ()=>{
 				toggleEle(logs);
@@ -1918,3 +1920,38 @@ class Tutorial {
 	}
 }
 
+// Add swappable text functions
+
+async function swapText( btn, funcToRun ){
+	let toSwap = btn.lastElementChild;
+	let textField = btn.lastElementChild.lastElementChild.lastElementChild;
+	let successText = btn.getAttribute('data-success-text') || 'Success';
+	let failText = btn.getAttribute('data-failure-text') || 'Failed';
+	let genericText = btn.getAttribute('data-generic-text') || '';
+	
+	let funcResult = await funcToRun();
+	if( funcResult === true ){
+		textField.textContent = successText;
+	}
+	else if( !funcResult === false ){
+		textField.textContent = failText;
+	}
+	else {
+		textField.textContent = genericText;
+	}
+	
+	toSwap.classList.add('is-swapped');
+	setTimeout(() => {
+		toSwap.classList.remove('is-swapped');
+	}, 666);
+}
+
+async function copy( textToCopy ){
+	try {
+		navigator.clipboard.writeText(textToCopy);
+		return true;
+	}
+	catch {
+		return false;
+	}
+}
