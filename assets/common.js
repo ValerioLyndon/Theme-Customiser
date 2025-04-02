@@ -318,7 +318,7 @@ function userConfirm( msg, options = {'Yes': {'value': true, 'type': 'suggested'
 			let btn = document.createElement('button');
 			btn.className = 'button';
 			if( details.type === 'suggested' ){
-				btn.classList.add('butted--highlighted');
+				btn.classList.add('button--highlighted');
 			}
 			else if( details.type === 'danger' ){
 				btn.classList.add('button--danger');
