@@ -164,6 +164,12 @@ let listMenuInner = `<a class="icon-menu profile" href="https://myanimelist.net/
           </svg>
           <span class="text">Manga List</span>
         </a>
+		<a class="icon-menu statistics" href="https://myanimelist.net/profile/Example/statistics" onclick="return false;">
+          <svg class="icon icon-statistics" xmlns="http://www.w3.org/2000/svg" width="22px" height="20px" viewBox="0 0 512 512">
+            <path d="M32 32c17.7 0 32 14.3 32 32V400c0 8.8 7.2 16 16 16H480c17.7 0 32 14.3 32 32s-14.3 32-32 32H80c-44.2 0-80-35.8-80-80V64C0 46.3 14.3 32 32 32zM160 224c17.7 0 32 14.3 32 32v64c0 17.7-14.3 32-32 32s-32-14.3-32-32V256c0-17.7 14.3-32 32-32zm128-64V320c0 17.7-14.3 32-32 32s-32-14.3-32-32V160c0-17.7 14.3-32 32-32s32 14.3 32 32zm64 32c17.7 0 32 14.3 32 32v96c0 17.7-14.3 32-32 32s-32-14.3-32-32V224c0-17.7 14.3-32 32-32zM480 96V320c0 17.7-14.3 32-32 32s-32-14.3-32-32V96c0-17.7 14.3-32 32-32s32 14.3 32 32z"></path>
+          </svg>
+          <span class="text">Statistics</span>
+        </a>
         <a class="icon-menu history" href="https://myanimelist.net/history/Example" onclick="return false;">
           <svg class="icon icon-history" width="21px" height="21px" viewBox="0 0 21 21" version="1.1">
             <g transform="translate(-1.000000, -154.000000)">
@@ -231,7 +237,7 @@ function setView( view ){
 			listMenu.innerHTML = listMenuInner;
 		}
 		
-		for( btn of itemBtns ){
+		for( let btn of itemBtns ){
 			btn.className = 'edit';
 			btn.firstChild.textContent = 'Edit';
 		}
@@ -280,10 +286,13 @@ function setView( view ){
 			}
 			listMenu.querySelector('.setting').remove();
 			listMenu.querySelector('.export').remove();
-			headerInfo.innerHTML = `4
-				<a href="/sharedanime.php?u1=Example&u2=Example2" onclick="return false;">Shared Anime</a>,
-				0% Affinity
-				- <a href="/history/Example" onclick="return false;"><i class="fa-solid fa-clock-rotate-left"></i> History</a>`;
+			headerInfo.innerHTML = `
+                      4
+            <a href="/sharedanime.php?u1=Example&amp;u2=Example" onclick="return false;">Shared Anime</a>,
+            0% Affinity
+            - <a href="https://myanimelist.net/profile/Example/statistics" onclick="return false;"><i class="fa-solid fa-chart-column"></i> Statistics</a>
+            - <a href="/history/Example" onclick="return false;"><i class="fa-solid fa-clock-rotate-left"></i> History</a>
+                  `;
 		}
 		else if( view === 'visitor:guest' ){
 			listMenu.remove();
@@ -307,6 +316,47 @@ function toggleCover( set = undefined ){
 	else {
 		cover.classList.toggle('hide');
 	}
+}
+
+function setCover( string = '' ){
+	if( string === '' ){
+		string = 'https://cdn.myanimelist.net/s/common/uploaded_files/1455540405-b2e2bf20e11b68631e8439b44d9a51c7.png';
+	}
+	document.querySelector('#cover-image').src = string;
+}
+
+var backgroundState = false;
+function toggleBackground( set = undefined ){
+	const style = document.querySelector('#default-css');
+	if( set === true ){
+		// set background to default
+		setBackground(true);
+	}
+	else if( set === false ){
+		setBackground(false);
+	}
+	else {
+		// invert current state
+		backgroundState = backgroundState === true ? false : true;
+		toggleBackground(backgroundState);
+	}
+}
+
+function setBackground( url = true ){
+	let ruleset = '';
+	if( url !== false ){
+		if( url === true || url === '' ){
+			url = 'https://cdn.myanimelist.net/s/common/uploaded_files/1455540188-934a8b8942494df1086f9402bbb5330b.png';
+		}
+		ruleset = `
+			background-image: url(${url});
+			background-attachment: fixed;
+			background-position: center top;
+			background-repeat: repeat\\2D x;
+		`;
+	}
+	const style = document.querySelector('#default-css');
+	style.textContent = style.textContent.replace(/(body\.ownlist\s*\{)[^}]*\}/, `$1${ruleset}}`);
 }
 
 let stats = document.getElementsByClassName('list-stats')[0];

@@ -17,33 +17,43 @@ permalink: /theme
 		<link rel="icon" type="image/png" href="./assets/favicon_256.png" sizes="256x256">
 	</head>
 	<body>
-		<main class="content content__customiser" id="js-content">
+		<main class="content customiser" id="js-content">
 			<div class="topbar">
 				<div class="topbar__section">
 					<nav class="top-nav">
 						<a href="./" class="top-nav__link" id="js-back">
-							<i class="top-nav__icon fa fa-arrow-left"></i>
-							<span class="top-nav__text">Browse</span>
+							<div class="top-nav__link-inner">
+								<i class="top-nav__icon fa fa-arrow-left"></i>
+								<span class="top-nav__text">Browse</span>
+							</div>
 						</a>
-						<a id="js-tutorial-import" class="top-nav__link" onclick="toggleEle('#js-pp-import')">
-							<i class="top-nav__icon fa-solid fa-file-import"></i>
-							<span class="top-nav__text">Import Settings</span>
+						<a class="top-nav__link js-tutorial-import" onclick="toggleEle('#js-pp-import')">
+							<div class="top-nav__link-inner">
+								<i class="top-nav__icon fa-solid fa-file-import"></i>
+								<span class="top-nav__text">Import Settings</span>
+							</div>
 						</a>
-						<a class="top-nav__link" onclick="toggleEle('#js-pp-export')">
-							<i class="top-nav__icon fa-solid fa-file-arrow-down"></i>
-							<span class="top-nav__text">Export Settings</span>
+						<a class="top-nav__link js-tutorial-export" onclick="toggleEle('#js-pp-export')">
+							<div class="top-nav__link-inner">
+								<i class="top-nav__icon fa-solid fa-file-arrow-down"></i>
+								<span class="top-nav__text">Export Settings</span>
+							</div>
 						</a>
 						<a class="top-nav__link o-hidden js-help js-help-href" target="_blank">
-							<i class="top-nav__icon fa-solid fa-question"></i>
-							<span class="top-nav__text">Theme Help</span>
+							<div class="top-nav__link-inner">
+								<i class="top-nav__icon fa-solid fa-question"></i>
+								<span class="top-nav__text">Theme Help</span>
+							</div>
 						</a>
 						<a class="top-nav__link o-hidden" id="js-sponsor" target="_blank">
-							<i class="top-nav__icon fa-solid fa-heart"></i>
-							<span class="top-nav__text">Support the Author</span>
+							<div class="top-nav__link-inner">
+								<i class="top-nav__icon fa-solid fa-heart"></i>
+								<span class="top-nav__text">Support the Author</span>
+							</div>
 						</a>
 					</nav>
 				</div>
-				<div class="topbar__section">
+				<div class="topbar__section topbar__section--right">
 					<div class="discrepancy-notice">
 						<div class="discrepancy-notice__title">
 							Preview will differ from the final outcome.
@@ -55,15 +65,27 @@ permalink: /theme
 
 					<div class="options" id="js-preview-options">
 						<a class="top-nav__link" onclick="toggleEle('#js-preview-options-container')">
-							<i class="top-nav__icon fa-solid fa-gear"></i>
-							<span class="top-nav__text">Preview Options</span>
+							<div class="top-nav__link-inner">
+								<i class="top-nav__icon fa-solid fa-gear"></i>
+								<span class="top-nav__text">Preview Options</span>
+							</div>
 						</a>
 
 						<div id="js-preview-options-container" class="options__container is-hidden">
-							<div class="options__item" id="js-preview-options__cover">
+							<div class="options__item">
 								<b class="options__title">Cover Image</b>
 								<input id="js-preview__cover" type="checkbox" class="o-hidden" checked="checked">
 								<label class="toggle" for="js-preview__cover" onclick="postToPreview(['cover', !document.getElementById('js-preview__cover').checked])" data-info="This option is not editable due to the recommended theme settings."></label>
+							</div>
+
+							<div class="options__item">
+								<b class="options__title">Cover URL</b>
+								<input id="js-preview__cover-url" type="text" class="input" placeholder="https://example.com/yourimage.jpg" oninput="postToPreview(['cover_url', this.value])">
+							</div>
+
+							<div class="options__item">
+								<b class="options__title">Background URL</b>
+								<input id="js-preview__background-url" type="text" class="input" placeholder="https://example.com/yourimage.jpg" oninput="postToPreview(['background_url', this.value])">
 							</div>
 
 							<div class="options__item">
@@ -85,28 +107,25 @@ permalink: /theme
 
 					<div class="sidebar__section sidebar__section--top">
 						<h1 class="sub-title">Customise your theme</h1>
-						<h2 class="title o-clear"><span id="js-title">Loading theme...</span> <span class="theme-tag o-hidden" id="js-theme-tag"></span></h2>
-						<h3 class="sub-sub-title">By <span id="js-author">unknown author</span></h3>
+						<h2 class="title o-clear"><span id="js-title">Loading theme...</span> <span class="theme-tag o-hidden js-theme-tag"></span></h2>
+						<h3 class="sub-sub-title">By <a class="js-author">unknown author</a></h3>
+						<i class="theme-desc o-italic o-hidden js-theme-wip">The author has indicated this theme is in a WIP state. Expect more issues than normal and/or drastic changes in future updates.</i>
 					</div>
 
-					<div class="sidebar__section">
-						<div class="expando js-expando" data-expando-limit="400" style="--margin: 16px" id="js-options">
-							<button type="button" class="expando__button js-expando-button">Expand</button>
-							
+					<div class="sidebar__section js-options-deletion-point">
+						<div class="js-make-expando js-options-anchor" data-expando-limit="400" data-expando-margin="16">
 							<h3 class="sidebar__header">Change theme options</h3>
 
 							<!-- options gets put here by customiser.js -->
 						</div>
 					</div>
 
-					<div class="sidebar__section">
-						<div class="expando js-expando" data-expando-limit="400" style="--margin: 16px" id="js-mods">
-							<button type="button" class="expando__button js-expando-button">Expand</button>
-							
+					<div class="sidebar__section js-mods-deletion-point">
+						<div class="js-make-expando js-mods-anchor" data-expando-limit="400" data-expando-margin="16">
 							<h3 class="sidebar__header">
 								Choose theme modifications
 								<div class="sidebar__header-aside">
-									<button type="button" class="button o-hidden" id="js-tags__button" onclick="toggleEle('#js-tags__cloud', this)">
+									<button type="button" class="button o-hidden" id="js-tags__button" onclick="toggleEle('#js-tags__cloud', undefined, this)">
 										<i class="fa-solid fa-tags"></i> Filters
 									</button>
 								</div>
@@ -158,22 +177,20 @@ permalink: /theme
 
 					<div class="sidebar__section">
 						<button type="button" class="button" onclick="toggleEle('#js-pp-export')">Export settings</button>
-						<button type="button" class="button" onclick="resetSettings()" id="js-tutorial-reset">Reset settings</button>
+						<button type="button" class="button js-tutorial-reset" onclick="resetSettings()">Reset settings</button>
 						<button type="button" class="button" onclick="clearCache()">Clear cache</button>
 					</div>
 
 					<footer class="sidebar__section sidebar__section--no-border">
 						<div class="footer">
-							<div class="footer__row">
-								<small class="footer__subtle-text">Theme Customiser</small><br />
-								<small class="footer__subtle-text" id="js-theme-credit"></small>
-							</div> 
-							<div class="footer__row">
-								<a href="https://github.com/ValerioLyndon/Theme-Customiser/issues" class="hyperlink">Feedback/Help</a>
-								<span class="footer__separator">•</span>
-								<a href="https://github.com/ValerioLyndon/Theme-Customiser" class="hyperlink">Source Code</a>
-								<span class="footer__separator">•</span>
-								<a href="https://github.com/ValerioLyndon/Theme-Customiser/wiki" class="hyperlink">Use this with your design</a>
+							<div class="footer__row footer__row--vertical">
+								<a href="https://myanimelist.net/forum/?topicid=2036380" class="hyperlink"><i class="fa-solid fa-link"></i> Feedback and help</a>
+								<br />
+								<a href="https://github.com/ValerioLyndon/Theme-Customiser" class="hyperlink"><i class="fa-solid fa-link"></i> Source code</a>
+								<br />
+								<a href="https://github.com/ValerioLyndon/Theme-Customiser/wiki" class="hyperlink"><i class="fa-solid fa-link"></i> Use this with your design</a>
+								<br />
+								<a href="./dev" class="hyperlink"><i class="fa-solid fa-link"></i> Developer mode</a>
 							</div> 
 						</div>
 					</footer>

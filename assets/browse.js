@@ -31,7 +31,12 @@ class ExtendedFilters extends BaseFilters {
 			'date': {
 				'attr': 'date',
 				'default': 'descending',
-				'label': 'Release Date'
+				'label': 'Date Released'
+			},
+			'dateAdded': {
+				'attr': 'dateAdded',
+				'default': 'descending',
+				'label': 'Date Added'
 			},
 			'random': {
 				'attr': 'random',
@@ -66,11 +71,10 @@ class ExtendedFilters extends BaseFilters {
 			let link = document.createElement('a');
 			let icon = document.createElement('i');
 
-			div.className = 'dropdown__item';
-			link.className = 'hyper-button';
+			link.className = 'hyperlink hyperlink--plain';
 			link.id = `sort:${key}`;
 			link.textContent = `${info.label} `;
-			icon.className = 'hyper-button__icon fa-solid fa-sort-asc o-hidden';
+			icon.className = 'icon fa-solid fa-sort-asc o-hidden';
 
 			link.appendChild(icon);
 			div.appendChild(link);
@@ -234,14 +238,9 @@ class ExtendedFilters extends BaseFilters {
 function renderCards( cardData ){
 	// Render theme list
 	for( let theme of cardData ){
-		let themeName = theme.name ? theme.name : 'Untitled';
-		let themeAuthor = theme.author ? theme.author : 'Untitled';
+		let themeName = theme.name;
+		let themeAuthor = theme.author;
 		let thisId = itemCount;
-
-		if( !('url' in theme) ){
-			loader.log(`[ERROR] Skipping theme ${themeName} due to missing "url" key.`);
-			continue;
-		}
 
 		let cardParent = document.createElement('a');
 		cardParent.className = 'browser__card';
@@ -255,6 +254,18 @@ function renderCards( cardData ){
 		cardParent.href = cardUrl;
 		cardParent.dataset.title = themeName;
 		cardParent.id = `card:${thisId}`;
+
+		if( 'date_added' in theme ){
+			if( !sorts.includes('dateAdded') ){
+				sorts.push('dateAdded');
+			}
+
+			cardParent.dataset.dateAdded = theme.date_added;
+		}
+		else {
+			cardParent.dataset.dateAdded = '0000-00-00';
+		}
+
 		if( 'date' in theme ){
 			if( !sorts.includes('date') ){
 				sorts.push('date');
@@ -265,13 +276,12 @@ function renderCards( cardData ){
 		else {
 			cardParent.dataset.date = '0000-00-00';
 		}
-		if( 'author' in theme ){
-			if( !sorts.includes('author') ){
-				sorts.push('author');
-			}
 
-			cardParent.dataset.author = theme.author;
+		if( theme.author !== 'Unknown' && !sorts.includes('author') ){
+			sorts.push('author');
 		}
+
+		cardParent.dataset.author = theme.author;
 
 		let card = document.createElement('div');
 		card.className = 'card';
@@ -329,7 +339,7 @@ function renderCards( cardData ){
 			}
 		}
 
-		if( 'supports' in theme && theme.supports.length === 1 ){
+		if( theme.supports.length === 1 ){
 			addTag(`${capitalise(theme.supports[0])} Only`, '#d26666');
 		}
 		
@@ -348,14 +358,15 @@ function renderCards( cardData ){
 		cards.push(cardParent);
 
 		// Add tags to sortable list
-		let tempTags = formatFilters(theme.tags);
 		pushFilter(thisId, theme.type, 'list type');
 		pushFilter(thisId, themeAuthor, 'author');
 		pushFilter(thisId, releaseState, 'release state');
 
-		for( let [category, tags] of Object.entries(tempTags) ){
-			for( let tag of tags ){
-				pushFilter(thisId, tag, category);
+		if( 'tags' in theme ){
+			for( let [category, tags] of Object.entries(theme.tags) ){
+				for( let tag of tags ){
+					pushFilter(thisId, tag, category);
+				}
 			}
 		}
 		itemCount++;
@@ -374,12 +385,23 @@ var cards = [];
 
 // This function initialises all the other parts of the code that are needed.
 function pageSetup( ){
+	// Set state of filter sidebar to match previous load
+	let filterToggle = localStorage.getItem('filters-open');
+	if( filterToggle !== null ){
+		toggleEle('.js-filters', (filterToggle === "true"));
+	}
+
 	// Accepts array of URLs to fetch then returns a promise once they have all loaded.
 	function fetchAllFiles( arrayOfUrls ){
 		const files = [];
 		for( let i = 0; i < arrayOfUrls.length; i++ ){
-			if( typeof arrayOfUrls[i] === 'string' ){
-				files.push(fetchFile(arrayOfUrls[i], false));
+			if( isString(arrayOfUrls[i]) ){
+				try {
+					files.push(fetchFile(arrayOfUrls[i], false));
+				}
+				catch(e){
+					loader.log(`[ERROR] Failed while fetching "${arrayOfUrls[i]}".\n${e.message}`, true);
+				}
 			}
 			// this codes' only purpose is to allow dev tools to directly inject JSON into the page through window.addEventListener
 			else {
@@ -447,7 +469,7 @@ function pageSetup( ){
 			}
 			
 			if( collectionFailures >= files.length ){
-				loader.failed(['Encountered a problem while parsing collection information.', 'json.parse']);
+				loader.failed(new Error('Encountered a problem while parsing collection information.', {cause:'json.parse'}));
 				throw new Error('too many failures');
 			}
 			else if( collectionFailures > 0 ){
@@ -470,7 +492,7 @@ function pageSetup( ){
 				}
 
 				if( jsonFailures >= files.length ){
-					loader.failed(['Encountered a problem while parsing collection information.', 'invalid.json']);
+					loader.failed(new Error('Encountered a problem while parsing collection information.', {cause:'invalid.json'}));
 					throw new Error('too many failures');
 				}
 				else if( jsonFailures > 0 ){
@@ -505,10 +527,8 @@ function pageSetup( ){
 				let previousSort = query.get('sort');
 				
 				if( !previousSort ) {
-					let attemptedSort = filter.sort('date', undefined, false);
-					if( !attemptedSort ){
-						filter.sort('random', undefined, false);
-					}
+					// Choose sort depending on which keys exist
+					(filter.sort('dateAdded', undefined, false) || filter.sort('date', undefined, false) || filter.sort('random', undefined, false));
 				}
 
 				// Finish up
@@ -526,7 +546,7 @@ if( !query.get('dynamic') ) {
 	loader.text('Fetching data files...');
 
 	if( collectionUrls.length === 0 && megaUrls.length === 0 ){
-		document.getElementById('js-home').classList.add('o-hidden');
+		document.querySelector('.js-home').removeAttribute('href');
 		megaUrls.push('json/default.json');
 	}
 
@@ -563,20 +583,29 @@ window.addEventListener(
 // Tutorial
 
 function startBrowseTutorial( ){
-	var tutorial = new InfoPopup;
-	startTutorial([
-		() => { tutorial.text('Welcome to the Theme Customiser browse page!<br/><br/>Click anywhere to continue.<br/>To escape, click "Dismiss".'); tutorial.show([document.scrollingElement.scrollWidth/2, 150], 'none'); },
+	let popup = new InfoPopup;
+	let steps = [
 		() => {
-			if( document.querySelector('#js-search:not(.o-hidden)') ){
-				tutorial.text('Looking for something in particular? Use the filters and search to narrow results.');
-				tutorial.show(document.getElementById('js-search'), 'top');
-			}
-			else {
-				return false;
-			}
+			let target = document.getElementById('js-import');
+			popup.text('Trying to import a pre-made configuration? Click on this button to bring up the Import popup.');
+			popup.show(target, 'top');
+			tutorial.highlightElement(target);
+
 		},
-		() => { tutorial.text('Trying to import a pre-made configuration? Click on this button to bring up the Import popup.'); tutorial.show(document.getElementById('js-import'), 'right'); },
-		() => { tutorial.text('Once you\'ve found an interesting design, just click on it! The guide will continue on the theme page.'); tutorial.show([document.scrollingElement.scrollWidth/2, 220], 'left'); },
-		() => { tutorial.destruct(); }
-	]);
+		() => {
+			popup.text('Once you\'ve found an interesting design, just click on it! The guide will continue on the theme page.');
+			popup.show([document.scrollingElement.scrollWidth/2, 150], 'none');
+		},
+		() => { popup.destruct(); }
+	];
+	if( document.querySelector('#js-search:not(.o-hidden)') ){	
+		steps.unshift(() => {	
+			let target = document.querySelector('#js-tags__button');
+			popup.text('Looking for something in particular? Use the filters to narrow results.');
+			popup.show(target, 'top');
+			tutorial.highlightElement(target);
+		});
+	}
+	let tutorial = new Tutorial('the Theme Customiser', steps);
+	tutorial.start();
 }

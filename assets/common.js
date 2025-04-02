@@ -42,6 +42,48 @@ function create( tagStr, content ){
 	return node;
 }
 
+// Utility Functions
+
+function inObj( object, string ) {
+	return getKeys(object).includes(string);
+}
+function getKeys( object ){
+	return isArray(object) ? object : Object.keys(object);
+}
+
+function isString( variable ){
+	return typeof variable === 'string';
+}
+function isNumber( variable ){
+	return typeof variable === 'number';
+}
+function isInt( variable ){
+	return isNumber(variable) && !variable.toString().includes('.');
+}
+function isFloat( variable ){
+	return isNumber(variable) && variable.toString().includes('.');
+}
+function isBool( variable ){
+	return typeof variable === 'boolean';
+}
+function isArray( variable ){
+	return variable instanceof Array;
+}
+function isDict( variable ){
+	return variable instanceof Object && variable?.toString() === '[object Object]';
+}
+
+function parseBool( variable ){
+	return isBool(variable) ? variable : variable === 'true' ? true : variable === 'false' ? false : variable;
+}
+
+function isValidUrl( string ){
+	return isValidHttp(string) || string.startsWith('mailto:');
+}
+function isValidHttp( string ){
+	return /^https?:\/\//.test(string);
+}
+
 class LoadingScreen {
 	constructor( ){
 		this.pageContent = document.getElementById('js-content');
@@ -151,16 +193,23 @@ class LoadingScreen {
 		}, 1500)
 	}
 
-	failed( reasonArray ){
+	failed( err ){
+		this.log(err.message);
+		if( err.cause !== undefined ){
+			this.log(`Bailing out with code "${err.cause}".`);
+		}
+		else {
+			this.log(`Bailing out.`);
+		}
 		// only runs once
 		if( !this.stop ){
-			this.log('Page failed.', false);
+			document.getElementsByTagName('title')[0].textContent = `Theme Customiser - an error occured`;
 			this.console.classList.remove('o-hidden');
 			this.infoArea.style.width = '100%';
 			this.icon.className = 'loading-screen__icon loading-screen__cross';
 			this.titleText.textContent = 'Page Failure.';
-			this.infoArea.insertBefore(create('div.loading-screen__subtext', reasonArray[0]), this.linkArea);
-			this.infoArea.insertBefore(create('div.loading-screen__subtext', `Code: ${reasonArray[1]}`), this.linkArea);
+			this.infoArea.insertBefore(create('div.loading-screen__subtext', err.message), this.linkArea);
+			this.infoArea.insertBefore(create('div.loading-screen__subtext', `Code: ${err.cause}`), this.linkArea);
 
 			let report = create(`a.loading-screen__hyperlink.hyperlink`, 'Report this issue.');
 			let formattedMessages = this.messages.outerText.replaceAll('\n','%0A').replaceAll('\t','%09');
@@ -168,7 +217,6 @@ class LoadingScreen {
 			this.linkArea.append(report);
 
 			this.stop = true;
-			return new Error(reasonArray[1]);
 		}
 	}
 }
@@ -306,7 +354,7 @@ function userConfirm( msg, options = {'Yes': {'value': true, 'type': 'suggested'
 			let btn = document.createElement('button');
 			btn.className = 'button';
 			if( details.type === 'suggested' ){
-				btn.classList.add('button--highlighted');
+				btn.classList.add('butted--highlighted');
 			}
 			else if( details.type === 'danger' ){
 				btn.classList.add('button--danger');
@@ -436,43 +484,26 @@ class InfoPopup extends DynamicPopup {
 	}
 }
 
-// Fetches and returns resources in the form of a Promise.
+// Fetches and returns resources.
 // If cacheResult is true, the result is stored and later fetched from localStorage.
-function fetchFile( path, cacheResult = true ){
-	return new Promise((resolve, reject) => {
-		// Checks if item has previously been fetched and returns the cached result if so
-		let cache = sessionStorage.getItem(path);
+async function fetchFile( path, cacheResult = true ){
+	let cache = sessionStorage.getItem(path);
+	if( cacheResult && cache ){
+		console.log(`[info] Retrieving cached result for ${path}`);
+		return cache;
+	}
 
-		if( cacheResult && cache ){
-			console.log(`[info] Retrieving cached result for ${path}`);
-			resolve(cache);
-		}
-		else {
-			console.log(`[info] Fetching ${path}`);
-			var request = new XMLHttpRequest();
-			request.open("GET", path, true);
-			request.send(null);
-			request.onreadystatechange = () => {
-				if( request.readyState === 4 ){
-					if( request.status === 200 ){
-						// Cache result on success and then return it
-						if( cacheResult ){
-							sessionStorage.setItem(path, request.responseText);
-						}
-						resolve(request.responseText);
-					}
-					else {
-						console.log(`[ERROR] Failed while fetching "${path}". Code: request.status.${request.status}`);
-						reject([`Encountered a problem while loading a resource.`, `request.status.${request.status}`]);
-					}
-				}
-			}
-			request.onerror = (e) => {
-				console.log(`[ERROR] Failed while fetching "${path}". Code: request.error`);
-				reject(['Encountered a problem while loading a resource.', 'request.error']);
-			}
-		}
-	});
+	console.log(`[info] Fetching ${path}`);
+	const response = await fetch(path);
+	if( !response.ok ){
+		throw new Error(`Status ${response.status}`);
+	}
+	const text = await response.text();
+
+	if( cacheResult ){
+		sessionStorage.setItem(path, text);
+	}
+	return text;
 }
 
 function importPreviousSettings( opts = undefined ){
@@ -569,22 +600,25 @@ function importPreviousSettings( opts = undefined ){
 	return true;
 }
 
-function toggleEle( selector, btn = false, set = undefined ){
-	let ele = document.querySelector(selector);
-	let cls = 'is-hidden';
-	let btnSelCls = 'is-active';
+function toggleEle( element, visible = undefined, btn = false ){
+	let ele = typeof element === 'string' ? document.querySelector(element) : element;
+	let hiddenCls = 'is-hidden';
+	let btnSelCls = 'button-highlighted';
 
-	if( set === true ){
-		ele.classList.add(cls);
-		if( btn ){ btn.classList.add(btnSelCls); }
-	}
-	else if( set === false ){
-		ele.classList.remove(cls);
+	if( visible === true ){
+		ele.classList.remove(hiddenCls);
 		if( btn ){ btn.classList.remove(btnSelCls); }
+		return true;
+	}
+	else if( visible === false ){
+		ele.classList.add(hiddenCls);
+		if( btn ){ btn.classList.add(btnSelCls); }
+		return false;
 	}
 	else {
-		ele.classList.toggle(cls);
+		ele.classList.toggle(hiddenCls);
 		if( btn ){ btn.classList.toggle(btnSelCls); }
+		return !(ele.classList.contains(hiddenCls));
 	}
 }
 
@@ -643,16 +677,6 @@ function sortKeys( dict ){
 
 var tags = {};
 
-function formatFilters( filters ){
-	if( filters instanceof Array ){
-		return {'other': filters};
-	}
-	if( filters instanceof Object ){
-		return filters;
-	}
-	return {};
-}
-
 function pushFilter( thisId, tag, category = 'other' ){
 	if( !tags[category] ){
 		tags[category] = {};
@@ -682,7 +706,7 @@ function pushFilter( thisId, tag, category = 'other' ){
 class BaseFilters {
 	constructor( items, selector = 'ID', saveToUrl = false ){
 		// Variables for all
-		this.toggle = document.getElementById('js-tags__button');
+		this.toggle = document.getElementById('js-tags__button') || document.createElement('button');
 		this.toggleCls = 'has-selected';
 		this.clearBtn = document.getElementById('js-tags__clear');
 		this.items = [...items];
@@ -722,19 +746,19 @@ class BaseFilters {
 			group.className = 'tag-cloud__group';
 
 			if( category === 'other' ){
-				group.style.order = 100;
+				group.style.order = 15;
 			}
 			else if( category === 'list type' ){
 				group.style.order = 1;
-				group.classList.add('tag-cloud__group--column');
-			}
-			else if( category === 'release state' ){
-				group.style.order = 3;
-				group.classList.add('tag-cloud__group--column');
 			}
 			else if( category === 'layout' ){
 				group.style.order = 2;
-				group.classList.add('tag-cloud__group--column');
+			}
+			else if( category === 'author' ){
+				group.style.order = 3;
+			}
+			else if( category === 'release state' ){
+				group.style.order = 4;
 			}
 			else {
 				group.style.order = 50;
@@ -976,7 +1000,7 @@ const megaUrls = query.getAll('m');
 const collectionUrls = query.getAll('c');
 const themeUrls = query.getAll('t');
 // Define current application version to process all theme & collection JSON.
-const jsonVersion = 0.3;
+const jsonVersion = 0.4;
 
 loader.log('Page initialised.', false);
 
@@ -989,83 +1013,752 @@ let path = window.location.pathname;
 let dataUrls = query.getAll('data');
 
 // Check for legacy JSON and process as needed
-function processJson( json, url, toReturn ){
-	return new Promise((resolve, reject) => {
-		loader.text('Updating JSON...');
+async function processJson( json, url, toReturn ){
+	loader.text('Processing JSON...');
 
-		var ver = 0;
-		if( !("json_version" in json) || isNaN(parseFloat(json.json_version)) ){
-			ver = 0.1;
+	json = updateJson(json);
+
+	// Process as normal once format has been updated
+	
+	// Process as collection or fetch correct theme from collection
+	if( (toReturn === 'collection' && 'themes' in json) || 'data' in json ){
+		// Convert legacy dictionary to array
+		if( 'themes' in json && !isArray(json.themes) ){
+			json.themes = Object.values(json.themes);
+		}
+		try {
+			json = Validate.json(json);
+		}
+		catch(e) {
+			loader.log(e, true);
+			throw new Error('Data failed validation.', {cause:'json.invalid'});
+		}
+	}
+	// If a collection is linked under a theme query, check for valid values
+	// This code is legacy leftovers from v0 that sadly is still needed
+	else if( 'themes' in json && Object.values(json.themes).length > 0 ){
+		let themeUrl = false;
+		if( toReturn in json.themes && 'url' in json.themes[toReturn] ){
+			themeUrl = json.themes[toReturn]['url'];
+		}
+		else if( 'url' in json.themes[0] ){
+			themeUrl = Object.values(json.themes)[0]['url'];
 		}
 		else {
-			ver = parseFloat(json.json_version);
+			throw new Error(['Failed to fetch legacy theme URL. If you\'re visiting the correct URL, ask the theme maintainer for help.', 'faulty.legacy.url']);
 		}
 
-		// Else, continue to process.
-		if( ver > jsonVersion ){
-			messenger.send('Detected JSON version beyond what is supported by this instance. Attempting to process as normal. If any bugs or failures occur, try using the main instance at valeriolyndon.github.io.');
-			console.log('Detected JSON version beyond what is supported by this instance. Attempting to process as normal. If any bugs or failures occur, try updating your fork from the main instance at valeriolyndon.github.io.');
+		themeUrls.push(themeUrl);
+		if( userSettings ){
+			userSettings.data = themeUrl;
 		}
+		query.delete('c');
+		query.delete('q');
+		query.append('t', themeUrl);
 
-		else if( ver < jsonVersion ){
-			console.log('The loaded JSON has been processed as legacy JSON. This can cause slowdowns or errors. If you are the JSON author, please see the GitHub page for assistance updating.');
-			if( ver === 0.1 ){
-				json = updateToBeta2(json, url, toReturn);
-				ver = 0.2;
+		let theme;
+		try {
+			theme = await fetchFile(themeUrl);
+		}
+		catch {
+			throw new Error('Failed to fetch legacy theme URL. If you\'re visiting the correct URL, ask the theme maintainer for help.', {cause:'faulty.legacy'});
+		}
+		try {
+			json = JSON.parse(theme);
+		}
+		catch {
+			throw new Error('Encountered a problem while parsing theme information.', {cause:'processjson.parse'});
+		}
+	}
+	else {
+		loader.log('[ERROR] Failed to parse JSON due to lack of useable key. CODE: lacking.data');
+		throw new Error('The linked theme could not be parsed.', {cause:'lacking.data'});
+	}
+	try {
+		return Validate.json(json);
+	}
+	catch(e) {
+		loader.log(e, true);
+		throw new Error('Data failed validation.', {cause:'json.invalid'});
+	}
+}
+
+function updateJson( json, logs = true ){
+	var ver = 0;
+	if( !("json_version" in json) || isNaN(parseFloat(json.json_version)) ){
+		ver = 0.1;
+	}
+	else {
+		ver = parseFloat(json.json_version);
+	}
+
+	if( ver > jsonVersion && logs ){
+		messenger.send('Detected JSON version beyond what is supported by this instance. Attempting to process as normal. If any bugs or failures occur, try using the main instance at valeriolyndon.github.io.');
+		console.log('Detected JSON version beyond what is supported by this instance. Attempting to process as normal. If any bugs or failures occur, try updating your fork from the main instance at valeriolyndon.github.io.');
+	}
+	else if( ver < jsonVersion ){
+		if( logs ){
+			console.log('The loaded JSON has been processed as legacy JSON. This can *potentially* cause errors or slowdowns. If you are the JSON author and encounter an issue, please see the GitHub page for assistance updating.');
+		}
+		if( ver <= 0.1 ){
+			json = updateToBeta3(json, url, toReturn);
+			ver = 0.3;
+			// skips from 0.2 to 0.3 because current code can handle both the same.
+			// the version change from .2 to .3 was because it would break older version of the Customiser
+		}
+		if( ver <= 0.3 ){
+			json = updateToBeta4(json);
+			ver = 0.4;
+		}
+	}
+
+	return json;
+}
+
+
+
+// json validation class. takes JSON arguments and corrects issues, logs warnings, or errors on fatal issues
+class Validate {
+	// if true, will correct malformed json and allow minor issues with warnings
+	// if false, will error on any issue no matter how small
+	static permissive = true;
+
+	static hasAll( object, keys ){
+		object = getKeys(object);
+		return keys.find(key=>!object.includes(key)) === undefined;
+	}
+
+	static hasOne( object, keys ){
+		object = getKeys(object);
+		return keys.find(key=>object.includes(key)) !== undefined;
+	}
+
+	static warnOnUnrecognised( object, validKeys ){
+		for( let key of getKeys(object) ){
+			if( !validKeys.includes(key) ){
+				Validate.nonFatalError(`"${key}" is not a recognised key.`);
 			}
 		}
+	}
 
-		// Process as normal once format has been updated
-		
-		// Process as collection or fetch correct theme from collection
-		if(toReturn === 'collection' && 'themes' in json
-		|| 'data' in json){
-			// Convert legacy dictionary to array
-			if( json.themes && !Array.isArray(json.themes) ){
-				let arrayThemes = [];
-				for( let t of Object.values(json.themes) ){
-					arrayThemes.push(t);
+	static nonFatalError( message, errorMessage ){
+		if( Validate.permissive ){
+			console.log(message);
+		}
+		else {
+			throw new Error(errorMessage ? errorMessage : message);
+		}
+	}
+
+	static json( json ){
+		if( !Validate.hasOne(json, ['themes','data','collections']) ){
+			throw new Error(`JSON has no readable data. Add a "data", "themes", or "collections" key.`);
+		}
+		Validate.warnOnUnrecognised(json, ['json_version','themes','data','collections']);
+
+		if( !isNumber(json.json_version) ){
+			throw new Error(`"json_version" must be an integer or float value.`);
+		}
+
+		if( 'collections' in json && (!isArray(json.collections) || json.collections.find(str=>!isString(str)||!isValidHttp(str)) !== undefined) ){
+			throw new Error(`"collections" key must be an array of *valid* URL strings.`);
+		}
+
+		if( 'themes' in json ){
+			if( !isArray(json.themes) || Object.values(json.themes).find(theme=>!isDict(theme)) !== undefined ){
+				throw new Error(`"themes" value must be an array of dictionaries.`);
+			}
+			for( let i = 0; i < json.themes.length; i++ ){
+				let theme = json.themes[i];
+				
+				try {
+					Validate.warnOnUnrecognised(theme, ['name','author','type','url','image','date','date_added','tags','supports']);
+					theme = Validate.theme(theme);
 				}
-				json.themes = arrayThemes;
+				catch( e ){
+					e.message = `Theme "${theme?.name}": ${e.message}`;
+					throw e;
+				}
+
+				if( !Validate.hasAll(theme, ['url']) ){
+					Validate.nonFatalError(`Theme "${theme?.name}": "url" key is required.`);
+					json.themes.splice(i,1);
+					continue;
+				}
+
+				for( let key of ['image','url'] ){
+					if( key in theme ){
+						if( !isString(theme[key]) ){
+							throw new Error(`Theme "${theme?.name}": "${key}" value must be a string.`);
+						}
+						if( !isValidHttp(theme[key]) ){
+							throw new Error(`Theme "${theme?.name}": "${key}" value must be an http protocol URL.`);
+						}
+					}
+				}
+
+				const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+				for( let key of ['date','date_added'] ){
+					if( key in theme && !isString(theme[key]) ){
+						throw new Error(`Theme "${theme?.name}": "${key}" value must be a string.`);
+					}
+					if( key in theme && !dateRegex.test(theme[key]) ){
+						throw new Error(`Theme "${theme?.name}": "${key}" value must be formatted as "YYYY-MM-DD".`);
+					}
+				}
+
+				if( 'tags' in theme ){
+					theme.tags = Validate.tags(theme.tags);
+				}
+
+				if( 'flags' in theme ){
+					if( !isArray(theme.flags) || theme.flags.find(flag=>!isString(flag)) !== undefined ){
+						throw new Error(`Theme "${theme?.name}": "flags" value must be an array of strings.`);
+					}
+					if( !this.permissive && theme.flags.find(flag=>!(['beta','alpha'].includes(flag))) !== undefined ){
+						throw new Error(`Theme "${theme?.name}": "flags" value is unrecognised. Must be any of "beta", "alpha".`);
+					}
+				}
 			}
-			resolve(json);
-			return;
 		}
-		// If a collection is linked under a theme query, check for valid values
-		else if( json.themes && Object.values(json.themes).length > 0 ){
-			let themeUrl = false;
-			if( json.themes[toReturn] ){
-				themeUrl = json.themes[toReturn]['url'];
+
+		if( 'data' in json ){
+			Validate.warnOnUnrecognised(json.data, ['name','author','author_url','type','css','supports','help','sponsor','columns','cover','background','style','category','preview','options','mods','flags']);
+
+			json.data = Validate.theme(json.data);
+			
+			if( 'author_url' in json.data ){
+				if( !isString(json.data.author_url) ){
+					throw new Error(`"author_url" value must be a string.`);
+				}
+				if( !isValidUrl(json.data.author_url) ){
+					if( this.permissive ){
+						console.log(`"author_url" key was ignored due to an invalid value. Value must start with "https://" or "mailto:".`);
+						delete json.data.author_url;
+					}
+					else {
+						throw new Error('"author_url" key must be a valid URL of protocol "http" or "mailto".');
+					}
+				}
+			}
+			
+			if( 'help' in json.data ){
+				if( !isString(json.data.help) ){
+					throw new Error(`"help" value must be a string.`);
+				}
+				if( !isValidUrl(json.data.help) ){
+					if( this.permissive ){
+						console.log(`"help" key was ignored due to an invalid value. Value must start with "https://" or "mailto:".`);
+						delete json.data.help;
+					}
+					else {
+						throw new Error('"help" key must be a valid URL of protocol "http" or "mailto".');
+					}
+				}
+			} 
+			
+			if( 'sponsor' in json.data ){
+				if( !isString(json.data.sponsor) ){
+					throw new Error(`"sponsor" value must be a string.`);
+				}
+				if( !isValidUrl(json.data.sponsor) ){
+					if( this.permissive ){
+						console.log(`"sponsor" key was ignored due to an invalid value. Value must start with "https://" or "mailto:".`);
+						delete json.data.sponsor;
+					}
+					else {
+						throw new Error('"sponsor" key must be a valid URL of protocol "http" or "mailto".');
+					}
+				}
+			}
+			
+			if( 'css' in json.data && !isString(json.data.css) ){
+				throw new Error(`"css" value must be a string (url or CSS).`);
+			}
+
+			if( 'options' in json.data ){
+				json.data.options = Validate.options(json.data.options);
+			}
+
+			if( 'mods' in json.data ){
+				if( !isDict(json.data.mods) || Object.values(json.data.mods).find(mod=>!isDict(mod)) !== undefined ){
+					throw new Error(`"mods" value must be a dictionary of dictionaries.`);
+				}
+				for( let [id, mod] of Object.entries(json.data.mods) ){
+					try {
+						Validate.warnOnUnrecognised(mod, ["name","description","css","url","requires","conflicts","options","tags","flags"]);
+					}
+					catch( e ){
+						e.message = `Mod "${id}": ${e.message}`;
+						throw e;
+					}
+
+					if( 'name' in mod && !isString(mod.name) ){
+						throw new Error(`Mod "${id}": "name" value must be a string.`);
+					}
+					if( !('name' in mod) ){
+						mod.name = 'Untitled';
+					}
+
+					if( 'description' in mod && !isString(mod.description) ){
+						throw new Error(`Mod "${id}": "description" value must be a string.`);
+					}
+
+					if( 'css' in mod ){
+						if( !isDict(mod.css) || Object.values(mod.css).find(css=>!isString(css)) !== undefined ){
+							throw new Error(`Mod "${id}": "css" value must be a dictionary of strings.`);
+						}
+						if( !this.permissive && Object.keys(mod.css).find(key=>!(['import','top','bottom'].includes(key))) !== undefined ){
+							throw new Error(`Mod "${id}": "css" value is unrecognised. Must be one of "bottom", "top", "import".`);
+						}
+					}
+
+					if( 'url' in mod ){
+						if( !isString(mod.url) ){
+							throw new Error(`Mod "${id}": "url" value must be a string.`);
+						}
+						if( !isValidUrl(mod.url) ){
+							if( this.permissive ){
+								console.log(`Mod "${id}": "url" key was ignored due to an invalid value. Value must start with "https://" or "mailto:".`);
+								delete mod.url;
+							}
+							else {
+								throw new Error('Mod "${id}": "url" key must be a valid URL of protocol "http" or "mailto".');
+							}
+						}
+					}
+
+					for( let key of ['requires','conflicts'] ){
+						if( key in mod ){
+							if( !isArray(mod[key]) || mod[key].find(reference=>!isString(reference)) !== undefined ){
+								throw new Error(`Mod "${id}": "${key}" value must be an array of mod ID strings.`);
+							}
+							if( mod[key].find(reference=>!(Object.keys(json.data.mods).includes(reference))) ){
+								throw new Error(`Mod "${id}": "${key}" string must match one of your mod keys.`);
+							}
+						}
+					}
+
+					if( 'options' in mod ){
+						mod.options = Validate.options(mod.options);
+					}
+
+					if( 'tags' in mod ){
+						try {
+							mod.tags = Validate.tags(mod.tags);
+						}
+						catch( e ){
+							e.message = `Mod "${id}": ${e.message}`;
+							throw e;
+						}
+					}
+
+					if( 'flags' in mod ){
+						if( !isArray(mod.flags) || mod.flags.find(flag=>!isString(flag)) !== undefined ){
+							throw new Error(`Mod "${id}": "flags" value must be an array of strings.`);
+						}
+						if( !this.permissive && mod.flags.find(flag=>!(['hidden'].includes(flag))) !== undefined ){
+							throw new Error(`Mod "${id}": "flags" value is unrecognised. Must be ["hidden"].`)
+						}
+					}
+				}
+			}
+
+			if( 'flags' in json.data ){
+				if( !isArray(json.data.flags) || json.data.flags.find(flag=>!isString(flag)) !== undefined ){
+					throw new Error(`"flags" value must be an array of strings.`);
+				}
+				if( !this.permissive && json.data.flags.find(flag=>!(['beta','alpha'].includes(flag))) !== undefined ){
+					throw new Error(`"flags" value is unrecognised. Must be any of "beta", "alpha".`);
+				}
+			}
+
+			if( 'preview' in json.data ){
+				if( !isDict(json.data.preview) ){
+					throw new Error(`"preview" value must be a dictionary.`);
+				}
+				json.data.preview = Validate.display(json.data.preview);
 			}
 			else {
-				themeUrl = Object.values(json.themes)[0]['url'];
+				json.data.preview = {};
 			}
 
-			if( themeUrl ){
-				fetchFile(themeUrl)
-				.then((result) => {
-					try {
-						resolve(JSON.parse(result));
-						return;
-					}
-					catch {
-						reject(['Encountered a problem while parsing theme information.', 'invalid.name']);
-						return;
-					}
-				})
-				.catch(() => {
-					reject(['Failed to fetch legacy theme URL. If you\'re visiting the correct URL, ask the theme maintainer for help.', 'faulty.legacy']);
-					return;
-				});
+			json.data = Validate.display(json.data);
+
+			// autofill empty preview keys
+			for( let [key, val] of Object.entries(json.data) ){
+				if( ['cover','background','style','category','columns'].includes(key) && !inObj(json.data.preview, key) ){
+					json.data.preview[key] = val;
+				}
 			}
 		}
-		else {
-			loader.log('[ERROR] Failed to parse JSON due to lack of useable key. CODE: lacking.data');
-			reject(['The linked theme could not be parsed.', 'lacking.data']);
-			return;
+
+		return json;
+	}
+
+	// common keys shared between collection themes and theme pages
+	static theme( theme ){
+		for( let key of ['name','author'] ){
+			if( key in theme && !isString(theme[key]) ){
+				throw new Error(`"${key}" value must be a string.`);
+			}
 		}
-	});
+		if( !('name' in theme) ){
+			theme.name = 'Untitled';
+		}
+		if( !('author' in theme) ){
+			theme.name = 'Unknown';
+		}
+
+		if( 'type' in theme && !(['modern','classic'].includes(theme.type)) ){
+			throw new Error(`"type" value is unrecognised. Must be "modern" or "classic".`);
+		}
+		if( !('type' in theme) ){
+			console.log(`no list type specified, assuming modern`);
+			theme.type = 'modern';
+		}
+		
+		if( 'supports' in theme ){
+			if( !isArray(theme.supports) ){
+				throw new Error(`"supports" value must be an array.`);
+			}
+			if( theme.supports.find(str=>['animelist','mangalist'].includes(str)) === undefined ){
+				throw new Error(`"supports" value is unrecognised.`);
+			}
+		}
+		if( !('supports' in theme) ){
+			theme.supports = ['animelist', 'mangalist'];
+		}
+				
+		return theme;
+	}
+
+	static tags( tags ){
+		if( isArray(tags) ){
+			tags = {'other': tags};
+		}
+		if( !isDict(tags) ){
+			throw new Error(`"tags" value must be either an array of strings or a dictionary of arrays of keys.`)
+		}
+
+		for( let group of Object.values(tags) ){
+			if( group.find(tag=>!isString(tag)) !== undefined ){
+				throw new Error(`tags inside the "tags" key must be strings.`);
+			}
+		}
+		
+		if( Object.values(tags).find(group=>group.find(tag=>!isString(tag)) !== undefined) !== undefined ){
+			throw new Error(`tags inside the "tags" key must be strings.`);
+		}
+
+		return tags;
+	}
+
+	static display( display ){
+		const boolean_keys = ['cover', 'background'];
+		for( let key of boolean_keys ){
+			if( key in display ){
+				if( this.permissive ){
+					display[key] = parseBool(display[key]);
+				}
+				if( !isBool(display[key]) ){
+					throw new Error(`"${key}" value must be a boolean.`);
+				}
+			}
+		}
+
+		const url_keys = ['cover_url', 'background_url'];
+		for( let key of url_keys ){
+			if( key in display ){
+				if( !isString(display[key]) ){
+					throw new Error(`"${key}" value must be a string.`);
+				}
+				if( !isValidHttp(display[key]) ){
+					throw new Error(`"${key}" string values must be a valid URL of protocol "http".`);
+				}
+			}
+		}
+			
+		if( 'style' in display ){
+			if( !isArray(display.style) || display.style.length === 0 ){
+				throw new Error(`"style" value must be an array of integers and cannot be empty.`);
+			}
+			if( this.permissive ){
+				display.style.map(num=>parseInt(num));
+			}
+			if( display.style.find(num=>!isInt(num)) !== undefined ){
+				throw new Error(`"style" value must be an array of integers and cannot be empty.`);
+			}
+		}
+		
+		if( 'category' in display ){
+			if( !isArray(display.category) ){
+				throw new Error(`"category" value must be an array.`);
+			}
+			if( this.permissive ){
+				display.category = display.category.map(cat=>parseInt(cat));
+			}
+			if( display.category.find(cat=>!isInt(cat) || !([1,2,3,4,6,7].includes(cat))) !== undefined ){
+				throw new Error(`"category" array values must be any of: 1,2,3,4,6,7.`);
+			}
+		}
+
+		if( 'columns' in display ){
+			// add default columns mode
+			display.columns.mode = 'mode' in display.columns ? display.columns.mode : 'whitelist';
+			if( !isDict(display.columns) ){
+				throw new Error(`"columns" value must be a dictionary.`);
+			}
+			if( !isString(display.columns.mode) || !(['whitelist','greylist','blacklist'].includes(display.columns.mode)) ){
+				throw new Error('"mode" value must be one of: "whitelist", "greylist", "blacklist".');
+			}
+			if( !('animelist' in display.columns) && !('mangalist' in display.columns) ){
+				throw new Error('"columns" key requires an "animelist" key, "mangalist" key, or both.');
+			}
+			if( 'animelist' in display.columns ){
+				display.columns.animelist = Validate.columns(display.columns.animelist);
+			}
+			if( 'mangalist' in display.columns ){
+				display.columns.mangalist = Validate.columns(display.columns.mangalist);
+			}
+		}
+		return display;
+	}
+
+	static columns( columns ){
+		if( !isDict(columns) ){
+			throw new Error('"anime/mangalist" "columns" key must be a dictionary.');
+		}
+		if( this.permissive ){
+			for( let [key, val] of Object.entries(columns) ){
+				columns[key] = val === null || val === 'null' ? null : parseBool(val);
+			}
+		}
+		if( Object.values(columns).find(col=>!isBool(col) && col !== null) !== undefined ){
+			throw new Error('"anime/mangalist" "columns" key must be a dictionary of booleans or null values.');
+		}
+		return columns;
+	}
+
+	static options( options ){
+		if( !isDict(options) || Object.values(options).find(opt=>!isDict(opt)) !== undefined ){
+			throw new Error('"options" value must be a dictionary of dictionaries');
+		}
+
+		for( let [id, opt] of Object.entries(options) ){
+			try {
+				Validate.warnOnUnrecognised(opt, ['name','description','type','replacements','selections','default','min','max','step']);
+			}
+			catch( e ){
+				e.message = `Option "${id}": ${e.message}`;
+				throw e;
+			}
+
+			if( 'name' in opt && !isString(opt.name) ){
+				throw new Error(`Option "${id}": "name" value must be a string.`);
+			}
+
+			if( 'description' in opt && !isString(opt.description) ){
+				throw new Error(`Option "${id}": "description" value must be a string.`);
+			}
+
+			if( !('type' in opt) ){
+				throw new Error(`Option "${id}": missing "type" key.`);
+			}
+			if( !isString(opt.type) ){
+				throw new Error(`Option "${id}": "type" value must be a string.`);
+			}
+			const typeCore = opt.type.split('/')[0];
+			const typeQualifier = opt.type.split('/')[1];
+			const typeSubQual = opt.type.split('/')[2];
+			if( !(['text', 'textarea', 'color', 'range', 'toggle', 'select'].includes(typeCore)) ){
+				throw new Error(`Option "${id}": "type" value is unrecognised.`);
+			}
+			if( typeCore === 'text' && typeQualifier !== undefined && !(['content', 'image_url', 'size', 'value', 'url_fragment'].includes(typeQualifier)) ){
+				throw new Error(`Option "${id}": "type" qualifier value is unrecognised.`);
+			}
+			if( typeCore === 'color' && typeQualifier !== undefined ){
+				if( !(['insert'].includes(typeQualifier)) ){
+					throw new Error(`Option "${id}": "type" qualifier value is unrecognised. Must be "insert".`);
+				}
+				if( typeSubQual !== undefined && typeSubQual.split('&').find(sub=>!(['hsl','hex','rgb','strip_alpha'].includes(sub))) !== undefined ){
+					throw new Error(`Option "${id}": "type" sub-qualifier value is unrecognised. Must be "hsl" "hex", "rgb", or "strip_alpha".`);
+				}
+			}
+
+			if( typeCore !== 'range' && ('min' in opt || 'max' in opt || 'step' in opt) ){
+				Validate.nonFatalError(
+					`Option "${id}": a "min", "max", or "step" key was ignored as the "type" value is not "range".`,
+					`Option "${id}": "min", "max", and "step" keys can only be used when the "type" value is "range".`
+				);
+			}
+			if( typeCore === 'range' ){
+				for( let key of ['min','max','step'] ){
+					if( key in opt && !isNumber(opt[key]) ){
+						throw new Error(`Option "${id}": "${key}" value must be a number. Be sure you aren't accidentally typing a string (double-quoted text).`);
+					}
+				}
+
+				console.log('before',opt.min,opt.max,opt.step);
+				
+				let difference = 100;
+				let min = 0;
+				let max = 100;
+				let step = 1;
+
+				if( 'step' in opt && opt.step < 1 ){
+					difference = 1;
+				}
+
+				if( 'min' in opt && 'max' in opt ){
+					min = opt.min;
+					max = opt.max;
+				}
+				else if( 'min' in entryData ){
+					min = opt.min;
+					max = opt.min + difference;
+				}
+				else if( 'max' in entryData ){
+					max = opt.max;
+					min = opt.max - difference;
+				}
+				
+				if( 'step' in opt ){
+					step = opt.step;
+				}
+				else if( max - min <= 10 ){
+					step = 0.1;
+					step = 0.1;
+				}
+
+				opt.min = min;
+				opt.max = max;
+				opt.step = step;
+				console.log('after',opt.min,opt.max,opt.step);
+			}
+
+			if( 'replacements' in opt ){
+				opt.replacements = Validate.replacements(opt.replacements, id, typeCore);
+			}
+			else if( typeCore !== 'select' ){
+				throw new Error(`Option "${id}": "replacements" key is required for type "${typeCore}".`);
+			}
+
+			if( typeCore === 'select' ){
+				if( 'replacements' in opt ){
+					Validate.nonFatalError(
+						`Option "${id}": "replacements" key was ignored as the "type" value is "select". Use the "selections" key instead.`,
+						`Option "${id}": "replacements" key cannot be used when "type" value is "select". Use the "selections" key instead.`
+					);
+				}
+				if( !('selections' in opt) ){
+					throw new Error(`Option "${id}": "select" type options require a "selections" key.`);
+				}
+				if( !isDict(opt.selections) || Object.values(opt.selections).find(sel=>!isDict(sel)) !== undefined ){
+					throw new Error(`Option "${id}": "selections" value must be a dictionary of dictionaries.`);
+				}
+				if( Object.values(opt.selections).find(sel=>!('label' in sel) || !isString(sel.label)) !== undefined ){
+					throw new Error(`Option "${id}": "selections" values must contain a "label" key with a string value.`);
+				}
+				Object.values(opt.selections).map(sel=>{
+					try {
+						Validate.warnOnUnrecognised(getKeys(sel), ['label','replacements']);
+					}
+					catch( e ){
+						e.message = `Option "${id}" selections: ${e.message}`;
+						throw e;
+					}
+					if( 'replacements' in sel ){
+						sel.replacements = Validate.replacements(sel.replacements, id, typeCore);
+					}
+					return sel;
+				});
+			}
+
+			if( 'default' in opt ){
+				if( typeCore === 'toggle' ){
+					if( this.permissive ){
+						opt.default = parseBool(opt.default);
+					}
+					if( !isBool(opt.default) ){
+						throw new Error(`Option "${id}": "default" value must be a boolean when "type" value is "toggle".`);
+					}
+				}
+				if( typeCore === 'range' ){
+					if( this.permissive ){
+						opt.default = parseFloat(opt.default);
+					}
+					if( !isNumber(opt.default) ){
+						throw new Error(`Option "${id}": "default" value must be a number when "type" value is "range".`);
+					}
+				}
+				if( typeCore === 'select' && !(Object.keys(opt.selections).includes(opt.default)) ){
+					throw new Error(`Option "${id}": "default" value must match one of your "selections" keys.`);
+				}
+			}
+			// add some fallback default values when it's not defined
+			else if( typeCore === 'toggle' ) {
+				opt.default = false;
+			}
+			else if( typeCore === 'color' ) {
+				opt.default = '#d8d8d8';
+			}
+			else if( typeCore.startsWith('range') ) {
+				opt.default = (opt.max - opt.min) / 2 + opt.min;
+				console.log(opt.max,opt.min,opt.default);
+			}
+			else if( typeCore.startsWith('text') ) {
+				opt.default = '';
+			}
+
+			options[id] = opt;
+		}
+		return options;
+	}
+
+	static replacements( replacements, id, typeCore ){
+		if( !isArray(replacements) ){
+			throw new Error(`Option "${id}": "replacements" value must be an array.`);
+		}
+		if( replacements.find(repl=>!isArray(repl)) !== undefined ){
+			if( this.permissive && replacements.find(repl=>!isString(repl)) === undefined ){
+				console.log(`Option "${id}": "replacements" value must be an array of arrays. Encase your strings inside a second array to fix this error.`);
+				replacements = [replacements];
+			}
+			else {
+				throw new Error(`Option "${id}": "replacements" value must be an array of arrays.`);
+			}
+		}
+		if( replacements.length === 0 ){
+			if( this.permissive ){
+				console.log(`Option "${id}": replacements must have at least one set.`);
+				replacements = typeCore === 'toggle' ? [['','','']] : [['','']];
+			}
+			else {
+				throw new Error(`Option "${id}": "replacements" value must have at least one set.`);
+			}
+		}
+		if( typeCore === 'toggle' && replacements.find(repl=>repl.length !== 3) !== undefined ){
+			throw new Error(`Option "${id}": "replacements" set must contain 3 strings when "type" value is "toggle".`);
+		}
+		if( typeCore !== 'toggle' && replacements.find(repl=>repl.length !== 2) !== undefined ){
+			throw new Error(`Option "${id}": "replacements" set must contain 2 strings.`);
+		}
+		if( replacements.find(repl=>repl[0].length === 0) !== undefined ){
+			Validate.nonFatalError(
+				`Option "${id}": the first string of a "replacements" set cannot be empty.`,
+				`Option "${id}": the first string of a "replacements" set cannot be empty.`
+			);
+		}
+		return replacements;
+	}
 }
+
+
+
+
+
+
 
 
 // json v0.0 > v0.1
@@ -1094,7 +1787,7 @@ if( dataUrls.length > 0 ){
 	throw new Error();
 }
 
-function updateToBeta2( json, url, toReturn ){
+function updateToBeta3( json, url, toReturn ){
 	if( toReturn === 'collection' ){
 		let newJson = {
 			'themes': []
@@ -1111,7 +1804,7 @@ function updateToBeta2( json, url, toReturn ){
 		}
 		if( Object.keys(json).length > 0 ){
 			return {
-				'json_version': 0.2,
+				'json_version': 0.3,
 				'data': Object.values(json)[0]
 			};
 		}
@@ -1121,80 +1814,163 @@ function updateToBeta2( json, url, toReturn ){
 	}
 }
 
+function updateToBeta4( json ){
+	json.json_version = 0.4;
+	if( inObj(json,'data') && inObj(json.data,'category') ){
+		json.data.category = [json.data.category];
+	}
+	return json;
+}
+
 
 // Tutorial Function
-// accepts an array of functions that will be executred in chronological order.
+// accepts an array of functions that will be executed in chronological order.
 // For example:
 // [
 //    () => { console.log('step1') },
 //    () => { console.log('step2') }
 // ]
 // The last step should always be a clean-up step. If you don't have any clean-up requirements, just put a blank function there.
-// If any step returns false, it will be skipped.
-function startTutorial( steps ){
-	document.body.classList.add('is-not-scrollable');
-	let path = query.url.pathname;
+// You should initiate the class with steps and then initiate it via tutorial.start()
+// You can move around the tutorial by using tutorial.proceed(stepnum)
+class Tutorial {
+	constructor( welcomeText = 'the tutorial', steps ){
+		this.steps = steps.length > 0 ? steps : [];
+		this.storageKey = `tutorial-${query.url.pathname}`;
+		this.position = 0;
+		this.length = this.steps.length - 1;
+		this.percent = ()=>this.position / this.length * 100;
+		
+		// setup DOM
+		this.root = document.createElement('div');
+		this.root.className = 'tutorial';
 
-	let overlay = document.createElement('div');
-	overlay.className = 'tutorial';
-	document.body.appendChild(overlay);
+		let info = document.createElement('div');
+		info.className = 'tutorial__info';
 
-	let progress = document.createElement('div');
-	let progressMax = steps.length - 2;
-	progress.className = 'tutorial__progress';
-	overlay.appendChild(progress);
+		let split = document.createElement('div');
+		split.className = 'tutorial__split';
 
-	let dismiss = document.createElement('a');
-	dismiss.className = 'tutorial__dismiss hyper-button';
-	dismiss.addEventListener('click', () => {
-		overlay.prevent
-		steps[steps.length-1]();
-		finish();
-	});
-	dismiss.textContent = 'Dismiss';
-	overlay.appendChild(dismiss);
+		let text = document.createElement('div');
+		this.stepText = document.createElement('span');
+		this.stepText.textContent = '0';
+		text.append('Tutorial — Step ', this.stepText, ` of ${this.length}`);
 
-	let position = 0;
-	function proceed( e ){
-		if( e && e.target && e.target === dismiss ){
-			return;
+		let dismiss = document.createElement('a');
+		dismiss.className = 'hyperlink';
+		dismiss.addEventListener('click', () => {
+			this.finish();
+		});
+		dismiss.textContent = 'Skip Tutorial';
+		
+		this.progress = document.createElement('div');
+		this.progress.className = 'tutorial__progress';
+
+		this.welcome = document.createElement('div');
+		this.welcome.className = 'tutorial__welcome';
+		this.welcome.textContent = `Welcome to ${welcomeText}! Click anywhere to continue, or click "Skip Tutorial" at any time to exit.`;
+
+		this.root.append(info);
+		info.append(split, this.progress, this.welcome);
+		split.append(text, dismiss);
+	}
+
+	start(  ){
+		if( localStorage.getItem(this.storageKey) ){
+			return false;
 		}
 
-		// set tutorial html
-		let percent = (position) / progressMax * 100;
-		progress.setAttribute('style', `--progress: ${percent}%`);
+		// setup DOM
+		this.root.setAttribute('style', '--offset: calc(24px + -50vh - 50%)');
+		document.body.appendChild(this.root);
+		document.body.classList.add('is-not-scrollable');
+		this.welcome.setAttribute('style', `--height: ${this.welcome.getBoundingClientRect().height}px`);
+		this.root.addEventListener('click', ()=>{
+			this.welcome.classList.add('is-hidden');
+			this.root.removeAttribute('style');
+			this.proceed();
+			this.root.addEventListener('click', ()=>{ this.proceed(); });
+		}, {once : true});
+	}
+
+	proceed( newPosition ){
+		this.position = isInt(newPosition) ? newPosition : this.position+1;
+		// clear any existing highlights
+		this.resetHighlight();
+		// update DOM
+		this.progress.setAttribute('style', `--progress: ${this.percent()}%`);
+		this.stepText.textContent = this.position;
 
 		// execute step
-		let outcome = false;
-		if( typeof steps[position] === 'function' ){
-			outcome = steps[position]();
-		}
+		this.steps[this.position-1]();
 
 		// continue loop or finish up
-		if( position >= steps.length-1 ){
-			finish();
-		}
-		position++;
-
-		if( outcome === false ){
-			proceed();
+		if( this.position >= this.steps.length ){
+			this.finish();
 		}
 	}
 
-	function finish( ){
-		overlay.classList.add('is-hidden');
-		localStorage.setItem(`tutorial-${path}`, true);
+	finish( ){
+		// perform cleanup function if it hasn't been done yet
+		if( this.position !== this.length ){
+			this.proceed(this.length);
+		}
+		// remember it's finished
+		localStorage.setItem(this.storageKey, true);
+		// cleanup DOM
+		this.root.classList.add('is-hidden');
 		document.body.classList.remove('is-not-scrollable');
 	}
 
-	overlay.addEventListener('click', proceed);
-	
-	if( localStorage.getItem(`tutorial-${path}`) ){
-		finish();
-		return false;
+	resetHighlight( ){
+		this.root.style.cssText = '';
 	}
-	else {
-		proceed();
+
+	highlightCircle( x, y, size = 75 ){
+		this.root.style.mask = `radial-gradient(circle ${size}px at ${x}px ${y}px, transparent calc(100% - 5px), black)`;
+	}
+
+	highlightBlock( left, top, right, bottom, blur = 5 ){
+		this.root.style.maskImage = `
+			linear-gradient(90deg,
+				#000        ${left-blur}px,
+				#0004       ${left}px
+			),
+			linear-gradient(180deg,
+				#000        ${top-blur}px,
+				transparent ${top}px
+			),
+			linear-gradient(270deg,
+				#000        calc(100% - ${right+blur}px),
+				transparent calc(100% - ${right}px)
+			),
+			linear-gradient(0deg,
+				#000        calc(100% - ${bottom+blur}px),
+				transparent calc(100% - ${bottom}px)
+			)
+		`;
+	}
+
+	highlightElement( ...elements ){
+		let pos = {};
+		if( elements.length === 1 ){
+			pos = elements[0].getBoundingClientRect();
+		}
+		else {
+			pos = elements.reduce((previous, current)=>{
+				console.log(previous,current);
+				previous = previous instanceof HTMLElement ? previous.getBoundingClientRect() : previous;
+				current = current.getBoundingClientRect();
+				console.log(previous,current);
+				return {
+					'left': current.left < previous.left ? current.left : previous.left, 
+					'top': current.top < previous.top ? current.top : previous.top,
+					'right': current.right > previous.right ? current.right : previous.right,
+					'bottom': current.bottom > previous.bottom ? current.bottom : previous.bottom
+				};
+			});
+		}
+		this.highlightBlock(pos.left, pos.top, pos.right, pos.bottom);
 	}
 }
 

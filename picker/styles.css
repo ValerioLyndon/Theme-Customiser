@@ -2,14 +2,11 @@
  * COLOR PICKER TOOL
  */
 
-
-
 .ui-color-picker {
 	width: 420px;
 	margin: 0;
 	border: 1px solid #DDD;
 	background-color: #FFF;
-	display: table;
 
 	-moz-user-select: none;
 	-webkit-user-select: none;
@@ -337,22 +334,16 @@
  */
 
 body {
-	max-width: 1000px;
-	margin: 0 auto;
+	margin: 0;
 
 	font-family: "Segoe UI", Arial, Helvetica, sans-serif;
 
-	box-shadow: 0 0 5px 0 #999;
-
-	-moz-box-sizing: border-box;
-	-webkit-box-sizing: border-box;
 	box-sizing: border-box;
 
 	-moz-user-select: none;
 	-webkit-user-select: none;
 	-ms-user-select: none;
 	user-select: none;
-
 }
 
 /**
@@ -395,13 +386,11 @@ body {
  * 	Container
  */
 #container {
-	width: 100%;
-
-	-moz-box-sizing: border-box;
-	-webkit-box-sizing: border-box;
+	display: block;
+	width: 790px;
 	box-sizing: border-box;
-
-	display: table;
+	margin: 0 auto;
+	box-shadow: 0 0 5px 0 #999;
 }
 
 /**
@@ -409,13 +398,13 @@ body {
  */
 
 #picker {
+	display: flex;
 	padding: 10px;
-	width: 980px;
 }
 
 .ui-color-picker {
 	padding: 3px 5px;
-	float: left;
+	/*! float: left; */
 	border-color: #FFF;
 }
 
@@ -432,13 +421,16 @@ body {
  */
 
 #picker-samples {
-	width: 375px;
-	height: 114px;
+	width: 92px;
 	max-height: 218px;
-	margin: 0 10px 0 30px;
+	display: flex;
+	flex-flow: row wrap;
+	height: max-content;
+	flex: 1 1 auto;
+	margin-left: 10px;
 	overflow: hidden;
+	overflow-y: auto;
 	position: relative;
-	float: left;
 
 	transition: all 0.2s;
 }
@@ -450,8 +442,6 @@ body {
 	border: 1px solid #DDD;
 	background-clip: content-box;
 	border-radius: 4px;
-	position: absolute;
-	float: left;
 	transition: all 0.2s;
 }
 
@@ -522,9 +512,8 @@ body {
  */
 
 #controls {
-	width: 110px;
+	width: 75px;
 	padding: 10px;
-	float: right;
 }
 
 /**
@@ -533,7 +522,7 @@ body {
 
 #delete {
 	width: 100%;
-	height: 94px;
+	height: 187px;
 	background-color: #DDD;
 	background-image: url('grain.png');
 	background-repeat: repeat;
@@ -542,7 +531,6 @@ body {
 	color: #777;
 
 	position: relative;
-	float: right;
 }
 
 #delete #trash-can {
@@ -572,6 +560,7 @@ body {
  */
 #color-info {
 	display: flex;
+	padding: 10px 0;
 	border-top: 1px solid #DDD;
 }
 
@@ -582,15 +571,14 @@ body {
 
 #color-info .property {
 	display: flex;
-	min-width: 280px;
 	height: 30px;
-	margin: 10px 0;
 	text-align: center;
 	line-height: 30px;
 	flex: 1 1 auto;
 }
 
-#color-info .property > * {
+#color-info .property ~ .property {
+	border-left: 2px solid #EEE;
 }
 
 #color-info .property .type {
@@ -601,24 +589,26 @@ body {
 }
 
 #color-info .property .value {
-	width: 200px;
 	height: 100%;
-	padding: 0 10px;
 	font-family: "Segoe UI", Arial, Helvetica, sans-serif;
 	font-size: 16px;
 	color: #777;
 	text-align: center;
 	background-color: #FFF;
 	border: none;
+	flex: 1 1 auto;
+	width: 150px;
+	white-space: nowrap;
+	user-select: all;
 }
 
-#color-info .property .value:hover {
+#color-info .property:nth-of-type(3) .value {
+	width: 50px;
+}
+
+/* #color-info .property .value:hover {
 	color: #37994A;
-}
-
-#color-info .property .value:hover + .copy {
-	background-position: center right;
-}
+} */
 
 #color-info .property .copy {
 	width: 24px;
@@ -628,9 +618,8 @@ body {
 	background-image: url('copy.png');
 	background-repeat: no-repeat;
 	background-position: center left;
-	border-left: 1px solid #EEE;
 	text-align: right;
-	float: left;
+	cursor: pointer;
 }
 
 #color-info .property .copy:hover {
@@ -643,26 +632,25 @@ body {
 
 #canvas {
 	width: 100%;
-	height: 300px;
-	min-height: 250px;
+	height: 200px;
+	min-height: 150px;
 	border-top: 1px solid #DDD;
 	background-image: url('grain.png');
 	background-repeat: repeat;
 	position: relative;
-	float: left;
 	overflow: hidden;
 }
 
 #canvas[data-tutorial='drop'] {
 	text-align: center;
-	font-size: 30px;
+	font-size: 22px;
 	color: #777;
 }
 
-#canvas[data-tutorial='drop']:before {
+#canvas[data-tutorial='drop']::before {
 	content: "Drag colors here to compare";
 	width: 40%;
-	padding: 50px 9% 50px 11%;
+	padding: 30px 9% 30px 11%;
 
 	background-image: url('drop.png');
 	background-repeat: no-repeat;
@@ -674,7 +662,7 @@ body {
 	border-radius: 15px;
 
 	position: absolute;
-	top: 50px;
+	top: 45px;
 	left: 20%;
 }
 
@@ -682,7 +670,7 @@ body {
 	background-color: #999 !important;
 }
 
-#canvas [data-tutorial='dblclick']:before {
+#canvas [data-tutorial='dblclick']::before {
 	content: "double click to activate";
 	width: 80px;
 	color: #FFF;

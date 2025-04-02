@@ -18,35 +18,45 @@ permalink: /dev
 		<link rel="icon" type="image/png" href="./assets/favicon_256.png" sizes="256x256">
 	</head>
 	<body>
-		<main class="content content__customiser" id="js-content">
+		<main class="content customiser" id="js-content">
 			<div class="topbar">
 				<div class="topbar__section">
 					<nav class="top-nav">
 						<a href="./" class="top-nav__link" id="js-back">
-							<i class="top-nav__icon fa fa-arrow-left"></i>
-							<span class="top-nav__text">Exit</span>
+							<div class="top-nav__link-inner">
+								<i class="top-nav__icon fa fa-arrow-left"></i>
+								<span class="top-nav__text">Exit</span>
+							</div>
 						</a>
-						<a class="top-nav__link" onclick="toggleEle('#js-pp-update-json')">
-							<i class="top-nav__icon fa-solid fa-wrench"></i>
-							<span class="top-nav__text">Update Json</span>
+						<a class="top-nav__link js-tutorial-update" onclick="toggleEle('#js-pp-update-json')">
+							<div class="top-nav__link-inner">
+								<i class="top-nav__icon fa-solid fa-wrench"></i>
+								<span class="top-nav__text">Update Json</span>
+							</div>
 						</a>
-						<a class="top-nav__link" onclick="toggleEle('#js-pp-format-text')">
-							<i class="top-nav__icon fa-solid fa-wrench"></i>
-							<span class="top-nav__text">Format Text</span>
+						<a class="top-nav__link js-tutorial-tools" onclick="toggleEle('#js-pp-format-text')">
+							<div class="top-nav__link-inner">
+								<i class="top-nav__icon fa-solid fa-wrench"></i>
+								<span class="top-nav__text">Format Text</span>
+							</div>
 						</a>
-						<a class="top-nav__link" href="https://github.com/ValerioLyndon/Theme-Customiser/wiki" target="_blank">
-							<i class="top-nav__icon fa-solid fa-book"></i>
-							<span class="top-nav__text">Documentation</span>
+						<a class="top-nav__link js-tutorial-docs" href="https://github.com/ValerioLyndon/Theme-Customiser/wiki" target="_blank">
+							<div class="top-nav__link-inner">
+								<i class="top-nav__icon fa-solid fa-book"></i>
+								<span class="top-nav__text">Documentation</span>
+							</div>
 						</a>
 					</nav>
 				</div>
 				<div class="topbar__section o-hidden">
-					<nav class="top-nav">
+					<div class="top-nav">
 						<a class="top-nav__link">
-							<i class="top-nav__icon fa-solid fa-arrow-rotate-right"></i>
-							<span class="top-nav__text">Reload Preview</span>
+							<div class="top-nav__link-inner">
+								<i class="top-nav__icon fa-solid fa-arrow-rotate-right"></i>
+								<span class="top-nav__text">Reload Preview</span>
+							</div>
 						</a>
-					</nav>
+					</div>
 				</div>
 			</div>
 
@@ -62,11 +72,10 @@ permalink: /dev
 
 					<div class="sidebar__section sidebar__section--top">
 						<h1 class="title o-clear">Create JSON</h1>
-						<h2 class="sub-title">Validate & test your files.</h2>
+						<h2 class="sub-title">Validate & test your Customiser JSON files.</h2>
 					</div>
 
 					<div class="sidebar__section sidebar__section--no-border" id="js-json">
-						<p class="info-box info-box--indented info-box--error o-hidden" id="js-json-notice"></p>
 						<button type="button" class="button button--highlighted" id="js-render">
 							Refresh Preview
 						</button>
@@ -78,33 +87,20 @@ permalink: /dev
 							<label class="toggle" for="js-auto-render"></label>
 							<span class="toggle-with-text__text">Auto Refresh</span>
 						</label>
+						<p class="info-box info-box--indented info-box--error o-hidden" id="js-json-notice"></p>
 					</div>
 				</div>
 			</div>
 		</main>
 
-		<div class="loading-screen" id="js-loader">
-			<div class="loading-screen__spinner" id="js-loader-icon"></div>
-			<div class="loading-screen__text" id="js-loader-text">Loading...</div>
-			<div class="loading-screen__subtext" id="js-loader-subtext">JavaScript must be enabled.</div>
-			<div class="loading-screen__subtext o-hidden" id="js-loader-subsubtext">JavaScript must be enabled.</div>
-			<a class="loading-screen__hyperlink hyperlink o-hidden" id="js-loader-home" href="https://github.com/ValerioLyndon/Theme-Customiser">Go to project page.</a>
-			<div class="loading-screen__console o-hidden" id="js-loader-console">
-				<div class="loading-screen__console-header">
-					Timeline
-					<button type="button" class=" loading-screen__console-button button js-swappable-text" id="js-copy-output" onclick="navigator.clipboard.writeText(document.getElementById('js-loader-console-messages').outerText);">
-						<div class="swappable-text">
-							<div class="swappable-text__text">
-								Copy Logs
-								<br />
-								Copied.
-							</div>
-						</div>
-					</button>
-				</div>
-				<div class="loading-screen__message-boxes" id="js-loader-console-messages"></div>
+		<noscript>
+			<div class="loading-screen">
+				<div class="loading-screen__cross"></div>
+				<div class="loading-screen__item loading-screen__title" id="js-loader-text">Unable to load.</div>
+				<div class="loading-screen__item loading-screen__description" id="js-loader-subtext">JavaScript must be enabled.</div>
+				<a class="loading-screen__item hyperlink" href="https://valeriolyndon.github.io/Theme-Customiser/">Project page.</a>
 			</div>
-		</div>
+		</noscript>
 
 		<div class="popup is-hidden" id="js-pp-update-json">
 			<div class="popup__inner">
@@ -135,23 +131,25 @@ permalink: /dev
 		<div class="popup is-hidden" id="js-pp-format-text">
 			<div class="popup__inner">
 				<div class="popup__invisibutton" onclick="toggleEle('#js-pp-format-text')"></div>
-				<div class="popup__content" id="js-theme-config">
+				<div class="popup__content popup__content--wide" id="js-theme-config">
 					<h4 class="popup__header">Format text for use in JSON</h4>
 
 					<p class="popup-paragraph">
-						Formatting text for use with JSON can be kind of a pain, so this tool can do it for you. This should work for all strings such as CSS, Regular Expressions, and anything else you may want to input.
+						Formatting text for use with JSON can be kind of a pain, so this tool can do it for you. This should work for all text such as CSS, Regular Expressions, and anything else. Regular text goes on the left, encoded text goes on the right.
 					</p>
 
 					<div class="l-split">
 						<div class="l-split__left">
-							<h6 class="popup__sub-header">Input</h6>
-							<textarea id="js-format-text__in" class="input input--textarea-tall" autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
-							<button type="button" class="button button--highlighted" onclick="formatPopupCss()">Format CSS</button>
+							<h6 class="popup__sub-header">Raw</h6>
+							<textarea id="js-format-text__in" class="input input--textarea-tall" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Regular text can be encoded from here."></textarea>
+							<button type="button" class="button button--highlighted" onclick="encodeJson()">Encode Raw</button>
+							<button type="button" class="button button--highlighted" onclick="navigator.clipboard.writeText(document.getElementById('js-format-text__in').value);">Copy</button>
 						</div>
 						<div class="l-split__right">
-							<h6 class="popup__sub-header">Output</h6>
-							<textarea id="js-format-text__out" class="input input--textarea-tall" readonly="readonly"></textarea>
-							<button type="button" class="button button--highlighted" onclick="navigator.clipboard.writeText(document.getElementById('js-format-text__out').value);">Copy Output</button>
+							<h6 class="popup__sub-header">Formatted</h6>
+							<textarea id="js-format-text__out" class="input input--textarea-tall" placeholder="Formatted text can be decoded from here."></textarea>
+							<button type="button" class="button button--highlighted" onclick="decodeJson()">Decode Formatted</button>
+							<button type="button" class="button button--highlighted" onclick="navigator.clipboard.writeText(document.getElementById('js-format-text__out').value);">Copy</button>
 						</div>
 					</div>
 				</div>
