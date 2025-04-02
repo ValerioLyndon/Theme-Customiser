@@ -123,6 +123,16 @@ class LoadingScreen {
 
 		document.body.append(this.loader);
 		this.stop = false;
+		this.isLoaded = false;
+		
+		// add fallback in case something goes very wrong and it's infinitely spinning.
+		// this can result in false positives, but this.loaded() can still be run so
+		// it would only visually be weird as it would fail before succeeding.
+		setTimeout(()=>{
+			if( this.isLoaded === false ){
+				this.failed(new Error('The page is taking a long time to load. If you see any errors in the timeline, it is safe to assume the page will not load. If you are on dial-up, the page may still load eventually.', {cause: 'timeout'}));
+			}
+		}, 30000); 
 	}
 
 	text( txt ){
@@ -191,13 +201,15 @@ class LoadingScreen {
 	loaded( ){
 		this.pageContent.classList.add('is-loaded');
 		this.loader.classList.add('is-hidden');
-		var that = this;
 		setTimeout(() => {
-			that.loader.classList.add('o-hidden');
-		}, 1500)
+			this.loader.classList.add('o-hidden');
+		}, 1500);
+		this.isLoaded = true;
 	}
 
 	failed( err ){
+		this.pageContent.classList.remove('is-loaded');
+		this.loader.classList.remove('is-hidden');
 		this.log(err.message);
 		if( err.cause !== undefined ){
 			this.log(`Bailing out with code "${err.cause}".`);
