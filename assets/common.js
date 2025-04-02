@@ -1544,8 +1544,6 @@ class Validate {
 						throw new Error(`Option "${id}": "${key}" value must be a number. Be sure you aren't accidentally typing a string (double-quoted text).`);
 					}
 				}
-
-				console.log('before',opt.min,opt.max,opt.step);
 				
 				let difference = 100;
 				let min = 0;
@@ -1580,7 +1578,6 @@ class Validate {
 				opt.min = min;
 				opt.max = max;
 				opt.step = step;
-				console.log('after',opt.min,opt.max,opt.step);
 			}
 
 			if( 'replacements' in opt ){
@@ -1651,7 +1648,6 @@ class Validate {
 			}
 			else if( typeCore.startsWith('range') ) {
 				opt.default = (opt.max - opt.min) / 2 + opt.min;
-				console.log(opt.max,opt.min,opt.default);
 			}
 			else if( typeCore.startsWith('text') ) {
 				opt.default = '';
