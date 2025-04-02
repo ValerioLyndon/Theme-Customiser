@@ -101,16 +101,16 @@ class LoadingScreen {
 		this.linkArea.append(create('a.loading-screen__hyperlink.hyperlink[href="./"]', 'Home.'));
 		this.linkArea.append(create('a.loading-screen__hyperlink.hyperlink[href="https://github.com/ValerioLyndon/Theme-Customiser"]', 'GitHub.'));
 
-		let copyLogs = create(`button.loading-screen__console-button.button[type="button"]`,
+		let copyLogs = create(`button.loading-screen__console-button.button[type="button"][data-success-text="Copied!"]`,
 			create('div.swappable-text',
 				create('div.swappable-text__text',
-					['Copy Logs', create('br'), 'Copied.']
+					['Copy Logs', create('br'), create('span')]
 				)
 			)
 		);
 		copyLogs.addEventListener('click', () => {
-			navigator.clipboard.writeText(this.messages.outerText);
-			swapText(copyLogs);
+			let that = this;
+			swapText(copyLogs, async()=>{return copy(that.messages.outerText)});
 		});
 		this.messages = create('div.loading-screen__message-boxes');
 		this.console = create('div.loading-screen__console.o-hidden', [
@@ -354,7 +354,7 @@ function userConfirm( msg, options = {'Yes': {'value': true, 'type': 'suggested'
 			let btn = document.createElement('button');
 			btn.className = 'button';
 			if( details.type === 'suggested' ){
-				btn.classList.add('butted--highlighted');
+				btn.classList.add('button--highlighted');
 			}
 			else if( details.type === 'danger' ){
 				btn.classList.add('button--danger');
@@ -1598,8 +1598,6 @@ class Validate {
 						throw new Error(`Option "${id}": "${key}" value must be a number. Be sure you aren't accidentally typing a string (double-quoted text).`);
 					}
 				}
-
-				console.log('before',opt.min,opt.max,opt.step);
 				
 				let difference = 100;
 				let min = 0;
@@ -1634,7 +1632,6 @@ class Validate {
 				opt.min = min;
 				opt.max = max;
 				opt.step = step;
-				console.log('after',opt.min,opt.max,opt.step);
 			}
 
 			if( 'replacements' in opt ){
@@ -1705,7 +1702,6 @@ class Validate {
 			}
 			else if( typeCore.startsWith('range') ) {
 				opt.default = (opt.max - opt.min) / 2 + opt.min;
-				console.log(opt.max,opt.min,opt.default);
 			}
 			else if( typeCore.startsWith('text') ) {
 				opt.default = '';
@@ -1974,3 +1970,38 @@ class Tutorial {
 	}
 }
 
+// Add swappable text functions
+
+async function swapText( btn, funcToRun ){
+	let toSwap = btn.lastElementChild;
+	let textField = btn.lastElementChild.lastElementChild.lastElementChild;
+	let successText = btn.getAttribute('data-success-text') || 'Success';
+	let failText = btn.getAttribute('data-failure-text') || 'Failed';
+	let genericText = btn.getAttribute('data-generic-text') || '';
+	
+	let funcResult = await funcToRun();
+	if( funcResult === true ){
+		textField.textContent = successText;
+	}
+	else if( !funcResult === false ){
+		textField.textContent = failText;
+	}
+	else {
+		textField.textContent = genericText;
+	}
+	
+	toSwap.classList.add('is-swapped');
+	setTimeout(() => {
+		toSwap.classList.remove('is-swapped');
+	}, 666);
+}
+
+async function copy( textToCopy ){
+	try {
+		navigator.clipboard.writeText(textToCopy);
+		return true;
+	}
+	catch {
+		return false;
+	}
+}

@@ -1567,14 +1567,6 @@ function pageSetup( ){
 	}
 	Expando.calculateAll();
 
-	// Add swappable text functions
-
-	let swaps = document.getElementsByClassName('js-swappable-text');
-
-	for( let swap of swaps ){
-		swap.addEventListener('click', swapText(swap));
-	}
-
 	loader.text('Fetching CSS...');
 
 	// Get theme CSS
@@ -2007,7 +1999,7 @@ function startThemeTutorial( ){
 		},
 		() => {
 			let targets = [
-				document.querySelector('#js-copy-output'),
+				document.querySelector('.js-tutorial-copy'),
 				document.querySelector('.js-installation-btn')
 			];
 			sidebar.scrollTo( {'left': 0, 'top': sidebar.scrollHeight, 'behaviour': 'instant'} );
