@@ -1019,6 +1019,9 @@ let dataUrls = query.getAll('data');
 // Check for legacy JSON and process as needed
 async function processJson( json, url, toReturn ){
 	loader.text('Processing JSON...');
+	if( url !== '' ){
+		loader.log(`... from ${url} ...`);
+	}
 
 	json = updateJson(json);
 
@@ -1176,7 +1179,7 @@ class Validate {
 				let theme = json.themes[i];
 				
 				try {
-					Validate.warnOnUnrecognised(theme, ['name','author','type','url','image','date','date_added','tags','supports']);
+					Validate.warnOnUnrecognised(theme, ['name','author','type','url','image','date','date_added','tags','flags','supports']);
 					theme = Validate.theme(theme);
 				}
 				catch( e ){
