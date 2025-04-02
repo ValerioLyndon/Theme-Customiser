@@ -566,6 +566,22 @@ body {
 	margin-top: 3px;
 }
 
+.loading-screen__message-timestamp {
+	display: inline-block;
+	width: 8ch;
+	text-align: right;
+	white-space: pre;
+	opacity: 0.4;
+}
+
+.loading-screen__message-quote {
+	display: block;
+	padding: .5ch 1ch;
+	background: color-mix(in srgb, var(--invert-background), transparent 40%);
+	border-radius: 3px;
+	margin: .5ch 1ch;
+}
+
 
 
 /* Table */

@@ -140,6 +140,9 @@ class LoadingScreen {
 			paragraph.className = 'loading-screen__message o-pre-wrap';
 			paragraph.textContent = msg;
 		}
+		let time = `${performance.now()}`;
+		let timestamp = `${(time.substring(0, time.length-3) || '0').padStart(3, '0')}.${time.substring(time.length-3)} `;
+		paragraph.insertAdjacentElement('afterbegin', create(`div.loading-screen__message-timestamp`, timestamp));
 		this.messages.appendChild(paragraph);
 		if( toBrowser ){
 			console.log(msg);
@@ -180,7 +183,8 @@ class LoadingScreen {
 			`, false, true);
 		}
 		catch {
-			this.log(`[ERROR] Failed to parse JSON of collection URL: "${url}"\n\tError text: ${error}`);
+			console.log(`[ERROR] Failed to parse JSON of collection URL: "${url}".\n\tError text:\n${error}`);
+			this.log(`[ERROR] Failed to parse JSON of collection URL: "${url}". Error text: <p class="loading-screen__message-quote">${error}</p>`, false, true);
 		}
 	}
 
