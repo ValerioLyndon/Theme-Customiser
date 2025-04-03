@@ -155,13 +155,14 @@ class LoadingScreen {
 			logHeader.className = 'loading-screen__console-header';
 			logHeader.textContent = 'Timeline';
 			let copyLogs = document.createElement('button');
-			copyLogs.className = 'loading-screen__console-button button js-swappable-text';
+			copyLogs.className = 'loading-screen__console-button button';
+			copyLogs.dataset.successText = 'Copied!';
 			copyLogs.innerHTML =
 				`<div class="swappable-text">
 					<div class="swappable-text__text">
 						Copy Logs
 						<br />
-						Copied.
+						<span></span>
 					</div>
 				</div>`;
 			let openLogs = document.createElement('a');
@@ -170,7 +171,8 @@ class LoadingScreen {
 			this.logs = document.getElementById('js-loader-console');
 
 			copyLogs.addEventListener('click', ()=>{
-				navigator.clipboard.writeText(this.messages.outerText);
+				let that = this;
+				swapText(copyLogs, async()=>{return copy(that.messages.outerText)});
 			});
 			openLogs.addEventListener('click', ()=>{
 				toggleEle(logs);
@@ -318,7 +320,7 @@ function userConfirm( msg, options = {'Yes': {'value': true, 'type': 'suggested'
 			let btn = document.createElement('button');
 			btn.className = 'button';
 			if( details.type === 'suggested' ){
-				btn.classList.add('butted--highlighted');
+				btn.classList.add('button--highlighted');
 			}
 			else if( details.type === 'danger' ){
 				btn.classList.add('button--danger');
@@ -1100,6 +1102,10 @@ class Validate {
 		}
 		Validate.warnOnUnrecognised(json, ['json_version','themes','data','collections']);
 
+		if( !isNumber(json.json_version) ){
+			throw new Error(`"json_version" must be an integer or float value.`);
+		}
+
 		if( 'collections' in json && (!isArray(json.collections) || json.collections.find(str=>!isString(str)||!isValidHttp(str)) !== undefined) ){
 			throw new Error(`"collections" key must be an array of *valid* URL strings.`);
 		}
@@ -1139,6 +1145,9 @@ class Validate {
 
 				const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
 				for( let key of ['date','date_added'] ){
+					if( key in theme && !isString(theme[key]) ){
+						throw new Error(`Theme "${theme?.name}": "${key}" value must be a string.`);
+					}
 					if( key in theme && !dateRegex.test(theme[key]) ){
 						throw new Error(`Theme "${theme?.name}": "${key}" value must be formatted as "YYYY-MM-DD".`);
 					}
@@ -1535,8 +1544,6 @@ class Validate {
 						throw new Error(`Option "${id}": "${key}" value must be a number. Be sure you aren't accidentally typing a string (double-quoted text).`);
 					}
 				}
-
-				console.log('before',opt.min,opt.max,opt.step);
 				
 				let difference = 100;
 				let min = 0;
@@ -1571,7 +1578,6 @@ class Validate {
 				opt.min = min;
 				opt.max = max;
 				opt.step = step;
-				console.log('after',opt.min,opt.max,opt.step);
 			}
 
 			if( 'replacements' in opt ){
@@ -1642,7 +1648,6 @@ class Validate {
 			}
 			else if( typeCore.startsWith('range') ) {
 				opt.default = (opt.max - opt.min) / 2 + opt.min;
-				console.log(opt.max,opt.min,opt.default);
 			}
 			else if( typeCore.startsWith('text') ) {
 				opt.default = '';
@@ -1911,3 +1916,38 @@ class Tutorial {
 	}
 }
 
+// Add swappable text functions
+
+async function swapText( btn, funcToRun ){
+	let toSwap = btn.lastElementChild;
+	let textField = btn.lastElementChild.lastElementChild.lastElementChild;
+	let successText = btn.getAttribute('data-success-text') || 'Success';
+	let failText = btn.getAttribute('data-failure-text') || 'Failed';
+	let genericText = btn.getAttribute('data-generic-text') || '';
+	
+	let funcResult = await funcToRun();
+	if( funcResult === true ){
+		textField.textContent = successText;
+	}
+	else if( !funcResult === false ){
+		textField.textContent = failText;
+	}
+	else {
+		textField.textContent = genericText;
+	}
+	
+	toSwap.classList.add('is-swapped');
+	setTimeout(() => {
+		toSwap.classList.remove('is-swapped');
+	}, 666);
+}
+
+async function copy( textToCopy ){
+	try {
+		navigator.clipboard.writeText(textToCopy);
+		return true;
+	}
+	catch {
+		return false;
+	}
+}
