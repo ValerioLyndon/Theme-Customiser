@@ -1731,8 +1731,6 @@ function renderModOpts( modId, mod ){
 	optHeader.textContent = `Change options: ${mod.name}`;
 	optDiv.append(optHeader);
 
-	console.log(mod);
-
 	for( let opt of Object.entries(mod.options) ){
 		let renderedOpt = renderCustomisation('option', opt, [modId, mod], 300);
 		if( renderedOpt ){
@@ -1961,7 +1959,6 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 		}
 
 		input.addEventListener('input', () => {
-			console.log('input', entryId, parentId)
 			updateOption(entryId, {'parentModId': parentId});
 			updateCss();
 		});
