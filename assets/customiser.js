@@ -518,7 +518,7 @@ async function updateCss(  ){
 				insert = insert.split('(')[1].split(')')[0];
 			}
 			catch {
-				console.log('[WARN] Failed to process "insert" type due to missing parentheses.');
+				console.log(`[WARN] Failed to process "insert" type of option "${optData.name}" due to missing parentheses.`);
 			}
 			if( subQualifier.includes('strip_alpha') ){
 				let arr = insert.split(',');
@@ -582,10 +582,16 @@ async function updateCss(  ){
 
 	// Options
 	// Sort options before to match the order of the JSON to prevent issues with incorrectly layered mods
-	if( userSettings?.options && theme?.options ){
-		let sortedOptIds = sortArrayToMatch(Object.keys(userSettings.options), Object.keys(theme.options));
-		for( let optId of sortedOptIds ){
-			newCss = await applyOptionToCss(newCss, theme.options[optId], userSettings.options[optId]);
+	if( theme?.options ){
+		console.log('BEGIN')
+		for( let optId of Object.keys(theme.options) ){
+			let insert = 'options' in userSettings && optId in userSettings.options ? userSettings.options[optId] : theme.options[optId]?.default;
+			if( insert === undefined ){
+				console.log('skipping', optId, insert, theme.options[optId]?.default)
+				continue;
+			}
+			console.log('APPLYING', optId, insert, theme.options[optId]?.default)
+			newCss = await applyOptionToCss(newCss, theme.options[optId], insert);
 		}
 	}
 
@@ -1697,7 +1703,8 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 
 		// Set default value if needed
 
-		let defaultValue = '';
+		// TODO: move this to JSON processing logic
+		let defaultValue;
 		if( entryData.default === undefined && entryData.type === 'toggle' ){
 			defaultValue = false;
 		}
@@ -1734,9 +1741,10 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 			if( type === 'textarea' ){
 				input = document.createElement('textarea');
 				input.className = 'input entry__textarea input--textarea';
-				input.innerHTML = defaultValue;
+				input.innerHTML = defaultValue !== undefined ? defaultValue : '';
 			}
-			input.value = defaultValue;
+			console.log(defaultValue, typeof defaultValue);
+			input.value = defaultValue !== undefined ? defaultValue : '';
 
 			if( qualifier === 'value' ){
 				input.placeholder = 'Your value here.';
