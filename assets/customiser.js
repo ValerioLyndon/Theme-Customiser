@@ -68,15 +68,25 @@ class Expando {
 		this.attrs = {};
 		this.attrs.subtle = 'subtle' in attrs ? attrs.subtle : false;
 		this.attrs.margin = 'margin' in attrs ? attrs.margin : 0;
+		this.attrs.controls = 'controls' in attrs ? attrs.controls : true;
 
 		this.expanded = false;
 		this.limit = parseInt(limit);
 		this.btnHtmlCollapsed = `<i class="fa-solid fa-caret-down" aria-hidden="true"></i> See more...`;
 		this.btnHtmlExpanded = `<i class="fa-solid fa-caret-up" aria-hidden="true"></i> See less.`;
+		this.animTiming = {
+			duration: 300,
+			iterations: 1,
+			easing: 'ease'
+		};
+		this.padding = this.attrs.controls ? 25 : 0;
 
 		this.root = document.createElement('div');
 		this.root.className = 'expando';
 		this.root.setAttribute('style', `--margin: ${attrs.margin}px`);
+		if( this.attrs.controls ){
+			this.root.classList.add('has-controls');
+		}
 
 		// Place child inside of expando
 		child.replaceWith(this.root);
@@ -93,12 +103,17 @@ class Expando {
 		}
 
 		// don't bother making it an expando unless it's more than 25 over the limit, because the expando buttons themselves add 25 pixels extra
-		if( this.root.scrollHeight < (this.limit + 25) ){
+		if( this.root.scrollHeight <= (this.limit + this.padding) ){
 			//TODO: this should return false *before* swapping out the expando parent ideally, but due to how the CSS works we have to do it after.
 			this.root.classList.add('is-innert');
 			return true;
 		}
 
+		this.animTiming = {
+			duration: 300 + this.root.scrollHeight / 3,
+			iterations: 1,
+			easing: 'ease'
+		};
 		this.root.style.height = `${this.limit}px`;
 		this.btn = document.createElement('button');
 		this.btn.className = 'expando__button';
@@ -108,41 +123,49 @@ class Expando {
 			this.btn.classList.add('expando__button--subtle');
 		}
 
-		this.root.append(this.btn);
+		if( this.attrs.controls ){
+			this.root.append(this.btn);
+		}
 		return true;
 	}
 
 	toggle( ){
-		let animTiming = {
-			duration: 300 + this.root.scrollHeight / 3,
-			iterations: 1,
-			easing: 'ease'
-		};
-
 		if( this.expanded ){
-			this.expanded = false;
-			let animFrames = [
-				{ height: `${this.root.scrollHeight}px` },
-				{ height: `${this.limit}px` }
-			];
-			this.root.style.height = `${this.limit}px`;
-			this.root.style.paddingBottom = `0px`;
-			this.root.classList.remove('is-expanded');
-			this.root.animate(animFrames, animTiming);
-			this.btn.innerHTML = this.btnHtmlCollapsed;
+			this.collapse();
 		}
 		else {
-			this.expanded = true;
-			let animFrames = [
-				{ height: `${this.limit}px`},
-				{ height: `${this.root.scrollHeight + 25}px`,
-				  paddingBottom: '25px' }
-			];
-			this.root.style.height = `auto`;
-			this.root.style.paddingBottom = `25px`;
-			this.root.classList.add('is-expanded');
-			this.root.animate(animFrames, animTiming);
+			this.expand();
+		}
+	}
+
+	expand( ){
+		this.expanded = true;
+		let animFrames = [
+			{ height: `${this.limit}px`},
+			{ height: `${this.root.scrollHeight + this.padding}px`,
+				paddingBottom: `${this.padding}px` }
+		];
+		this.root.style.height = `auto`;
+		this.root.style.paddingBottom = `${this.padding}px`;
+		this.root.classList.add('is-expanded');
+		this.root.animate(animFrames, this.animTiming);
+		if( this.attrs.controls ){
 			this.btn.innerHTML = this.btnHtmlExpanded;
+		}
+	}
+
+	collapse( ){
+		this.expanded = false;
+		let animFrames = [
+			{ height: `${this.root.scrollHeight}px` },
+			{ height: `${this.limit}px` }
+		];
+		this.root.style.height = `${this.limit}px`;
+		this.root.style.paddingBottom = `0px`;
+		this.root.classList.remove('is-expanded');
+		this.root.animate(animFrames, this.animTiming);
+		if( this.attrs.controls ){
+			this.btn.innerHTML = this.btnHtmlCollapsed;
 		}
 	}
 
@@ -1960,6 +1983,7 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 		// Basic Mod HTML & Functions
 
 		div.id = `mod-parent:${entryId}`;
+		let toggle = document.createElement('input');
 
 		if( entryData.url ){
 			let link = document.createElement('a');
@@ -1977,7 +2001,6 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 			headRight.appendChild(link);
 		}
 		else if( entryData.css || entryData.options && Object.keys(entryData.options).length > 0 ){
-			let toggle = document.createElement('input');
 			toggle.type = 'checkbox';
 			toggle.id = htmlId;
 			toggle.className = 'o-hidden';
@@ -2013,15 +2036,25 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 		if( entryData.options ){
 			let optDiv = document.createElement('div');
 			optDiv.className = 'entry__options';
+			let optExpando = new Expando(optDiv, 0, {'controls': false});
 
 			for( let opt of Object.entries(entryData.options) ){
 				let renderedOpt = renderCustomisation('option', opt, entry);
 				if( renderedOpt ){
-					optDiv.appendChild(renderedOpt);
+					optDiv.append(renderedOpt);
 				}
 			}
 
-			div.appendChild(optDiv);
+			div.append(optExpando.root);
+			if( toggle.checked ){
+				optExpando.expand();
+			}
+			else {
+				optExpando.collapse();
+			}
+			toggle.addEventListener('change', ()=>{
+				optExpando.toggle();
+			});
 		}
 	}
 

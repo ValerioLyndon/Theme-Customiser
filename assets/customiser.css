@@ -123,7 +123,7 @@ input:checked + .toggle.is-forced::after {
 	left: calc(var(--margin) * -1);
 	overflow: hidden;
 }
-.expando::after {
+.expando.has-controls::after {
 	content: "";
 	position: absolute;
 	bottom: 0;
@@ -533,10 +533,6 @@ input:checked + .toggle.is-forced::after {
 }
 
 .entry__options {
-	display: none;
-}
-.entry.is-enabled .entry__options {
-	display: block;
 	padding-left: 15px;
 	border-left: 1px solid var(--border-light);
 }
