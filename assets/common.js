@@ -137,7 +137,7 @@ class LoadingScreen {
 		// it would only visually be weird as it would fail before succeeding.
 		setTimeout(()=>{
 			if( this.isLoaded === false ){
-				this.failed(new Error('The page is taking a long time to load. If you see any errors in the timeline, it is safe to assume the page will not load. If you are on dial-up, the page may still load eventually.', {cause: 'timeout'}));
+				this.failed(new Error('The page is taking a long time to load. If you see any errors in the timeline, it is safe to assume the page will not load. If no errors have occurred, then the page may still load eventually.', {cause: 'timeout'}));
 			}
 		}, 30000); 
 	}
