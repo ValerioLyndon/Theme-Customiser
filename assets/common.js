@@ -91,7 +91,7 @@ class LoadingScreen {
 		this.loader = create('div.loading-screen');
 		this.infoArea = create('div.loading-screen__info-area');
 		this.loader.append(this.infoArea);
-		this.linkArea = create('div.loading-screen__link-area');
+		this.linkArea = create('div.loading-screen__link-area.is-hidden');
 		this.infoArea.append(this.linkArea);
 
 		this.icon = create('div.loading-screen__icon.loading-screen__spinner');
@@ -124,6 +124,13 @@ class LoadingScreen {
 		document.body.append(this.loader);
 		this.stop = false;
 		this.isLoaded = false;
+
+		// unhide link area shortly if the page is still loading.
+		setTimeout(()=>{
+			if( this.isLoaded === false ){
+				this.linkArea.classList.remove('is-hidden');
+			}
+		}, 4200);
 		
 		// add fallback in case something goes very wrong and it's infinitely spinning.
 		// this can result in false positives, but this.loaded() can still be run so

@@ -451,9 +451,16 @@ body {
 	padding: 8px 0 0 140px;
 }
 .loading-screen__link-area {
-	margin-top: 8px;
 	display: flex;
+	height: calc(8px + 1.3em);
+	padding-top: 8px;
 	gap: 16px;
+	box-sizing: border-box;
+	overflow: hidden;
+	transition: height 0.8s ease;
+}
+.loading-screen__link-area.is-hidden {
+	height: 0;
 }
 
 .loading-screen__icon {
