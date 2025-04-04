@@ -483,7 +483,7 @@ function pageSetup( ){
 
 				for( let response of allJson ){
 					let json = response.value;
-					if( json.themes ){
+					if( response.status === 'fulfilled' && json.themes ){
 						renderCards(json.themes);
 					}
 					else {
@@ -493,7 +493,7 @@ function pageSetup( ){
 
 				if( jsonFailures >= files.length ){
 					loader.failed(new Error('Encountered a problem while parsing collection information.', {cause:'invalid.json'}));
-					throw new Error('too many failures');
+					throw new Error('All loaded JSON files were invalid.');
 				}
 				else if( jsonFailures > 0 ){
 					messenger.error('Encountered a problem while parsing collection information. Some themes may not have loaded.', 'invalid.json');

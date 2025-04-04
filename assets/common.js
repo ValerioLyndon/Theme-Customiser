@@ -1,5 +1,47 @@
 'use strict';
 
+// DEFAULT FUNCTION REPLACEMENTS
+// To speed up coding and piss off everyone that reads this code who wonders why the fuck I didn't just use default functions.
+
+function create( tagStr, content ){
+	// Use regex to split strings and find matches of format tag#id.class[attr=value]
+	let matches = tagStr.match(/^([a-zA-Z]+)(#[^.]+)?(\.[^[]+)*(\[.+])*/);
+
+	// tag
+	if( !matches || !matches[1] ){
+		return false;
+	}
+	let node = document.createElement(matches[1]);
+	// id
+	if( matches[2] ){
+		node.id = matches[2];
+	}
+	// class
+	if( matches[3] ){
+		let classes = matches[3].substr(1).split('.');
+		node.classList.add(...classes);
+	}
+	// attributes
+	if( matches[4] ){
+		let attributes = matches[4].matchAll(/\[([^=]+)="([^\]]+)"\]/g);
+		for( let [match, attr, value] of attributes ){
+			node.setAttribute(attr, value);
+		}
+	}
+
+	// content accepts a string, node, or array of strings/nodes and appends them all to the node
+	if( content && content instanceof Array ){
+		for( let item of content ){
+			node.append(item);
+		}
+	}
+	else if( content ){
+		node.append(content);
+	}
+
+	return node;
+}
+
 // Utility Functions
 
 function inObj( object, string ) {
@@ -44,24 +86,64 @@ function isValidHttp( string ){
 
 class LoadingScreen {
 	constructor( ){
-		this.stop = false;
-		
-		this.loader = document.createElement('div');
-		this.loader.className = 'loading-screen';
-		this.icon = document.createElement('div');
-		this.icon.className = 'loading-screen__spinner';
-		this.title = document.createElement('h1');
-		this.title.className = 'loading-screen__item loading-screen__title';
-		this.title.text = 'Loading...';
-		this.messages = document.createElement('div');
-		this.messages.className = 'loading-screen__message-boxes';
+		this.pageContent = document.getElementById('js-content');
 
-		this.loader.append(this.icon, this.title);
+		this.loader = create('div.loading-screen');
+		this.infoArea = create('div.loading-screen__info-area');
+		this.loader.append(this.infoArea);
+		this.linkArea = create('div.loading-screen__link-area.is-hidden');
+		this.infoArea.append(this.linkArea);
+
+		this.icon = create('div.loading-screen__icon.loading-screen__spinner');
+		this.infoArea.prepend(this.icon);
+		this.titleText = create('div.loading-screen__text', 'Loading...');
+		this.infoArea.prepend(this.titleText);
+		this.linkArea.append(create('a.loading-screen__hyperlink.hyperlink[href="./"]', 'Home.'));
+		this.linkArea.append(create('a.loading-screen__hyperlink.hyperlink[href="https://github.com/ValerioLyndon/Theme-Customiser"]', 'GitHub.'));
+
+		let copyLogs = create(`button.loading-screen__console-button.button[type="button"][data-success-text="Copied!"]`,
+			create('div.swappable-text',
+				create('div.swappable-text__text',
+					['Copy Logs', create('br'), create('span')]
+				)
+			)
+		);
+		copyLogs.addEventListener('click', () => {
+			let that = this;
+			swapText(copyLogs, async()=>{return copy(that.messages.outerText)});
+		});
+		this.messages = create('div.loading-screen__message-boxes');
+		this.console = create('div.loading-screen__console.o-hidden', [
+			create('div.loading-screen__console-header',
+				['Timeline', copyLogs]
+			),
+			this.messages
+		]);
+		this.loader.append(this.console);
+
 		document.body.append(this.loader);
+		this.stop = false;
+		this.isLoaded = false;
+
+		// unhide link area shortly if the page is still loading.
+		setTimeout(()=>{
+			if( this.isLoaded === false ){
+				this.linkArea.classList.remove('is-hidden');
+			}
+		}, 4200);
+		
+		// add fallback in case something goes very wrong and it's infinitely spinning.
+		// this can result in false positives, but this.loaded() can still be run so
+		// it would only visually be weird as it would fail before succeeding.
+		setTimeout(()=>{
+			if( this.isLoaded === false ){
+				this.failed(new Error('The page is taking a long time to load. If you see any errors in the timeline, it is safe to assume the page will not load. If no errors have occurred, then the page may still load eventually.', {cause: 'timeout'}));
+			}
+		}, 30000); 
 	}
 
 	text( txt ){
-		this.title.textContent = txt;
+		this.titleText.textContent = txt;
 		this.log(txt, false);
 	}
 
@@ -69,12 +151,15 @@ class LoadingScreen {
 		let paragraph = document.createElement('div');
 		if( html ){
 			paragraph.className = 'loading-screen__message';
-			paragraph.innerHTML = msg;
+			paragraph.insertAdjacentHTML('beforeend', msg);
 		}
 		else {
 			paragraph.className = 'loading-screen__message o-pre-wrap';
 			paragraph.textContent = msg;
 		}
+		let time = `${performance.now()}`;
+		let timestamp = `${(time.substring(0, time.length-3) || '0').padStart(3, '0')}.${time.substring(time.length-3)} `;
+		paragraph.insertAdjacentElement('afterbegin', create(`div.loading-screen__message-timestamp`, timestamp));
 		this.messages.appendChild(paragraph);
 		if( toBrowser ){
 			console.log(msg);
@@ -115,20 +200,23 @@ class LoadingScreen {
 			`, false, true);
 		}
 		catch {
-			this.log(`[ERROR] Failed to parse JSON of collection URL: "${url}"\n\tError text: ${error}`);
+			console.log(`[ERROR] Failed to parse JSON of collection URL: "${url}".\n\tError text:\n${error}`);
+			this.log(`[ERROR] Failed to parse JSON of collection URL: "${url}". Error text: <p class="loading-screen__message-quote">${error}</p>`, false, true);
 		}
 	}
 
 	loaded( ){
-		document.getElementById('js-content').classList.add('is-loaded');
+		this.pageContent.classList.add('is-loaded');
 		this.loader.classList.add('is-hidden');
-		var that = this;
 		setTimeout(() => {
-			that.loader.classList.add('o-hidden');
-		}, 1500)
+			this.loader.classList.add('o-hidden');
+		}, 1500);
+		this.isLoaded = true;
 	}
 
 	failed( err ){
+		this.pageContent.classList.remove('is-loaded');
+		this.loader.classList.remove('is-hidden');
 		this.log(err.message);
 		if( err.cause !== undefined ){
 			this.log(`Bailing out with code "${err.cause}".`);
@@ -139,46 +227,17 @@ class LoadingScreen {
 		// only runs once
 		if( !this.stop ){
 			document.getElementsByTagName('title')[0].textContent = `Theme Customiser - an error occured`;
-			this.icon.className = 'loading-screen__cross';
-			this.title.textContent = 'Something broke!';
+			this.console.classList.remove('o-hidden');
+			this.infoArea.style.width = '100%';
+			this.icon.className = 'loading-screen__icon loading-screen__cross';
+			this.titleText.textContent = 'Page Failure.';
+			this.infoArea.insertBefore(create('div.loading-screen__subtext', err.message), this.linkArea);
+			this.infoArea.insertBefore(create('div.loading-screen__subtext', `Code: ${err.cause}`), this.linkArea);
 
-			let description = document.createElement('p');
-			description.className = 'loading-screen__item loading-screen__description';
-			description.textContent = err.message;
-			let link = document.createElement('a');
-			link.className = 'loading-screen__item hyperlink';
-			link.href = './';
-			link.textContent = 'Back to main page.';
-			let logs = document.createElement('div');
-			logs.className = 'loading-screen__console is-hidden';
-			let logHeader = document.createElement('div');
-			logHeader.className = 'loading-screen__console-header';
-			logHeader.textContent = 'Timeline';
-			let copyLogs = document.createElement('button');
-			copyLogs.className = 'loading-screen__console-button button js-swappable-text';
-			copyLogs.innerHTML =
-				`<div class="swappable-text">
-					<div class="swappable-text__text">
-						Copy Logs
-						<br />
-						Copied.
-					</div>
-				</div>`;
-			let openLogs = document.createElement('a');
-			openLogs.className = 'loading-screen__item hyperlink';
-			openLogs.textContent = 'Open logs.';
-			this.logs = document.getElementById('js-loader-console');
-
-			copyLogs.addEventListener('click', ()=>{
-				navigator.clipboard.writeText(this.messages.outerText);
-			});
-			openLogs.addEventListener('click', ()=>{
-				toggleEle(logs);
-			});
-
-			logHeader.append(copyLogs);
-			logs.append(logHeader, this.messages);
-			this.loader.append(description, link, openLogs, logs);
+			let report = create(`a.loading-screen__hyperlink.hyperlink`, 'Report this issue.');
+			let formattedMessages = this.messages.outerText.replaceAll('\n','%0A').replaceAll('\t','%09');
+			report.href = `https://github.com/ValerioLyndon/Theme-Customiser/issues/new/?title=Page%20Failure%20-%20please%20insert%20a%20summary&labels=bug&body=I%20encountered%20a page%20failure.%0A%0AURL%20of%20the%20page:%20${window.location.href}%0A%0AHere%20are%20the%20logs:%0A\`\`\`%0A${formattedMessages}%0A\`\`\``;
+			this.linkArea.append(report);
 
 			this.stop = true;
 			gtag('event', 'exception', {
@@ -323,7 +382,7 @@ function userConfirm( msg, options = {'Yes': {'value': true, 'type': 'suggested'
 			let btn = document.createElement('button');
 			btn.className = 'button';
 			if( details.type === 'suggested' ){
-				btn.classList.add('butted--highlighted');
+				btn.classList.add('button--highlighted');
 			}
 			else if( details.type === 'danger' ){
 				btn.classList.add('button--danger');
@@ -605,6 +664,26 @@ function capitalise( str, divider = ' ' ){
 	
 	str = words.join(divider);
 	return str;
+}
+
+/* Text animation for buttons. Requires a specific DOM layout:
+	<button onclick="swapText(this)">
+		<div class="swappable-text">
+			<div class="swappable-text__text">
+				default text
+				<br />
+				on animation text
+			</div>
+		</div>
+	</button>
+*/
+function swapText( ele ){
+	let toSwap = ele.querySelector('.swappable-text');
+	
+	toSwap.classList.add('is-swapped');
+	setTimeout(() => {
+		toSwap.classList.remove('is-swapped')
+	}, 666);
 }
 
 // sorts a dictionary by key
@@ -966,6 +1045,9 @@ let dataUrls = query.getAll('data');
 // Check for legacy JSON and process as needed
 async function processJson( json, url, toReturn ){
 	loader.text('Processing JSON...');
+	if( url !== '' ){
+		loader.log(`... from ${url} ...`);
+	}
 
 	json = updateJson(json);
 
@@ -1107,6 +1189,10 @@ class Validate {
 		}
 		Validate.warnOnUnrecognised(json, ['json_version','themes','data','collections']);
 
+		if( !isNumber(json.json_version) ){
+			throw new Error(`"json_version" must be an integer or float value.`);
+		}
+
 		if( 'collections' in json && (!isArray(json.collections) || json.collections.find(str=>!isString(str)||!isValidHttp(str)) !== undefined) ){
 			throw new Error(`"collections" key must be an array of *valid* URL strings.`);
 		}
@@ -1119,7 +1205,7 @@ class Validate {
 				let theme = json.themes[i];
 				
 				try {
-					Validate.warnOnUnrecognised(theme, ['name','author','type','url','image','date','date_added','tags','supports']);
+					Validate.warnOnUnrecognised(theme, ['name','author','type','url','image','date','date_added','tags','flags','supports']);
 					theme = Validate.theme(theme);
 				}
 				catch( e ){
@@ -1146,6 +1232,9 @@ class Validate {
 
 				const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
 				for( let key of ['date','date_added'] ){
+					if( key in theme && !isString(theme[key]) ){
+						throw new Error(`Theme "${theme?.name}": "${key}" value must be a string.`);
+					}
 					if( key in theme && !dateRegex.test(theme[key]) ){
 						throw new Error(`Theme "${theme?.name}": "${key}" value must be formatted as "YYYY-MM-DD".`);
 					}
@@ -1536,6 +1625,47 @@ class Validate {
 					`Option "${id}": "min", "max", and "step" keys can only be used when the "type" value is "range".`
 				);
 			}
+			if( typeCore === 'range' ){
+				for( let key of ['min','max','step'] ){
+					if( key in opt && !isNumber(opt[key]) ){
+						throw new Error(`Option "${id}": "${key}" value must be a number. Be sure you aren't accidentally typing a string (double-quoted text).`);
+					}
+				}
+				
+				let difference = 100;
+				let min = 0;
+				let max = 100;
+				let step = 1;
+
+				if( 'step' in opt && opt.step < 1 ){
+					difference = 1;
+				}
+
+				if( 'min' in opt && 'max' in opt ){
+					min = opt.min;
+					max = opt.max;
+				}
+				else if( 'min' in entryData ){
+					min = opt.min;
+					max = opt.min + difference;
+				}
+				else if( 'max' in entryData ){
+					max = opt.max;
+					min = opt.max - difference;
+				}
+				
+				if( 'step' in opt ){
+					step = opt.step;
+				}
+				else if( max - min <= 10 ){
+					step = 0.1;
+					step = 0.1;
+				}
+
+				opt.min = min;
+				opt.max = max;
+				opt.step = step;
+			}
 
 			if( 'replacements' in opt ){
 				opt.replacements = Validate.replacements(opt.replacements, id, typeCore);
@@ -1580,7 +1710,7 @@ class Validate {
 					if( this.permissive ){
 						opt.default = parseBool(opt.default);
 					}
-					if( typeof opt.default !== 'boolean' ){
+					if( !isBool(opt.default) ){
 						throw new Error(`Option "${id}": "default" value must be a boolean when "type" value is "toggle".`);
 					}
 				}
@@ -1588,7 +1718,7 @@ class Validate {
 					if( this.permissive ){
 						opt.default = parseFloat(opt.default);
 					}
-					if( typeof opt.default !== 'number' ){
+					if( !isNumber(opt.default) ){
 						throw new Error(`Option "${id}": "default" value must be a number when "type" value is "range".`);
 					}
 				}
@@ -1602,6 +1732,9 @@ class Validate {
 			}
 			else if( typeCore === 'color' ) {
 				opt.default = '#d8d8d8';
+			}
+			else if( typeCore.startsWith('range') ) {
+				opt.default = (opt.max - opt.min) / 2 + opt.min;
 			}
 			else if( typeCore.startsWith('text') ) {
 				opt.default = '';
@@ -1880,6 +2013,42 @@ class Tutorial {
 			});
 		}
 		this.highlightBlock(pos.left, pos.top, pos.right, pos.bottom);
+	}
+}
+
+// Add swappable text functions
+
+async function swapText( btn, funcToRun ){
+	let toSwap = btn.lastElementChild;
+	let textField = btn.lastElementChild.lastElementChild.lastElementChild;
+	let successText = btn.getAttribute('data-success-text') || 'Success';
+	let failText = btn.getAttribute('data-failure-text') || 'Failed';
+	let genericText = btn.getAttribute('data-generic-text') || '';
+	
+	let funcResult = await funcToRun();
+	if( funcResult === true ){
+		textField.textContent = successText;
+	}
+	else if( !funcResult === false ){
+		textField.textContent = failText;
+	}
+	else {
+		textField.textContent = genericText;
+	}
+	
+	toSwap.classList.add('is-swapped');
+	setTimeout(() => {
+		toSwap.classList.remove('is-swapped');
+	}, 666);
+}
+
+async function copy( textToCopy ){
+	try {
+		navigator.clipboard.writeText(textToCopy);
+		return true;
+	}
+	catch {
+		return false;
 	}
 }
 

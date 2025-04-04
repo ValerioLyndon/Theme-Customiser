@@ -54,9 +54,10 @@ class PickerPopup extends DynamicPopup {
 const picker = new PickerPopup;
 
 // Function for the slider button to hide or show the sidebar
-function splitSlide(  ){
+
+function sidebarToggleHide(  ){
 	let slider = document.getElementById('js-toggle-drawer');
-	let sidebar = document.getElementById('js-sidebar');
+	let sidebar = document.querySelector('.js-sidebar-container');
 
 	slider.classList.toggle('is-active');
 	sidebar.classList.toggle('is-aside');
@@ -66,6 +67,7 @@ function splitSlide(  ){
 class Expando {
 	constructor( child, limit = 100, attrs = {} ){
 		this.attrs = {};
+		this.attrs.inline = 'inline' in attrs ? attrs.inline : false;
 		this.attrs.subtle = 'subtle' in attrs ? attrs.subtle : false;
 		this.attrs.margin = 'margin' in attrs ? attrs.margin : 0;
 
@@ -92,21 +94,38 @@ class Expando {
 			return false;
 		}
 
+		let expandoPadding = this.attrs.inline ? 20 : 25;
+
 		// don't bother making it an expando unless it's more than 25 over the limit, because the expando buttons themselves add 25 pixels extra
-		if( this.root.scrollHeight < (this.limit + 25) ){
+		if( this.root.scrollHeight < (this.limit + expandoPadding) ){
 			//TODO: this should return false *before* swapping out the expando parent ideally, but due to how the CSS works we have to do it after.
 			this.root.classList.add('is-innert');
 			return true;
 		}
 
+		// set an absolute minimum to prevent ugliness
+		if( !this.attrs.inline && this.limit < 40 ){
+			this.limit = 40;
+		}
+		if( this.attrs.inline && this.limit < 32 ){
+			this.limit = 32;
+		}
+
+
 		this.root.style.height = `${this.limit}px`;
 		this.btn = document.createElement('button');
 		this.btn.className = 'expando__button';
-		this.btn.innerHTML = this.btnHtmlCollapsed;
-		this.btn.addEventListener('click', ()=>{ this.toggle(); });
 		if( this.attrs.subtle === true ){
 			this.btn.classList.add('expando__button--subtle');
 		}
+		if( this.attrs.inline === true ){
+			this.root.classList.add('expando--inline');
+			this.btn.classList.add('expando__button--inline');
+			this.btnHtmlCollapsed = this.btnHtmlCollapsed.replace('See', 'Read');
+			this.btnHtmlExpanded = this.btnHtmlExpanded.replace('See', 'Read');
+		}
+		this.btn.innerHTML = this.btnHtmlCollapsed;
+		this.btn.addEventListener('click', ()=>{ this.toggle(); });
 
 		this.root.append(this.btn);
 		return true;
@@ -159,37 +178,38 @@ class Expando {
 }
 
 // Creates and returns an HTML DOM element containing processed BB Code
-function createBB( text ){
-	// Sanitise input from HTML characters
-
-	let dummy = document.createElement('div');
-	dummy.textContent = text;
-	text = dummy.innerHTML;
+class BB {
+	static sanitise( text ){
+		// Sanitise input from HTML characters
+		let dummy = document.createElement('div');
+		dummy.textContent = text;
+		return dummy.innerHTML
+	}
 
 	// Functions to convert BB text to HTML
 	// Each function gets passed a fullmatch and respective capture group arguments from the regexes
 
-	function bold( fullmatch, captureGroup ){
+	static bold( fullmatch, captureGroup ){
 		return '<b class="bb-bold">'+captureGroup+'</b>';
 	}
 
-	function italic( fullmatch, captureGroup ){
+	static italic( fullmatch, captureGroup ){
 		return '<i class="bb-italic">'+captureGroup+'</i>';
 	}
 
-	function underline( fullmatch, captureGroup ){
+	static underline( fullmatch, captureGroup ){
 		return '<span style="text-decoration:underline;" class="bb-underline">'+captureGroup+'</span>';
 	}
 
-	function strike( fullmatch, captureGroup ){
+	static strike( fullmatch, captureGroup ){
 		return '<span style="text-decoration:line-through;" class="bb-strike">'+captureGroup+'</span>';
 	}
     
-	function link( fullmatch, captureGroup1, captureGroup2 ){
+	static link( fullmatch, captureGroup1, captureGroup2 ){
 		return '<a href="'+captureGroup1.substr(1)+'" target="_blank" class="hyperlink">'+captureGroup2+'</a>';
 	}
 
-	function list( fullmatch, captureGroup1, captureGroup2 ){
+	static list( fullmatch, captureGroup1, captureGroup2 ){
 		let contents = captureGroup2.replaceAll('[*]', '</li><li class="bb-list-item">');
 		contents = contents.replace(/l>.*?<\/li>/, 'l>');
 		
@@ -210,26 +230,46 @@ function createBB( text ){
 	// BB Tags Array Sets. Each array contains:
 	// - a regex to find matches
 	// - a string or function reference to handle the conversion of that match from text to HTML
-	let bbTags = [
-		[/\n/ig, '<br>'],
-		[/\[b\]((?:(?!\[b\]).)*?)\[\/b\]/ig, bold],
-		[/\[i\]((?:(?!\[i\]).)*?)\[\/i\]/ig, italic],
-		[/\[u\]((?:(?!\[u\]).)*?)\[\/u\]/ig, underline],
-		[/\[s\]((?:(?!\[s\]).)*?)\[\/s\]/ig, strike],
-		[/\[url(=.*?)\]((?:(?!\[url\]).)*?)\[\/url\]/ig, link],
-		[/\[list(=.*?){0,1}\]((?:(?!\[list\]).)*?)\[\/list\]/ig, list]
+	static tags = [
+		[/(?<plaintext>\n)/ig, '<br>'],
+		[/\[b\](?<plaintext>(?:(?!\[b\]).)*?)\[\/b\]/ig, BB.bold],
+		[/\[i\](?<plaintext>(?:(?!\[i\]).)*?)\[\/i\]/ig, BB.italic],
+		[/\[u\](?<plaintext>(?:(?!\[u\]).)*?)\[\/u\]/ig, BB.underline],
+		[/\[s\](?<plaintext>(?:(?!\[s\]).)*?)\[\/s\]/ig, BB.strike],
+		[/\[url(=.*?)\](?<plaintext>(?:(?!\[url\]).)*?)\[\/url\]/ig, BB.link],
+		[/\[list(=.*?){0,1}\](?<plaintext>(?:(?!\[list\]).)*?)\[\/list\]/ig, BB.list]
 	];
 
-	// Convert BBCode using patterns defined above.
-	for( let bb of bbTags ){
-		text = text.replaceAll(bb[0], bb[1]);
+	static strip( text ){
+		text = BB.sanitise(text);
+
+		// Convert BBCode using patterns defined above.
+		for( let bb of BB.tags ){
+			text = text.replaceAll(bb[0], "$<plaintext>").replaceAll('[*]', ' • ');
+		}
+
+		return text
 	}
 
-	// Create HTML & return
-	let parent = document.createElement('p');
-	parent.classList.add('bb');
-	parent.innerHTML = text;
-	return parent;
+	static create( text ){
+		text = BB.sanitise(text);
+
+		// Convert BBCode using patterns defined above.
+		for( let bb of BB.tags ){
+			text = text.replaceAll(bb[0], bb[1]);
+		}
+
+		// Create HTML & return
+		let parent = document.createElement('p');
+		parent.classList.add('bb');
+		parent.innerHTML = text;
+		return parent;
+	}
+
+}
+
+function stripBB( text ){
+	
 }
 
 // Determines if a string is CSS or a URL to fetch. If a URL, fetches then returns the contents for use in CSS. 
@@ -903,6 +943,47 @@ window.addEventListener(
 	false
 );
 
+function sidebarChangeDepth( force ){
+	let wrapper = document.querySelector('.js-sidebar-wrapper');
+	if( force === true || wrapper.style.translate === '' ){
+		wrapper.style.translate = 'calc(var(--sidebar-width) * -1)';
+	}
+	else {
+		wrapper.style.translate = '';
+	}
+}
+
+function resetSecondSidebar( ){
+	let sidebar = document.querySelector('.js-sidebar-2');
+	sidebar.innerHTML = '';
+}
+
+function viewMod( modId ){
+	sidebarChangeDepth(true);
+
+	let optDiv = document.getElementById(`mod-opts-${modId}`);
+	
+	let sidebar = document.querySelector('.js-sidebar-2');
+	let buttonSection = document.createElement('div');
+	buttonSection.className = 'sidebar__section sidebar__section--top';
+	let optSection = document.createElement('div');
+	optSection.className = 'sidebar__section sidebar__section--no-border';
+
+	optSection.append(optDiv);
+
+	let backBtn = document.createElement('button');
+	backBtn.className = 'button';
+	backBtn.textContent = 'Back';
+	backBtn.addEventListener('click', ()=>{
+		sidebarChangeDepth(false);
+		document.getElementById('js-opts-dummy').append(optDiv);
+		resetSecondSidebar();
+	});
+	buttonSection.append(backBtn);
+
+	sidebar.append(buttonSection, optSection);
+}
+
 
 
 // ONE-TIME SETUP & PAGE SETUP
@@ -1567,23 +1648,6 @@ function pageSetup( ){
 	}
 	Expando.calculateAll();
 
-	// Add swappable text functions
-
-	let swaps = document.getElementsByClassName('js-swappable-text');
-
-	function swapText(  ){
-		let toSwap = this.querySelector('.swappable-text');
-		
-		toSwap.classList.add('is-swapped');
-		setTimeout(() => {
-			toSwap.classList.remove('is-swapped')
-		}, 666);
-	}
-
-	for( let swap of swaps ){
-		swap.addEventListener('click', swapText.bind(swap));
-	}
-
 	loader.text('Fetching CSS...');
 
 	// Get theme CSS
@@ -1655,8 +1719,29 @@ function pageSetup( ){
 	});
 }
 
+function renderModOpts( modId, mod ){
+	let optDiv = document.createElement('div');
+	optDiv.id = `mod-opts-${modId}`;
+
+	let nameHeader = document.createElement('h2');
+	nameHeader.className = "sidebar__header";
+	nameHeader.textContent = mod.name;
+	let optHeader = document.createElement('h3');
+	optHeader.className = 'sidebar__header';
+	optHeader.textContent = `Change options: ${mod.name}`;
+	optDiv.append(optHeader);
+
+	for( let opt of Object.entries(mod.options) ){
+		let renderedOpt = renderCustomisation('option', opt, [modId, mod], 300);
+		if( renderedOpt ){
+			optDiv.append(renderedOpt);
+		}
+	}
+	return optDiv;
+}
+
 // Render mods and options and returns the DOM element. Used inside pageSetup()
-function renderCustomisation( entryType, entry, parentEntry = [undefined, undefined] ){
+function renderCustomisation( entryType, entry, parentEntry = [undefined, undefined], expandoLimit = 16 ){
 	let entryId = entry[0];
 	let entryData = entry[1];
 	let parentId = parentEntry[0];
@@ -1667,15 +1752,12 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 	let head = document.createElement('div');
 	let headLeft = document.createElement('b');
 	let headRight = document.createElement('div');
-	let desc = document.createElement('div');
-	let expando = new Expando(desc, 100, {subtle: true, margin: 16});
 
 	div.className = 'entry';
 	head.className = 'entry__head';
 	headLeft.textContent = entryData.name;
 	headLeft.className = 'entry__name';
 	headRight.className = 'entry__action-box';
-	desc.className = 'entry__desc';
 
 	// Add HTML as necessary
 
@@ -1683,14 +1765,15 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 	head.append(headRight);
 	div.append(head);
 	if( entryData.description ){
-		desc.append(createBB(entryData.description));
-		div.append(expando.root);
+		let descExpando = new Expando(BB.create(entryData.description), expandoLimit, {inline: true, subtle: true, margin: 16});
+		descExpando.root.classList.add('entry__desc');
+		div.append(descExpando.root);
 	}
 
 	// Option & Mod Specific HTML
 
 	if( entryType === 'option' ){
-		div.classList.add('entry__option');
+		div.classList.add('is-option');
 
 		let htmlId = parentId ? `mod:${parentId}:${entryId}` : `opt:${entryId}`;
 
@@ -1829,41 +1912,12 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 			});
 
 			inputRow.appendChild(range);
-
-			let difference = 100;
-			let min = 0;
-			let max = 100;
-
-			if( entryData.step < 1 ){
-				difference = 1;
-			}
-
-			if( 'min' in entryData && 'max' in entryData ){
-				min = entryData.min;
-				max = entryData.max;
-			}
-			else if( 'min' in entryData ){
-				min = entryData.min;
-				max = entryData.min + difference;
-			}
-			else if( 'max' in entryData ){
-				max = entryData.max;
-				min = entryData.max - difference;
-			}
-
-			input.setAttribute('min', min);
-			range.setAttribute('min', min);
-			input.setAttribute('max', max);
-			range.setAttribute('max', max);
-
-			if( entryData.step ){
-				input.setAttribute('step', entryData.step);
-				range.setAttribute('step', entryData.step);
-			}
-			else if( max - min <= 5 ){
-				input.setAttribute('step', 0.1);
-				range.setAttribute('step', 0.1);
-			}
+			input.setAttribute('min', entryData.min);
+			range.setAttribute('min', entryData.min);
+			input.setAttribute('max', entryData.max);
+			range.setAttribute('max', entryData.max);
+			input.setAttribute('step', entryData.step);
+			range.setAttribute('step', entryData.step);
 		}
 
 		// Toggle Options
@@ -1953,6 +2007,8 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 	}
 
 	else if( entryType === 'mod' ){
+		div.classList.add('is-mod');
+
 		let htmlId = `mod:${entryId}`;
 
 		headLeft.classList.add('entry__name--emphasised');
@@ -2011,17 +2067,15 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 		// Mod Options
 
 		if( entryData.options ){
-			let optDiv = document.createElement('div');
-			optDiv.className = 'entry__options';
+			let detailsLink = document.createElement('a');
+			detailsLink.className = 'hyperlink entry__details js-info';
+			detailsLink.textContent = 'Change options »';
+			detailsLink.addEventListener('click', ()=>{viewMod(entryId);});
+			div.append(detailsLink);
 
-			for( let opt of Object.entries(entryData.options) ){
-				let renderedOpt = renderCustomisation('option', opt, entry);
-				if( renderedOpt ){
-					optDiv.appendChild(renderedOpt);
-				}
-			}
-
-			div.appendChild(optDiv);
+			let dummy = document.getElementById('js-opts-dummy');
+			let opts = renderModOpts(entryId, entryData);
+			dummy.append(opts);
 		}
 	}
 
@@ -2033,8 +2087,8 @@ function renderCustomisation( entryType, entry, parentEntry = [undefined, undefi
 function startThemeTutorial( ){
 	let popup = new InfoPopup;
 	let sidebar = document.getElementById('js-sidebar');
-	let options = document.getElementById('js-options');
-	let mods = document.getElementById('js-mods');
+	let options = document.querySelector('.js-options-anchor');
+	let mods = document.querySelector('.js-mods-anchor');
 
 	let steps = [
 		() => {
@@ -2045,7 +2099,7 @@ function startThemeTutorial( ){
 		},
 		() => {
 			let targets = [
-				document.querySelector('#js-copy-output'),
+				document.querySelector('.js-tutorial-copy'),
 				document.querySelector('.js-installation-btn')
 			];
 			sidebar.scrollTo( {'left': 0, 'top': sidebar.scrollHeight, 'behaviour': 'instant'} );
