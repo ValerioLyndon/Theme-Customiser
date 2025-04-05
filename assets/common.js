@@ -2084,22 +2084,10 @@ createPopup(
 	</p>
 
 	<b class="popup__sub-header">
-		What information is collected and why?
+		What information is collected?
 	</b>
 	<p class="popup__paragraph">
 		Information is collected using an unmodified version of <a class="hyperlink" href="https://umami.is">umami</a>. You can see all tracked statistics by visiting: <a href="https://analytics.noziro.ca/share/akHveyW4h7LRmDZD" class="hyperlink">this page</a>.
-	</p>
-	<p class="popup__paragraph">
-		Page interactions include:
-	</p>
-	<ul>
-		<li>tutorial interactions (so that it can be tamed if it becomes annoying)</li>
-		<li>theme installs (to know how many people actually use the website and what themes are popular)</li>
-		<li>theme setting import/exports (to see if this feature even gets used)</li>
-		<li>page crashes (for obvious reasons)</li>
-	</ul>
-	<p class="popup__paragraph">
-		For a full list of page interaction events, search the publicly available code on GitHub for "umami" and you will find all of them.
 	</p>
 
 	<b class="popup__sub-header">
@@ -2109,6 +2097,6 @@ createPopup(
 		To prevent your data being recorded, the best way is to install either the uBlock Origin or uMatrix browser extensions and use them to block my analytics subdomain (analytics.noziro.ca), but I'd appreciate not blocking my entire website.
 	</p>
 	<p class="popup__paragraph">
-		Alternatively, please complain to me about this by visiting the <a href="https://github.com/ValerioLyndon/Theme-Customiser/issues" class="hyperlink" onclick="gtag('event', 'visit_issues', {'where': 'analytics_disclaimer'})">GitHub</a> page and opening an issue about it (unless one has already been made). I am open to removing the analytics entirely if some people care, otherwise I will continue until it's no longer helpful to me.
+		Alternatively, please complain to me about this by visiting the <a href="https://github.com/ValerioLyndon/Theme-Customiser/issues" class="hyperlink" onclick="umami.track('visit_issues', {'where': 'analytics_disclaimer'})">GitHub</a> page and opening an issue about it (unless one has already been made). I am open to removing the analytics entirely if some people care, otherwise I will continue until it's no longer helpful to me.
 	</p>`
 )

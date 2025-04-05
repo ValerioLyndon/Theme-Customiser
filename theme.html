@@ -173,12 +173,8 @@ permalink: /theme
 											swapText( this, async ()=> {
 												return copy(document.getElementById('js-output').textContent);
 											});
-											let url = query.get('t')
-											try {
-												url = new URL(url).href
-											} catch {}
 											umami.track('copy_css', {
-												'theme_url': url,
+												'theme_url': decodeURI(query.get('t')),
 												'theme_name': theme.name
 											});
 										">
@@ -214,7 +210,7 @@ permalink: /theme
 										<a href="./dev" class="hyperlink"><i class="fa-solid fa-link"></i> Developer mode</a>
 									</div>
 									<div class="footer__row">
-										<small class="footer__tiny-text">This website utilises Google Analytics. <a class="hyperlink" onclick="toggleEle('#js-pp-analytics'); umami.track('viewed_analytics_disclaimer');">More info.</a></small>
+										<small class="footer__tiny-text">This website collects analytics. <a class="hyperlink" onclick="toggleEle('#js-pp-analytics'); umami.track('viewed_analytics_disclaimer');">More info.</a></small>
 									</div>
 								</div>
 							</footer>
