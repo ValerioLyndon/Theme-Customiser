@@ -137,9 +137,9 @@ class LoadingScreen {
 		// it would only visually be weird as it would fail before succeeding.
 		setTimeout(()=>{
 			if( this.isLoaded === false ){
-				this.failed(new Error('The page is taking a long time to load. If you see any errors in the timeline, it is safe to assume the page will not load. If no errors have occurred, then the page may still load eventually.', {cause: 'timeout'}));
+				this.showDetails(new Error('The page is taking a long time to load. If you see any errors in the timeline, it is safe to assume the page will not load. If no errors have occurred, then the page may still load eventually.', {cause: 'timeout'}));
 			}
-		}, 30000); 
+		}, 20000);
 	}
 
 	text( txt ){
@@ -214,6 +214,25 @@ class LoadingScreen {
 		this.isLoaded = true;
 	}
 
+	/**
+	 * Enables extra UI elements.
+	 * @param {Error} err - Error object to display on the UI.
+	 * @returns {undefined} - No behaviours to return.
+	 */
+	showDetails( err = false ){
+		this.console.classList.remove('o-hidden');
+		this.infoArea.style.width = '100%';
+		if( err ){
+			this.infoArea.insertBefore(create('div.loading-screen__subtext', err.message), this.linkArea);
+			this.infoArea.insertBefore(create('div.loading-screen__subtext', `Code: ${err.cause}`), this.linkArea);
+
+			let formattedMessages = this.messages.outerText.replaceAll('\n','%0A').replaceAll('\t','%09');
+			let report = create(`a.loading-screen__hyperlink.hyperlink`, 'Report this issue.');
+			report.href = `https://github.com/ValerioLyndon/Theme-Customiser/issues/new/?title=Page%20Failure%20-%20please%20insert%20a%20summary&labels=bug&body=I%20encountered%20a page%20failure.%0A%0AURL%20of%20the%20page:%20${window.location.href}%0A%0AHere%20are%20the%20logs:%0A\`\`\`%0A${formattedMessages}%0A\`\`\``;
+			this.linkArea.append(report);
+		}
+	}
+
 	failed( err ){
 		this.pageContent.classList.remove('is-loaded');
 		this.loader.classList.remove('is-hidden');
@@ -227,17 +246,9 @@ class LoadingScreen {
 		// only runs once
 		if( !this.stop ){
 			document.getElementsByTagName('title')[0].textContent = `Theme Customiser - an error occured`;
-			this.console.classList.remove('o-hidden');
-			this.infoArea.style.width = '100%';
 			this.icon.className = 'loading-screen__icon loading-screen__cross';
 			this.titleText.textContent = 'Page Failure.';
-			this.infoArea.insertBefore(create('div.loading-screen__subtext', err.message), this.linkArea);
-			this.infoArea.insertBefore(create('div.loading-screen__subtext', `Code: ${err.cause}`), this.linkArea);
-
-			let report = create(`a.loading-screen__hyperlink.hyperlink`, 'Report this issue.');
-			let formattedMessages = this.messages.outerText.replaceAll('\n','%0A').replaceAll('\t','%09');
-			report.href = `https://github.com/ValerioLyndon/Theme-Customiser/issues/new/?title=Page%20Failure%20-%20please%20insert%20a%20summary&labels=bug&body=I%20encountered%20a page%20failure.%0A%0AURL%20of%20the%20page:%20${window.location.href}%0A%0AHere%20are%20the%20logs:%0A\`\`\`%0A${formattedMessages}%0A\`\`\``;
-			this.linkArea.append(report);
+			this.showDetails(err);
 
 			this.stop = true;
 		}
