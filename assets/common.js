@@ -2087,7 +2087,7 @@ createPopup(
 		What information is collected?
 	</b>
 	<p class="popup__paragraph">
-		Information is collected using an unmodified version of <a class="hyperlink" href="https://umami.is">umami</a>. You can see all tracked statistics by visiting: <a href="https://analytics.noziro.ca/share/akHveyW4h7LRmDZD" class="hyperlink">this page</a>.
+		Information is collected using an unmodified version of <a class="hyperlink" href="https://umami.is">umami</a>. You can see all tracked statistics by visiting: <a href="https://analytics.noziro.ca/share/akHveyW4h7LRmDZD?tag=Theme+Customiser" class="hyperlink">this page</a>.
 	</p>
 
 	<b class="popup__sub-header">
