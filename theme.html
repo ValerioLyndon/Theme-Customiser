@@ -169,7 +169,19 @@ permalink: /theme
 									<div class="code__actions">
 										<button type="button" class="button button--highlighted js-tutorial-copy"
 										data-success-text="Copied!"
-										onclick="swapText(this,async()=>{return copy(document.getElementById('js-output').textContent)}); umami.track('copy_css', { 'theme_url': query.get('t') });">
+										onclick="
+											swapText( this, async ()=> {
+												return copy(document.getElementById('js-output').textContent);
+											});
+											let url = query.get('t')
+											try {
+												url = new URL(url).href
+											} catch {}
+											umami.track('copy_css', {
+												'theme_url': url,
+												'theme_name': theme.name
+											});
+										">
 											<div class="swappable-text">
 												<div class="swappable-text__text">
 													Copy CSS
