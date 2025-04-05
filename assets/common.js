@@ -241,10 +241,11 @@ class LoadingScreen {
 
 			this.stop = true;
 			gtag('event', 'exception', {
-				'description': reason_array[0],
-				'error_code': reason_array[1]
+				'description': err.message,
+				'error_code': err.cause
 			});
 			return new Error(reason_array[1]);
+			return err;
 		}
 	}
 }
