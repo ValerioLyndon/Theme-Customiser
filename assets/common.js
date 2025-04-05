@@ -240,11 +240,10 @@ class LoadingScreen {
 			this.linkArea.append(report);
 
 			this.stop = true;
-			gtag('event', 'exception', {
+			umami.track('exception', {
 				'description': err.message,
 				'error_code': err.cause
 			});
-			return new Error(reason_array[1]);
 			return err;
 		}
 	}
@@ -614,7 +613,7 @@ function importPreviousSettings( opts = undefined ){
 			else if( choice === 'ignore' ){
 				localStorage.removeItem('tcImport');
 				applySettings(previousSettings);
-				gtag('event', 'settings_imported');
+				umami.track('settings_imported');
 				return true;
 			}
 			else {
@@ -626,7 +625,7 @@ function importPreviousSettings( opts = undefined ){
 		return false;
 	}
 	applySettings(previousSettings);
-	gtag('event', 'settings_imported');
+	umami.track('settings_imported');
 	messenger.timeout('Settings import complete.');
 	return true;
 }
@@ -1909,7 +1908,7 @@ class Tutorial {
 		if( localStorage.getItem(this.storageKey) ){
 			return false;
 		}
-		gtag('event', 'tutorial_begin', {
+		umami.track('tutorial_begin', {
 			'page': location.pathname
 		});
 
@@ -1946,7 +1945,7 @@ class Tutorial {
 	finish( ){
 		// perform cleanup function if it hasn't been done yet
 		if( this.position !== this.length ){
-			gtag('event', 'tutorial_dismiss', {
+			umami.track('tutorial_dismiss', {
 				'dismissed_at_step': this.position,
 				'dismissed_at_percent': this.percent(),
 				'page': location.pathname
@@ -1954,7 +1953,7 @@ class Tutorial {
 			this.proceed(this.length);
 		}
 		else {
-			gtag('event', 'tutorial_complete', {
+			umami.track('tutorial_complete', {
 				'page': location.pathname
 			});
 		}
@@ -2074,7 +2073,7 @@ createPopup(
 	`<h4 class="popup__header">Analytics information.</h4>
 	
 	<p class="popup__paragraph">
-		The Theme Customiser collects certain user information and tracks certain interactions with page elements.
+		This project collects basic user information and logs certain interactions with page elements.
 	</p>
 
 	<b class="popup__sub-header">
@@ -2088,15 +2087,7 @@ createPopup(
 		What information is collected and why?
 	</b>
 	<p class="popup__paragraph">
-		User information includes, but is not limited to:
-	</p>
-	<ul>
-		<li>browser name (used to prioritise browser testing)</li>
-		<li>screen resolution (used to prioritise resolution testing)</li>
-		<li>country/approximate location (because I have yet to find a way to disable this)</li>
-	</ul>
-	<p class="popup__paragraph">
-		More data than this is currently tracked, and I apologise for any lack of transparency. I am new to Google Analytics and there does not seem to be much granularity to which data I can track or not. <b>None of the data visible to me contains your name, IP, or other identifiable information.</b>
+		Information is collected using an unmodified version of <a class="hyperlink" href="https://umami.is">umami</a>. You can see all tracked statistics by visiting: <a href="https://analytics.noziro.ca/share/akHveyW4h7LRmDZD" class="hyperlink">this page</a>.
 	</p>
 	<p class="popup__paragraph">
 		Page interactions include:
@@ -2108,16 +2099,16 @@ createPopup(
 		<li>page crashes (for obvious reasons)</li>
 	</ul>
 	<p class="popup__paragraph">
-		For a full list of page interaction events, search the publicly available code on GitHub for "gtag" and you will find all of them.
+		For a full list of page interaction events, search the publicly available code on GitHub for "umami" and you will find all of them.
 	</p>
 
 	<b class="popup__sub-header">
 		Can I stop you from collecting my information?
 	</b>
 	<p class="popup__paragraph">
-		To prevent your data being recorded, the best way is to install either the uBlock Origin or uMatrix browser extensions and use them to block the Google Analytics domains (analytics.google.com & googletagmanager.com). This will work across your entire browsing history, so if you care about your privacy, this is the way to go.
+		To prevent your data being recorded, the best way is to install either the uBlock Origin or uMatrix browser extensions and use them to block my analytics subdomain (analytics.noziro.ca), but I'd appreciate not blocking my entire website.
 	</p>
 	<p class="popup__paragraph">
-		Alternatively, please complain to me about this by visiting the <a href="https://github.com/ValerioLyndon/Theme-Customiser/issues" class="hyperlink" onclick="gtag('event', 'visit_issues', {'where': 'analytics_disclaimer'})">GitHub</a> page and opening an issue about it (unless one has already been made). I am open to removing the analytics entirely if people care, as I don't enjoy using Google and assisting their tracking. The reason I chose Google is because alternate solutions are much harder to set up and/or require payment and no analytics at all can get highly frustrating as a developer and theme creator.
+		Alternatively, please complain to me about this by visiting the <a href="https://github.com/ValerioLyndon/Theme-Customiser/issues" class="hyperlink" onclick="gtag('event', 'visit_issues', {'where': 'analytics_disclaimer'})">GitHub</a> page and opening an issue about it (unless one has already been made). I am open to removing the analytics entirely if some people care, otherwise I will continue until it's no longer helpful to me.
 	</p>`
 )

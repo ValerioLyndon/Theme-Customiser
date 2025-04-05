@@ -4,15 +4,7 @@ permalink: /theme
 <!DOCTYPE html>
 <html>
 	<head>
-		<!-- Google tag (gtag.js) -->
-		<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZEDEK72NYM"></script>
-		<script>
-		window.dataLayer = window.dataLayer || [];
-		function gtag(){dataLayer.push(arguments);}
-		gtag('js', new Date());
-
-		gtag('config', 'G-ZEDEK72NYM');
-		</script>
+		<script defer src="https://analytics.noziro.ca/script.js" data-website-id="ea57aecf-73ed-4f9d-b857-f5a2f199e265" data-tag="Theme Customiser"></script>
 		<title>Theme Customiser</title>
 		<link rel="stylesheet" href="./assets/common.css" type="text/css">
 		<link rel="stylesheet" href="./assets/customiser.css" type="text/css">
@@ -177,7 +169,7 @@ permalink: /theme
 									<div class="code__actions">
 										<button type="button" class="button button--highlighted js-tutorial-copy"
 										data-success-text="Copied!"
-										onclick="swapText(this,async()=>{return copy(document.getElementById('js-output').textContent)}); gtag('event', 'copy_css', { 'theme_url': query.get('t') });">
+										onclick="swapText(this,async()=>{return copy(document.getElementById('js-output').textContent)}); umami.track('copy_css', { 'theme_url': query.get('t') });">
 											<div class="swappable-text">
 												<div class="swappable-text__text">
 													Copy CSS
@@ -210,7 +202,7 @@ permalink: /theme
 										<a href="./dev" class="hyperlink"><i class="fa-solid fa-link"></i> Developer mode</a>
 									</div>
 									<div class="footer__row">
-										<small class="footer__tiny-text">This website utilises Google Analytics. <a class="hyperlink" onclick="toggleEle('#js-pp-analytics'); gtag('event', 'viewed_analytics_disclaimer');">More info.</a></small>
+										<small class="footer__tiny-text">This website utilises Google Analytics. <a class="hyperlink" onclick="toggleEle('#js-pp-analytics'); umami.track('viewed_analytics_disclaimer');">More info.</a></small>
 									</div>
 								</div>
 							</footer>
@@ -366,7 +358,7 @@ permalink: /theme
 					<textarea id="js-export-code" class="input input--textarea-tall input--code" readonly="readonly"></textarea>
 					<button type="button" class="button popup__button button--highlighted"
 					data-success-text="Copied!"
-					onclick="swapText(this,async()=>{return copy(document.getElementById('js-export-code').textContent)}); gtag('event', 'settings_exported');">
+					onclick="swapText(this,async()=>{return copy(document.getElementById('js-export-code').textContent)}); umami.track('settings_exported');">
 						<div class="swappable-text">
 							<div class="swappable-text__text">
 								Copy settings
