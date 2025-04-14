@@ -1703,7 +1703,7 @@ class Validate {
 						throw e;
 					}
 					if( 'replacements' in sel ){
-						sel.replacements = Validate.replacements(sel.replacements, id, typeCore);
+						sel.replacements = Validate.replacements(sel.replacements, id, typeCore, true);
 					}
 					return sel;
 				});
@@ -1749,38 +1749,39 @@ class Validate {
 		return options;
 	}
 
-	static replacements( replacements, id, typeCore ){
+	static replacements( replacements, id, typeCore, inSelection = false ){
+		let locatorString = inSelection ? `Option "${id}", inside a selection` : `Option "${id}"`;
 		if( !isArray(replacements) ){
-			throw new Error(`Option "${id}": "replacements" value must be an array.`);
+			throw new Error(`${locatorString}: "replacements" value must be an array.`);
 		}
 		if( replacements.find(repl=>!isArray(repl)) !== undefined ){
 			if( this.permissive && replacements.find(repl=>!isString(repl)) === undefined ){
-				console.log(`Option "${id}": "replacements" value must be an array of arrays. Encase your strings inside a second array to fix this error.`);
+				console.log(`${locatorString}: "replacements" value must be an array of arrays. Encase your strings inside a second array to fix this error.`);
 				replacements = [replacements];
 			}
 			else {
-				throw new Error(`Option "${id}": "replacements" value must be an array of arrays.`);
+				throw new Error(`${locatorString}: "replacements" value must be an array of arrays.`);
 			}
 		}
 		if( replacements.length === 0 ){
 			if( this.permissive ){
-				console.log(`Option "${id}": replacements must have at least one set.`);
+				console.log(`${locatorString}: replacements must have at least one set.`);
 				replacements = typeCore === 'toggle' ? [['','','']] : [['','']];
 			}
 			else {
-				throw new Error(`Option "${id}": "replacements" value must have at least one set.`);
+				throw new Error(`${locatorString}: "replacements" value must have at least one set.`);
 			}
 		}
 		if( typeCore === 'toggle' && replacements.find(repl=>repl.length !== 3) !== undefined ){
-			throw new Error(`Option "${id}": "replacements" set must contain 3 strings when "type" value is "toggle".`);
+			throw new Error(`${locatorString}: "replacements" set must contain 3 strings when "type" value is "toggle".`);
 		}
 		if( typeCore !== 'toggle' && replacements.find(repl=>repl.length !== 2) !== undefined ){
-			throw new Error(`Option "${id}": "replacements" set must contain 2 strings.`);
+			throw new Error(`${locatorString}: "replacements" set must contain 2 strings.`);
 		}
 		if( replacements.find(repl=>repl[0].length === 0) !== undefined ){
 			Validate.nonFatalError(
-				`Option "${id}": the first string of a "replacements" set cannot be empty.`,
-				`Option "${id}": the first string of a "replacements" set cannot be empty.`
+				`${locatorString}: the first string of a "replacements" set cannot be empty.`,
+				`${locatorString}: the first string of a "replacements" set cannot be empty.`
 			);
 		}
 		return replacements;
