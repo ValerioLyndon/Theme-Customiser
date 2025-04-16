@@ -17,6 +17,8 @@ permalink: /theme
 		<link rel="icon" type="image/png" href="./assets/favicon_256.png" sizes="256x256">
 	</head>
 	<body>
+		<div id="js-opts-dummy" class="dummy"></div>
+
 		<main class="content customiser" id="js-content">
 			<div class="topbar">
 				<div class="topbar__section">
@@ -101,106 +103,122 @@ permalink: /theme
 				</div>
 			</div>
 
-			<div class="sidebar" id="js-sidebar">
-				<form class="sidebar__inner" id="js-theme" method="dialog" novalidate="novalidate" target="_self">
-					<div class="rounds rounds--right"></div>
+			<div class="sidebar-container js-sidebar-container">
+				<div class="sidebar-container__wrapper js-sidebar-wrapper">
+					<div class="sidebar" id="js-sidebar">
+						<form class="sidebar__inner" id="js-theme" method="dialog" novalidate="novalidate" target="_self">
+							<div class="rounds rounds--right"></div>
 
-					<div class="sidebar__section sidebar__section--top">
-						<h1 class="sub-title">Customise your theme</h1>
-						<h2 class="title o-clear"><span id="js-title">Loading theme...</span> <span class="theme-tag o-hidden js-theme-tag"></span></h2>
-						<h3 class="sub-sub-title">By <a class="js-author">unknown author</a></h3>
-						<i class="theme-desc o-italic o-hidden js-theme-wip">The author has indicated this theme is in a WIP state. Expect more issues than normal and/or drastic changes in future updates.</i>
-					</div>
+							<div class="sidebar__section sidebar__section--top">
+								<h1 class="sub-title">Customise your theme</h1>
+								<h2 class="title o-clear"><span id="js-title">Loading theme...</span> <span class="theme-tag o-hidden js-theme-tag"></span></h2>
+								<h3 class="sub-sub-title">By <a class="js-author">unknown author</a></h3>
+								<i class="theme-desc o-italic o-hidden js-theme-wip">The author has indicated this theme is in a WIP state. Expect more issues than normal and/or drastic changes in future updates.</i>
+							</div>
 
-					<div class="sidebar__section js-options-deletion-point">
-						<div class="js-make-expando js-options-anchor" data-expando-limit="400" data-expando-margin="16">
-							<h3 class="sidebar__header">Change theme options</h3>
+							<div class="sidebar__section js-options-deletion-point">
+								<div class="js-make-expando js-options-anchor" data-expando-limit="400" data-expando-margin="16">
+									<h3 class="sidebar__header">Change theme options</h3>
 
-							<!-- options gets put here by customiser.js -->
-						</div>
-					</div>
-
-					<div class="sidebar__section js-mods-deletion-point">
-						<div class="js-make-expando js-mods-anchor" data-expando-limit="400" data-expando-margin="16">
-							<h3 class="sidebar__header">
-								Choose theme modifications
-								<div class="sidebar__header-aside">
-									<button type="button" class="button o-hidden" id="js-tags__button" onclick="toggleEle('#js-tags__cloud', undefined, this)">
-										<i class="fa-solid fa-tags"></i> Filters
-									</button>
+									<!-- options gets put here by customiser.js -->
 								</div>
-							</h3>
-
-							<div class="tag-cloud is-hidden" id="js-tags__cloud">
-								<small class="tag-cloud__blurb">Select a subject that interests you to narrow results.</small>
 							</div>
-							
-							<!-- mods gets put here by customiser.js -->
-						</div>
-					</div>
 
-					<div class="sidebar__section">
-						<h3 class="sidebar__header">Use your customised theme</h3>
-						
-						<button type="button" onclick="toggleEle('#js-pp-config')" class="alert-button o-hidden" id="js-intended-config">
-							<div class="alert-button__icon">
-								<i class="fa-solid fa-circle-exclamation"></i>
+							<div class="sidebar__section js-mods-deletion-point">
+								<div class="js-make-expando js-mods-anchor" data-expando-limit="400" data-expando-margin="16">
+									<h3 class="sidebar__header">
+										Choose theme modifications
+										<div class="sidebar__header-aside">
+											<button type="button" class="button o-hidden" id="js-tags__button" onclick="toggleEle('#js-tags__cloud', undefined, this)">
+												<i class="fa-solid fa-tags"></i> Filters
+											</button>
+										</div>
+									</h3>
+
+									<div class="tag-cloud is-hidden" id="js-tags__cloud">
+										<small class="tag-cloud__blurb">Select a subject that interests you to narrow results.</small>
+									</div>
+									
+									<!-- mods gets put here by customiser.js -->
+								</div>
 							</div>
-							
-							<div class="alert-button__body">
-								<b class="alert-button__title">This theme has a recommended configuration.</b>
 
-								<p class="alert-button__subtext">Using other configurations may cause issues.</p>
-							</div>
-						</button>
+							<div class="sidebar__section">
+								<h3 class="sidebar__header">Use your customised theme</h3>
+								
+								<button type="button" onclick="toggleEle('#js-pp-config')" class="alert-button o-hidden" id="js-intended-config">
+									<div class="alert-button__icon">
+										<i class="fa-solid fa-circle-exclamation"></i>
+									</div>
+									
+									<div class="alert-button__body">
+										<b class="alert-button__title">This theme has a recommended configuration.</b>
 
-						<div class="code">
-							<b class="code__title">CSS to Install</b>
-							<!-- code gets put here by customiser.js -->
-							<textarea class="code__preview input input--code" id="js-output" readonly="readonly"></textarea>
+										<p class="alert-button__subtext">Using other configurations may cause issues.</p>
+									</div>
+								</button>
 
-							<p class="info-box info-box--indented info-box--error o-hidden" id="js-output-notice"></p>
-						
-							<button type="button" class="button button--highlighted js-swappable-text" id="js-copy-output" onclick="navigator.clipboard.writeText(document.getElementById('js-output').textContent);">
-								<div class="swappable-text">
-									<div class="swappable-text__text">
-										Copy CSS
-										<br />
-										Copied!
+								<div class="code">
+									<b class="code__title">CSS to Install</b>
+									<!-- code gets put here by customiser.js -->
+									<textarea class="code__preview input input--code" id="js-output" readonly="readonly"></textarea>
+
+									<p class="info-box info-box--indented info-box--error o-hidden" id="js-output-notice"></p>
+								
+									<div class="code__actions">
+										<button type="button" class="button button--highlighted js-tutorial-copy"
+										data-success-text="Copied!"
+										onclick="swapText(this,async()=>{return copy(document.getElementById('js-output').textContent)})">
+											<div class="swappable-text">
+												<div class="swappable-text__text">
+													Copy CSS
+													<br />
+													<span></span>
+												</div>
+											</div>
+										</button>
+
+										<a class="hyperlink js-installation-btn">How do I install this?</a>
 									</div>
 								</div>
-							</button>
+							</div>
 
-							<a class="hyperlink js-installation-btn">How do I install this?</a>
-						</div>
+							<div class="sidebar__section button-row">
+								<button type="button" class="button" onclick="toggleEle('#js-pp-export')">Export settings</button>
+								<button type="button" class="button js-tutorial-reset" onclick="resetSettings()">Reset settings</button>
+								<button type="button" class="button" onclick="clearCache()">Clear cache</button>
+							</div>
+
+							<footer class="sidebar__section sidebar__section--no-border">
+								<div class="footer">
+									<div class="footer__row footer__row--vertical">
+										<a href="https://myanimelist.net/forum/?topicid=2036380" class="hyperlink"><i class="fa-solid fa-link"></i> Feedback and help</a>
+										<br />
+										<a href="https://github.com/ValerioLyndon/Theme-Customiser" class="hyperlink"><i class="fa-solid fa-link"></i> Source code</a>
+										<br />
+										<a href="https://github.com/ValerioLyndon/Theme-Customiser/wiki" class="hyperlink"><i class="fa-solid fa-link"></i> Use this with your design</a>
+										<br />
+										<a href="./dev" class="hyperlink"><i class="fa-solid fa-link"></i> Developer mode</a>
+									</div> 
+								</div>
+							</footer>
+						</form>
 					</div>
 
-					<div class="sidebar__section">
-						<button type="button" class="button" onclick="toggleEle('#js-pp-export')">Export settings</button>
-						<button type="button" class="button js-tutorial-reset" onclick="resetSettings()">Reset settings</button>
-						<button type="button" class="button" onclick="clearCache()">Clear cache</button>
-					</div>
+					<div class="sidebar">
+						<div class="sidebar__inner">
+							<div class="rounds rounds--right"></div>
 
-					<footer class="sidebar__section sidebar__section--no-border">
-						<div class="footer">
-							<div class="footer__row footer__row--vertical">
-								<a href="https://myanimelist.net/forum/?topicid=2036380" class="hyperlink"><i class="fa-solid fa-link"></i> Feedback and help</a>
-								<br />
-								<a href="https://github.com/ValerioLyndon/Theme-Customiser" class="hyperlink"><i class="fa-solid fa-link"></i> Source code</a>
-								<br />
-								<a href="https://github.com/ValerioLyndon/Theme-Customiser/wiki" class="hyperlink"><i class="fa-solid fa-link"></i> Use this with your design</a>
-								<br />
-								<a href="./dev" class="hyperlink"><i class="fa-solid fa-link"></i> Developer mode</a>
-							</div> 
+							<div class="js-sidebar-2"></div>
 						</div>
-					</footer>
-				</form>
+					</div>
+				</div>
 			</div>
 
 			<div class="preview">
 				<div class="rounds rounds--left"></div>
 				
-				<a class="slider" id="js-toggle-drawer" onclick="splitSlide()">
+				<a class="slider" id="js-toggle-drawer" onclick="sidebarToggleHide()">
 					<i class="slider__icon fa-solid fa-chevron-left"></i>
 					
 					<span class="slider__text">
@@ -318,7 +336,7 @@ permalink: /theme
 					</p>
 
 					<textarea id="js-pp-import-code" class="input input--textarea" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="{&quot;data&quot;:&quot;https://example.com/theme.json&quot;}"></textarea>
-					<button type="button" class="button button--highlighted" onclick="importPreviousSettings()">Import Settings</button>
+					<button type="button" class="button popup__button button--highlighted" onclick="importPreviousSettings()">Import Settings</button>
 				</div>
 			</div>
 		</div>
@@ -334,12 +352,14 @@ permalink: /theme
 					</p>
 
 					<textarea id="js-export-code" class="input input--textarea-tall input--code" readonly="readonly"></textarea>
-					<button type="button" class="button button--highlighted js-swappable-text" onclick="navigator.clipboard.writeText(document.getElementById('js-export-code').textContent);">
+					<button type="button" class="button popup__button button--highlighted"
+					data-success-text="Copied!"
+					onclick="swapText(this,async()=>{return copy(document.getElementById('js-export-code').textContent)})">
 						<div class="swappable-text">
 							<div class="swappable-text__text">
 								Copy settings
 								<br />
-								Copied!
+								<span></span>
 							</div>
 						</div>
 					</button>
@@ -349,10 +369,15 @@ permalink: /theme
 
 		<noscript>
 			<div class="loading-screen">
-				<div class="loading-screen__cross"></div>
-				<div class="loading-screen__item loading-screen__title" id="js-loader-text">Unable to load.</div>
-				<div class="loading-screen__item loading-screen__description" id="js-loader-subtext">JavaScript must be enabled.</div>
-				<a class="loading-screen__item hyperlink" href="https://valeriolyndon.github.io/Theme-Customiser/">Project page.</a>
+				<div class="loading-screen__info-area">
+					<div class="loading-screen__icon loading-screen__cross"></div>
+					<div class="loading-screen__text">Page Failure</div>
+					<div class="loading-screen__subtext">JavaScript must be enabled.</div>
+					<div class="loading-screen__link-area">
+						<a class="loading-screen__hyperlink hyperlink" href="./">Home.</a>
+						<a class="loading-screen__hyperlink hyperlink" href="https://github.com/ValerioLyndon/Theme-Customiser">GitHub.</a>
+					</div>
+				</div>
 			</div>
 		</noscript>
 	</body>
