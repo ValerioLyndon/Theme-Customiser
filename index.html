@@ -56,7 +56,12 @@
 						<a href="./dev" class="hyperlink"><i class="fa-solid fa-link"></i> Developer mode</a>
 					</div>
 					<div class="footer__row footer__row--horizontal">
-						<small class="footer__tiny-text">This website collects analytics. <a class="hyperlink" onclick="toggleEle('#js-pp-analytics'); umami.track('viewed_analytics_disclaimer');">More info.</a></small>
+						<small class="footer__tiny-text">This website collects analytics. <a class="hyperlink" onclick="
+							toggleEle('#js-pp-analytics');
+							try {
+								umami.track('viewed_analytics_disclaimer');
+							} catch {}
+						">More info.</a></small>
 					</div>
 				</footer>
 			</div>

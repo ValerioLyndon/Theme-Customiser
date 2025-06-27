@@ -251,10 +251,12 @@ class LoadingScreen {
 			this.showDetails(err);
 
 			this.stop = true;
-			umami.track('exception', {
-				'description': err.message,
-				'error_code': err.cause
-			});
+			try {
+				umami.track('exception', {
+					'description': err.message,
+					'error_code': err.cause
+				});
+			} catch {}
 			return err;
 		}
 	}
@@ -624,7 +626,9 @@ function importPreviousSettings( opts = undefined ){
 			else if( choice === 'ignore' ){
 				localStorage.removeItem('tcImport');
 				applySettings(previousSettings);
-				umami.track('settings_imported');
+				try {
+					umami.track('settings_imported');
+				} catch {}
 				return true;
 			}
 			else {
@@ -636,7 +640,9 @@ function importPreviousSettings( opts = undefined ){
 		return false;
 	}
 	applySettings(previousSettings);
-	umami.track('settings_imported');
+	try {
+		umami.track('settings_imported');
+	} catch {}
 	messenger.timeout('Settings import complete.');
 	return true;
 }
@@ -1920,9 +1926,11 @@ class Tutorial {
 		if( localStorage.getItem(this.storageKey) ){
 			return false;
 		}
-		umami.track('tutorial_begin', {
-			'page': location.pathname
-		});
+		try {
+			umami.track('tutorial_begin', {
+				'page': location.pathname
+			});
+		} catch {}
 
 		// setup DOM
 		this.root.setAttribute('style', '--offset: calc(24px + -50vh - 50%)');
@@ -1957,17 +1965,21 @@ class Tutorial {
 	finish( ){
 		// perform cleanup function if it hasn't been done yet
 		if( this.position !== this.length ){
-			umami.track('tutorial_dismiss', {
-				'dismissed_at_step': this.position,
-				'dismissed_at_percent': this.percent(),
-				'page': location.pathname
-			});
+			try {
+				umami.track('tutorial_dismiss', {
+					'dismissed_at_step': this.position,
+					'dismissed_at_percent': this.percent(),
+					'page': location.pathname
+				});
+			} catch {}
 			this.proceed(this.length);
 		}
 		else {
-			umami.track('tutorial_complete', {
-				'page': location.pathname
-			});
+			try {
+				umami.track('tutorial_complete', {
+					'page': location.pathname
+				});
+			} catch {}
 		}
 		// remember it's finished
 		localStorage.setItem(this.storageKey, true);

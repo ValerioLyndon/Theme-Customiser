@@ -174,10 +174,12 @@ permalink: /theme
 											swapText( this, async ()=> {
 												return copy(document.getElementById('js-output').textContent);
 											});
-											umami.track('copy_css', {
-												'theme_url': decodeURI(query.get('t')),
-												'theme_name': theme.name
-											});
+											try {
+												umami.track('copy_css', {
+													'theme_url': decodeURI(query.get('t')),
+													'theme_name': theme.name
+												});
+											} catch {}
 										">
 											<div class="swappable-text">
 												<div class="swappable-text__text">
